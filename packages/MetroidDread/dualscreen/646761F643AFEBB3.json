@@ -1,0 +1,275 @@
+{
+ "_game": "Metroid Dread",
+ "_build_id": "646761F643AFEBB3",
+ "_source": "2.1.0 base+update",
+ "points": {
+  "probe": {
+   "type": "u32",
+   "find": {
+    "pattern": "49 54 45 4D 5F 43 55 52 52 45 4E 54 5F 4C 49 46 45",
+    "offset": "0x0"
+   },
+   "ptr": [
+    "main+0x0"
+   ],
+   "offset": "0x0"
+  },
+  "lua_pcall_op": {
+   "type": "u32",
+   "ptr": [
+    "main+0x010A3A80"
+   ],
+   "offset": "0x0"
+  },
+  "lua_regglob_op": {
+   "type": "u32",
+   "ptr": [
+    "main+0x010AED50"
+   ],
+   "offset": "0x0"
+  },
+  "crc64_op": {
+   "type": "u32",
+   "ptr": [
+    "main+0x1570"
+   ],
+   "offset": "0x0"
+  },
+  "strbank_ptr": {
+   "type": "u64",
+   "ptr": [
+    "main+0x1D552D0"
+   ],
+   "offset": "0x0"
+  },
+  "energy": {
+   "type": "f32",
+   "array": {
+    "vtable": "0x1D4C700",
+    "stride": "0x18",
+    "min_run": 8,
+    "index": 6
+   },
+   "offset": "0x10"
+  },
+  "energy_max": {
+   "type": "f32",
+   "array": {
+    "vtable": "0x1D4C700",
+    "stride": "0x18",
+    "min_run": 8,
+    "index": 1
+   },
+   "offset": "0x10"
+  },
+  "missile": {
+   "type": "f32",
+   "array": {
+    "vtable": "0x1D4C700",
+    "stride": "0x18",
+    "min_run": 8,
+    "index": 7
+   },
+   "offset": "0x10"
+  },
+  "aeion": {
+   "type": "f32",
+   "array": {
+    "vtable": "0x1D4C700",
+    "stride": "0x18",
+    "min_run": 8,
+    "index": 9
+   },
+   "offset": "0x10"
+  },
+  "aeion_max": {
+   "type": "f32",
+   "array": {
+    "vtable": "0x1D4C700",
+    "stride": "0x18",
+    "min_run": 8,
+    "index": 5
+   },
+   "offset": "0x10"
+  },
+  "missile_max": {
+   "type": "f32",
+   "array": {
+    "vtable": "0x1D4C700",
+    "stride": "0x18",
+    "min_run": 8,
+    "index": -1
+   },
+   "offset": "0x10"
+  },
+  "minimap_alpha": {
+   "type": "f32",
+   "ptr": [
+    "main+0x1CBA068",
+    "0xB8"
+   ],
+   "offset": "0x0"
+  },
+  "player_x": {
+   "type": "f32",
+   "player": {
+    "vtable": "0x1A20230",
+    "pos_offset": "0x18"
+   },
+   "offset": "0x0"
+  },
+  "player_y": {
+   "type": "f32",
+   "player": {
+    "vtable": "0x1A20230",
+    "pos_offset": "0x18"
+   },
+   "offset": "0x4"
+  },
+  "player_z": {
+   "type": "f32",
+   "player": {
+    "vtable": "0x1A20230",
+    "pos_offset": "0x18"
+   },
+   "offset": "0x8"
+  }
+ },
+ "symbols": {
+  "lua_gettop": "main+0x10a0a40",
+  "lua_settop": "main+0x10a0a50",
+  "lua_pushvalue": "main+0x10a0f10",
+  "lua_type": "main+0x10a1010",
+  "lua_typename": "main+0x10a1140",
+  "lua_rawequal": "main+0x10a1520",
+  "lua_tonumber": "main+0x10a1920",
+  "lua_toboolean": "main+0x10a1bc0",
+  "lua_tolstring": "main+0x10a1cf0",
+  "lua_topointer": "main+0x10a2360",
+  "lua_pushlstring": "main+0x10a2620",
+  "lua_pushstring": "main+0x10a2690",
+  "lua_pushfstring": "main+0x10a27a0",
+  "lua_pushboolean": "main+0x10a2920",
+  "lua_getfield": "main+0x10a2aa0",
+  "lua_rawget": "main+0x10a2bf0",
+  "lua_createtable": "main+0x10a2e20",
+  "lua_setfield": "main+0x10a3290",
+  "lua_rawset": "main+0x10a33e0",
+  "lua_call": "main+0x10a3a30",
+  "lua_pcall": "main+0x10a3a80",
+  "luaL_error": "main+0x10a4160",
+  "luaL_checktype": "main+0x10a4810",
+  "luaL_checkany": "main+0x10a48b0",
+  "luaL_callmeta": "main+0x10a4c30",
+  "luaS_newlstr": "main+0x10b6750",
+  "luaH_new": "main+0x10b9240",
+  "luaV_tonumber": "main+0x10bc0d0",
+  "s_sCurrentScenarioID": "main+0x123ac20",
+  "s_oHUDRoot": "main+0x123ac34",
+  "s_IngameMenuRoot.BasicHUDComposition": "main+0x123ac40",
+  "s_gui/scripts/minimap.lua": "main+0x123ac64",
+  "s_Game": "main+0x15a4b36",
+  "s_GetItemAmount": "main+0x16039e4",
+  "s_GetPlayerName": "main+0x15c93a7",
+  "s_minimap": "main+0x15ecefc",
+  "s_SetVisible": "main+0x15abacf",
+  "s_GUI": "main+0x15c4ef8",
+  "s_SetProperties": "main+0x15d9836",
+  "s_Visible": "main+0x15a6c57",
+  "s_hud": "main+0x161e73e",
+  "s_GetPlayer": "main+0x162dac2",
+  "s_GetScenarioID": "main+0x16283d3",
+  "s_GetDisplayObject": "main+0x15d9813",
+  "s_Minimap": "main+0x15dea9a",
+  "s_oRoot": "main+0x160e308",
+  "s_ImportLibrary": "main+0x1637e7c",
+  "s_GetMinimapManager": "main+0x1628504",
+  "s_GetCamera": "main+0x15fdfff",
+  "s_GetPlayerInfo": "main+0x1632ac8",
+  "s_IsInFINAL": "main+0x15fe0f8",
+  "s_IsMinimapEnabled": "main+0x16468db",
+  "s_GetGameDifficulty": "main+0x15bf2c3",
+  "s_GetTotalPlayTime": "main+0x1628468",
+  "s_ITEM_CURRENT_LIFE": "main+0x15ae80c",
+  "s_ITEM_MAX_LIFE": "main+0x161c741",
+  "s_ITEM_WEAPON_MISSILE_CURRENT": "main+0x15cc7b3",
+  "s_ITEM_WEAPON_MISSILE_MAX": "main+0x1644fa7",
+  "s_ITEM_WEAPON_POWER_BOMB_CURRENT": "main+0x1616b3c",
+  "s_ITEM_WEAPON_POWER_BOMB_MAX": "main+0x1606f1d",
+  "s_ITEM_CURRENT_SPECIAL_ENERGY": "main+0x163ff49",
+  "s_ITEM_MAX_SPECIAL_ENERGY": "main+0x163ff31"
+ },
+ "spies": [],
+ "patches": [
+  {
+   "optional": true,
+   "at": "main+0x11CDC38",
+   "write": [
+    "B4000280"
+   ],
+   "why": "null-guard on the menu enable routine (skips the crash on the second A press)"
+  },
+  {
+   "optional": true,
+   "at": "main+0x123AC10",
+   "write": [
+    "B4000040",
+    "17FEC5FA",
+    "D65F03C0"
+   ],
+   "why": "detour stub: null-guard for the display-object enable at main+0x11EC3FC"
+  },
+  {
+   "optional": true,
+   "at": "main+0x11E11EC",
+   "write": [
+    "94016689"
+   ],
+   "why": "route the intro->gameplay enable call through the guard stub"
+  },
+  {
+   "at": "main+0x123ac20",
+   "write": [
+    "72754373",
+    "746E6572",
+    "6E656353",
+    "6F697261",
+    "00004449",
+    "4455486F",
+    "746F6F52",
+    "00000000",
+    "61676E49",
+    "654D656D",
+    "6F52756E",
+    "422E746F",
+    "63697361",
+    "43445548",
+    "6F706D6F",
+    "69746973",
+    "00006E6F",
+    "2F697567",
+    "69726373",
+    "2F737470",
+    "696E696D",
+    "2E70616D",
+    "0061756C"
+   ],
+   "why": "string literals the module lacks: sCurrentScenarioID, oHUDRoot, IngameMenuRoot.BasicHUDComposition, gui/scripts/minimap.lua",
+   "optional": true
+  }
+ ],
+ "_inventory": "Array of {vtable, tag, float} entries at 0x18 stride, class main+0x1D4C700, value at +0x10. Entry -1 lies before the run a vtable scan finds, because it uses a different wrapper class.",
+ "_indices": {
+  "-1": "missile_max -- PROVEN by progression: 15 / 19 / 155 / 157 across four saves, and 19 = 15 + 2x2 exactly as two Missile Tanks should give",
+  "1": "energy_max  -- 99 / 99 / 999 / 999; 999 = 99 + 9x100",
+  "2": "40 in every save from the opening to the endgame -- a fixed constant, not a collectible",
+  "5": "aeion_max   -- 1000 throughout",
+  "6": "energy      -- 89 against a save documented 89of99, then 999 late",
+  "7": "missile     -- 13 / 13 / 155 / 157; also watched descend 12->0 while firing",
+  "9": "aeion",
+  "3,8": "a current/max pair that appears with the Power Bomb (0/0, 0/0, 1/1, 4/4). Power bombs are the obvious candidate but the documented base is 2 and these read 1 on the save that acquires them, so they are left unlabelled rather than guessed."
+ },
+ "_verified_against": "ZacharyACoon/MetroidDreadSaveFiles: reverse_engineering 06 (13of15missiles, 89of99energy) and playthrough 006, 052, 054",
+ "_array_note": "The array grows as items are collected -- 15, 18, 42 then 44 entries across the four saves -- but indices 0..9 hold their meaning throughout, so the bindings are stable. New items append.",
+ "_position": "BOUND via the live CMinimapGrid tracker, not a pointer chain: the player marker reads the AABB centre at grid+0xD63D6C (+0xC/+0x10) from the cached grid base (mod_runtime.cpp, snapshot floats player_x/player_y). The player_x/y/z 'player' entries below are the older shape+conduct scene-graph finder kept as a fallback; the snapshot log prints the tracker value when present."
+}

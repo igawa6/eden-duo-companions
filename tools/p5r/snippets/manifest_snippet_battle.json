@@ -1,0 +1,22 @@
+{
+  "_about": "BATTLE additions for the Persona5Royal manifest. Merge: append module_outputs, add actions, append widgets to page 'analysis'. Native input inside Analyze: R = next enemy type, L = previous (wraps); D-pad/stick do nothing.",
+  "module_outputs": ["analyze.index", "analyze.count", "analyze.number", "analyze.cycle", "analyze.slot"],
+  "actions": {
+    "analyze.prev": {"kind": "button", "button": "L", "frames": 5, "enabled_bind": "analyze.cycle"},
+    "analyze.next": {"kind": "button", "button": "R", "frames": 5, "enabled_bind": "analyze.cycle"}
+  },
+  "pages": {
+    "analysis": {
+      "append_widgets": [
+        {"type": "rect", "rect": [32, 884, 368, 72], "bg": "#FFE0263C", "color": "#FFE0263C", "on_tap": "analyze.prev", "need_bind": "analyze.cycle"},
+        {"type": "label", "rect": [52, 902, 328, 48], "text": "PREV", "text_scale": 3, "color": "#FFF4EFE8", "on_tap": "analyze.prev", "need_bind": "analyze.cycle"},
+        {"type": "label", "rect": [436, 902, 150, 48], "text": "ENEMY", "text_scale": 3, "color": "#FFF4EFE8", "need_bind": "analyze.cycle"},
+        {"type": "value", "rect": [590, 896, 60, 56], "bind": "analyze.number", "text_scale": 4, "color": "#FFF4EFE8", "need_bind": "analyze.cycle"},
+        {"type": "label", "rect": [660, 902, 60, 48], "text": "OF", "text_scale": 3, "color": "#FFF4EFE8", "need_bind": "analyze.cycle"},
+        {"type": "value", "rect": [724, 896, 60, 56], "bind": "analyze.count", "text_scale": 4, "color": "#FFF4EFE8", "need_bind": "analyze.cycle"},
+        {"type": "rect", "rect": [840, 884, 368, 72], "bg": "#FFE0263C", "color": "#FFE0263C", "on_tap": "analyze.next", "need_bind": "analyze.cycle"},
+        {"type": "label", "rect": [860, 902, 328, 48], "text": "NEXT", "text_scale": 3, "color": "#FFF4EFE8", "on_tap": "analyze.next", "need_bind": "analyze.cycle"}
+      ]
+    }
+  }
+}

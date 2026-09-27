@@ -1,0 +1,4 @@
+{
+  "_about": "bgm.* module outputs (now playing). Append to manifest.module_outputs. No actions.",
+  "module_outputs": ["bgm.ready", "bgm.playing", "bgm.cue", "bgm.title", "bgm.known", "bgm.index", "bgm.change", "bgm.fade"]
+}

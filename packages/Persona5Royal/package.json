@@ -1,0 +1,25 @@
+{
+ "format": 1,
+ "type": "dual-screen-mod",
+ "title_id": "01005CA01580E000",
+ "name": "Persona 5 Royal live companion",
+ "version": "1.0.0",
+ "requires_module": true,
+ "module": {
+  "abi": 1,
+  "build_ids": [
+   "D4B150B29A931CD381E2A30318FC299F2B0EE36D000000000000000000000000"
+  ],
+  "libraries": {
+   "linux-x86_64": {
+    "path": "modules/linux-x86_64/01005CA01580E000.so",
+    "sha256": "faf3d00e84991e3808c8a0cdbae6497ad70f59e11c6b487c95798fa67c25dc5b"
+   },
+   "android-arm64-v8a": {
+    "path": "modules/android-arm64-v8a/01005CA01580E000.so",
+    "sha256": "c895a67d390ab909b9bbbcba5583cb7f342f880476db23220753321263c58f0c"
+   }
+  }
+ },
+ "min_runtime": 11
+}

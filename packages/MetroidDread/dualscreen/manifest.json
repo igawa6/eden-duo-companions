@@ -1,0 +1,5058 @@
+{
+ "format": 1,
+ "title_id": "010093801237C000",
+ "name": "Metroid Dread dual screen",
+ "requires_module": true,
+ "module": {
+  "abi": 1,
+  "build_ids": [
+   "646761F643AFEBB3"
+  ],
+  "libraries": {
+   "android-arm64-v8a": {
+    "path": "modules/android-arm64-v8a/010093801237C000.so",
+    "sha256": "e1384b9d8374d87eb4592f1fbf955ef885ce2030f3eebaa55c3e82f2c2a7798c"
+   },
+   "linux-x86_64": {
+    "path": "modules/linux-x86_64/010093801237C000.so",
+    "sha256": "304ab82f45e0d8d01396b0bf50f69ef6a6d5f1c1fa2f5b4404c97c9a184ba2e2"
+   }
+  }
+ },
+ "poll_hz": 60,
+ "canvas_w": 1240,
+ "canvas_h": 1080,
+ "background": "#FF0B0F14",
+ "map": {
+  "atlas": "romfs:/textures/system/minimap/icons/icons.bctex",
+  "cell": 128,
+  "cols": 16,
+  "icons": {
+   "Samus": {
+    "r": 0,
+    "c": 0
+   },
+   "Emmy": {
+    "r": 0,
+    "c": 2
+   },
+   "ItemAdquired": {
+    "r": 0,
+    "c": 10
+   },
+   "CustomMarker": {
+    "r": 2,
+    "c": 6
+   },
+   "CustomMarkerBack": {
+    "r": 5,
+    "c": 4
+   },
+   "MarkerBorder": {
+    "r": 5,
+    "c": 1
+   },
+   "MarkerBorderFrame": {
+    "r": 5,
+    "c": 0
+   },
+   "CentralUnit": {
+    "r": 0,
+    "c": 3
+   },
+   "DoorPowerL": {
+    "r": 1,
+    "c": 0,
+    "ink": [
+     43,
+     27,
+     84,
+     101
+    ]
+   },
+   "DoorPowerR": {
+    "r": 1,
+    "c": 1,
+    "ink": [
+     43,
+     27,
+     85,
+     101
+    ]
+   },
+   "DoorPowerLockedL": {
+    "r": 2,
+    "c": 0,
+    "ink": [
+     43,
+     27,
+     85,
+     114
+    ]
+   },
+   "DoorPowerLockedR": {
+    "r": 2,
+    "c": 1,
+    "ink": [
+     43,
+     27,
+     98,
+     114
+    ]
+   },
+   "DoorFrame": {
+    "r": 0,
+    "c": 12,
+    "ink": [
+     44,
+     25,
+     86,
+     103
+    ]
+   },
+   "DoorFrame4x2": {
+    "r": 0,
+    "c": 13,
+    "ink": [
+     39,
+     14,
+     90,
+     115
+    ]
+   },
+   "DoorFrameTrap": {
+    "r": 5,
+    "c": 9,
+    "ink": [
+     14,
+     51,
+     114,
+     77
+    ]
+   },
+   "DoorFrameL": {
+    "r": 0,
+    "c": 12,
+    "ink": [
+     44,
+     25,
+     86,
+     103
+    ]
+   },
+   "DoorFrameR": {
+    "r": 0,
+    "c": 12,
+    "ink": [
+     44,
+     25,
+     86,
+     103
+    ]
+   },
+   "DoorClosedL": {
+    "r": 0,
+    "c": 14,
+    "ink": [
+     45,
+     27,
+     84,
+     101
+    ]
+   },
+   "DoorClosedR": {
+    "r": 0,
+    "c": 14,
+    "ink": [
+     45,
+     27,
+     84,
+     101
+    ]
+   },
+   "DoorOpenedL": {
+    "r": 0,
+    "c": 14,
+    "ink": [
+     45,
+     27,
+     84,
+     101
+    ]
+   },
+   "DoorOpenedR": {
+    "r": 0,
+    "c": 14,
+    "ink": [
+     45,
+     27,
+     84,
+     101
+    ]
+   },
+   "DoorChargeL": {
+    "r": 2,
+    "c": 2,
+    "ink": [
+     45,
+     27,
+     83,
+     101
+    ]
+   },
+   "DoorChargeR": {
+    "r": 2,
+    "c": 3,
+    "ink": [
+     45,
+     27,
+     83,
+     101
+    ]
+   },
+   "DoorChargeLockedL": {
+    "r": 2,
+    "c": 4,
+    "ink": [
+     45,
+     27,
+     83,
+     101
+    ]
+   },
+   "DoorChargeLockedR": {
+    "r": 2,
+    "c": 5,
+    "ink": [
+     44,
+     27,
+     83,
+     101
+    ]
+   },
+   "DoorGrappleL": {
+    "r": 1,
+    "c": 2,
+    "ink": [
+     43,
+     26,
+     84,
+     101
+    ]
+   },
+   "DoorGrappleR": {
+    "r": 1,
+    "c": 3,
+    "ink": [
+     45,
+     27,
+     85,
+     101
+    ]
+   },
+   "DoorWideL": {
+    "r": 1,
+    "c": 4,
+    "ink": [
+     55,
+     28,
+     76,
+     101
+    ]
+   },
+   "DoorWideR": {
+    "r": 1,
+    "c": 5,
+    "ink": [
+     52,
+     28,
+     73,
+     101
+    ]
+   },
+   "DoorPresenceL": {
+    "r": 1,
+    "c": 6,
+    "ink": [
+     19,
+     24,
+     119,
+     102
+    ]
+   },
+   "DoorPresenceR": {
+    "r": 1,
+    "c": 7,
+    "ink": [
+     10,
+     24,
+     110,
+     102
+    ]
+   },
+   "PropFootstepPlatform": {
+    "r": 1,
+    "c": 8
+   },
+   "DoorShutter": {
+    "r": 1,
+    "c": 9,
+    "ink": [
+     44,
+     14,
+     86,
+     113
+    ]
+   },
+   "PropHyperBeam": {
+    "r": 1,
+    "c": 15
+   },
+   "PropMultiLockon": {
+    "r": 1,
+    "c": 12
+   },
+   "PropEmmyValve": {
+    "r": 2,
+    "c": 14
+   },
+   "DoorEmmyOpen": {
+    "r": 1,
+    "c": 13,
+    "ink": [
+     42,
+     14,
+     86,
+     113
+    ]
+   },
+   "DoorEmmyClosed": {
+    "r": 2,
+    "c": 13,
+    "ink": [
+     42,
+     13,
+     86,
+     112
+    ]
+   },
+   "DoorCentralUnit": {
+    "r": 1,
+    "c": 14,
+    "ink": [
+     45,
+     25,
+     81,
+     102
+    ]
+   },
+   "BlockageMissileL": {
+    "r": 3,
+    "c": 6,
+    "ink": [
+     9,
+     5,
+     75,
+     123
+    ]
+   },
+   "BlockageMissileR": {
+    "r": 3,
+    "c": 7,
+    "ink": [
+     53,
+     5,
+     115,
+     123
+    ]
+   },
+   "BlockageSuperMissileL": {
+    "r": 3,
+    "c": 0,
+    "ink": [
+     23,
+     6,
+     75,
+     121
+    ]
+   },
+   "BlockageSuperMissileR": {
+    "r": 3,
+    "c": 1,
+    "ink": [
+     53,
+     6,
+     125,
+     121
+    ]
+   },
+   "BlockagePlasmaL": {
+    "r": 3,
+    "c": 2,
+    "ink": [
+     42,
+     30,
+     75,
+     97
+    ]
+   },
+   "BlockagePlasmaR": {
+    "r": 3,
+    "c": 3,
+    "ink": [
+     53,
+     30,
+     74,
+     97
+    ]
+   },
+   "BlockageWaveL": {
+    "r": 3,
+    "c": 4,
+    "ink": [
+     54,
+     31,
+     75,
+     98
+    ]
+   },
+   "BlockageWaveR": {
+    "r": 3,
+    "c": 5,
+    "ink": [
+     54,
+     31,
+     75,
+     98
+    ]
+   },
+   "DoorThermalOpen": {
+    "r": 1,
+    "c": 11,
+    "ink": [
+     41,
+     14,
+     88,
+     113
+    ]
+   },
+   "DoorThermalClosed": {
+    "r": 2,
+    "c": 11,
+    "ink": [
+     41,
+     14,
+     88,
+     113
+    ]
+   },
+   "DoorThermalTrapOpen": {
+    "r": 1,
+    "c": 10,
+    "ink": [
+     14,
+     51,
+     115,
+     77
+    ]
+   },
+   "DoorThermalTrapClosed": {
+    "r": 2,
+    "c": 10,
+    "ink": [
+     14,
+     51,
+     114,
+     77
+    ]
+   },
+   "PropGrappleBlockL": {
+    "r": 3,
+    "c": 8
+   },
+   "PropGrappleBlockR": {
+    "r": 3,
+    "c": 9
+   },
+   "PropGrappleBoxL": {
+    "r": 3,
+    "c": 10
+   },
+   "PropGrappleBoxR": {
+    "r": 3,
+    "c": 11
+   },
+   "PropWideBeamBoxL": {
+    "r": 3,
+    "c": 12
+   },
+   "PropWideBeamBoxR": {
+    "r": 3,
+    "c": 13
+   },
+   "PropMorphTunnelEntry": {
+    "r": 3,
+    "c": 14
+   },
+   "PropMorphTunnelExit": {
+    "r": 3,
+    "c": 15
+   },
+   "ItemSphere": {
+    "r": 0,
+    "c": 4
+   },
+   "ItemCube": {
+    "r": 2,
+    "c": 9
+   },
+   "ItemSphereAdquired": {
+    "r": 0,
+    "c": 4
+   },
+   "ItemCubeAdquired": {
+    "r": 2,
+    "c": 9
+   },
+   "ItemEnergyTank": {
+    "r": 0,
+    "c": 5
+   },
+   "ItemEnergyFragment": {
+    "r": 0,
+    "c": 6
+   },
+   "ItemMissileTank": {
+    "r": 0,
+    "c": 7
+   },
+   "ItemMissileTankPlus": {
+    "r": 0,
+    "c": 8
+   },
+   "ItemPowerbombExpansion": {
+    "r": 0,
+    "c": 9
+   },
+   "BlockageDisabledL": {
+    "r": 5,
+    "c": 0,
+    "ink": [
+     25,
+     24,
+     104,
+     105
+    ]
+   },
+   "BlockageDisabledR": {
+    "r": 5,
+    "c": 0,
+    "ink": [
+     25,
+     24,
+     104,
+     105
+    ]
+   },
+   "UsableStationEnergy": {
+    "r": 4,
+    "c": 13
+   },
+   "DisabledStationEnergy": {
+    "r": 4,
+    "c": 13
+   },
+   "UsableStationAmmo": {
+    "r": 4,
+    "c": 14
+   },
+   "DisabledStationAmmo": {
+    "r": 4,
+    "c": 14
+   },
+   "UsableStationTotal": {
+    "r": 4,
+    "c": 12
+   },
+   "DisabledStationTotal": {
+    "r": 4,
+    "c": 12
+   },
+   "UsableWaterValve": {
+    "r": 4,
+    "c": 0
+   },
+   "UsableThermalDevice": {
+    "r": 4,
+    "c": 0
+   },
+   "UsablePowerGenerator": {
+    "r": 4,
+    "c": 0
+   },
+   "PropTurbineActivator": {
+    "r": 4,
+    "c": 0
+   },
+   "DisabledTeleport": {
+    "r": 4,
+    "c": 6
+   },
+   "UsableTeleportA": {
+    "r": 4,
+    "c": 6
+   },
+   "UsableTeleportE": {
+    "r": 4,
+    "c": 7
+   },
+   "UsableTeleportI": {
+    "r": 4,
+    "c": 8
+   },
+   "UsableTeleportO": {
+    "r": 4,
+    "c": 9
+   },
+   "UsableTeleportU": {
+    "r": 4,
+    "c": 10
+   },
+   "UsableTeleportX": {
+    "r": 4,
+    "c": 11
+   },
+   "UsableTeleportY": {
+    "r": 5,
+    "c": 6
+   },
+   "UsableTeleportZ": {
+    "r": 4,
+    "c": 11
+   },
+   "UsableTrain": {
+    "r": 4,
+    "c": 1
+   },
+   "UsableElevator": {
+    "r": 4,
+    "c": 2
+   },
+   "DisabledElevator": {
+    "r": 4,
+    "c": 2
+   },
+   "UsableStationSave": {
+    "r": 4,
+    "c": 3
+   },
+   "DisabledStationSave": {
+    "r": 4,
+    "c": 3
+   },
+   "UsableStationMap": {
+    "r": 4,
+    "c": 4
+   },
+   "DisabledStationMap": {
+    "r": 4,
+    "c": 4
+   },
+   "UsableAccessPoint": {
+    "r": 4,
+    "c": 5
+   },
+   "DisabledAccessPoint": {
+    "r": 4,
+    "c": 5
+   },
+   "UsableTransport": {
+    "r": 2,
+    "c": 8
+   },
+   "Gunship": {
+    "r": 2,
+    "c": 7
+   },
+   "SamusGlow": {
+    "r": 0,
+    "c": 1
+   },
+   "Glow": {
+    "r": 0,
+    "c": 11
+   },
+   "HyperBeamGlow": {
+    "r": 5,
+    "c": 8
+   },
+   "PropZipline": {
+    "r": 6,
+    "c": 0
+   },
+   "PropSwingPoint": {
+    "r": 2,
+    "c": 15
+   },
+   "PropWarlotus": {
+    "r": 2,
+    "c": 12
+   },
+   "Boss": {
+    "r": 5,
+    "c": 2
+   },
+   "BossDefeated": {
+    "r": 5,
+    "c": 2
+   },
+   "HighlightFrame": {
+    "r": 5,
+    "c": 3
+   },
+   "HighlightFrameFull": {
+    "r": 5,
+    "c": 3
+   },
+   "TilePowerbeam": {
+    "r": 0,
+    "c": 15
+   },
+   "TileBomb": {
+    "r": 0,
+    "c": 15
+   },
+   "TileMissile": {
+    "r": 0,
+    "c": 15
+   },
+   "TileSupermissile": {
+    "r": 0,
+    "c": 15
+   },
+   "TilePowerbomb": {
+    "r": 0,
+    "c": 15
+   },
+   "TileScrewattack": {
+    "r": 0,
+    "c": 15
+   },
+   "TileWeight": {
+    "r": 0,
+    "c": 15
+   },
+   "TileSpeedboost": {
+    "r": 0,
+    "c": 15
+   },
+   "MagnetSurface": {
+    "r": 0,
+    "c": 0
+   }
+  },
+  "areas": {
+   "s010_cave": {
+    "geo": "module:dread:map/s010_cave.geo",
+    "layers": [
+     {
+      "geo": "module:dread:map/s010_cave.water.geo",
+      "kind": "water",
+      "color": "#FF0A5F65",
+      "live_clip": true
+     },
+     {
+      "geo": "module:dread:map/s010_cave.heat.geo",
+      "kind": "heat",
+      "color": "#FFA60C09"
+     },
+     {
+      "geo": "module:dread:map/s010_cave.freeze.geo",
+      "kind": "freeze",
+      "color": "#FF0A129F"
+     },
+     {
+      "geo": "module:dread:map/s010_cave.emmy.geo",
+      "kind": "zone",
+      "color": "#FF8E1414",
+      "category": "emmi"
+     },
+     {
+      "geo": "module:dread:map/s010_cave.magnet.geo",
+      "kind": "magnet",
+      "color": "#FF1085E9",
+      "post_fog": true
+     }
+    ],
+    "room_categories": [
+     {
+      "id": "emmi",
+      "color_bind": "emmi_state",
+      "color_map": {
+       "0": "#FF1E1E1E",
+       "1": "#FF17461B"
+      },
+      "class_gain": 0.5,
+      "reveal_before_unlock": false,
+      "bake": {
+       "mode": "layer",
+       "gain": 3.0
+      },
+      "visited_gain": 420,
+      "visited_amount": 0,
+      "visited_map": {
+       "1": {
+        "visited_gain": 420,
+        "visited_tint": "#FF5BFF5D",
+        "visited_amount": 112
+       }
+      },
+      "polys_from": "maproom:emmy"
+     },
+     {
+      "id": "transport",
+      "color": "#FF6C45FF",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FF827EFF",
+      "visited_amount": 112,
+      "polys_from": "maproom:transport"
+     },
+     {
+      "id": "station",
+      "color": "#FFFFAF00",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FFFFE80C",
+      "visited_amount": 112,
+      "polys_from": "maproom:special"
+     }
+    ]
+   },
+   "s020_magma": {
+    "geo": "module:dread:map/s020_magma.geo",
+    "layers": [
+     {
+      "geo": "module:dread:map/s020_magma.heat.geo",
+      "kind": "heat",
+      "color": "#FFA60C09"
+     },
+     {
+      "geo": "module:dread:map/s020_magma.emmy.geo",
+      "kind": "zone",
+      "color": "#FF8E1414",
+      "category": "emmi"
+     },
+     {
+      "geo": "module:dread:map/s020_magma.magnet.geo",
+      "kind": "magnet",
+      "color": "#FF1085E9",
+      "post_fog": true
+     }
+    ],
+    "room_categories": [
+     {
+      "id": "emmi",
+      "color_bind": "emmi_state",
+      "color_map": {
+       "0": "#FF1E1E1E",
+       "1": "#FF17461B"
+      },
+      "class_gain": 0.5,
+      "reveal_before_unlock": false,
+      "bake": {
+       "mode": "layer",
+       "gain": 3.0
+      },
+      "visited_gain": 420,
+      "visited_amount": 0,
+      "visited_map": {
+       "1": {
+        "visited_gain": 420,
+        "visited_tint": "#FF5BFF5D",
+        "visited_amount": 112
+       }
+      },
+      "polys_from": "maproom:emmy"
+     },
+     {
+      "id": "transport",
+      "color": "#FF6C45FF",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FF827EFF",
+      "visited_amount": 112,
+      "polys_from": "maproom:transport"
+     },
+     {
+      "id": "station",
+      "color": "#FFFFAF00",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FFFFE80C",
+      "visited_amount": 112,
+      "polys_from": "maproom:special"
+     }
+    ]
+   },
+   "s030_baselab": {
+    "geo": "module:dread:map/s030_baselab.geo",
+    "layers": [
+     {
+      "geo": "module:dread:map/s030_baselab.water.geo",
+      "kind": "water",
+      "color": "#FF0A5F65",
+      "live_clip": true
+     },
+     {
+      "geo": "module:dread:map/s030_baselab.heat.geo",
+      "kind": "heat",
+      "color": "#FFA60C09"
+     },
+     {
+      "geo": "module:dread:map/s030_baselab.freeze.geo",
+      "kind": "freeze",
+      "color": "#FF0A129F"
+     },
+     {
+      "geo": "module:dread:map/s030_baselab.emmy.geo",
+      "kind": "zone",
+      "color": "#FF8E1414",
+      "category": "emmi"
+     },
+     {
+      "geo": "module:dread:map/s030_baselab.magnet.geo",
+      "kind": "magnet",
+      "color": "#FF1085E9",
+      "post_fog": true
+     }
+    ],
+    "room_categories": [
+     {
+      "id": "emmi",
+      "color_bind": "emmi_state",
+      "color_map": {
+       "0": "#FF1E1E1E",
+       "1": "#FF17461B"
+      },
+      "class_gain": 0.5,
+      "reveal_before_unlock": false,
+      "bake": {
+       "mode": "layer",
+       "gain": 3.0
+      },
+      "visited_gain": 420,
+      "visited_amount": 0,
+      "visited_map": {
+       "1": {
+        "visited_gain": 420,
+        "visited_tint": "#FF5BFF5D",
+        "visited_amount": 112
+       }
+      },
+      "polys_from": "maproom:emmy"
+     },
+     {
+      "id": "transport",
+      "color": "#FF6C45FF",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FF827EFF",
+      "visited_amount": 112,
+      "polys_from": "maproom:transport"
+     },
+     {
+      "id": "station",
+      "color": "#FFFFAF00",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FFFFE80C",
+      "visited_amount": 112,
+      "polys_from": "maproom:special"
+     }
+    ]
+   },
+   "s040_aqua": {
+    "geo": "module:dread:map/s040_aqua.geo",
+    "layers": [
+     {
+      "geo": "module:dread:map/s040_aqua.water.geo",
+      "kind": "water",
+      "color": "#FF0A5F65",
+      "live_clip": true
+     },
+     {
+      "geo": "module:dread:map/s040_aqua.magnet.geo",
+      "kind": "magnet",
+      "color": "#FF1085E9",
+      "post_fog": true
+     }
+    ],
+    "room_categories": [
+     {
+      "id": "transport",
+      "color": "#FF6C45FF",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FF827EFF",
+      "visited_amount": 112,
+      "polys_from": "maproom:transport"
+     },
+     {
+      "id": "station",
+      "color": "#FFFFAF00",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FFFFE80C",
+      "visited_amount": 112,
+      "polys_from": "maproom:special"
+     }
+    ]
+   },
+   "s050_forest": {
+    "geo": "module:dread:map/s050_forest.geo",
+    "layers": [
+     {
+      "geo": "module:dread:map/s050_forest.water.geo",
+      "kind": "water",
+      "color": "#FF0A5F65",
+      "live_clip": true
+     },
+     {
+      "geo": "module:dread:map/s050_forest.emmy.geo",
+      "kind": "zone",
+      "color": "#FF8E1414",
+      "category": "emmi"
+     },
+     {
+      "geo": "module:dread:map/s050_forest.magnet.geo",
+      "kind": "magnet",
+      "color": "#FF1085E9",
+      "post_fog": true
+     }
+    ],
+    "room_categories": [
+     {
+      "id": "emmi",
+      "color_bind": "emmi_state",
+      "color_map": {
+       "0": "#FF1E1E1E",
+       "1": "#FF17461B"
+      },
+      "class_gain": 0.5,
+      "reveal_before_unlock": false,
+      "bake": {
+       "mode": "layer",
+       "gain": 3.0
+      },
+      "visited_gain": 420,
+      "visited_amount": 0,
+      "visited_map": {
+       "1": {
+        "visited_gain": 420,
+        "visited_tint": "#FF5BFF5D",
+        "visited_amount": 112
+       }
+      },
+      "polys_from": "maproom:emmy"
+     },
+     {
+      "id": "transport",
+      "color": "#FF6C45FF",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FF827EFF",
+      "visited_amount": 112,
+      "polys_from": "maproom:transport"
+     },
+     {
+      "id": "station",
+      "color": "#FFFFAF00",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FFFFE80C",
+      "visited_amount": 112,
+      "polys_from": "maproom:special"
+     }
+    ]
+   },
+   "s060_quarantine": {
+    "geo": "module:dread:map/s060_quarantine.geo",
+    "layers": [
+     {
+      "geo": "module:dread:map/s060_quarantine.magnet.geo",
+      "kind": "magnet",
+      "color": "#FF1085E9",
+      "post_fog": true
+     }
+    ],
+    "room_categories": [
+     {
+      "id": "transport",
+      "color": "#FF6C45FF",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FF827EFF",
+      "visited_amount": 112,
+      "polys_from": "maproom:transport"
+     },
+     {
+      "id": "station",
+      "color": "#FFFFAF00",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FFFFE80C",
+      "visited_amount": 112,
+      "polys_from": "maproom:special"
+     }
+    ]
+   },
+   "s070_basesanc": {
+    "geo": "module:dread:map/s070_basesanc.geo",
+    "layers": [
+     {
+      "geo": "module:dread:map/s070_basesanc.water.geo",
+      "kind": "water",
+      "color": "#FF0A5F65",
+      "live_clip": true
+     },
+     {
+      "geo": "module:dread:map/s070_basesanc.freeze.geo",
+      "kind": "freeze",
+      "color": "#FF0A129F"
+     },
+     {
+      "geo": "module:dread:map/s070_basesanc.emmy.geo",
+      "kind": "zone",
+      "color": "#FF8E1414",
+      "category": "emmi"
+     },
+     {
+      "geo": "module:dread:map/s070_basesanc.magnet.geo",
+      "kind": "magnet",
+      "color": "#FF1085E9",
+      "post_fog": true
+     }
+    ],
+    "room_categories": [
+     {
+      "id": "emmi",
+      "color_bind": "emmi_state",
+      "color_map": {
+       "0": "#FF1E1E1E",
+       "1": "#FF17461B"
+      },
+      "class_gain": 0.5,
+      "reveal_before_unlock": false,
+      "bake": {
+       "mode": "layer",
+       "gain": 3.0
+      },
+      "visited_gain": 420,
+      "visited_amount": 0,
+      "visited_map": {
+       "1": {
+        "visited_gain": 420,
+        "visited_tint": "#FF5BFF5D",
+        "visited_amount": 112
+       }
+      },
+      "polys_from": "maproom:emmy"
+     },
+     {
+      "id": "transport",
+      "color": "#FF6C45FF",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FF827EFF",
+      "visited_amount": 112,
+      "polys_from": "maproom:transport"
+     },
+     {
+      "id": "station",
+      "color": "#FFFFAF00",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FFFFE80C",
+      "visited_amount": 112,
+      "polys_from": "maproom:special"
+     }
+    ]
+   },
+   "s080_shipyard": {
+    "geo": "module:dread:map/s080_shipyard.geo",
+    "layers": [
+     {
+      "geo": "module:dread:map/s080_shipyard.emmy.geo",
+      "kind": "zone",
+      "color": "#FF8E1414",
+      "category": "emmi"
+     }
+    ],
+    "room_categories": [
+     {
+      "id": "emmi",
+      "color_bind": "emmi_state",
+      "color_map": {
+       "0": "#FF1E1E1E",
+       "1": "#FF17461B"
+      },
+      "class_gain": 0.5,
+      "reveal_before_unlock": false,
+      "bake": {
+       "mode": "layer",
+       "gain": 3.0
+      },
+      "visited_gain": 420,
+      "visited_amount": 0,
+      "visited_map": {
+       "1": {
+        "visited_gain": 420,
+        "visited_tint": "#FF5BFF5D",
+        "visited_amount": 112
+       }
+      },
+      "polys_from": "maproom:emmy"
+     },
+     {
+      "id": "transport",
+      "color": "#FF6C45FF",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FF827EFF",
+      "visited_amount": 112,
+      "polys_from": "maproom:transport"
+     },
+     {
+      "id": "station",
+      "color": "#FFFFAF00",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FFFFE80C",
+      "visited_amount": 112,
+      "polys_from": "maproom:special"
+     }
+    ]
+   },
+   "s090_skybase": {
+    "geo": "module:dread:map/s090_skybase.geo",
+    "layers": [],
+    "room_categories": [
+     {
+      "id": "transport",
+      "color": "#FF6C45FF",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FF827EFF",
+      "visited_amount": 112,
+      "polys_from": "maproom:transport"
+     },
+     {
+      "id": "station",
+      "color": "#FFFFAF00",
+      "reveal_before_unlock": true,
+      "bake": {
+       "mode": "polys"
+      },
+      "visited_gain": 420,
+      "visited_tint": "#FFFFE80C",
+      "visited_amount": 112,
+      "polys_from": "maproom:special"
+     }
+    ]
+   }
+  },
+  "style": {
+   "opacity": 0.7,
+   "room_fill": "#FF001330",
+   "border": "#FF8E8E8E",
+   "revealed_dim": 102,
+   "hazard_tint": 150,
+   "water_tint": 165,
+   "fade_ticks": 60,
+   "item_icon": 66,
+   "door_icon": 72,
+   "marker_icon": 88,
+   "raster_px": 3072,
+   "reveal_required": true,
+   "visited_gain": 420,
+   "visited_tint": "#FF164C3C",
+   "visited_amount": 112,
+   "wall_color": "#FF9A6B2E",
+   "hazard_gain": 6.0,
+   "water_gain": 6.0,
+   "water_clip_live": true,
+   "water_full_visible": false,
+   "occluder_color": "#FF000103",
+   "grid_tile_world_size": 100.0,
+   "marker_colors": [
+    "#FFFF0000",
+    "#FF00FF00",
+    "#FFFFFF00",
+    "#FFFF00FF",
+    "#FF00FFFF"
+   ],
+   "marker_back_color": "#FF101418",
+   "marker_glyph_color": "#FFFFFFFF",
+   "marker_pulse_color": "#FFF2F6FF",
+   "marker_pulse_peak": 1.0,
+   "marker_pulse_period": 90
+  },
+  "areas_src": "module:dread:areas"
+ },
+ "pages": [
+  {
+   "id": "main",
+   "widgets": [
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#FF000000",
+     "color": "#00000000",
+     "hide_bind": "build_match",
+     "hide_eq": 1
+    },
+    {
+     "type": "image",
+     "rect": [
+      520,
+      380,
+      200,
+      200
+     ],
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.525390625,
+      0.5078125,
+      0.609375,
+      0.673828125
+     ],
+     "shake": 3,
+     "color": "#FFFFFFFF",
+     "hide_bind": "build_match",
+     "hide_eq": 1
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      636,
+      0,
+      0
+     ],
+     "text": "Protocol Mismatch Detected",
+     "text_scale": 5,
+     "align": "center",
+     "color": "#FFEF0031",
+     "hide_bind": "build_match",
+     "hide_eq": 1
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      680,
+      0,
+      0
+     ],
+     "text": "Use Patch v2.1.0 to Proceed.",
+     "text_scale": 4,
+     "align": "center",
+     "color": "#FFEF0031",
+     "hide_bind": "build_match",
+     "hide_eq": 1
+    },
+    {
+     "type": "image",
+     "rect": [
+      500,
+      728,
+      64,
+      64
+     ],
+     "src": "romfs:/textures/gui/textures/loadingscreentileset.bctex",
+     "src_rect": [
+      0.916016,
+      0.0,
+      0.999023,
+      0.332031
+     ],
+     "color": "#FFEF0031",
+     "hide_bind": "build_match",
+     "hide_eq": 1
+    },
+    {
+     "type": "image",
+     "rect": [
+      588,
+      728,
+      64,
+      64
+     ],
+     "src": "romfs:/textures/gui/textures/loadingscreentileset.bctex",
+     "src_rect": [
+      0.833008,
+      0.0,
+      0.916016,
+      0.332031
+     ],
+     "color": "#FFEF0031",
+     "hide_bind": "build_match",
+     "hide_eq": 1
+    },
+    {
+     "type": "image",
+     "rect": [
+      676,
+      728,
+      64,
+      64
+     ],
+     "src": "romfs:/textures/gui/textures/loadingscreentileset.bctex",
+     "src_rect": [
+      0.75,
+      0.0,
+      0.833008,
+      0.332031
+     ],
+     "color": "#FFEF0031",
+     "hide_bind": "build_match",
+     "hide_eq": 1
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#FF000000",
+     "color": "#00000000",
+     "hide_bind": "map_ready",
+     "hide_eq": 1,
+     "need_bind": "build_match"
+    },
+    {
+     "type": "image",
+     "rect": [
+      500,
+      360,
+      240,
+      240
+     ],
+     "src": "romfs:/textures/gui/textures/loadingscreentileset.bctex",
+     "src_rect": [
+      0.292969,
+      0.0,
+      0.439453,
+      0.585938
+     ],
+     "spin": 30.0,
+     "color": "#FF7FD4E8",
+     "hide_bind": "map_ready",
+     "hide_eq": 1,
+     "need_bind": "build_match"
+    },
+    {
+     "type": "image",
+     "rect": [
+      500,
+      360,
+      240,
+      240
+     ],
+     "src": "romfs:/textures/gui/textures/loadingscreentileset.bctex",
+     "src_rect": [
+      0.146484,
+      0.0,
+      0.292969,
+      0.585938
+     ],
+     "spin": -45.0,
+     "color": "#FF7FD4E8",
+     "hide_bind": "map_ready",
+     "hide_eq": 1,
+     "need_bind": "build_match"
+    },
+    {
+     "type": "image",
+     "rect": [
+      500,
+      360,
+      240,
+      240
+     ],
+     "src": "romfs:/textures/gui/textures/loadingscreentileset.bctex",
+     "src_rect": [
+      0.0,
+      0.0,
+      0.146484,
+      0.585938
+     ],
+     "spin": 60.0,
+     "color": "#FF7FD4E8",
+     "hide_bind": "map_ready",
+     "hide_eq": 1,
+     "need_bind": "build_match"
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      636,
+      0,
+      0
+     ],
+     "text": "Synchronizing environment...",
+     "text_scale": 5,
+     "align": "center",
+     "color": "#FF7FD4E8",
+     "hide_bind": "map_ready",
+     "hide_eq": 1,
+     "need_bind": "build_match"
+    },
+    {
+     "type": "image",
+     "rect": [
+      500,
+      684,
+      64,
+      64
+     ],
+     "src": "romfs:/textures/gui/textures/loadingscreentileset.bctex",
+     "src_rect": [
+      0.916016,
+      0.0,
+      0.999023,
+      0.332031
+     ],
+     "color": "#FF7FD4E8",
+     "hide_bind": "map_ready",
+     "hide_eq": 1,
+     "need_bind": "build_match"
+    },
+    {
+     "type": "image",
+     "rect": [
+      588,
+      684,
+      64,
+      64
+     ],
+     "src": "romfs:/textures/gui/textures/loadingscreentileset.bctex",
+     "src_rect": [
+      0.833008,
+      0.0,
+      0.916016,
+      0.332031
+     ],
+     "color": "#FF7FD4E8",
+     "hide_bind": "map_ready",
+     "hide_eq": 1,
+     "need_bind": "build_match"
+    },
+    {
+     "type": "image",
+     "rect": [
+      676,
+      684,
+      64,
+      64
+     ],
+     "src": "romfs:/textures/gui/textures/loadingscreentileset.bctex",
+     "src_rect": [
+      0.75,
+      0.0,
+      0.833008,
+      0.332031
+     ],
+     "color": "#FF7FD4E8",
+     "hide_bind": "map_ready",
+     "hide_eq": 1,
+     "need_bind": "build_match"
+    },
+    {
+     "type": "image",
+     "rect": [
+      380,
+      16,
+      480,
+      44
+     ],
+     "src": "romfs:/textures/gui/textures/areanames_artaria.bctex",
+     "src_rect": [
+      0.0,
+      0.1171875,
+      1.0,
+      0.8515625
+     ],
+     "hide_bind": "area_index",
+     "keep_min": 0,
+     "keep_max": 0,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      380,
+      16,
+      480,
+      44
+     ],
+     "src": "romfs:/textures/gui/textures/areanames_cataris.bctex",
+     "src_rect": [
+      0.0,
+      0.1171875,
+      1.0,
+      0.8515625
+     ],
+     "hide_bind": "area_index",
+     "keep_min": 1,
+     "keep_max": 1,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      380,
+      16,
+      480,
+      44
+     ],
+     "src": "romfs:/textures/gui/textures/areanames_dairon.bctex",
+     "src_rect": [
+      0.0,
+      0.1171875,
+      1.0,
+      0.8515625
+     ],
+     "hide_bind": "area_index",
+     "keep_min": 2,
+     "keep_max": 2,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      380,
+      16,
+      480,
+      44
+     ],
+     "src": "romfs:/textures/gui/textures/areanames_burenia.bctex",
+     "src_rect": [
+      0.0,
+      0.1171875,
+      1.0,
+      0.8515625
+     ],
+     "hide_bind": "area_index",
+     "keep_min": 3,
+     "keep_max": 3,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      380,
+      16,
+      480,
+      44
+     ],
+     "src": "romfs:/textures/gui/textures/areanames_ghavoran.bctex",
+     "src_rect": [
+      0.0,
+      0.1171875,
+      1.0,
+      0.8515625
+     ],
+     "hide_bind": "area_index",
+     "keep_min": 4,
+     "keep_max": 4,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      380,
+      16,
+      480,
+      44
+     ],
+     "src": "romfs:/textures/gui/textures/areanames_elun.bctex",
+     "src_rect": [
+      0.0,
+      0.1171875,
+      1.0,
+      0.8515625
+     ],
+     "hide_bind": "area_index",
+     "keep_min": 5,
+     "keep_max": 5,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      380,
+      16,
+      480,
+      44
+     ],
+     "src": "romfs:/textures/gui/textures/areanames_ferenia.bctex",
+     "src_rect": [
+      0.0,
+      0.1171875,
+      1.0,
+      0.8515625
+     ],
+     "hide_bind": "area_index",
+     "keep_min": 6,
+     "keep_max": 6,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      380,
+      16,
+      480,
+      44
+     ],
+     "src": "romfs:/textures/gui/textures/areanames_hanubia.bctex",
+     "src_rect": [
+      0.0,
+      0.1171875,
+      1.0,
+      0.8515625
+     ],
+     "hide_bind": "area_index",
+     "keep_min": 7,
+     "keep_max": 7,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      380,
+      16,
+      480,
+      44
+     ],
+     "src": "romfs:/textures/gui/textures/areanames_itorash.bctex",
+     "src_rect": [
+      0.0,
+      0.1171875,
+      1.0,
+      0.8515625
+     ],
+     "hide_bind": "area_index",
+     "keep_min": 8,
+     "keep_max": 8,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      360,
+      66,
+      96,
+      5
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      784,
+      66,
+      96,
+      5
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      502,
+      88,
+      236,
+      5
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      451,
+      66,
+      56,
+      24
+     ],
+     "color": "#FF849293",
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.375977,
+      0.007812,
+      0.419922,
+      0.203125
+     ],
+     "flip_x": true,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      733,
+      66,
+      56,
+      24
+     ],
+     "color": "#FF849293",
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.375977,
+      0.007812,
+      0.419922,
+      0.203125
+     ],
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      451,
+      67,
+      56,
+      24
+     ],
+     "color": "#FF849293",
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.375977,
+      0.007812,
+      0.419922,
+      0.203125
+     ],
+     "flip_x": true,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      733,
+      67,
+      56,
+      24
+     ],
+     "color": "#FF849293",
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.375977,
+      0.007812,
+      0.419922,
+      0.203125
+     ],
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      451,
+      68,
+      56,
+      24
+     ],
+     "color": "#FF849293",
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.375977,
+      0.007812,
+      0.419922,
+      0.203125
+     ],
+     "flip_x": true,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      733,
+      68,
+      56,
+      24
+     ],
+     "color": "#FF849293",
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.375977,
+      0.007812,
+      0.419922,
+      0.203125
+     ],
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      451,
+      69,
+      56,
+      24
+     ],
+     "color": "#FF849293",
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.375977,
+      0.007812,
+      0.419922,
+      0.203125
+     ],
+     "flip_x": true,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      733,
+      69,
+      56,
+      24
+     ],
+     "color": "#FF849293",
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.375977,
+      0.007812,
+      0.419922,
+      0.203125
+     ],
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      429,
+      76,
+      24,
+      3
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      787,
+      76,
+      24,
+      3
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      364,
+      96,
+      35,
+      22
+     ],
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.037109375,
+      0.30078125,
+      0.0751953125,
+      0.345703125
+     ],
+     "hide_bind": "energy_frag_state",
+     "keep_min": 0,
+     "keep_max": 0,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      364,
+      96,
+      35,
+      22
+     ],
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.076171875,
+      0.30078125,
+      0.1142578125,
+      0.345703125
+     ],
+     "hide_bind": "energy_frag_state",
+     "keep_min": 1,
+     "keep_max": 1,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      364,
+      96,
+      35,
+      22
+     ],
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.115234375,
+      0.30078125,
+      0.1533203125,
+      0.345703125
+     ],
+     "hide_bind": "energy_frag_state",
+     "keep_min": 2,
+     "keep_max": 2,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      364,
+      96,
+      35,
+      22
+     ],
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.154296875,
+      0.30078125,
+      0.1923828125,
+      0.345703125
+     ],
+     "hide_bind": "energy_frag_state",
+     "keep_min": 3,
+     "keep_max": 3,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      364,
+      96,
+      35,
+      22
+     ],
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.037109375,
+      0.30078125,
+      0.0751953125,
+      0.345703125
+     ],
+     "color": "#FFB4F0F8",
+     "hide_bind": "energy_frag_state",
+     "keep_min": 4,
+     "keep_max": 4,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      364,
+      96,
+      35,
+      22
+     ],
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.1943359375,
+      0.30078125,
+      0.232421875,
+      0.345703125
+     ],
+     "color": "#FFB4F0F8",
+     "hide_bind": "energy_frag_state",
+     "keep_min": 5,
+     "keep_max": 5,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      401,
+      89,
+      29,
+      38
+     ],
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.1552734375,
+      0.556640625,
+      0.1943359375,
+      0.66015625
+     ],
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "value",
+     "rect": [
+      432,
+      99,
+      0,
+      0
+     ],
+     "bind": "energy",
+     "max_bind": "energy_max",
+     "max_sep": "/",
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "value",
+     "rect": [
+      620,
+      134,
+      0,
+      0
+     ],
+     "bind": "items_pct",
+     "text": "ITEMS ",
+     "suffix": "%",
+     "text_scale": 6,
+     "align": "center",
+     "color": "#FFB4F0F8",
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      747,
+      82,
+      46,
+      45
+     ],
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.006836,
+      0.556641,
+      0.053711,
+      0.648438
+     ],
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "value",
+     "rect": [
+      797,
+      99,
+      0,
+      0
+     ],
+     "bind": "missile",
+     "max_bind": "missile_max",
+     "max_sep": " / ",
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "image",
+     "rect": [
+      748,
+      133,
+      43,
+      42
+     ],
+     "src": "romfs:/textures/gui/textures/czdr-rwk.bctex",
+     "src_rect": [
+      0.058594,
+      0.556641,
+      0.101562,
+      0.640625
+     ],
+     "hide_bind": "pbomb_max",
+     "keep_min": 1,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "value",
+     "rect": [
+      797,
+      144,
+      0,
+      0
+     ],
+     "bind": "pbomb",
+     "max_bind": "pbomb_max",
+     "max_sep": " / ",
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pbomb_max",
+     "keep_min": 1,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "map",
+     "rect": [
+      16,
+      184,
+      1208,
+      880
+     ],
+     "area": "s010_cave",
+     "color": "#FF7FD4E8",
+     "bg": "#FF0B0F14",
+     "text_scale": 4,
+     "area_label": false,
+     "hidden_icons": [
+      "PropWarlotus"
+     ],
+     "room_bind": "scenario",
+     "id": "dread_map",
+     "pan_zoom": true,
+     "min_zoom": 0.25,
+     "max_zoom": 6.0,
+     "marker_x_bind": "player_x",
+     "marker_y_bind": "player_y",
+     "marker_icon": "Samus",
+     "follow_window": 6000.0,
+     "actor_x_bind": "emmi_x",
+     "actor_y_bind": "emmi_y",
+     "actor_icon": "Emmy",
+     "actor_reveal_required": true,
+     "need_bind": "map_ready"
+    },
+    {
+     "type": "button",
+     "rect": [
+      1028,
+      988,
+      196,
+      56
+     ],
+     "text": "RESET VIEW",
+     "text_scale": 4,
+     "align": "center",
+     "pill": true,
+     "bg": "#C00B0F14",
+     "color": "#FF7FD4E8",
+     "on_tap": "map_reset",
+     "id": "map_reset_btn",
+     "need_bind": "map_ready",
+     "hide_bind": "view_custom:dread_map",
+     "hide_eq": 0
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      184,
+      1240,
+      896
+     ],
+     "bg": "#FF0B0F14",
+     "color": "#00000000",
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      200,
+      0,
+      0
+     ],
+     "text_scale": 6,
+     "color": "#FF7FD4E8",
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_MISSIONLOG_TITLE"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      40,
+      240,
+      560,
+      3
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      260,
+      0,
+      0
+     ],
+     "bind_text": "mlog_0",
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "mlog_count",
+     "keep_min": 1,
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      320,
+      0,
+      0
+     ],
+     "bind_text": "mlog_1",
+     "text_scale": 4,
+     "color": "#FFB9C4CC",
+     "hide_bind": "mlog_count",
+     "keep_min": 2,
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      380,
+      0,
+      0
+     ],
+     "bind_text": "mlog_2",
+     "text_scale": 4,
+     "color": "#FFB9C4CC",
+     "hide_bind": "mlog_count",
+     "keep_min": 3,
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      440,
+      0,
+      0
+     ],
+     "bind_text": "mlog_3",
+     "text_scale": 4,
+     "color": "#FFB9C4CC",
+     "hide_bind": "mlog_count",
+     "keep_min": 4,
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      500,
+      0,
+      0
+     ],
+     "bind_text": "mlog_4",
+     "text_scale": 4,
+     "color": "#FFB9C4CC",
+     "hide_bind": "mlog_count",
+     "keep_min": 5,
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      560,
+      0,
+      0
+     ],
+     "bind_text": "mlog_5",
+     "text_scale": 4,
+     "color": "#FFB9C4CC",
+     "hide_bind": "mlog_count",
+     "keep_min": 6,
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      620,
+      0,
+      0
+     ],
+     "bind_text": "mlog_6",
+     "text_scale": 4,
+     "color": "#FFB9C4CC",
+     "hide_bind": "mlog_count",
+     "keep_min": 7,
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      680,
+      0,
+      0
+     ],
+     "bind_text": "mlog_7",
+     "text_scale": 4,
+     "color": "#FFB9C4CC",
+     "hide_bind": "mlog_count",
+     "keep_min": 8,
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      740,
+      0,
+      0
+     ],
+     "bind_text": "mlog_8",
+     "text_scale": 4,
+     "color": "#FFB9C4CC",
+     "hide_bind": "mlog_count",
+     "keep_min": 9,
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      800,
+      0,
+      0
+     ],
+     "bind_text": "mlog_9",
+     "text_scale": 4,
+     "color": "#FFB9C4CC",
+     "hide_bind": "mlog_count",
+     "keep_min": 10,
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      660,
+      200,
+      0,
+      0
+     ],
+     "text_scale": 6,
+     "color": "#FF7FD4E8",
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_TITLE"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      660,
+      240,
+      540,
+      3
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      660,
+      256,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF7FD4E8",
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_SECTION_BEAMS"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      660,
+      280,
+      240,
+      2
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      300,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_POWER_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      330,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_WEAPON_WIDE_BEAM",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_WIDE_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      330,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_WEAPON_WIDE_BEAM",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_WIDE_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      360,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_WEAPON_PLASMA_BEAM",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_PLASMA_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      360,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_WEAPON_PLASMA_BEAM",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_PLASMA_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      390,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_WEAPON_WAVE_BEAM",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_WAVE_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      390,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_WEAPON_WAVE_BEAM",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_WAVE_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      420,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_WEAPON_HYPER_BEAM",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_HYPER_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      420,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_WEAPON_HYPER_BEAM",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_HYPER_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      450,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_WEAPON_CHARGE_BEAM",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_CHARGE_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      450,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_WEAPON_CHARGE_BEAM",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_CHARGE_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      480,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_WEAPON_DIFFUSION_BEAM",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_DIFUSSION_CHARGE"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      480,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_WEAPON_DIFFUSION_BEAM",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_DIFUSSION_CHARGE"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      510,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_WEAPON_GRAPPLE_BEAM",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_GRAPPLE_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      510,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_WEAPON_GRAPPLE_BEAM",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_GRAPPLE_BEAM"
+    },
+    {
+     "type": "label",
+     "rect": [
+      660,
+      554,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF7FD4E8",
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_SECTION_MISSILE"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      660,
+      578,
+      240,
+      2
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      598,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_MISSILE"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      628,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_WEAPON_SUPER_MISSILE",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_SUPER_MISSILE"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      628,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_WEAPON_SUPER_MISSILE",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_SUPER_MISSILE"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      658,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_WEAPON_ICE_MISSILE",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_ICE_MISSILE"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      658,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_WEAPON_ICE_MISSILE",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_ICE_MISSILE"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      688,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_MULTILOCKON",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_MULTI_LOCKON_MISSILE"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      688,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_MULTILOCKON",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_MULTI_LOCKON_MISSILE"
+    },
+    {
+     "type": "label",
+     "rect": [
+      660,
+      732,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF7FD4E8",
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_SECTION_BOMBS"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      660,
+      756,
+      240,
+      2
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      776,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_WEAPON_BOMB",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_BOMB"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      776,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_WEAPON_BOMB",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_BOMB"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      806,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_WEAPON_LINE_BOMB",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_LINE_BOMB"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      806,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_WEAPON_LINE_BOMB",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_LINE_BOMB"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      836,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_WEAPON_POWER_BOMB",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_POWER_BOMB"
+    },
+    {
+     "type": "label",
+     "rect": [
+      672,
+      836,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_WEAPON_POWER_BOMB",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_POWER_BOMB"
+    },
+    {
+     "type": "label",
+     "rect": [
+      940,
+      256,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF7FD4E8",
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_SECTION_AEION"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      940,
+      280,
+      240,
+      2
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      300,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_OPTIC_CAMOUFLAGE",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_OPTICAL_CAMO"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      300,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_OPTIC_CAMOUFLAGE",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_OPTICAL_CAMO"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      330,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_GHOST_AURA",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_GHOST_DASH"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      330,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_GHOST_AURA",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_GHOST_DASH"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      360,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_SONAR",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_SONAR"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      360,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_SONAR",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_SONAR"
+    },
+    {
+     "type": "label",
+     "rect": [
+      940,
+      404,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF7FD4E8",
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_SECTION_SUIT"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      940,
+      428,
+      240,
+      2
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      448,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_POWER_SUIT"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      478,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_VARIA_SUIT",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_VARIA_SUIT"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      478,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_VARIA_SUIT",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_VARIA_SUIT"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      508,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_GRAVITY_SUIT",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_GRAVITY_SUIT"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      508,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_GRAVITY_SUIT",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_GRAVITY_SUIT"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      538,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_HYPER_SUIT",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_HYPER_SUIT"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      538,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_HYPER_SUIT",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_HYPER_SUIT"
+    },
+    {
+     "type": "label",
+     "rect": [
+      940,
+      582,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF7FD4E8",
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_SECTION_MORPHBALL"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      940,
+      606,
+      240,
+      2
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      626,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_MORPH_BALL",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_MORPHBALL"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      626,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_MORPH_BALL",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_MORPHBALL"
+    },
+    {
+     "type": "label",
+     "rect": [
+      940,
+      670,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF7FD4E8",
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_SECTION_MISC"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      940,
+      694,
+      240,
+      2
+     ],
+     "bg": "#FF849293",
+     "color": "#00000000",
+     "need_bind": "menu_open"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      714,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_MAGNET_GLOVE",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_SPIDER_MAGNET"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      714,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_MAGNET_GLOVE",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_SPIDER_MAGNET"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      744,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_SPEED_BOOSTER",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_SPEED_BOOSTER"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      744,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_SPEED_BOOSTER",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_SPEED_BOOSTER"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      774,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_DOUBLE_JUMP",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_DOUBLE_JUMP"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      774,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_DOUBLE_JUMP",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_DOUBLE_JUMP"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      804,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_SPACE_JUMP",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_SPACE_JUMP"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      804,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_SPACE_JUMP",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_SPACE_JUMP"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      834,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "hide_bind": "pw_ITEM_SCREW_ATTACK",
+     "keep_min": 1,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_SCREW_ATTACK"
+    },
+    {
+     "type": "label",
+     "rect": [
+      952,
+      834,
+      0,
+      0
+     ],
+     "text_scale": 4,
+     "color": "#FF3A4650",
+     "hide_bind": "pw_ITEM_SCREW_ATTACK",
+     "keep_max": 0,
+     "need_bind": "menu_open",
+     "bind_text": "loc:GUI_SAMUSMENU_NAME_SCREW_ATTACK"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#1C950000",
+     "color": "#00000000",
+     "pulse": true,
+     "need_bind": "emmi_chase",
+     "id": "chase_wash"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#00000000",
+     "color": "#FF950000",
+     "frame": 18,
+     "pulse": true,
+     "need_bind": "emmi_chase",
+     "id": "chase_frame"
+    }
+   ]
+  }
+ ],
+ "frame_hook": "$lua_pcall",
+ "sequences": {
+  "inventory": {
+   "every_ms": 700,
+   "steps": [
+    {
+     "fn": "lua_gettop",
+     "args": [
+      "$L"
+     ],
+     "save": "top0"
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_Game"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 60
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_GetPlayerName"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 6,
+     "else_step": 60
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      0,
+      1,
+      0
+     ],
+     "expect": 0,
+     "else_step": 60
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -2,
+      "$@s_GetItemAmount"
+     ]
+    },
+    {
+     "fn": "lua_pushvalue",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_pushstring",
+     "args": [
+      "$L",
+      "$@s_ITEM_MAX_LIFE"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      2,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_tonumber",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": true,
+     "reject": 0,
+     "else_step": 60
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -2,
+      "$@s_GetItemAmount"
+     ]
+    },
+    {
+     "fn": "lua_pushvalue",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_pushstring",
+     "args": [
+      "$L",
+      "$@s_ITEM_CURRENT_LIFE"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      2,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_tonumber",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": true,
+     "out": "energy"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -2,
+      "$@s_GetItemAmount"
+     ]
+    },
+    {
+     "fn": "lua_pushvalue",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_pushstring",
+     "args": [
+      "$L",
+      "$@s_ITEM_MAX_LIFE"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      2,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_tonumber",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": true,
+     "out": "energy_max"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -2,
+      "$@s_GetItemAmount"
+     ]
+    },
+    {
+     "fn": "lua_pushvalue",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_pushstring",
+     "args": [
+      "$L",
+      "$@s_ITEM_WEAPON_MISSILE_CURRENT"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      2,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_tonumber",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": true,
+     "out": "missile"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -2,
+      "$@s_GetItemAmount"
+     ]
+    },
+    {
+     "fn": "lua_pushvalue",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_pushstring",
+     "args": [
+      "$L",
+      "$@s_ITEM_WEAPON_MISSILE_MAX"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      2,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_tonumber",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": true,
+     "out": "missile_max"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -2,
+      "$@s_GetItemAmount"
+     ]
+    },
+    {
+     "fn": "lua_pushvalue",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_pushstring",
+     "args": [
+      "$L",
+      "$@s_ITEM_WEAPON_POWER_BOMB_CURRENT"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      2,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_tonumber",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": true,
+     "out": "pbomb"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -2,
+      "$@s_GetItemAmount"
+     ]
+    },
+    {
+     "fn": "lua_pushvalue",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_pushstring",
+     "args": [
+      "$L",
+      "$@s_ITEM_WEAPON_POWER_BOMB_MAX"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      2,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_tonumber",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": true,
+     "out": "pbomb_max"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -2,
+      "$@s_GetItemAmount"
+     ]
+    },
+    {
+     "fn": "lua_pushvalue",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_pushstring",
+     "args": [
+      "$L",
+      "$@s_ITEM_CURRENT_SPECIAL_ENERGY"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      2,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_tonumber",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": true,
+     "out": "aeion"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -2,
+      "$@s_GetItemAmount"
+     ]
+    },
+    {
+     "fn": "lua_pushvalue",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_pushstring",
+     "args": [
+      "$L",
+      "$@s_ITEM_MAX_SPECIAL_ENERGY"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      2,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_tonumber",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": true,
+     "out": "aeion_max"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      "$#top0"
+     ]
+    }
+   ]
+  },
+  "probe": {
+   "every_ms": 0,
+   "steps": [
+    {
+     "fn": "lua_gettop",
+     "args": [
+      "$L"
+     ],
+     "save": "top0"
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_Game"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 19
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_IsInFINAL"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_toboolean",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": false,
+     "out": "final"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_IsMinimapEnabled"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_toboolean",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": false,
+     "out": "minimap_on_now"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_GetGameDifficulty"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_tonumber",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": true,
+     "out": "difficulty"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_GetTotalPlayTime"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "fn": "lua_tonumber",
+     "args": [
+      "$L",
+      -1
+     ],
+     "float": true,
+     "out": "playtime"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      -2
+     ]
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      "$#top0"
+     ]
+    }
+   ]
+  },
+  "scenario": {
+   "every_ms": 2000,
+   "steps": [
+    {
+     "fn": "lua_gettop",
+     "args": [
+      "$L"
+     ],
+     "save": "top0"
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_Game"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 7
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_GetScenarioID"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 6,
+     "else_step": 7
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      0,
+      1,
+      0
+     ],
+     "expect": 0,
+     "else_step": 7
+    },
+    {
+     "fn": "lua_tolstring",
+     "args": [
+      "$L",
+      -1,
+      0
+     ],
+     "out_text": "scenario"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      "$#top0"
+     ]
+    }
+   ]
+  },
+  "playername": {
+   "every_ms": 0,
+   "steps": [
+    {
+     "fn": "lua_gettop",
+     "args": [
+      "$L"
+     ],
+     "save": "top0"
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_Game"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 7
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_GetPlayerName"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 6,
+     "else_step": 7
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      0,
+      1,
+      0
+     ],
+     "expect": 0,
+     "else_step": 7
+    },
+    {
+     "fn": "lua_tolstring",
+     "args": [
+      "$L",
+      -1,
+      0
+     ],
+     "out_text": "playername"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      "$#top0"
+     ]
+    }
+   ]
+  },
+  "player": {
+   "every_ms": 0,
+   "steps": [
+    {
+     "fn": "lua_gettop",
+     "args": [
+      "$L"
+     ],
+     "save": "top0"
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_Game"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 8
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_GetPlayer"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 6,
+     "else_step": 8
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      0,
+      1,
+      0
+     ],
+     "expect": 0,
+     "else_step": 8
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "out": "player_type"
+    },
+    {
+     "fn": "lua_topointer",
+     "args": [
+      "$L",
+      -1
+     ],
+     "out_addr": "player_ptr"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      "$#top0"
+     ]
+    }
+   ]
+  },
+  "mmgr": {
+   "every_ms": 0,
+   "steps": [
+    {
+     "fn": "lua_gettop",
+     "args": [
+      "$L"
+     ],
+     "save": "top0"
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_Game"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 8
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_GetMinimapManager"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 6,
+     "else_step": 8
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      0,
+      1,
+      0
+     ],
+     "expect": 0,
+     "else_step": 8
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "out": "mmgr_type"
+    },
+    {
+     "fn": "lua_topointer",
+     "args": [
+      "$L",
+      -1
+     ],
+     "out_addr": "mmgr_ptr"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      "$#top0"
+     ]
+    }
+   ]
+  },
+  "camera": {
+   "every_ms": 0,
+   "steps": [
+    {
+     "fn": "lua_gettop",
+     "args": [
+      "$L"
+     ],
+     "save": "top0"
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_Game"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 8
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_GetCamera"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 6,
+     "else_step": 8
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      0,
+      1,
+      0
+     ],
+     "expect": 0,
+     "else_step": 8
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "out": "camera_type"
+    },
+    {
+     "fn": "lua_topointer",
+     "args": [
+      "$L",
+      -1
+     ],
+     "out_addr": "camera_ptr"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      "$#top0"
+     ]
+    }
+   ]
+  },
+  "pinfo": {
+   "every_ms": 0,
+   "steps": [
+    {
+     "fn": "lua_gettop",
+     "args": [
+      "$L"
+     ],
+     "save": "top0"
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_Game"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 8
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_GetPlayerInfo"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 6,
+     "else_step": 8
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      0,
+      1,
+      0
+     ],
+     "expect": 0,
+     "else_step": 8
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "out": "pinfo_type"
+    },
+    {
+     "fn": "lua_topointer",
+     "args": [
+      "$L",
+      -1
+     ],
+     "out_addr": "pinfo_ptr"
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      "$#top0"
+     ]
+    }
+   ]
+  },
+  "hud_off": {
+   "steps": [
+    {
+     "fn": "lua_gettop",
+     "args": [
+      "$L"
+     ],
+     "save": "top0"
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_hud"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 13
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_oHUDRoot"
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_GUI"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 13
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_SetProperties"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 6,
+     "else_step": 13
+    },
+    {
+     "fn": "lua_pushvalue",
+     "args": [
+      "$L",
+      -3
+     ]
+    },
+    {
+     "fn": "lua_createtable",
+     "args": [
+      "$L",
+      0,
+      1
+     ]
+    },
+    {
+     "fn": "lua_pushboolean",
+     "args": [
+      "$L",
+      0
+     ]
+    },
+    {
+     "fn": "lua_setfield",
+     "args": [
+      "$L",
+      -2,
+      "$@s_Visible"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      2,
+      0,
+      0
+     ]
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      "$#top0"
+     ]
+    }
+   ]
+  },
+  "hud_on": {
+   "steps": [
+    {
+     "fn": "lua_gettop",
+     "args": [
+      "$L"
+     ],
+     "save": "top0"
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_hud"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 13
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_oHUDRoot"
+     ]
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_GUI"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 13
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_SetProperties"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 6,
+     "else_step": 13
+    },
+    {
+     "fn": "lua_pushvalue",
+     "args": [
+      "$L",
+      -3
+     ]
+    },
+    {
+     "fn": "lua_createtable",
+     "args": [
+      "$L",
+      0,
+      1
+     ]
+    },
+    {
+     "fn": "lua_pushboolean",
+     "args": [
+      "$L",
+      1
+     ]
+    },
+    {
+     "fn": "lua_setfield",
+     "args": [
+      "$L",
+      -2,
+      "$@s_Visible"
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      2,
+      0,
+      0
+     ]
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      "$#top0"
+     ]
+    }
+   ]
+  },
+  "minimap_off": {
+   "steps": [
+    {
+     "fn": "lua_gettop",
+     "args": [
+      "$L"
+     ],
+     "save": "top0"
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_minimap"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 7
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_SetVisible"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 6,
+     "else_step": 7
+    },
+    {
+     "fn": "lua_pushboolean",
+     "args": [
+      "$L",
+      0
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      "$#top0"
+     ]
+    }
+   ]
+  },
+  "minimap_on": {
+   "steps": [
+    {
+     "fn": "lua_gettop",
+     "args": [
+      "$L"
+     ],
+     "save": "top0"
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -10002,
+      "$@s_minimap"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 5,
+     "else_step": 7
+    },
+    {
+     "fn": "lua_getfield",
+     "args": [
+      "$L",
+      -1,
+      "$@s_SetVisible"
+     ]
+    },
+    {
+     "fn": "lua_type",
+     "args": [
+      "$L",
+      -1
+     ],
+     "expect": 6,
+     "else_step": 7
+    },
+    {
+     "fn": "lua_pushboolean",
+     "args": [
+      "$L",
+      1
+     ]
+    },
+    {
+     "fn": "lua_pcall",
+     "args": [
+      "$L",
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "fn": "lua_settop",
+     "args": [
+      "$L",
+      "$#top0"
+     ]
+    }
+   ]
+  }
+ },
+ "actions": {
+  "minimap_off": {
+   "kind": "sequence",
+   "sequence": "minimap_off"
+  },
+  "hud_off": {
+   "kind": "sequence",
+   "sequence": "hud_off"
+  },
+  "hud_on": {
+   "kind": "sequence",
+   "sequence": "hud_on"
+  },
+  "go_map": {
+   "kind": "page",
+   "page": "map"
+  },
+  "go_status": {
+   "kind": "page",
+   "page": "status"
+  },
+  "go_hud": {
+   "kind": "page",
+   "page": "hud"
+  },
+  "minimap_on": {
+   "kind": "sequence",
+   "sequence": "minimap_on"
+  },
+  "minimap_alpha_zero": {
+   "kind": "write",
+   "point": "minimap_alpha",
+   "value": 0
+  },
+  "map_reset": {
+   "kind": "view_reset",
+   "view": "dread_map"
+  }
+ },
+ "font": "romfs:/system/fonts/occ_32.bfont",
+ "font_atlas": "romfs:/textures/system/fonts/textures/occ_atlas.bctex",
+ "flags": {
+  "gpu_composite": true
+ },
+ "enforce_gate": {
+  "point": "map_ready",
+  "max": 1
+ },
+ "min_runtime": 12
+}
