@@ -25,8 +25,10 @@ Each companion supports one exact game version, the one in **Patch Version**. It
 1. Install [Eden Duo](https://github.com/igawa6/eden-duo/releases), at least the version in **Requires**.
 2. Update the game to the version in **Patch Version**.
 3. Download the game's `.dsmod.zip` from the table above. Do not rename it; the file name carries the title ID, name and version.
-4. In Eden Duo, long-press the game, open **Add-ons**, choose **Install**, and select the file. It appears as, for example, `Persona5RoyalDS-1.0.0`.
+4. In Eden Duo, long-press the game, open **Add-ons** and tap **Install**. In the **Content type** dialog choose **Dual screen mods**, tap **OK**, then select the file. It appears in the Add-ons list as, for example, `Persona5RoyalDS-1.0.0`.
 5. Launch the game. The companion appears on the second screen once gameplay starts.
+
+![Installing a companion: Add-ons, Install, Dual screen mods](screenshots/eden-duo/addons_dualscreen.png)
 
 Installing a newer version of a companion replaces the older one.
 
