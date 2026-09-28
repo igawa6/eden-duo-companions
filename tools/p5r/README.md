@@ -21,6 +21,10 @@ game files the module will read. That is why a rebuild needs your own unpacked c
 4. `build_menu.py`: the START MENU replica (SKILL, ITEM, EQUIP, PERSONA, STATS, CONFIDANT, REQUEST,
    CALENDAR) and the MUSIC page. It uses `menu_art.py` and `music_art.py`.
 5. `prune_derived.py`: drops derived values that nothing reads.
+   `preload_art.py`: the pages that open the START MENU carry its art as invisible 1x1 widgets,
+   and the hub carries the art of the eight menu pages, so the host has built those images before
+   the page opens. Without them the first open after loading a save faded in with missing tiles
+   and money digits. It replays recipes to keep one page's art under the host's image budget.
 6. Strips the modules and copies them in. `sync_v08.py` pins their sha256 and the version.
    `set_min_runtime.py` sets `min_runtime`.
 7. `check_menu.py`: static checks. Every `module:p5r:<id>` has a recipe and every tap names an

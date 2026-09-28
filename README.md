@@ -14,7 +14,7 @@ This repository holds the companion packages, their documentation and screenshot
 
 | No | Game | Title ID | Patch Version | Companion | Requires | Download |
 |---:|------|----------|---------------|-----------|----------|----------|
-| 1 | [Persona 5 Royal](#persona-5-royal) | `01005CA01580E000` | 1.0.2 | 1.0.0 | Eden Duo 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/persona5royal-1.0.0) |
+| 1 | [Persona 5 Royal](#persona-5-royal) | `01005CA01580E000` | 1.0.2 | 1.1.0 | Eden Duo 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/persona5royal-1.1.0) |
 | 2 | [Metroid Dread](#metroid-dread) | `010093801237C000` | 2.1.0 | 1.0.0 | Eden Duo 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/metroid-dread-1.0.0) |
 | 3 | [The Legend of Zelda: Link's Awakening](#the-legend-of-zelda-links-awakening) | `01006BB00C6F0000` | 1.0.1 | 1.0.0 | Eden Duo 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/links-awakening-1.0.0) |
 
@@ -36,7 +36,7 @@ Installing a newer version of a companion replaces the older one.
 
 ## Persona 5 Royal
 
-`01005CA01580E000` · game version 1.0.2 · companion 1.0.0
+`01005CA01580E000` · game version 1.0.2 · companion 1.1.0
 
 <!-- screenshots/persona5royal/*.png -->
 | Field | Menu | Battle |

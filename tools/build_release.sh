@@ -13,7 +13,8 @@
 #   P5R_ANDROID_SO   android-arm64-v8a build of the Persona 5 Royal module
 #   DREAD_LINUX_SO   linux-x86_64 build of the Metroid Dread module
 #   DREAD_ANDROID_SO android-arm64-v8a build of the Metroid Dread module
-# Versions default to 1.0.0; override with P5R_VERSION, DREAD_VERSION, LA_VERSION.
+# Versions default to each package's current release; override with P5R_VERSION, DREAD_VERSION,
+# LA_VERSION.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT=${1:-dist}
@@ -46,7 +47,7 @@ pkg() {
 }
 
 # shellcheck disable=SC2046
-pkg Persona5Royal Persona5RoyalDS "${P5R_VERSION:-1.0.0}" \
+pkg Persona5Royal Persona5RoyalDS "${P5R_VERSION:-1.1.0}" \
   --module "android-arm64-v8a=$P5R_ANDROID_SO" --module "linux-x86_64=$P5R_LINUX_SO" \
   $(build_ids Persona5Royal)
 # shellcheck disable=SC2046

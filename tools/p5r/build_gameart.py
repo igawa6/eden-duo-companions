@@ -189,12 +189,17 @@ field.append(T(1208, 144, bind_text='live.date', scale=4, color=DIM, align='righ
 field.append(IMG(kit.shape('rect', 1176, 4), 32, 186, 1176, 4, color=RED))
 PIN, PW, PH = kit.sprite('minimap', 49, 'map_pin', height=46, color=RED,
                          note='minimap destination pin, recoloured red')
-mapw.update(rect=[32, 190, 1176, 620], bg=BG, color=RED, marker_src=PIN,
-            marker_size=[PW, PH], marker_anchor=[0.5, 1.0])
-field.append(mapw)
-field.append(T(620, 480, 'Map unavailable for this area.', 5, DIM, align='center',
-               need_bind='controls.map_unavailable'))
-field += party_strip()
+mapw.update(bg=BG, color=RED, marker_src=PIN, marker_size=[PW, PH], marker_anchor=[0.5, 1.0])
+# Two map boxes, one shown at a time on ga.strip: in a dungeon the box stops above the party strip;
+# anywhere the strip is hidden (town, dialogue) it runs down to the bottom bar instead of leaving the
+# strip's slot empty. Separate ids, so each keeps its own pan/zoom.
+MAP_Y, MAP_BOTTOM, STRIP_Y = 190, 948, 826
+for mid, h, keep in (('p5r_map', MAP_BOTTOM - MAP_Y, dict(keep_max=0)),
+                     ('p5r_map_strip', STRIP_Y - 16 - MAP_Y, dict(keep_min=1))):
+    field.append(dict(mapw, id=mid, rect=[32, MAP_Y, 1176, h], hide_bind='ga.strip', **keep))
+    field.append(T(620, MAP_Y + h // 2 - 20, 'Map unavailable for this area.', 5, DIM, align='center',
+                   need_bind='controls.map_unavailable', hide_bind='ga.strip', **keep))
+field += party_strip(STRIP_Y)
 # native-menu drivers (press R / X in the game) moved from the old nav row into the header band
 field += hbtn(780, 'GAME MAP', 'field.map', 'controls.field')
 field += hbtn(1004, 'GAME MENU', 'field.menu', 'controls.field')

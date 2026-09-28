@@ -41,6 +41,7 @@ python3 "$R/build_gameart.py" "$W/base.json" "$OUT/dualscreen" | tail -1
 python3 "$R/map_merge_af.py" "$OUT/dualscreen"
 python3 "$R/build_menu.py" "$OUT/dualscreen"
 python3 "$R/prune_derived.py" "$OUT/dualscreen"  # drop derived values nothing reads
+python3 "$R/preload_art.py" "$OUT/dualscreen"   # next pages' art requested ahead (first-open pop-in)
 # Ship modules fully stripped (only the dynamic symbol table the host loads through is kept). The
 # sha256 pins in package.json / manifest.json are computed from these stripped copies.
 mkdir -p "$W/stripped/linux" "$W/stripped/android"

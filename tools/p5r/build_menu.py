@@ -1806,14 +1806,82 @@ for pg in pages:
                 and w.get('align', 'left') == 'left' and not w.get('wrap_width')):
             r[2] = max(1, min(640 if w.get('type') == 'label' else 240, W - r[0]))
 m['pages'] = pages
-# ui.page binds first (the state.mode / controls.choice binds after them win a same-tick clash);
-# the field/menu mode binds hold while a native-menu drive runs (it opens and closes the camp menu)
-binds = [b for b in m.get('page_binds', []) if b.get('point') != 'ui.page']
-for b in binds:
-    if b.get('point') == 'state.mode' and b.get('equals') in (1, 2, 5):
-        b['ready_bind'] = '!pdrv.busy'
-m['page_binds'] = [dict(point='ui.page', equals=v, when_equal=dict(page=pid))
-                   for pid, v in PAGE_ID.items()] + binds
+# ---- automatic page switches. page_binds are edge-triggered per bind, so the old separate
+# state.mode / controls.choice binds misfired in two ways:
+#  - chatter bubbles in a Palace flip state.mode 2 -> 4 -> 2 every few seconds; each return into 2
+#    fired 'field' and yanked an open START MENU page away;
+#  - an EVENT scene (state.scene 7) reads not-ready (state.mode 0) between messages, so the
+#    conversation ping-ponged waiting <-> live, and a choice closing on the same tick as a 0 fired
+#    two binds at once (an instant cut, then a fade from a page never shown).
+# Now ONE derived value, ui.pb.pg, names the page the game state asks for, and one bind per value
+# switches on its edge: a tick can only move into one value, so at most one automatic switch fires.
+#   40 dialogue  a choice is open
+#   10 waiting   real loading: not ready outside an EVENT scene
+#   71 (none)    EVENT scene before its first message (still loading): the page stays
+#   70 live      EVENT scene running: stays put across the gaps between messages
+#   20/30/50/60  field / battle / live (native menu) / analysis, from state.mode with 4 (dialogue
+#                overlay) held at the mode before it, so a chatter blip changes nothing
+_OLD_BINDS = [(b.get('point'), b.get('equals')) for b in m.get('page_binds', []) if b.get('point') != 'ui.page']
+assert _OLD_BINDS == [('state.mode', 0), ('state.mode', 1), ('state.mode', 2), ('state.mode', 3),
+                      ('state.mode', 5), ('state.mode', 6), ('controls.choice', 1),
+                      ('controls.choice', 1), ('controls.choice', 1)], _OLD_BINDS
+for _v in (10, 20, 30, 40, 50, 60, 70, 71):
+    dv(f'ui.pb.k{_v}', terms=[], add=_v)
+_scene7 = dv('ui.pb.sc7', cmp='eq', a='state.scene', b=7)
+_not7 = dv('ui.pb.nsc7', cmp='ne', a='state.scene', b=7)
+_m0 = dv('ui.pb.m0', cmp='eq', a='state.mode', b=0)
+_m4 = dv('ui.pb.m4', cmp='eq', a='state.mode', b=4)
+_mode = dv('ui.pb.mode', hold_last_nonzero='state.mode', hold_gate=dv('ui.pb.n4', cmp='ne', a='state.mode', b=4))
+_ev = dv('ui.pb.ev', all_nonzero=[_scene7, dv('ui.pb.m04', any_nonzero=[_m0, _m4])])
+_ev_ready = dv('ui.pb.evr', all_nonzero=['live.ready', _scene7])
+# 1 once the EVENT scene has shown a message; back to 0 on any tick outside scene 7
+_ev_seen = dv('ui.pb.evs', hold_last_nonzero=_ev_ready, hold_gate=dv('ui.pb.evg', any_nonzero=[_ev_ready, _not7]))
+_by_mode = dv('ui.pb.pm', select=dv('ui.pb.m12', any_nonzero=[dv('ui.pb.m1', cmp='eq', a=_mode, b=1),
+                                                            dv('ui.pb.m2', cmp='eq', a=_mode, b=2)]),
+              then='ui.pb.k20',
+              **{'else': dv('ui.pb.pm3', select=dv('ui.pb.m3', cmp='eq', a=_mode, b=3), then='ui.pb.k30',
+                            **{'else': dv('ui.pb.pm5', select=dv('ui.pb.m5', cmp='eq', a=_mode, b=5),
+                                          then='ui.pb.k50',
+                                          **{'else': dv('ui.pb.pm6', select=dv('ui.pb.m6', cmp='eq', a=_mode, b=6),
+                                                        then='ui.pb.k60', **{'else': 'ui.pb.k10'})})})})
+_by_ev = dv('ui.pb.pe', select=_ev_seen, then='ui.pb.k70', **{'else': 'ui.pb.k71'})
+_pg_a = dv('ui.pb.pa', select=_ev, then=_by_ev, **{'else': _by_mode})
+_pg_b = dv('ui.pb.pb', select=dv('ui.pb.load', all_nonzero=[_m0, _not7]), then='ui.pb.k10', **{'else': _pg_a})
+PG = dv('ui.pb.pg', select=dv('ui.pb.ch', cmp='eq', a='controls.choice', b=1), then='ui.pb.k40',
+        **{'else': _pg_b})
+# The P5R module mirrors the old binds: any state.mode edge except into 4 resets ui.page to -1 (its
+# START MENU lists stop), so a chatter blip still empties an open menu page. ui.pb.lost spots
+# exactly that case -- ui.page dropped to -1 while the page code has not changed since a START MENU
+# page was last open (a genuine change latches ui.pb.chg) -- and an enforce rule re-sends
+# ui_open(that page) on the same tick. The ui.page binds are unarmed while ui.pb.lost reads 1, so
+# the page coming back re-arms them silently instead of switching (a MUSIC page stays up).
+MENU_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 22]
+_pos = dv('ui.pb.upos', cmp='gt', a='ui.page', b=0)
+_want = dv('ui.pb.want', hold_last_nonzero='ui.page', hold_gate=_pos)
+_want_pg = dv('ui.pb.wpg', hold_last_nonzero=PG, hold_gate=_pos)
+_ne = dv('ui.pb.ne', cmp='ne', a=PG, b=_want_pg)
+_chg = dv('ui.pb.chg', hold_last_nonzero=_ne, hold_gate=dv('ui.pb.chgg', any_nonzero=[_pos, _ne]))
+_menu = dv('ui.pb.wmenu', any_nonzero=[dv('ui.pb.wlo', all_nonzero=[dv('ui.pb.wge1', cmp='ge', a=_want, b=1),
+                                                                     dv('ui.pb.wle11', cmp='le', a=_want, b=11)]),
+                                       dv('ui.pb.w22', cmp='eq', a=_want, b=22)])
+LOST = dv('ui.pb.lost', all_nonzero=[dv('ui.pb.uneg', cmp='eq', a='ui.page', b=-1), _menu,
+                                     dv('ui.pb.nchg', cmp='eq', a=_chg, b=0), 'live.ready'])
+assert m.get('enforce_gate') == {'point': 'pdrv.pending', 'max': 1}, m.get('enforce_gate')
+m['enforce_gate'] = dict(point=dv('ui.pb.enf', any_nonzero=['pdrv.pending', LOST]), max=1)
+for _p in MENU_IDS:
+    actions[f'ui.reopen.{_p}'] = dict(kind='module', action='ui_open', argument=_p,
+                                      enabled_bind=dv(f'ui.pb.lost{_p}', all_nonzero=[
+                                          LOST, dv(f'ui.pb.w{_p}', cmp='eq', a=_want, b=_p)]))
+    m['enforce'].append(dict(action=f'ui.reopen.{_p}', every_ms=1))
+# ui.page binds first; the field / menu binds hold while a native-menu drive runs (it opens and
+# closes the camp menu itself)
+_busy = {20, 50}
+_PG_PAGE = {10: 'waiting', 20: 'field', 30: 'battle', 40: 'dialogue', 50: 'live', 60: 'analysis', 70: 'live'}
+m['page_binds'] = ([dict(point='ui.page', equals=v, when_equal=dict(page=pid), ready_bind='!' + LOST)
+                    for pid, v in PAGE_ID.items()]
+                   + [dict(point=PG, equals=v, when_equal=dict(page=pid),
+                           **({'ready_bind': '!pdrv.busy'} if v in _busy else {}))
+                      for v, pid in _PG_PAGE.items()])
 outs = m.setdefault('module_outputs', [])
 for k in ['pstat.ready', 'item.ready', 'item.tab.count', 'skill.ready', 'persona.ready', 'persona.count',
           'persona.current', 'request.ready', 'request.count', 'calendar.ready', 'calendar.month',
@@ -1832,6 +1900,26 @@ for k in ['pstat.ready', 'item.ready', 'item.tab.count', 'skill.ready', 'persona
           'calendar.sel.log.morgana', 'calendar.sel.log.done']:
     if k not in outs:
         outs.append(k)
+# Haptic feedback on the companion screen (the frontend honours the system touch-feedback setting).
+# P5R's actions are module / button / page kinds, so the runtime treats them all as plain taps; the
+# ones that change the game (use, equip, persona change, confirm a choice) get a firmer "confirm".
+m['haptics'] = dict(enabled=True, respect_system=True, tap='click', select='click', marker='click',
+                    drag='light', drop='confirm', write='confirm', refused='reject')
+for name in ['item.use', 'item.use_sel', 'skill.use', 'skill.use_sel', 'equip.change',
+             'equip.change_sel', 'persona.change', 'persona.change_sel', 'choice.confirm']:
+    m['actions'][name]['haptic'] = 'confirm'
+# Every page change fades: a quick one between menu pages (tabs, page buttons), a slower one when
+# the game itself changes state (field / battle / dialogue / analysis). Explicit ones are kept.
+FADE_MENU = dict(transition='fade', duration_ms=180)
+FADE_GAME = dict(transition='fade', duration_ms=250)
+for b in m['page_binds']:
+    fade = FADE_MENU if b.get('point') == 'ui.page' else FADE_GAME
+    for side in ('when_equal', 'when_not_equal'):
+        if side in b and 'transition' not in b[side]:
+            b[side].update(fade)
+for a in m['actions'].values():
+    if a.get('kind') == 'page' and 'transition' not in a:
+        a.update(FADE_MENU)
 man_path.write_text(json.dumps(m, ensure_ascii=False, separators=(',', ':')) + '\n')
 kit.write_provenance()
 n = sum(len(p['widgets']) for p in pages)

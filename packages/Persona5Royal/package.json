@@ -3,7 +3,7 @@
  "type": "dual-screen-mod",
  "title_id": "01005CA01580E000",
  "name": "Persona 5 Royal live companion",
- "version": "1.0.0",
+ "version": "1.1.0",
  "requires_module": true,
  "module": {
   "abi": 1,
