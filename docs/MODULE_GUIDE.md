@@ -173,8 +173,8 @@ Constants: `EDEN_DSMOD_EXT_VERSION 1`, `EDEN_DSMOD_EXT_HASH 0x719d8b206e4fa351`.
 | `load_image(inst, host, key, receiver, sink)` | Decodes a `module:` key. Call `sink(receiver, w, h, rgba, w*h*4)` once, with straight RGBA8, at most 4096×4096 and 16 MiB. Runs on the asset worker, so keep decoder state isolated from `sample` |
 
 The guest mailbox exists only when the package has a `load_plan`: load-time code patches that
-reserve a mailbox in the executable. The Mario Kart 8 Deluxe module uses it. Persona 5 Royal
-does not.
+reserve a mailbox in the executable. None of the published modules uses it: Mario Kart 8
+Deluxe, Persona 5 Royal and Metroid Dread read the game directly.
 
 ### 2.2 Font: `eden_dsmod_get_font_extensions`
 
@@ -257,7 +257,7 @@ typedef void (*EdenDsmodDataSink)(void* receiver, const uint8_t* bytes, size_t s
 | `eden_dsmod_get_module` | ✓ | ✓ | ✓ |
 | `eden_dsmod_get_extensions` | ✓ | ✓ | ✓ |
 | `eden_dsmod_get_font_extensions` | | ✓ | ✓ |
-| `eden_dsmod_get_write_extensions` | | | ✓ |
+| `eden_dsmod_get_write_extensions` | ✓ | | ✓ |
 | `eden_dsmod_get_data_extensions` | | ✓ | |
 | `eden_dsmod_get_save_extensions` | | | |
 
@@ -288,7 +288,7 @@ Title modules live in the Eden Duo repository under `src/core/mods/modules/`. It
 |---|---|---|
 | `dsmod-p5r` | `01005CA01580E000.so` (`01005CA01580E000.cpp`, `p5r_reader_*.cpp`, `p5r_romfs_assets.cpp`) | No (`EXCLUDE_FROM_ALL`); build it by name |
 | `dsmod-dread` | `010093801237C000.so` (`010093801237C000.cpp`, `dread_romfs.cpp`, `dread_rfl.cpp`, `dread_mapgen.cpp`, `dread_mapgen_util.cpp`, `dread_maproom.cpp`) | No (`EXCLUDE_FROM_ALL`) |
-| `dsmod-mk8d` | `0100152000022000.so` | Yes |
+| `dsmod-mk8d` | `0100152000022000.so` (`0100152000022000.cpp`, `mk8d_reader.cpp`, `mk8d_ids.cpp`, `mk8d_assets.cpp`, code pins in `mk8d_pins*.inc`) | Yes |
 
 Target properties that matter:
 

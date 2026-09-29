@@ -1,0 +1,33 @@
+{
+ "_game": "Mario Kart 8 Deluxe",
+ "_build_id": "2C336A9BCF79C304",
+ "_source": "4.0.0 (AArch64) base + update",
+ "_note": "Per-build named constants (manifest derived). mkc.supported / mkc.build_ver drive the wrong-version card; mk.phase windows: loading card 0..3 (loading, loading screen, fly-by, intro end), race 4..7 (grid banner, countdown, racing, local finished).",
+ "derived": [
+  {
+   "name": "mkc.supported",
+   "terms": [],
+   "add": 1
+  },
+  {
+   "name": "mkc.build_ver",
+   "terms": [],
+   "add": 400
+  },
+  {
+   "name": "mkc.phase_load_max",
+   "terms": [],
+   "add": 3
+  },
+  {
+   "name": "mkc.phase_race_min",
+   "terms": [],
+   "add": 4
+  },
+  {
+   "name": "mkc.phase_race_max",
+   "terms": [],
+   "add": 7
+  }
+ ]
+}

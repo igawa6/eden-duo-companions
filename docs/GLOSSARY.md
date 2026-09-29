@@ -19,6 +19,7 @@
 | **Gate** | A published value name, optionally prefixed `!`. It is open when the value exists and is non-zero. |
 | **GPU composite** | An alternative publish path. Map widgets are sent as textured quads plus textures, and composited on the GPU. |
 | **Guest** | The emulated game, its code and its memory. |
+| **Hold (press-and-hold)** | A single finger resting still on a widget with `on_hold` for `hold_ms` (default 600 ms). Runs that action once; the lift that ends it is not a tap (runtime 13). |
 | **Guest call** | Running a game function from the runtime by borrowing a game thread at a breakpoint. Dynarmic only. |
 | **Load plan** | Code patches plus a guest mailbox, applied when the executable loads (`load_plan`). |
 | **Map areas source** | `map.areas_src`: a `module:` key whose JSON object replaces the manifest's inline `map.areas` once the module has generated it (runtime 12). |
@@ -32,7 +33,7 @@
 | **Recipe** | A small program in P5R's `p5r_art.rec` that builds one image from romfs art (crop, scale, composite, text). |
 | **Redraw worker** | The low-priority `DSModRedraw` thread that renders pages off the tick thread. |
 | **romfs / exefs** | The game's read-only file system, and its executable partition (`main`, `rtld`, `sdk`, …). |
-| **Runtime version** | `DualScreenRuntimeVersion` (currently 12). Packages gate on it with `min_runtime`. |
+| **Runtime version** | `DualScreenRuntimeVersion` (currently 13). Packages gate on it with `min_runtime`. |
 | **Sentinel test** | Change a value reversibly in RAM, check that the native menu and the companion both follow, then restore it. |
 | **Sequence** | A manifest-declared chain of guest calls. Dynarmic only. |
 | **Snapshot** | `StateSnapshot`: all values published in one tick (ints, floats, texts, addresses). It is cleared every tick. |

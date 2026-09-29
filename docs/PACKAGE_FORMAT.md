@@ -83,7 +83,8 @@ A package with a native module (Persona 5 Royal; hash shortened here):
 ```
 
 The asset-free Metroid Dread package declares `"min_runtime": 12` in its manifest, because its
-map data comes from the module's data extension (§3.12).
+map data comes from the module's data extension (§3.12). The Mario Kart 8 Deluxe package declares
+`"min_runtime": 13`, because its theme and row-format toggles are press-and-hold gestures (§3.5).
 
 ## 3. `manifest.json`: top level
 
@@ -94,7 +95,7 @@ map data comes from the module's data extension (§3.12).
 | `format` | uint | 1 | Anything else: the package is skipped |
 | `name` | string | `"dual screen mod"` | |
 | `title_id` | string | — | Optional for a declarative package; **required** with `module` |
-| `min_runtime` | uint / digit string | — | See [ARCHITECTURE.md §4](ARCHITECTURE.md#4-runtime-version-and-min_runtime). Use 12 for `module:` byte sources or `map.areas_src` |
+| `min_runtime` | uint / digit string | — | See [ARCHITECTURE.md §4](ARCHITECTURE.md#4-runtime-version-and-min_runtime). Use 13 for `on_hold`, 12 for `module:` byte sources or `map.areas_src` |
 | `canvas_w`, `canvas_h` | uint | 0 (panel size) | Logical canvas; stretched to the panel |
 | `background` | colour | — | |
 | `poll_hz` | uint | 60 | Legacy; the tick is fixed at 60 Hz |
@@ -191,6 +192,7 @@ widget.
 | `text_scale` | 3 | Integer glyph scale |
 | `align` | left | `left`, `center`, `right` |
 | `on_tap` | — | Action name |
+| `on_hold`, `hold_ms` | —, 600 | Runtime 13. `on_hold` is an action run once when a single finger rests on the widget for `hold_ms` milliseconds (absent or ≤ 0 means 600). The target is the topmost visible `on_hold` widget under the first finger, chosen independently of `on_tap`: a large `on_hold` area under small buttons gets the hold while the buttons keep their taps. An `input_block` above it blocks the hold. It is not armed on a draggable widget with a payload or during a page transition. Moving more than the 12 px tap slop, a second finger, a drag, a page transition or any page change cancels it. The lift that ends a fired hold is not a tap. A still finger on a map or scroll list can hold; after the hold fires the finger may still pan or scroll. `{i}` is substituted in repeat templates, as for `on_tap` |
 | `hide_bind`, `keep_min`, `keep_max`, `hide_eq`, `need_bind` | — | Visibility. `hide_eq` must be an integer; a string there **throws** |
 | `tap_block`, `input_block` | false | Absorb touches |
 | `x_bind`, `y_bind`, `x_scale`, `y_scale` | — | Offset the widget by a published value |
@@ -309,12 +311,16 @@ same keys as a `page` action. A bind fires on the edge into or out of `equals`.
 "enforce": [{"action":"pdrv.press.x","every_ms":1}],
 "enforce_gate": {"point":"pdrv.pending","max":1}                    // Persona5Royal
 "haptics": {"enabled":true,"respect_system":true,"tap":"click","drop":"confirm","refused":"off"} // LinksAwakening (excerpt)
+"haptics": {"enabled":true,"respect_system":true,"tap":"light","hold":"heavy","refused":"off"}   // MarioKart8Deluxe
 ```
 
 - **`enforce`.** Each entry runs `action` every `every_ms`. It runs only while its optional
   `flag` equals `value`, and only while the `enforce_gate` point is between 1 and `max`.
   Persona 5 Royal uses this to press native-menu buttons that its module requests (see
   [PORTING_A_GAME.md §5](PORTING_A_GAME.md#5-driving-the-native-menu)).
+- **`haptics` kinds:** `tap`, `write`, `select`, `drag`, `drop`, `marker`, `refused` and, since
+  runtime 13, `hold` (default `heavy`). It plays when a hold's action ran; a refused action plays
+  `refused` instead. Widget and action `haptic` overrides do not apply to holds.
 - **`haptics` strengths:** `off`, `light`, `click`, `confirm`, `heavy`, `reject`.
 
 ### 3.10 Derived values

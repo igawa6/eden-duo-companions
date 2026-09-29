@@ -1,7 +1,7 @@
 # Porting a game to Eden Duo
 
 This is the method used to build companions for Persona 5 Royal (P5R), Link's Awakening (LA),
-Hollow Knight (HK) and Metroid Dread. It works from your own legally obtained copy of the game.
+Hollow Knight (HK), Metroid Dread and Mario Kart 8 Deluxe (MK8D). It works from your own legally obtained copy of the game.
 Nothing extracted from it is shipped.
 
 ```
@@ -173,9 +173,9 @@ A value that cannot pass these steps is not published.
    `page_binds`. Keep compound logic in `derived` entries, because gates are single names.
 3. **Native module** (optional). Add one when chains are not enough; see
    [MODULE_GUIDE.md](MODULE_GUIDE.md).
-4. **`min_runtime`.** Set it to the runtime version whose features you use (currently 12). Use 12
-   if the package reads `module:` byte sources or `map.areas_src`, 11 for scroll regions or
-   `module:` composite layers.
+4. **`min_runtime`.** Set it to the runtime version whose features you use (currently 13). Use 13
+   if the package uses press-and-hold (`on_hold`), 12 if it reads `module:` byte sources or
+   `map.areas_src`, 11 for scroll regions or `module:` composite layers.
 5. **Build** with this repository's package builder:
    ```sh
    python3 tools/build_dualscreen_package.py --package packages/<Game> --output out/ \
@@ -313,5 +313,6 @@ env EDEN_VSYNC=0 EDEN_DSMOD_CMD=/tmp/run/cmd.in \
 | Second screen not found on a handheld | The panel is listed only as a presentation display | The runtime already takes the union; check `AuxPresentation` if you fork it |
 | Map looks blurred | Bilinear sampling or low raster size | Nearest sampling; raise `map.style.raster_px` |
 | First page transition misses art | Snapshot taken before an async decode finished | Fixed via `asset_epoch` in the signature (runtime 11) |
+| Rows placed by `y_bind` stay at an old place for seconds; module images appear a minute late | Redraw worker dropped a job superseded by a newer dispatch, so its region was never published | Fixed in runtime 13; set `min_runtime` 13 |
 | A `rect` draws a faint frame | Default outline | `"color": "#00000000"` |
 | gdb session left the game frozen | Socket closed while stopped | Always `c` before disconnecting |

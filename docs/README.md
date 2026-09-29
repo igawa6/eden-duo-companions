@@ -17,7 +17,7 @@ Nothing in the emulator is specific to one game. Each game gets a **package**, w
 This documentation set is written for engineers who want to understand the method or build a
 companion for a new game.
 
-Documentation last checked against the source: 2026-09-27 (GMT+7), runtime version 12,
+Documentation last checked against the source: 2026-09-28 (GMT+7), runtime version 13,
 module ABI 1.
 
 ## Repositories
@@ -25,7 +25,7 @@ module ABI 1.
 | Repository | Holds |
 |---|---|
 | [Eden Duo](https://github.com/igawa6/eden-duo) | The emulator, the runtime (`src/core/mods/`) and the native title-module sources (`src/core/mods/modules/`) |
-| This companions repository | Package sources (`packages/<Game>/dualscreen/...`), tools (`tools/build_dualscreen_package.py`, `tools/build_release.sh`, `tools/compact_zip.py`, `tools/p5r/`, `tools/dread/`) and these docs |
+| This companions repository | Package sources (`packages/<Game>/dualscreen/...`), tools (`tools/build_dualscreen_package.py`, `tools/build_release.sh`, `tools/compact_zip.py`, `tools/p5r/`, `tools/dread/`, `tools/mk8d/`) and these docs |
 
 Source paths such as `src/core/mods/mod_manifest.cpp` in these docs refer to the Eden Duo
 repository. Paths under `packages/` and `tools/` refer to this repository.
