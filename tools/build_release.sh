@@ -92,7 +92,7 @@ fi
 if want wonder; then
   # build_ids lists 1.2.1 and the two older builds the module answers with the wrong-pipe page.
   # shellcheck disable=SC2046
-  pkg SuperMarioWonder SuperMarioWonderDS "${WONDER_VERSION:-1.0.0}" \
+  pkg SuperMarioWonder SuperMarioWonderDS "${WONDER_VERSION:-1.0.1}" \
     --module "android-arm64-v8a=$WONDER_ANDROID_SO" --module "linux-x86_64=$WONDER_LINUX_SO" \
     $(build_ids SuperMarioWonder)
 fi

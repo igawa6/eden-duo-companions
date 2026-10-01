@@ -97,37 +97,6 @@
    ]
   },
   {
-   "name": "ui.secret.miss0",
-   "cmp": "eq",
-   "a": "wonder.rail.secret_got",
-   "b": 0
-  },
-  {
-   "name": "ui.secret.miss",
-   "all_nonzero": [
-    "wonder.rail.secret",
-    "ui.secret.miss0"
-   ]
-  },
-  {
-   "name": "ui.title",
-   "cmp": "eq",
-   "a": "wonder.status",
-   "b": 9
-  },
-  {
-   "name": "ui.unsupported",
-   "cmp": "eq",
-   "a": "wonder.status",
-   "b": 3
-  },
-  {
-   "name": "ui.idle",
-   "cmp": "lt",
-   "a": "wonder.status",
-   "b": 3
-  },
-  {
    "name": "ui.small",
    "cmp": "eq",
    "a": "wonder.power_up",
@@ -443,22 +412,6 @@
       0
      ],
      "bind_text": "wonder.game_version_line",
-     "text_scale": 5,
-     "color": "#FF55524A",
-     "align": "center",
-     "need_bind": "wonder.wrong_build",
-     "outline": "#FFFFFFFF",
-     "outline_px": 2
-    },
-    {
-     "type": "label",
-     "rect": [
-      620,
-      640,
-      0,
-      0
-     ],
-     "text": "Your game is an older version.",
      "text_scale": 5,
      "color": "#FF55524A",
      "align": "center",
@@ -828,7 +781,7 @@
     {
      "type": "label",
      "rect": [
-      1120,
+      120,
       520,
       0,
       0
@@ -837,59 +790,10 @@
      "text_scale": 5,
      "color": "#FFFFFFFF",
      "align": "center",
+     "x_bind": "wonder.rail.goal_px",
      "need_bind": "wonder.rail.valid",
      "outline": "#FF232723",
      "outline_px": 2
-    },
-    {
-     "type": "button",
-     "rect": [
-      1088,
-      438,
-      64,
-      64
-     ],
-     "bg": "#B3FFFFFF",
-     "color": "#00000000",
-     "frame": 0,
-     "pill": true,
-     "need_bind": "wonder.rail.valid"
-    },
-    {
-     "type": "image",
-     "rect": [
-      1090,
-      440,
-      60,
-      60
-     ],
-     "src": "module:wonder:lyt/LMotherSeed/IconMotherSeedBlank^s",
-     "color": "#FF6F6B74",
-     "need_bind": "ui.goal.miss"
-    },
-    {
-     "type": "image",
-     "rect": [
-      1090,
-      440,
-      60,
-      60
-     ],
-     "src": "module:wonder:pict/SeedBlue",
-     "color": "#FFFFFFFF",
-     "need_bind": "ui.goal.got"
-    },
-    {
-     "type": "image",
-     "rect": [
-      1130,
-      426,
-      30,
-      34
-     ],
-     "src": "module:wonder:pict/GoalFlag",
-     "color": "#FFFFFFFF",
-     "need_bind": "wonder.rail.valid"
     },
     {
      "type": "button",
@@ -903,8 +807,8 @@
      "color": "#00000000",
      "frame": 0,
      "pill": true,
-     "x_bind": "wonder.rail.secret_px",
-     "need_bind": "wonder.rail.secret"
+     "need_bind": "wonder.rail.valid",
+     "x_bind": "wonder.rail.goal_px"
     },
     {
      "type": "image",
@@ -914,16 +818,86 @@
       60,
       60
      ],
+     "x_bind": "wonder.rail.goal_px",
      "src": "module:wonder:lyt/LMotherSeed/IconMotherSeedBlank^s",
      "color": "#FF6F6B74",
-     "x_bind": "wonder.rail.secret_px",
-     "need_bind": "ui.secret.miss"
+     "need_bind": "ui.goal.miss"
     },
     {
      "type": "image",
      "rect": [
       90,
       440,
+      60,
+      60
+     ],
+     "x_bind": "wonder.rail.goal_px",
+     "src": "module:wonder:pict/SeedBlue",
+     "color": "#FFFFFFFF",
+     "need_bind": "ui.goal.got"
+    },
+    {
+     "type": "image",
+     "rect": [
+      130,
+      426,
+      30,
+      34
+     ],
+     "x_bind": "wonder.rail.goal_px",
+     "src": "module:wonder:pict/GoalFlag",
+     "color": "#FFFFFFFF",
+     "need_bind": "wonder.rail.valid"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      102,
+      352,
+      36,
+      100
+     ],
+     "bg": "#80FFFFFF",
+     "color": "#00000000",
+     "x_bind": "wonder.rail.branch_px",
+     "need_bind": "ui.secret.got"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      138,
+      352,
+      20,
+      36
+     ],
+     "bg": "#80FFFFFF",
+     "color": "#00000000",
+     "x_bind": "wonder.rail.branch_px",
+     "repeat": 60,
+     "repeat_dx": 20,
+     "repeat_bind": "wonder.rail.branch_n",
+     "need_bind": "ui.secret.got"
+    },
+    {
+     "type": "button",
+     "rect": [
+      82,
+      332,
+      76,
+      76
+     ],
+     "bg": "#B3FFFFFF",
+     "color": "#00000000",
+     "frame": 0,
+     "pill": true,
+     "x_bind": "wonder.rail.secret_px",
+     "need_bind": "ui.secret.got"
+    },
+    {
+     "type": "image",
+     "rect": [
+      90,
+      340,
       60,
       60
      ],
@@ -935,17 +909,17 @@
     {
      "type": "label",
      "rect": [
-      120,
-      518,
+      90,
+      354,
       0,
       0
      ],
      "text": "SECRET",
      "text_scale": 5,
      "color": "#FFFFFFFF",
-     "align": "center",
-     "x_bind": "wonder.rail.secret_px",
-     "need_bind": "wonder.rail.secret",
+     "align": "right",
+     "x_bind": "wonder.rail.branch_px",
+     "need_bind": "ui.secret.got",
      "outline": "#FF232723",
      "outline_px": 2
     },
@@ -1103,6 +1077,7 @@
      "frame": 6,
      "pill": true,
      "x_bind": "wonder.rail.px",
+     "y_bind": "wonder.rail.player_dy",
      "need_bind": "wonder.rail.valid"
     },
     {
@@ -1118,13 +1093,14 @@
      "src_format": "module:wonder:chara/%d",
      "color": "#FFFFFFFF",
      "x_bind": "wonder.rail.px",
+     "y_bind": "wonder.rail.player_dy",
      "need_bind": "wonder.rail.valid"
     },
     {
      "type": "button",
      "rect": [
       930,
-      336,
+      42,
       250,
       56
      ],
@@ -1138,7 +1114,7 @@
      "type": "label",
      "rect": [
       1010,
-      350,
+      56,
       0,
       0
      ],
@@ -1152,7 +1128,7 @@
      "type": "value",
      "rect": [
       1120,
-      350,
+      56,
       0,
       0
      ],
@@ -1523,18 +1499,17 @@
      "outline_px": 2
     },
     {
-     "type": "value",
+     "type": "label",
      "rect": [
       1090,
       982,
       0,
       0
      ],
-     "bind": "wonder.reserve_item",
+     "text": "HOLD",
      "text_scale": 5,
      "color": "#FF55524A",
      "align": "center",
-     "table": "power_caps",
      "need_bind": "wonder.has_item",
      "outline": "#FFFFFFFF",
      "outline_px": 2

@@ -11,7 +11,7 @@ player's romfs (module:wonder:<key>) plus package-generated backgrounds (module:
 import json, os, sys
 
 W, H = 1240, 1080
-INK, CREAM, YELLOW, PURPLE, PINK, BLUE = '#FF232723', '#FFFFFAE5', '#FFFFD336', '#FF8447E5', '#FFFF4297', '#FF2AC8F2'
+INK, CREAM, YELLOW = '#FF232723', '#FFFFFAE5', '#FFFFD336'
 GREY_PILL, GREY_TEXT, PILL_EDGE, PANEL = '#FFE2E0DA', '#FF55524A', '#FF6E6A62', '#FFF6F5F1'
 WORLDS = ['Pipe-Rock Plateau', 'Petal Isles', 'Fluff-Puff Peaks', 'Shining Falls', 'Sunbaked Desert',
           'Fungi Mines', 'Deep Magma Bog', "Bowser's Castle", 'Special World']
@@ -83,7 +83,8 @@ def setup_page():
 
 
 def wrong_pipe_card():
-    """Shown on a game version the companion can't read (1.0.0): game art + font, no data."""
+    """Shown on an older game version (1.0.0, 1.0.1): game art + font, no data. The module
+    publishes the version line ("Your game is Ver. 1.0.1.")."""
     wb = {'need_bind': 'wonder.wrong_build'}
     return [
         rect(0, 0, W, H, '#CC232723', **wb),
@@ -93,7 +94,6 @@ def wrong_pipe_card():
         label(620, 590, 'This companion is for Super Mario Bros. Wonder Ver. 1.2.1.', 5, INK, align='center', **wb),
         {'type': 'label', 'rect': [620, 640, 0, 0], 'bind_text': 'wonder.game_version_line', 'text_scale': 5,
          'color': GREY_TEXT, 'align': 'center', **wb},
-        label(620, 640, 'Your game is an older version.', 5, GREY_TEXT, align='center', **wb),
         label(620, 730, 'Install the latest game update, then come back through the right pipe.', 5,
               INK, align='center', **wb),
         label(620, 840, 'Nothing is read from the game until then.', 4, GREY_TEXT, align='center', **wb),
@@ -190,23 +190,28 @@ def rail():
         {'type': 'button', 'rect': [x0 - 20, y - 18, RAIL_W + 40, 36], 'bg': TRACK, 'color': '#00000000',
          'frame': 0, 'pill': True, **rv},
         label(x0, y + 58, 'START', 5, white, align='center', **rv),
-        label(x0 + RAIL_W, y + 50, 'GOAL', 5, white, align='center', **rv),
-        {**disc(64, DISC, '#00000000', 0, **rv), 'rect': [x0 + RAIL_W - 32, y - 32, 64, 64]},
-        {'type': 'image', 'rect': [x0 + RAIL_W - 30, y - 30, 60, 60],
+        label(x0, y + 50, 'GOAL', 5, white, align='center', x_bind='wonder.rail.goal_px', **rv),
+        {**disc(MARK, DISC, '#00000000', 0, **rv), 'x_bind': 'wonder.rail.goal_px'},
+        {'type': 'image', 'rect': [x0 - 30, y - 30, 60, 60], 'x_bind': 'wonder.rail.goal_px',
          'src': 'module:wonder:lyt/LMotherSeed/IconMotherSeedBlank^s', 'color': '#FF6F6B74',
          'need_bind': 'ui.goal.miss'},
-        {'type': 'image', 'rect': [x0 + RAIL_W - 30, y - 30, 60, 60], 'src': 'module:wonder:pict/SeedBlue',
+        {'type': 'image', 'rect': [x0 - 30, y - 30, 60, 60], 'x_bind': 'wonder.rail.goal_px', 'src': 'module:wonder:pict/SeedBlue',
          'color': '#FFFFFFFF', 'need_bind': 'ui.goal.got'},
-        {'type': 'image', 'rect': [x0 + RAIL_W + 10, y - 44, 30, 34], 'src': 'module:wonder:pict/GoalFlag',
+        {'type': 'image', 'rect': [x0 + 10, y - 44, 30, 34], 'x_bind': 'wonder.rail.goal_px', 'src': 'module:wonder:pict/GoalFlag',
          'color': '#FFFFFFFF', **rv},
-        # Secret goal (only when the area has one)
-        {**disc(MARK, DISC, '#00000000', 0), 'x_bind': 'wonder.rail.secret_px', 'need_bind': 'wonder.rail.secret'},
-        {**icon('module:wonder:lyt/LMotherSeed/IconMotherSeedBlank^s'), 'color': '#FF6F6B74',
-         'x_bind': 'wonder.rail.secret_px', 'need_bind': 'ui.secret.miss'},
-        {**icon('module:wonder:pict/SeedBlue'), 'x_bind': 'wonder.rail.secret_px',
-         'need_bind': 'ui.secret.got'},
-        {'type': 'label', 'rect': [x0, y + 48, 0, 0], 'text': 'SECRET', 'text_scale': 5, 'color': white,
-         'align': 'center', 'x_bind': 'wonder.rail.secret_px', 'need_bind': 'wonder.rail.secret'},
+        # Secret exit: hidden until discovered (its seed earned); then a branch lane rises off the
+        # rail before the goal and runs to the secret pole's seed.
+        {'type': 'rect', 'rect': [x0 - 18, y - 118, 36, 100], 'bg': TRACK, 'color': '#00000000',
+         'x_bind': 'wonder.rail.branch_px', 'need_bind': 'ui.secret.got'},
+        {'type': 'rect', 'rect': [x0 + 18, y - 118, 20, 36], 'bg': TRACK, 'color': '#00000000',
+         'x_bind': 'wonder.rail.branch_px', 'repeat': 60, 'repeat_dx': 20,
+         'repeat_bind': 'wonder.rail.branch_n', 'need_bind': 'ui.secret.got'},
+        {**disc(MARK, DISC, '#00000000', 0), 'rect': [x0 - MARK // 2, y - 100 - MARK // 2, MARK, MARK],
+         'x_bind': 'wonder.rail.secret_px', 'need_bind': 'ui.secret.got'},
+        {**icon('module:wonder:pict/SeedBlue'), 'rect': [x0 - ICON // 2, y - 100 - ICON // 2, ICON, ICON],
+         'x_bind': 'wonder.rail.secret_px', 'need_bind': 'ui.secret.got'},
+        {'type': 'label', 'rect': [x0 - 30, y - 116, 0, 0], 'text': 'SECRET', 'text_scale': 5, 'color': white,
+         'align': 'right', 'x_bind': 'wonder.rail.branch_px', 'need_bind': 'ui.secret.got'},
     ]
     m = 'wonder.rail.m.{i}.'
     rep12 = {'repeat': 12, 'repeat_dx': 0}
@@ -223,14 +228,14 @@ def rail():
         {'type': 'label', 'rect': [x0, y + 48, 0, 0], 'text': 'CHECK', 'text_scale': 5, 'color': white,
          'align': 'center', **at('k4')},
         # The player riding the rail: white disc with a black ring, character icon inside.
-        {**disc(PLAYER, white, INK, 6), 'x_bind': 'wonder.rail.px', **rv},
+        {**disc(PLAYER, white, INK, 6), 'x_bind': 'wonder.rail.px', 'y_bind': 'wonder.rail.player_dy', **rv},
         {'type': 'image', 'rect': [x0 - 42, y - 42, 84, 84], 'bind': 'wonder.character',
          'src': 'module:wonder:chara/0', 'src_format': 'module:wonder:chara/%d', 'color': white,
-         'x_bind': 'wonder.rail.px', **rv},
-        # AREA nn% pill
-        {'type': 'button', 'rect': [930, 336, 250, 56], 'bg': YELLOW, 'color': INK, 'frame': 3, 'pill': True, **rv},
-        label(1010, 350, 'AREA', 5, INK, align='center', **rv, _plain=True),
-        value(1120, 350, 'wonder.rail.pct', 5, INK, align='center', suffix='%', **rv, _plain=True),
+         'x_bind': 'wonder.rail.px', 'y_bind': 'wonder.rail.player_dy', **rv},
+        # AREA nn% pill, top right on the counter row (like the map's OPEN COURSES pill)
+        {'type': 'button', 'rect': [930, 42, 250, 56], 'bg': YELLOW, 'color': INK, 'frame': 3, 'pill': True, **rv},
+        label(1010, 56, 'AREA', 5, INK, align='center', **rv, _plain=True),
+        value(1120, 56, 'wonder.rail.pct', 5, INK, align='center', suffix='%', **rv, _plain=True),
     ]
     return w
 
@@ -283,8 +288,7 @@ def course_page():
                 need_bind='wonder.has_item'),
         *glyph(1134, 920, 46, 'A', bg=YELLOW, ring='#FFFFFFFF'),
         label(1090, 982, 'EMPTY', 5, GREY_TEXT, align='center', need_bind='wonder.item_empty'),
-        value(1090, 982, 'wonder.reserve_item', 5, GREY_TEXT, align='center', table='power_caps',
-              need_bind='wonder.has_item'),
+        label(1090, 982, 'HOLD', 5, GREY_TEXT, align='center', need_bind='wonder.has_item'),
         # Footer under the right-hand columns, clear of the separator.
         value(882, 1036, 'wonder.world', 4, GREY_TEXT, align='center', table='world_live'),
         # Courses without shelf items (unnamed prologue courses): cream + the title's checker pattern.
@@ -318,11 +322,6 @@ derived = [
     {'name': 'ui.goal.miss0', 'cmp': 'eq', 'a': 'wonder.rail.goal_got', 'b': 0},
     {'name': 'ui.goal.miss', 'all_nonzero': ['wonder.rail.valid', 'ui.goal.miss0']},
     {'name': 'ui.secret.got', 'all_nonzero': ['wonder.rail.secret', 'wonder.rail.secret_got']},
-    {'name': 'ui.secret.miss0', 'cmp': 'eq', 'a': 'wonder.rail.secret_got', 'b': 0},
-    {'name': 'ui.secret.miss', 'all_nonzero': ['wonder.rail.secret', 'ui.secret.miss0']},
-    {'name': 'ui.title', 'cmp': 'eq', 'a': 'wonder.status', 'b': 9},
-    {'name': 'ui.unsupported', 'cmp': 'eq', 'a': 'wonder.status', 'b': 3},
-    {'name': 'ui.idle', 'cmp': 'lt', 'a': 'wonder.status', 'b': 3},
     {'name': 'ui.small', 'cmp': 'eq', 'a': 'wonder.power_up', 'b': 0},
     {'name': 'ui.map.no_course', 'cmp': 'eq', 'a': 'wonder.map.has_course', 'b': 0},
 ]
