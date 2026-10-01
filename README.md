@@ -12,14 +12,17 @@ This repository holds the companion packages, their documentation and screenshot
 
 ## Supported Games
 
-| No | Game | Title ID | Patch Version | Companion | Requires<br>(or newer) | Download | Supporter |
+| No | Game | Title ID | Patch Version | Companion | Requires<br>(or newer) | Download | Contributor/Supporter |
 |---:|------|----------|---------------|-----------|----------|----------|:---------:|
 | 1 | [Persona 5 Royal](#persona-5-royal) | `01005CA01580E000` | 1.0.2 | 1.1.0 | Eden Duo 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/persona5royal-1.1.0) | 🥇<sup>1</sup> |
 | 2 | [Metroid Dread](#metroid-dread) | `010093801237C000` | 2.1.0 | 1.0.0 | Eden Duo 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/metroid-dread-1.0.0) | |
 | 3 | [The Legend of Zelda: Link's Awakening](#the-legend-of-zelda-links-awakening) | `01006BB00C6F0000` | 1.0.1 | 1.0.0 | Eden Duo 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/links-awakening-1.0.0) | |
 | 4 | [Mario Kart 8 Deluxe](#mario-kart-8-deluxe) | `0100152000022000` | 4.0.0, 3.0.3 | 1.0.0 | Eden Duo 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/mario-kart-8-deluxe-1.0.0) | |
+| 5 | [Super Mario Bros. Wonder](#super-mario-bros-wonder) | `010015100B514000` | 1.2.1 | 1.0.0 | Eden Duo 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/super-mario-bros-wonder-1.0.0) | ⭐<sup>1</sup> |
 
 <sup>1</sup> 🥇 Thanks to [u/gymgooner123](https://www.reddit.com/user/gymgooner123), who commissioned the Persona 5 Royal companion.
+
+<sup>1</sup> ⭐ Credit to [u/Far_Entrepreneur_246](https://www.reddit.com/user/Far_Entrepreneur_246), creator of Super Mario Wonders companion. Support him on [Patreon](https://www.patreon.com/cw/KalebPowell).
 
 Each companion supports exact game version in **Patch Version**. It checks the running build before it loads. On any other version it does not load and shows a notice, instead of reading memory it does not understand.
 
@@ -75,7 +78,6 @@ A live area map on the second screen, drawn the way the game draws its own:
 - **EMMI zones**: grey while the EMMI is active and green once it has been destroyed, read from the game's own state.
 - **Water** as the game's map shows it, including the level moving while a pool drains or fills.
 - **Status**: energy and tanks, missiles, power bombs and item collection percentage.
-- **Clean top screen**: hide the game's own HUD and minimap while the companion shows the map.
 
 The companion ships no game art: map geometry and icons are built from your own game files.
 
@@ -123,6 +125,24 @@ Limitations:
 - An item that is being used, such as an active Bullet Bill, is not shown in the rank bar.
 - CTGP-DX is supported on game version 3.0.3 only, not on 4.0.0.
 
+## Super Mario Bros. Wonder
+
+`010015100B514000` · game version 1.2.1 · companion 1.0.0
+
+<!-- screenshots/super-mario-bros-wonder/*.png -->
+| Title | World map | Course |
+|:-----:|:---------:|:------:|
+| ![Title](screenshots/super-mario-bros-wonder/title.png) | ![World map](screenshots/super-mario-bros-wonder/map.png) | ![Course](screenshots/super-mario-bros-wonder/course.png) |
+
+- **Course.** The world and course name over a blurred picture of the course, and a progress rail from start to goal with your character riding it. The rail marks checkpoints, 10-flower coins, Wonder Seeds and the secret goal as found or missing, and shows how far through the area you are.
+- **Status.** The course's 10-flower coins, the world's Wonder Seeds (and how many this run), your current form and the item in your balloon.
+- **World map.** The world's name and seeds, the selected course, all nine worlds, and an **Open Courses** button that opens the game's course list.
+- **Title screen** art while you choose your save and character.
+- Lives, coins and flower coins in the game's own lettering.
+- **Other versions.** On any other game version the companion shows a notice and reads nothing.
+
+The companion ships no game art: pictures, icons, the font and course names are read from your own game files.
+
 ---
 
 ## Building Packages
@@ -130,15 +150,16 @@ Limitations:
 | Path | Contents |
 |------|----------|
 | [`packages/`](packages/) | Package sources, one folder per game: `dualscreen/manifest.json`, the per-build address table `<BUILDID>.json` (one per supported build) and, for Persona 5 Royal, the art recipe table `p5r_art.rec`. |
-| [`tools/`](tools/) | `build_release.sh` builds the four `.dsmod.zip` archives. The page generators for Persona 5 Royal ([`tools/p5r/`](tools/p5r/)), Metroid Dread ([`tools/dread/`](tools/dread/)) and Mario Kart 8 Deluxe ([`tools/mk8d/`](tools/mk8d/)) are here too. |
+| [`tools/`](tools/) | `build_release.sh` builds the five `.dsmod.zip` archives. The page generators for Persona 5 Royal ([`tools/p5r/`](tools/p5r/)), Metroid Dread ([`tools/dread/`](tools/dread/)), Mario Kart 8 Deluxe ([`tools/mk8d/`](tools/mk8d/)) and Super Mario Bros. Wonder ([`tools/wonder/`](tools/wonder/)) are here too. |
 | [`docs/`](docs/) | How the companion runtime works, the package format, writing a native module and porting a new game. |
 | [`screenshots/`](screenshots/) | Captures of both screens for each game. |
 
-The native modules for Persona 5 Royal, Metroid Dread and Mario Kart 8 Deluxe are C++ and live in the Eden Duo repository under [`src/core/mods/modules`](https://github.com/igawa6/eden-duo/tree/main/src/core/mods/modules). Build them there, strip them, and pass them to the release script:
+The native modules for Persona 5 Royal, Metroid Dread, Mario Kart 8 Deluxe and Super Mario Bros. Wonder are C++ and live in the Eden Duo repository under [`src/core/mods/modules`](https://github.com/igawa6/eden-duo/tree/main/src/core/mods/modules). Build them there, strip them, and pass them to the release script:
 
 ```sh
 P5R_LINUX_SO=... P5R_ANDROID_SO=... DREAD_LINUX_SO=... DREAD_ANDROID_SO=... \
-MK8D_LINUX_SO=... MK8D_ANDROID_SO=... tools/build_release.sh dist
+MK8D_LINUX_SO=... MK8D_ANDROID_SO=... WONDER_LINUX_SO=... WONDER_ANDROID_SO=... \
+tools/build_release.sh dist
 ```
 
 See [`tools/README.md`](tools/README.md) for the details. Link's Awakening needs no native module.

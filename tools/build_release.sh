@@ -5,27 +5,31 @@
 #   010093801237C000-MetroidDreadDS-<ver>.dsmod.zip
 #   01006BB00C6F0000-LinkAwakeningDS-<ver>.dsmod.zip
 #   0100152000022000-MarioKart8DeluxeDS-<ver>.dsmod.zip
+#   010015100B514000-SuperMarioWonderDS-<ver>.dsmod.zip
 #
 # usage: tools/build_release.sh [out dir]            (default: dist)
 #
 # Native modules (already stripped: llvm-strip --strip-all) come from the Eden Duo tree
-# (src/core/mods/modules, targets dsmod-p5r, dsmod-dread and dsmod-mk8d). Pass them by environment:
+# (src/core/mods/modules, targets dsmod-p5r, dsmod-dread, dsmod-mk8d and dsmod-wonder). Pass them
+# by environment:
 #   P5R_LINUX_SO     linux-x86_64 build of the Persona 5 Royal module
 #   P5R_ANDROID_SO   android-arm64-v8a build of the Persona 5 Royal module
 #   DREAD_LINUX_SO   linux-x86_64 build of the Metroid Dread module
 #   DREAD_ANDROID_SO android-arm64-v8a build of the Metroid Dread module
 #   MK8D_LINUX_SO    linux-x86_64 build of the Mario Kart 8 Deluxe module
 #   MK8D_ANDROID_SO  android-arm64-v8a build of the Mario Kart 8 Deluxe module
+#   WONDER_LINUX_SO   linux-x86_64 build of the Super Mario Bros. Wonder module
+#   WONDER_ANDROID_SO android-arm64-v8a build of the Super Mario Bros. Wonder module
 # Versions default to each package's current release; override with P5R_VERSION, DREAD_VERSION,
-# LA_VERSION, MK8D_VERSION.
-# GAMES selects which archives to build (default: "p5r dread la mk8d"); only the selected
+# LA_VERSION, MK8D_VERSION, WONDER_VERSION.
+# GAMES selects which archives to build (default: "p5r dread la mk8d wonder"); only the selected
 # games' modules are required.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT=${1:-dist}
 mkdir -p "$OUT"
 OUT=$(cd "$OUT" && pwd)
-GAMES=" ${GAMES:-p5r dread la mk8d} "
+GAMES=" ${GAMES:-p5r dread la mk8d wonder} "
 want() { [[ $GAMES == *" $1 "* ]]; }
 if want p5r; then
   : "${P5R_LINUX_SO:?set P5R_LINUX_SO}" "${P5R_ANDROID_SO:?set P5R_ANDROID_SO}"
@@ -35,6 +39,9 @@ if want dread; then
 fi
 if want mk8d; then
   : "${MK8D_LINUX_SO:?set MK8D_LINUX_SO}" "${MK8D_ANDROID_SO:?set MK8D_ANDROID_SO}"
+fi
+if want wonder; then
+  : "${WONDER_LINUX_SO:?set WONDER_LINUX_SO}" "${WONDER_ANDROID_SO:?set WONDER_ANDROID_SO}"
 fi
 PY=${PYTHON:-python3}
 export PYTHONDONTWRITEBYTECODE=1
@@ -81,5 +88,12 @@ if want mk8d; then
   pkg MarioKart8Deluxe MarioKart8DeluxeDS "${MK8D_VERSION:-1.0.0}" \
     --module "android-arm64-v8a=$MK8D_ANDROID_SO" --module "linux-x86_64=$MK8D_LINUX_SO" \
     $(build_ids MarioKart8Deluxe)
+fi
+if want wonder; then
+  # build_ids lists 1.2.1 and the two older builds the module answers with the wrong-pipe page.
+  # shellcheck disable=SC2046
+  pkg SuperMarioWonder SuperMarioWonderDS "${WONDER_VERSION:-1.0.0}" \
+    --module "android-arm64-v8a=$WONDER_ANDROID_SO" --module "linux-x86_64=$WONDER_LINUX_SO" \
+    $(build_ids SuperMarioWonder)
 fi
 (cd "$OUT" && sha256sum ./*.dsmod.zip)

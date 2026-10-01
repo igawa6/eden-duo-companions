@@ -1,0 +1,11 @@
+{
+ "_game": "Super Mario Bros. Wonder",
+ "_build": "Ver. 1.2.1 (supported)",
+ "derived": [
+  {
+   "name": "wonder.fallback",
+   "terms": [],
+   "add": 0
+  }
+ ]
+}

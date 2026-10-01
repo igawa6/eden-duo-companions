@@ -1,0 +1,11 @@
+{
+ "_game": "Super Mario Bros. Wonder",
+ "_build": "any other build: no module, plain wrong-pipe page",
+ "derived": [
+  {
+   "name": "wonder.fallback",
+   "terms": [],
+   "add": 1
+  }
+ ]
+}
