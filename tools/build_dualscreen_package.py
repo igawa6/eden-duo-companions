@@ -214,6 +214,7 @@ def build_package(
     modules: list[str] | None = None,
     module_abi: int = 1,
     module_build_ids: list[str] | None = None,
+    min_runtime: int | None = None,
 ) -> Path:
     package = package.expanduser().resolve()
     if not package.is_dir():
@@ -281,6 +282,10 @@ def build_package(
             "name": package_name,
             "version": version,
         }
+        if min_runtime is not None:
+            if min_runtime < 1:
+                raise PackageError("--min-runtime must be positive")
+            package_manifest["min_runtime"] = min_runtime
         if source_manifest.get("requires_module", False):
             package_manifest["requires_module"] = True
         if parsed_modules:
@@ -352,6 +357,7 @@ def main(argv: list[str] | None = None) -> int:
         metavar="BUILDID",
         help="16- or 64-digit build ID supported by every native module (repeat as needed)",
     )
+    parser.add_argument("--min-runtime", type=int, help="minimum companion runtime in package metadata")
     args = parser.parse_args(argv)
     try:
         archive = build_package(
@@ -363,6 +369,7 @@ def main(argv: list[str] | None = None) -> int:
             modules=args.module,
             module_abi=args.abi,
             module_build_ids=args.build_id,
+            min_runtime=args.min_runtime,
         )
     except PackageError as exc:
         parser.error(str(exc))

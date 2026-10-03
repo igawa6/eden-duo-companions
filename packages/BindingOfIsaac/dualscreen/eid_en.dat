@@ -1,0 +1,1057 @@
+ISAACEID 1
+0	1	+0.7 Tears
+0	2	x0.51 Fire rate multiplier\nIsaac shoots 3 tears at once
+0	3	Homing tears
+0	4	+0.5 Damage\nx1.5 Damage multiplier
+0	5	+1.5 Damage\n+1.5 Range\nx2 Range multiplier\nx1.6 Shot speed multiplier\n-1 Luck\nTears get a boomerang effect
+0	6	+1.5 Tears\n-1.5 Range\nx0.8 Range multiplier
+0	7	+1 Damage
+0	8	Shoots normal tears\nDeals 3.5 damage per tear
+0	9	All fly enemies are friendly
+0	10	+2 Fly orbitals\nBlocks enemy projectiles
+0	11	+1 Life\nIsaac respawns with full health on death
+0	12	+1 Health\n+0.3 Speed\n+0.3 Damage\nx1.5 Damage multiplier\n+2.5 Range\nSize up\nFull health
+0	13	+0.2 Speed\nTouching enemies poisons them\nIsaac deals 48 contact damage per second
+0	14	+0.3 Speed\n+2.5 Range
+0	15	+1 Health\nFull health
+0	16	+2 Health\nFull health
+0	17	+99 Keys
+0	18	+100 Coins
+0	19	+10 Bombs
+0	20	Flight
+0	21	Reveals icons on the map\nDoes not reveal the layout of the map
+0	22	+1 Health\nHeals 1 heart
+0	23	+1 Health\nHeals 1 heart
+0	24	+1 Health\nHeals 1 heart
+0	25	+1 Health\nHeals 1 heart
+0	26	+1 Health\nHeals 1 heart
+0	27	+0.3 Speed
+0	28	+0.3 Speed
+0	29	+2.5 Range\nSpawns 3-6 blue flies
+0	30	+2.5 Range\nIsaac deals 24 contact damage per second
+0	31	+3.75 Range\nSpawns 1 random heart
+0	32	+0.7 Tears
+0	33	Flight for the room\nKills Mom's Foot and Mom's Heart instantly\nKills Isaac when used on Satan
+0	34	+12.5% Devil/Angel Room chance while held\nReceive for the room:\n+2 Damage
+0	35	Deals 40 damage to all enemies in the room
+0	36	Spawns one poop and knocks back enemies\nCan be placed next to a pit and destroyed with a bomb to make a bridge
+0	37	Drops a large bomb below Isaac which deals 185 damage
+0	38	Shoots 10 tears in a circle around Isaac\nThe tears copy Isaac's tear effects, plus 25 damage
+0	39	Petrifies all enemies in the room for 4 seconds
+0	40	Causes a big explosion at Isaac's location\nDeals 185 damage
+0	41	Fears all enemies in the room for 4 seconds\nSpawns a blue fly
+0	42	Using the item and firing in a direction throws the head\nThe head explodes where it lands and creates a poison cloud\nDeals Isaac's damage + 185
+0	44	Teleports Isaac into a random room, except I AM ERROR rooms
+0	45	Heals 1 heart
+0	46	+1 Luck\nBetter chance to win while gambling\nIncreases room clearing drop chance\nTurns bad pills into good ones
+0	47	Epic Fetus On use, start aiming a crosshair\nA missile lands on the crosshair after 1.5 seconds\nIt deals 20x Isaac's damage
+0	48	Piercing tears
+0	49	The next shot is replaced with a beam\nIt deals 24x Isaac's damage over 0.83 seconds
+0	50	+1 Damage
+0	51	+1 Damage\n+10% Devil/Angel Room chance
+0	52	x0.4 Fire rate multiplier\nIsaac shoots bombs instead of tears\nThose bombs deal 10x Isaac's tear damage\nIf that results in over 60 damage, they instead deal 5x damage +30
+0	53	Pickups are attracted to Isaac\nOpens chests from 2 tiles away, ignoring damage of Spike Chests
+0	54	Reveals the floor layout\nDoes not reveal room icons
+0	55	50% chance to shoot an extra tear backwards\n100% chance at 5 luck
+0	56	Spills a pool of creep\nThe creep deals 24 damage per second
+0	57	Mid-range fly orbital\nDeals 75 contact damage per second
+0	58	Invincibility for 10 seconds
+0	59	+12.5% Devil/Angel Room chance while held\nReceive for the room:\n+2 Damage
+0	60	Allows Isaac to cross 1-tile gaps
+0	62	+0.3 Damage\nKilling 13 enemies heals half a heart
+0	63	Active items can be overcharged to two full charges
+0	64	Shop items cost 50% less
+0	65	Spawns 6 Troll Bombs near the center of the room
+0	66	Slows enemies down for 8 seconds
+0	67	Shoots normal tears\nDeals 6 damage per tear
+0	68	Isaac shoots lasers instead of tears
+0	69	Chargeable tears\nDamage scales with charge time, up to 4x
+0	70	+0.2 Speed\n+1 Damage
+0	71	+0.3 Speed\n+2.5 Range\nSize down
+0	72	+0.5 Tears\n+3 Soul Hearts\nThe Bible is added to all item pools
+0	73	Lv1: Orbital\nLv2: Shooting orbital\nLv3: Meat Boy\nLv4: Super Meat Boy
+0	74	+25 Coins
+0	75	Heals 2 hearts\nSpawns 1 pill\nChanges bad pills into good pills\nBlood Donation Machines give more coins
+0	76	Opens all secret room entrances
+0	77	Receive for 6 seconds:\n+0.28 Speed\nInvincibility\nIsaac can't shoot but deals 40 contact damage per second
+0	78	+1 Soul Heart\n+17.5% Devil/Angel Room chance while held\nUsing the item replaces the floor's boss with a horseman
+0	79	+1 Damage\n+0.2 Speed\n+1 Black Heart
+0	80	+0.7 Tears\n+0.5 Damage\n+2 Black Hearts
+0	81	+9 Lives\nIsaac respawns with 1 heart container on death\nSets Isaac's heart containers to 1 when picked up
+0	82	+0.3 Speed\nFlight
+0	83	Upon use:\n+ Half Black Heart\nReceive for the room:\n+2 Damage\n-0.18 Speed\nIsaac deals 40 contact damage per second\nAllows Isaac to destroy rocks by walking into them
+0	84	Opens a trapdoor to the next floor\nOpens a crawlspace if used on a decorative floor tile (grass, small rocks, papers, gems, etc.)
+0	85	Spawns 1 card
+0	86	Monstro falls on an enemy and deals 120 damage\nMonstro falls on Isaac if the room has no enemies
+0	87	25% chance to shoot in 4 directions\n100% chance at 15 luck
+0	88	Charges forward in the direction Isaac is shooting\nDeals 52.5 contact damage per second
+0	89	25% chance to shoot slowing tears\n100% chance at 15 luck
+0	90	+0.2 Tears\n+1 Damage\n-0.2 Speed
+0	91	Rooms on the map are revealed from further away\nCan also reveal Secret and Super Secret Rooms\nPrevents damage from falling projectiles
+0	92	+1 Health\nHeals 1 heart\n+2 Soul Hearts
+0	93	Receive for 6.5 seconds:\nInvincibility\nIsaac can't shoot but deals 40 contact damage per second\nKilling 2 enemies heals half a heart\nFears all enemies in the room
+0	94	Spawns a random coin every 2 rooms
+0	95	Shoots lasers\nDeals 3.5 damage per shot
+0	96	Spawns a half Red Heart every 3 rooms
+0	97	Spawns 1 random pickup
+0	98	Spawns 1 Soul Heart every 7-8 rooms
+0	99	Shoots slowing tears\nDeals 3.5 damage per tear
+0	100	Shoots homing tears\nDeals 3.5 damage per tear
+0	101	+1 Health\n+0.3 Speed\n+0.2 Tears\n+0.3 Damage\n+1.5 Range\nHeals 1 heart
+0	102	Spawns 1 pill
+0	103	25% chance to shoot poison tears\n100% chance at 12 luck
+0	104	Tears split in two on contact\nSplit tears deal half damage
+0	105	Rerolls pedestal items in the room
+0	106	x1.85 Bomb damage\n+5 Bombs
+0	107	Receive for the room:\nFlight\nIsaac's body separates from his head and attacks enemies with 23.5 contact damage per second
+0	108	Reduces most damage taken to half a heart
+0	109	+0.04 Damage for every coin Isaac has
+0	110	+1.5 Range\n20% chance to shoot petrifying tears\n50% chance at 20 luck
+0	111	Deals 5 damage to enemies nearby and poisons them\nThe poison deals Isaac's damage 6 times
+0	112	Orbital\nSpeeds up all other orbitals\nBlocks projectiles\nDeals 105 contact damage per second
+0	113	Shoots enemies that get close to him\nDeals 3 damage per tear
+0	114	Isaac's tears are replaced by a throwable knife\nThe knife deals 2x Isaac's damage while held and caps at 6x damage at 1/3 charge\nCharging further only increases throwing range\nDamage reduces to 2x when returning to Isaac
+0	115	+0.5 Tears\nSpectral tears
+0	116	Automatically charges the first bar of active items\nFully recharges the active item on pickup
+0	117	Taking damage spawns a bird that attacks enemies\nThe bird deals 4.3 contact damage per second
+0	118	x0.33 Fire rate multiplier\nIsaac's tears are replaced by a chargeable blood beam\nIt deals 9x Isaac's damage over 0.63 seconds
+0	119	+1 Health\n+0.3 Speed\nHeals 4 hearts
+0	120	+0.3 Speed\n+1.7 Tears\nx0.9 Damage multiplier\n-0.4 Damage
+0	121	+1 Health\n+1 Damage\n+1.5 Range\n-0.2 Speed
+0	122	When on half a Red Heart or less:\n+0.3 Speed\n+1.5 Damage
+0	123	Spawns a random familiar for the floor
+0	124	Triggers a random active item effect\nChooses the effect from a fixed list of items
+0	125	+5 Bombs\nHoming bombs
+0	126	+1.2 Damage for the room\nDeals 1 heart of damage to Isaac\nAfter the first use in a room, deals half a heart instead\nRemoves Red Hearts first
+0	127	Rerolls and restarts the entire floor
+0	128	Long range fly orbital\nDeals 30 contact damage per second
+0	129	+2 Health\n-0.2 Speed
+0	130	While held:\nSets your Speed to at least 1.5\nFlight\nUpon use, dashes in the direction of Isaac's movement
+0	131	Spawns 1 bomb pickup every 3 rooms
+0	132	Tears deal more damage the further they travel
+0	133	Converts 1 heart container into 3 Soul Hearts
+0	134	33% chance to replace the room clear reward with a chest\n22% chance to spawn no room clear reward
+0	135	Hurts Isaac for half a heart and spawns 1-2 coins\nRemoves Red Hearts first
+0	136	Spawns a decoy Isaac that attracts enemies and explodes after 5 seconds
+0	137	+5 Bombs\nIsaac's bombs no longer explode automatically\nUpon use, detonates all of Isaac's bombs at once
+0	138	+1 Health\n+0.3 Damage\nHeals 1 heart
+0	139	Spawns 1 random trinket\nIsaac can hold 2 trinkets
+0	140	+5 Bombs\nIsaac's bombs create a cloud of poison\nPoison immunity
+0	141	Spawns 7 random coins
+0	142	Isaac gains 1 Soul Heart when damaged down to half a heart\nCan only happen once per room\nExiting and re-entering the room allows the effect to trigger again\nDoesn't trigger from health donations
+0	143	+0.3 Speed\n+0.2 Shot speed
+0	144	Picks up nearby coins\nSpawns random pickups every 3-4 coins
+0	145	Spawns 2-4 blue flies
+0	146	+1 Eternal Heart
+0	147	Using the item makes Isaac hold the axe\nHolding the axe allows Isaac to break rocks, secret room entrances and damage enemies\nLanding a hit with the axe reduces its charge\nEntering a new floor fully recharges the axe
+0	148	Taking damage spawns 2-6 blue flies
+0	149	+40 Damage\nx0.33 Fire rate multiplier\nx0.8 Range multiplier\nx0.8 Shot speed multiplier\nIsaac's tears are fired in an arc\nThe tears explode and poison enemies where they land
+0	150	10% chance to shoot teeth that deal 3.2x Isaac's damage\n100% chance at 9 luck
+0	151	Tears have a 1/6 chance to spawn a blue fly when hitting an enemy
+0	152	x0.67 Fire rate multiplier\nReplaces Isaac's right eye tears with a continuous laser\nThe laser deals 2x Isaac's damage per second
+0	153	x0.42 Fire rate multiplier\nIsaac shoots 4 tears at once
+0	154	+2 Damage for the left eye
+0	155	x1.35 Damage multiplier for the left eye\nFloats around the room\nDeals 17.1 contact damage per second
+0	156	Taking damage adds 1 charge to the active item
+0	157	Taking damage grants a damage up\nApplies up to 6 times per floor\nLasts for the whole floor
+0	158	Spawns a Soul Heart, rune or card\nFull mapping effect for the floor (except Super/Ultra Secret Room)\nWhile held:\n+15% Planetarium chance\n+100% if a Treasure Room was skipped
+0	159	Spectral tears\nFlight
+0	160	Spawns 5 beams of light near enemies\nEach beam deals 8x Isaac's damage + 160 over 0.8 seconds
+0	161	??? Respawn as ??? (Blue Baby) on death
+0	162	Taking damage has a 20% chance to make Isaac temporarily invincible\n100% chance at 27 luck
+0	163	Shoots spectral tears\nDeals 3.5 damage per tear
+0	164	Throws a blue flame\nIt deals contact damage, blocks enemy tears, and despawns after 2 seconds
+0	165	+1 Damage\n+0.23 Shot speed
+0	166	Rerolls all pickups in the room
+0	167	Shoots two tears in a V-shaped pattern\nDeals 4 damage per tear
+0	168	Instead of shooting tears, aim a crosshair\nA missile lands on the crosshair after 1.5 seconds\nMissiles deal 20x Isaac's damage
+0	169	+4 Damage\nx2 Damage multiplier\nx0.42 Fire rate multiplier\nTears pierce killed enemies if there is leftover damage
+0	170	Stomps on a nearby enemy every 4 seconds\nDeals 40 damage per second
+0	171	Slows down enemies for 4 seconds\nDeals 10 damage to all enemies\nEnemies killed by the item spawn blue spiders
+0	172	Orbital\nBlocks enemy shots\nDeals 112.5 contact damage per second
+0	173	33% chance that Red Hearts spawn as Soul Hearts instead
+0	174	Shoots random tears\nDeals 3-5 damage per tear
+0	175	Opens all doors in the room, including Secret Rooms, Challenge Rooms, and the Mega Satan door
+0	176	+1 Health\n+0.16 Shot speed\nHeals 1 heart
+0	177	Spend 1 coin for a chance to spawn a pickup
+0	178	Launches itself in the direction Isaac shoots\nBreaks and deals 7 damage upon hitting an enemy\nLeaves a pool of petrifying + damaging creep
+0	179	+1 Eternal Heart\nFlight
+0	180	Isaac farts multiple times when damaged\nThe farts leave poison clouds and deflects projectiles
+0	181	Sets your Speed to at least 1.5\nFlight while held\nUsing the item dashes in the direction of Isaac's movement, leaving behind beams of light
+0	182	+1 Health\nx2.3 Damage multiplier\n+1 Damage\n-0.4 Tears\n-0.25 Shot speed\nFull health\nHoming tears
+0	183	+0.7 Tears\n+0.16 Shot speed
+0	184	+1 Health\nHeals 1 heart\nFlight
+0	185	Spectral tears\nFlight
+0	186	Deals 40 damage to every enemy\nDeals 1 heart of damage to Isaac\nAfter the first use in a room, deals half a heart instead\nRemoves Red Hearts first
+0	187	Moving swings the hairball around\nThe ball grows when it kills an enemy\nIt deals more damage the bigger it is
+0	188	Mirrors Isaac's movement\nShoots towards Isaac\nDeals 3.5 damage per tear
+0	189	+0.2 Tears\n+0.3 Damage\n+0.2 Speed\n+2.5 Range\n+1 Health\nFull health
+0	190	+99 Bombs
+0	191	Isaac's tears get random effects every 2-3 seconds
+0	192	Receive for the room:\n+3 Range\nHoming tears
+0	193	+0.3 Damage\n+1 Health\nHeals 1 heart
+0	194	+0.16 Shot speed\nSpawns 1 card\n+15% Planetarium chance
+0	195	Spawns 4 pills
+0	196	+0.4 Tears\nSpawns 2 Soul Hearts
+0	197	+0.5 Damage\n+1.5 Range
+0	198	Spawns 1 pickup of each type
+0	199	+2 Keys\nChests contain more pickups
+0	200	10% chance to shoot charming tears\n100% chance at 27 luck
+0	201	+0.3 Damage\n10% chance to shoot concussive tears\n100% chance at 27 luck
+0	202	Touching enemies petrifies them and turns them gold\nIsaac deals contact damage based on his coin count\nKilling a golden enemy spawns coins\nPoop spawned by Isaac has a high chance to be golden poop
+0	203	Pickups have a 50% chance to be doubled
+0	204	Taking damage has a 50% chance to spawn a random pickup
+0	205	Using an uncharged active item fully recharges it at the cost of half a heart per missing charge\nRemoves Red Hearts first
+0	206	+0.5 Fire rate\n+1 Damage\nIsaac's head becomes an orbital that shoots, doesn't take damage and deals 56 contact damage per second
+0	207	Lv1: Orbital\nLv2: Orbital that shoots charmed tears\nLv3: Bandage Girl\nLv4: Super Bandage Girl
+0	208	+1 Damage\nChampion enemy chance +15%\nDoesn't increase chance of champion bosses
+0	209	+5 Bombs\nExplosions concuss and damage every enemy in the room
+0	210	After 1 second of inactivity, Isaac becomes invincible
+0	211	Taking damage spawns 3-5 blue spiders
+0	212	50% chance to revive with half a heart on death
+0	213	-0.15 Shot speed\nIsaac's tears destroy enemy shots
+0	214	+1.5 Range\nWhen taking damage Isaac leaves a trail of blood creep for the room\nThe creep deals 20 damage per second
+0	215	100% Devil/Angel Room chance
+0	216	+1 Damage\n+3 Black Hearts
+0	217	Heals 1 heart\n5% chance to spawn a blue spider when shooting tears\n100% chance at 10 luck
+0	218	+1 Health\nHeals 1 heart\n50% chance to heal half a heart every minute
+0	219	+1 Empty heart container\nTaking damage has a 20% chance to spawn a Red Heart
+0	220	+5 Bombs\nIsaac's bombs shoot 10 tears in a circle when they explode
+0	221	Isaac's tears bounce off enemies and obstacles
+0	222	+1 Fire rate\nHolding the fire buttons causes tears to hover in mid-air\nReleasing the fire buttons shoots them in the direction they were fired
+0	223	+5 Bombs\nImmunity to explosions and fire\nGetting hit by explosions heals half a heart
+0	224	+0.5 Fire rate\nx0.8 Range multiplier\nTears split in 4 on hit\nSplit tears deal half damage
+0	225	Taking damage has a 8% chance to spawn a Soul Heart\n+2% chance per luck\nEnemies have a chance to drop a half Red Heart on death
+0	226	+1 Health\nHeals 1 heart\n+1 Soul Heart\n+1 Black Heart
+0	227	+3 Coins\nTaking damage spawns 1-2 coins
+0	228	+0.5 Fire rate (Flat bonus, ignores tears cap)\n15% chance to shoot fear tears
+0	229	x0.23 Fire rate multiplier\nTears are charged and released in a shotgun style attack
+0	230	+0.2 Speed\n+1.5 Damage\nConverts all heart containers into Black Hearts\n+2 Black Hearts\n15% chance to shoot fear tears
+0	231	10% chance to shoot slowing tears\n100% chance at 18 luck\nIsaac leaves a trail of slowing creep
+0	232	+0.3 Speed\nEnemies are permanently slowed down to 80% of their attack and movement speed
+0	233	+6.5 Range\nSpectral tears\nIsaac's tears orbit around him
+0	234	Killing an enemy spawns a blue spider
+0	236	Touching an enemy turns it into poop
+0	237	+1.5 Damage\nx2 Tear size\n-0.3 Tears\nPiercing tears
+0	238	Getting both parts of the key opens a big golden door\n+25% Angel Room chance\n+2.5% chance for Eternal Hearts
+0	239	Getting both parts of the key opens a big golden door\n+25% Angel Room chance\n+2.5% chance for Eternal Hearts
+0	240	Increases 4 random stats\nDecreases 2 random stats
+0	241	Doubles all room clear rewards\n33% chance for no room clear reward
+0	242	50% chance to block enemy shots
+0	243	Blocks enemy shots coming from the direction Isaac is shooting
+0	244	Occasionally shoot lasers in addition to Isaac's tears
+0	245	x0.8 Damage multiplier\nIsaac shoots 2 tears at once
+0	246	Reveals secret room locations on the map
+0	247	Familiars deal double damage
+0	248	Blue spiders and flies deal double damage\nSpider and fly familiars become stronger
+0	249	Allows Isaac to choose between 2 items after beating a boss
+0	250	All bomb drops become double bombs
+0	251	Spawns 1 card on pickup\nIsaac can carry 2 cards\nTurns all pills into cards
+0	252	Spawns 1 pill on pickup\nIsaac can carry 2 pills\nTurns all cards into pills
+0	253	+1 Health\n+1 Luck\nHeals 1 heart
+0	254	+1 Damage for the left eye\n+2.75 Range for the left eye
+0	255	+0.5 Tears\n+0.2 Shot speed
+0	256	+5 Bombs\nIsaac's bombs deal contact damage\nIsaac's bombs leave a flame where they explode\nFire immunity (except projectiles)
+0	257	Isaac's tears light enemies on fire\n10% chance for tears to explode on enemy impact\n100% chance at 13 luck\nThe explosion can hurt Isaac
+0	258	Rerolls all of Isaac's items and stats on pickup and at every new floor
+0	259	+1 Damage\n33% chance to shoot fear tears\n100% chance at 20 luck
+0	260	Immune to curses\n+1 Black Heart\n+15% Devil/Angel Room chance
+0	261	+0.5 Damage\nTears deal less damage the longer they are airborne\nTears deal 3x damage at point blank range and no damage after 0.8 seconds
+0	262	+1 Black Heart\nTaking damage down to 1 heart damages all enemies in the room\nThe Necronomicon Black Hearts and Necronomicon-like effects deal double damage
+0	263	Spawns 1 rune on pickup\nTriggers the effect of the rune Isaac holds without using it
+0	264	Orbital\nAttacks enemies when Isaac takes damage\nDeals 6.5 contact damage per second
+0	265	10% chance to damage all enemies in the room when it is hit by an enemy tear
+0	266	Leaves slowing creep\nSpawns 1-2 friendly spiders after clearing a room
+0	267	Shoots lasers\nDeals 3.5 damage per shot\nMoves in the direction Isaac is shooting
+0	268	Spawns blue flies when Isaac shoots
+0	269	Leaves creep which deals 6 damage per second
+0	270	Chases enemies\nHeals Isaac for half a heart when it kills an enemy\nDeals 3.2 damage per second
+0	271	Spawns a random pickup every 5-6 rooms
+0	272	Friendly exploding fly\nThe explosion deals 100 damage\nThe explosion can hurt Isaac
+0	273	Dashes in the direction Isaac is shooting\nExplodes when it hits an enemy\nThe explosion deals 100 damage and poisons enemies\nThe explosion can hurt Isaac
+0	274	Taking damage spawns one midrange orbital for the room\nDeals 150 contact damage per second
+0	275	Familiar that charges and shoots a Brimstone blood beam\nIt deals 24 damage over 0.63 seconds
+0	276	Isaac becomes invincible\nSpawns a heart familiar that follows Isaac\nThe heart charges up when Isaac fires and releases a burst of tears when he stops\nIf the heart familiar gets hit, Isaac takes damage
+0	277	Chases and fears enemies\nDeals 4 contact damage per second
+0	278	Picks up nearby Red Hearts\nSpawns a Black Heart, rune, card, pill, or spider for every 1.5 hearts picked up
+0	279	Large orbital\nDeals 30 contact damage per second
+0	280	Randomly spawns blue spiders in hostile rooms\nCharms enemies it comes in contact with
+0	281	Decoy familiar\nEnemies target him instead of Isaac
+0	282	Allows Isaac to jump over gaps and obstacles
+0	283	Duplicates 1 pickup in the room\nRerolls Isaac's speed, tears, damage, range and passive items\nRerolls all pedestal items, pickups and rocks in the room\nRestarts the room, respawns all enemies and devolves them
+0	284	Reroll all of Isaac's passive items
+0	285	Devolves all enemies in the room\nFor instance, all Red Flies become Black Flies
+0	286	Triggers the effect of the card Isaac holds without using it
+0	287	Highlights tinted and crawlspace rocks in the room\nReceive one of these effects for the floor:\nTreasure Map\nThe Compass Compass\nBlue Map\nOnly grants effects not already active\nX-Ray Vision If all effects are active, grants X-Ray Vision
+0	288	Spawns 4-8 blue spiders
+0	289	Throws a red flame\nIt deals contact damage, blocks enemy tears, and disappears when it has dealt damage or blocked shots 4 times or after 10 seconds
+0	290	Picking up Red Hearts while at full health stores up to 4 of them in the Jar\nUsing the item drops all stored hearts on the floor
+0	291	Turns all non-boss enemies into poop\nInstantly kills poop enemies and bosses\nExtinguishes fire places and fills the room with water\nTurns lava pits into walkable ground
+0	292	+1 Black Heart\nUsing the item before a boss fight makes the boss reward a devil deal\nPurchasing these devil deals has the same consequences as those in Devil Rooms\nDoes not affect item pedestals in The Void floor
+0	293	Brimstone Shoot a 4-way blood beam\nThey each deal 200 damage over 1.33 seconds
+0	294	Knocks back nearby enemies and projectiles\nEnemies pushed into obstacles take 10 damage
+0	295	Deals 2x Isaac's damage + 10 to all enemies in the room\nCosts 1 coin
+0	296	Converts 1 Soul or Black Heart into 1 heart container
+0	297	Spawns rewards based on floor:\nB1: 2 Soul Heart; B2: 2 Bomb + 2 Key\nC1: Boss item; C2: C1 + 2 Soul Heart\nD1: 4 Soul Heart; D2: 20 Coin\nW1: 2 Boss items\nW2: The Bible\n???/Void: Nothing\nSheol: Devil item + 1 Black Heart\nCathe: Angel item + 1 Eternal Heart\nDark Room: Unlocks Moving Box\nChest: 1 Coin\nHome: Red Key
+0	298	Receive for 6 seconds:\n+0.28 Speed\nInvincibility\nIsaac can't shoot (No contact damage)
+0	299	-0.3 Speed\nSlowly gain speed while in hostile rooms\nAt 2 speed, Isaac becomes invincible and deals contact damage\nAfterwards, lose the Taurus speed boost for the room
+0	300	+0.25 Speed\nMoving above 0.85 Speed makes Isaac immune to contact damage and deals 25 damage to enemies
+0	301	+3 Soul Hearts\nTaking damage reduces all future damage in the room to half a heart
+0	302	Size up\nIsaac can destroy rocks by walking into them
+0	303	Taking damage have a 25% chance to make Isaac temporarily invincible\n100% chance at 10 luck\nConverts negative pills into positive ones
+0	304	+6 coins, bombs and keys\nBalances Isaac's stats\nFuture stat changes will be spread across all stats
+0	305	Poison tears
+0	306	+0.2 Speed\nPiercing tears
+0	307	+1 Health\n+0.1 Speed\n+0.5 Fire rate\n+0.5 Damage\n+0.75 Range\n+1 coin, bomb and key\nHeals 1 heart
+0	308	Isaac leaves a trail of creep\nThe creep deals 666% of Isaac's damage per second and inherits his tear effects
+0	309	+0.5 Fire rate\n+0.12 Tear size\nIncreases tear knockback
+0	310	x2 Damage multiplier\nx0.66 Tears multiplier\n-0.5 Shot speed
+0	311	Dark Judas When dead, respawn as Dark Judas with a x2 damage multiplier
+0	312	+1 Health\nHeals 1 heart\nAll Red Hearts heal double their value
+0	313	Negates the first hit taken once per room
+0	314	+1 Health\n-0.4 Speed\nHeals 1 heart\nIsaac can destroy rocks by walking into them
+0	315	Isaac's tears attract enemies, pickups and trinkets\nThe attraction effect is much stronger at the end of the tears' path
+0	316	Charged wave of 5 tears\nTaking damage while partially charged teleports Isaac to a random room
+0	317	Isaac's tears leave creep\nThe creep deals 30 damage per second
+0	318	Close combat familiar\nDeals 6 contact damage per second
+0	319	Shoots tears in random directions with the same effects as Isaac\nDeals 75% of Isaac's damage
+0	320	Controllable fly\nDeals 15 contact damage per second
+0	321	Draggable ball that can destroy rocks\nDeals 10.7 contact damage per second
+0	322	Mimics your baby familiars' tears\nIf you have none, shoots normal 3.5 damage tears
+0	323	Shoots 8 tears in all directions\nThe tears copy Isaac's tear effects, plus 5 damage\nRecharges by shooting tears
+0	324	Teleports Isaac to the Treasure, Secret, Super Secret or I AM ERROR Room
+0	325	Isaac's head turns into a stationary familiar for the room\nThe body is controlled separately and gushes blood tears in the direction Isaac is shooting
+0	326	Holding down the USE button empties the charge bar\nIsaac is temporarily invincible when the charge bar is empty\nIsaac summons light beams on contact with enemies when invincible\nIf damage is blocked with perfect timing, shoot a 4-way holy beam and gain a brief shield\nHolding it for too long deals damage to Isaac
+0	327	Taking damage at half a Red Heart or none makes Isaac temporarily invincible for 5 seconds
+0	328	+1 Damage\nTaking damage at half a Red Heart or none damages all enemies in the room
+0	329	Replaces Isaac's tears with one giant controllable tear
+0	330	x5.5 Fire rate multiplier\nx0.2 Damage multiplier\n-0.3 Tear size\nDrastically reduces knockback
+0	331	+0.5 Damage\n-0.3 Tears\n-0.3 Shot speed\nHoming tears\nTears gain an aura that deals 60 damage per second
+0	332	Lazarus Risen When dead, revive as Lazarus (Risen)
+0	333	Full mapping effect
+0	334	+3 Health
+0	335	+2 Soul Hearts\nGrants an aura that repels enemies and projectiles
+0	336	+0.22 Tear size\n-1.5 Range\n-0.4 Shot speed\nPiercing + spectral tears
+0	337	Slows down every 4th room\n13% chance to speed up the room instead
+0	338	Throwable boomerang\nPetrifies enemies and deals 2x Isaac's damage\nCan grab and bring back items
+0	339	+2.5 Range\n+0.16 Shot speed\n+1 Black Heart
+0	340	+0.3 Speed\nSize down\nSpawns a random pill
+0	341	+0.7 Tears\n+0.16 Shot speed
+0	342	+1 Health\n+0.7 Tears\n-0.16 Shot speed\nHeals 1 heart
+0	343	+1 Luck\n+1 Soul Heart\nSpawns 2 keys
+0	344	+1 Black Heart\nSpawns 3 bombs\nMatch Stick Spawns Match Stick
+0	345	+1 Damage\n+2.5 Range
+0	346	+1 Health\nHeals 1 heart
+0	347	Duplicates all item pedestals and pickups in the room
+0	348	Triggers the effect of the pill Isaac holds without using it
+0	349	59% chance to spawn a random coin
+0	350	Entering a room poisons all enemies\nEnemies killed leave a puddle of creep\nThe creep deals 30 damage per second
+0	351	Petrifies all enemies in the room\nDeals 5 damage and poisons any enemies nearby\nSends a rock wave in the direction Isaac is moving\nThe rock wave can open secret rooms and break rocks
+0	352	Shoots a large piercing spectral tear that does 10x Isaac's damage +10 damage\nWhile held, taking damage:\nRemoves an extra 2 hearts of health\nBreaks the cannon for a few rooms\n+1.5 Range and leaves a blood trail for the room\nThe extra damage can't kill Isaac\nSelf-damage does not trigger the effect
+0	353	+5 Bombs\nBombs explode in a cross-shaped pattern\nx0.75 Bomb damage
+0	354	+1 Health\nHeals 1 heart\nSpawns a trinket
+0	355	+2.5 Range\n+1 Luck\n+1 Soul Heart
+0	356	Using an active item triggers its effect twice
+0	357	Duplicates all your familiars for the room\nDemon Baby Grants a Demon Baby for the room if Isaac has no familiars
+0	358	Spectral tears\nIsaac shoots 2 tears at once diagonally
+0	359	+1.5 Damage\nIncreases knockback
+0	360	Shoots tears with the same effects as Isaac\nDeals 75% of Isaac's damage
+0	361	Shoots tears with the same damage and effects as Isaac\nShoots at half the rate of other familiars
+0	362	35% chance to spawn a pickup every room
+0	363	Orbital\nDeals 105 contact damage per second\nBlocks and attracts enemy shots\nBlocking 10 shots in one room spawns an Eternal Heart
+0	364	Midrange fly orbital\nDeals 45 contact damage per second
+0	365	Moves along walls/obstacles in the room\nDeals 30 contact damage per second\nNearby enemies target the fly
+0	366	+5 Bombs\nIsaac's bombs scatter into 4-5 tiny bombs
+0	367	+5 Bombs\nIsaac's bombs stick to enemies and leave white slowing creep\nKilling an enemy with a bomb spawns blue spiders
+0	368	Shooting in one direction gradually increases fire rate up to 200% and decreases accuracy
+0	369	+3 Range\nSpectral tears\nTears can travel through one side of the screen and come out the other side
+0	370	+0.7 Tears\n+2.5 Range\nSpawns 3 random hearts
+0	371	Taking damage spawns 6 Troll Bombs\nThe Troll Bombs inherit Isaac's bomb effects
+0	372	Every 30 seconds while in an uncleared room, the familiar can:\nSpawn a Battery (max 2 per room)\nAdd one charge to the active item (max 2 per room)\nPetrify all enemies in the room
+0	373	Consecutive tear hits on enemies grant +25% damage (max +100%)\nMissing has a chance to reset the multiplier
+0	374	10% chance to shoot holy tears, which spawn a beam of light on hit\n50% chance at 9 luck\nThe beams deals 3x Isaac's damage
+0	375	Grants immunity to explosions and falling projectiles\n20% chance to reflect enemy shots
+0	376	Buying an item from a Shop restocks it instantly\nRestocked items increase in price each time
+0	377	Spider enemies no longer target or deal contact damage to Isaac
+0	378	Holding a fire button for 2.35 seconds spawns a lit Butt Bomb
+0	379	x2 Tear size\nSpectral tears
+0	380	+5 Coins\nLocked blocks, doors and chests must be opened with coins instead of keys
+0	381	+0.7 Tears\nGrants a random item at the start of the next run
+0	382	Can be thrown at enemies to capture them\nUsing the item after capturing an enemy spawns the capture as a friendly companion\nWalking over the ball after a capture instantly recharges the item
+0	383	Splits all of Isaac's tears currently on screen in a circle of 6 tears
+0	384	Launches and bounces around the room with speed based on charge amount\nDeals 5-20 contact damage per hit depending on speed
+0	385	Picks up nearby coins\nLevels up after getting 6, 12, and 24 coins\nLv2: Chance to spawn item after room clears\nLv3: Shoots tears that can spawn coins on hit\nLv4: Chases enemies, occasionally dropping bombs, can spawn item on coin pickup
+0	386	Rerolls any obstacle into another random obstacle (e.g. poop, pots, TNT, red poop, stone blocks etc.)\nSmall chance to reroll obstacles into buttons, killswitches, crawlspaces or trapdoors
+0	387	Familiar surrounded by a huge aura of light that slows down enemies and projectiles in it
+0	388	Picks up nearby keys\nSpawns random chests in return
+0	389	Spawns a random rune or Soul Stone every 7-8 rooms
+0	390	Shoots Sacred Heart tears\nDeals 10 damage per tear
+0	391	Enemies can hit each other with their projectiles, and start infighting
+0	392	Grants a random zodiac item effect every floor
+0	393	15% chance to shoot poison tears\nPoison enemies on contact\nEnemies killed by contact poison have a 20% chance to drop a Black Heart on death
+0	394	+0.7 Tears\n+3 Range\nIsaac automatically shoots tears at a movable red target on the ground\nFamiliars shoot towards the target too\nYou can stop shooting and reset the target's location by pressing the drop button
+0	395	Isaac's tears are replaced by a chargeable laser ring\nRing size and damage increases up to 100% with charge time
+0	396	Creates up to two portals to travel between\nCan be placed in different rooms
+0	397	+1 Fire rate\n+2.5 Range\n+0.16 Shot speed\nIsaac's tears always travel along a beam of light in front of him
+0	398	Tears have a 10% chance to shrink enemies\nShrunken enemies can be crushed and killed by walking over them
+0	399	Firing tears for 2.35 seconds and releasing the fire button creates a black brimstone ring around Isaac\nIt deals 30x Isaac's damage over 2 seconds
+0	400	Isaac holds a spear in front of him\nThe spear deals twice his damage and can fear enemies on contact
+0	401	25% chance to shoot sticky tears\nSticky tears grow and explode after a few seconds, dealing Isaac's damage +60
+0	402	All items are chosen from random item pools\nSpawns 1-6 random pickups
+0	403	Displays tear damage and health bars of all enemies\nInflicts random status effects to enemies on contact\nRandomly spawns batteries or blue spiders
+0	404	Blocks projectiles\nWhen hit, 10% chance to fart and charm, poison or knockback enemies\nThe farts deal 5-6 damage
+0	405	Throwable (double-tap shoot)\nRerolls enemies and pickups it comes in contact with
+0	406	Multiplies Isaac's damage, tears, range and speed stats by between x0.5 and x2\nThe multipliers are rerolled each use
+0	407	Boosts one of Isaac's stats depending on the color of the aura\nTaking damage removes the effect, and grants a new effect in the next room\nYellow = +0.5 Speed\nBlue = +2 Fire rate\nRed = +4 Damage\nOrange = +3 Range
+0	408	25% chance for a black brimstone ring to spawn around killed enemies\nIt deals 30x Isaac's damage over 2 seconds\n+2.5% chance per luck
+0	409	+2 Black Hearts\nWhen Isaac has no Red Hearts:\nFlight\nEvery 40 seconds while in a hostile room, gain a shield for 10 seconds
+0	410	3.33% chance to shoot an eye\n10% chance at 20 luck\nThe eye moves in a straight line and shoots tears in the same direction as Isaac
+0	411	+0.5 Damage for each enemy killed in the room\nCaps at +5 Damage after 10 kills
+0	412	Taking damage 15 times spawns a permanent demon familiar\nAfter two familiars, it takes 30 instead of 15\nCaps at 4 familiars
+0	413	Picking up 15 hearts spawns a permanent angelic familiar and a Soul Heart\nCaps at 5 familiars
+0	414	Allows Isaac to choose between 2 items in treasure rooms
+0	415	+2 Soul Hearts\nIf Isaac has no damaged heart containers:\nx2 Damage multiplier\n-0.3 Shot speed\nTaking any damage removes the effect for the room
+0	416	If clearing a room would yield no reward, spawns 1-3 coins\nIncreases the coin cap to 999
+0	417	Bounces around the room surrounded by a damaging aura that deals 7.5-10 damage per second\nx1.5 Damage multiplier while standing in the aura
+0	418	Each one of Isaac's tears gets a different effect
+0	419	Teleports Isaac to a room that has not been cleared yet\nHierarchy: Room > Boss Room > Super Secret Room > Shop > Treasure Room > Planetarium > Sacrifice Room / Dice Room > Library > Cursed Room > Mini Boss > Challenge Room / Boss Rush Room > Arcade Room / Chest Room > Isaacs Room / Barren Room > Secret Room > Devil Room / Angel Room > Error Room
+0	420	Walking in a circle draws a pentagram on the floor, which deals 130 damage over 4 seconds
+0	421	Charms all enemies in close range
+0	422	Brings Isaac back to the previous room and reverses all actions done in the room the item was used in\nThe rewind can be used three times per floor\nThe Hourglass Acts as The Hourglass when out of rewinds, which slows enemies down for 8 seconds
+0	423	Surrounds Isaac with a large halo that deals his damage on contact per second\nChance to reflect enemy projectiles
+0	424	Pickups have a chance to be replaced with a sack:\nCoin: 10%, Bomb / Key / Pill / Rune / Battery: 20%\nSpawns a sack
+0	425	Spawns a slowing cone of light in front of Isaac\nRemoves Curse of Darkness for the current floor
+0	426	Mimics Isaac's movement on a 0.66 second delay\nDeals 30 contact damage per second
+0	427	Spawns a pushable TNT barrel\nUsing the item a second time in the same room remotely detonates the barrel
+0	428	Full health\n+4 Soul Hearts
+0	429	Hitting an enemy with a tear has a 5% chance to spawn a Penny
+0	430	Mimics Isaac's movement on a 0.66 second delay\nShoots tears at nearby enemies that deal Isaac's damage
+0	431	Mimics Isaac's movement on a 0.66 second delay\nTears that pass through it are doubled and gain a range + shot speed boost
+0	432	+5 Bombs\nBombs have a 63% chance to drop a random pickup and a 15% chance to charm enemies when they explode\nThe pickup spawn chance goes down by 1% for each spawn this floor
+0	433	A small shadow follows Isaac\nWhen an enemy touches the shadow a friendly black charger spawns for the room\nThe charger deals 8.7 damage per hit
+0	434	Killing an enemy adds a blue fly to the jar, up to 20 flies\nUsing the item releases all the flies
+0	435	Shoots 4 tears in a cross pattern\nDeals 3.5 damage per tear
+0	436	Taking damage grants a Tears up for the duration of the room
+0	437	Restarts a room and respawns all enemies\nCan be used to get multiple room clear rewards from a single room
+0	438	+0.75 Tears\nSize down\n+1 Soul Heart
+0	439	Spawns a random trinket\nWhile held:\n+1 Luck\nDoubles trinket effects
+0	440	Isaac occasionally stops firing and charges an attack that releases a burst of tears and a kidney stone
+0	441	Fires a huge Mega Satan blood beam for 15 seconds\nThe beam persists between rooms and floors
+0	442	While at 1 full Red Heart:\n+2 Fire rate\n+1.5 Range\n+0.2 Shot speed
+0	443	+0.3 Tears\n6.66% chance to shoot razor blades that deal 4x Isaac's damage\n100% chance at 14 luck
+0	444	Isaac shoots a cluster of tears every 15 tears
+0	445	+0.1 Speed\n+0.3 Damage\nA wolf howls in rooms adjacent to a Secret/Super Secret Room\nA dog barks in rooms with a crawlspace under a rock
+0	446	While firing, Isaac is surrounded by a green aura that poisons enemies
+0	447	Firing without pause for 7.5 seconds spawns a poop cloud\nThe cloud deals Isaac's damage 5 times a second\nThe cloud lasts 15 seconds and can be moved by shooting it
+0	448	Upon taking damage:\n25% chance to spawn a Red Heart\nIsaac bleeds, spewing tears in the direction he is shooting\nThe bleeding does half a Red Heart of damage every 20 seconds\nThe bleeding stops if a Red Heart is healed, all Red Hearts are empty, or the next damage would kill Isaac
+0	449	+1 Soul Heart\nEnemy bullets have a 25% chance to be reflected as concussive tears
+0	450	Every 20 tears, Isaac shoots a coin tear that deals x1.5 +10 damage\nEnemies hit with the coin get petrified and turn into gold\nKilling a gold enemy drops 1-3 coins\nFiring a coin tear costs 1 coin
+0	451	Spawns a card\nTarot card effects are doubled or enhanced
+0	452	Taking damage shoots 10 tears in a circle around Isaac\nThe tears deal Isaac's damage + 25\nAnemic 20% chance to activate the Anemic effect for 2 seconds
+0	453	+1.5 Range\nTears shatter into 1-3 bone shards upon hitting anything
+0	454	Spawns a rune, card or pill on pickup\nAllows Isaac to carry 2 runes/cards/pills
+0	455	+2.5 Range\nSpawns a Lucky Penny
+0	456	+1 Health\nHeals 1 heart
+0	457	+1 Soul Heart\n20% chance to negate damage taken
+0	458	Allows Isaac to carry 2 trinkets\nSpawns a random trinket
+0	459	20% chance to shoot a sticky booger\nBoogers deal Isaac's damage once a second and stick for 10 seconds\nNot affected by luck
+0	460	5% chance to shoot concussive tears\nMakes the screen slightly darker
+0	461	15% chance to shoot egg sacks\n50% chance at 5 luck\nEgg sacks spawn slowing creep and 1-2 blue spider or fly on hit
+0	462	+1.5 Range\nPiercing tears\nHitting an enemy makes the tear homing and doubles its damage
+0	463	+0.3 Damage\nIsaac's tears have a 25% chance to destroy rocks and open doors
+0	464	+2 Soul Hearts\nRoom clear rewards and champion enemy drops become whatever pickup Isaac needs the most
+0	465	+0.3 Tears\nAllows Isaac to shoot tears in any direction
+0	466	The first enemy killed in a room explodes and poisons all nearby enemies\nEnemies that die while poisoned also explode and poison nearby enemies
+0	467	Constantly deals 10% of Isaac's damage in the direction it points
+0	468	Follows Isaac's movement on a 0.66 second delay\nDeals 75 contact damage per second\nAfter it deals 666 damage, it is absorbed by Isaac, increasing his contact damage and spawning friendly Chargers
+0	469	Leaves a trail of creep\nThe creep deals 6 damage per second\nEnemies that touch the cloud can be hit by a holy light beam
+0	470	Bounces around the room\nDeals 30 contact damage per second\nStops moving when Isaac shoots\nBlocks projectiles when stopped
+0	471	Charges a shotgun attack similar to Monstro's Lung\nEach tear deals 3.5 damage
+0	472	Other familiars follow it and automatically shoot at enemies\nStops moving when Isaac shoots\nTeleports back to Isaac when he stops shooting
+0	473	Very slowly charges forwards\nBlocks shots\nDeals 40.5 contact damage per second
+0	474	Using the item turns it back into Glass Cannon
+0	475	Deals 9,999,999 damage to all enemies\nKills Isaac 3 seconds later
+0	476	Duplicates a random pickup in the room\nDuplicated pickups may not be identical to the original
+0	477	Consumes all pedestal items in the room\nActive items: Their effects activate with every future use of Void\nPassive items grant two random stat ups
+0	478	Pauses all enemies in the room until Isaac shoots\nTouching a paused enemy still deals damage to Isaac\nEnemies unpause after 30 seconds
+0	479	Consumes Isaac's held trinkets and grants their effects permanently\nIncreases the spawn rate of trinkets
+0	480	Converts pickups into blue flies or spiders\nDoubles all blue flies and spiders\nSpawns 1 blue fly or spider if Isaac has none
+0	481	Random stat up\nRandom stat down\nRandom tear effects for the room\nCorrupts all sprites and music in the room
+0	482	Changes your character to a random character\nRemoves the most recent item collected
+0	483	Affects the whole floor\nExplodes all objects\nDeals 200 damage to all enemies\nOpens secret rooms\nOpens Boss Rush and Hush regardless of time
+0	484	Upon use, pushes enemies away and spawns a rock wave around Isaac\nThe rock wave can open rooms and break rocks
+0	485	50% chance to double all items, pickups and chests in room\n50% chance to remove items / pickups in room and spawn 1 coin
+0	486	Hurts Isaac without removing health\nTriggers any on-hit item effects
+0	487	Removes 1 heart container for:\n+0.2 Damage\nCube of Meat A Cube of Meat\nReceive for the room:\n+1.5 Range\nAnemic Leave a trail of blood creep
+0	488	Grants a random item effect for the room
+0	489	Can be made to act as any die item (except Spindown Dice) with the drop button\nCharge time varies based on the last die used and updates with every use
+0	490	Spawns 2 random items depending on the current room's item pool\nStarts with no charges
+0	491	Spawns a random pill every 7 rooms\nUsing a pill poisons all enemies in the room
+0	492	+1 Luck\nHighlights the location of secret rooms, tinted rocks and crawlspaces
+0	493	Damage up for every empty heart container\nThe more empty heart containers, the bigger the bonus for each new one
+0	494	Tears spawn a spark of electricity on impact\nSparks deal half of Isaac's damage\nSparks can arc to up to 4 other enemies
+0	495	8% chance to shoot a blue fire that blocks enemy shots and deals contact damage\n50% chance at 10 luck\nFires shrink and disappear after 2 seconds
+0	496	3.33% chance to shoot a needle\n25% chance at 13 luck\nNeedles kill normal enemies instantly, bursting them into 10 tears\nNeedles deal 3x Isaac's damage against bosses
+0	497	Entering a room camouflages Isaac and confuses all enemies until a tear is shot\n+0.5 Speed while cloaked\nUncloaking deals damage around Isaac and grants a very brief fire rate and damage up
+0	498	Spawns both a Devil and Angel Room if either would have spawned\nEntering one makes the other disappear
+0	499	100% chance for Angel Rooms to spawn
+0	500	Spawns a sack every 7-8 rooms
+0	501	+1 Heart container for every 25 coins Isaac has
+0	502	Firing occasionally shoots a white creep tear that deals double damage and slows enemies\nTaking damage shoots a white creep tear
+0	503	5% chance to shoot a tear that summons a Big Horn hand\n20% chance at 15 luck\nThe hand instantly kills enemies and deals 36 damage to bosses\nIsaac deals 7 contact damage per second
+0	504	Spawns a fly that shoots at enemies\nEach shot deals 3.5 damage
+0	505	Entering a hostile room has a 20% chance to spawn a friendly enemy
+0	506	Hitting an enemy in the back deals double damage and causes bleeding, which makes enemies leave creep and take damage when they move
+0	507	Deals Isaac's damage + 10% of the enemy's max health to all enemies\nDealing damage with the Straw have a 15% chance to spawn half hearts
+0	508	Orbital that causes bleeding, which makes enemies take damage when they move\nDeals 1.5x Isaac's damage per second
+0	509	Orbital that shoots a tear every 0.33 seconds to nearby enemies\nDeals 3.5 damage per tear\nDeals 20 contact damage per second
+0	510	Spawns a friendly delirium version of a boss for the room
+0	511	Orbits a random enemy until that enemy dies\nDeals 30 contact damage per second to other enemies
+0	512	Throwable black hole, which sucks in everything\nDeals 6 damage per second\nDestroys nearby rocks\nLasts 6 seconds
+0	513	+0.1 Damage\n+1 Soul Heart\nRandomly charms/fears enemies\nTaking damage has a 5% chance to spawn a Rainbow Poop
+0	514	Causes some enemies and projectiles to briefly pause at random intervals\nPaused projectiles disappear\n25% chance to double room clear rewards
+0	515	Spawns a random item from the current room's item pool\nChance to spawn Lump of Coal or The Poop instead
+0	516	Spawns a Sprinkler that shoots the same tears as Isaac in a circle around itself
+0	517	+7 Bombs\nRemoves the delay between bomb placements\nBombs don't deal knockback to each other
+0	518	Familiar which looks like a random co-op baby\nHas random tear effects\nEffects change every floor
+0	519	Transforms into a random familiar every 10 seconds
+0	520	Killing 15 enemies adds 1 charge to the active item
+0	521	Makes one random item in the Shop or Devil Room free\nHolding the item guarantees one Shop item is on sale
+0	522	Stops all enemy projectiles that come close to Isaac for 3 seconds and throws them away from him afterwards\nPushes close enemies away during the effect
+0	523	Stores up to 10 pickups and items from the current room\nUsing the item again drops everything back on the floor\nAllows Isaac to move things between rooms
+0	524	Isaac's tears are connected with beams of electricity\nElectricity deals 4.5x Isaac's damage per second
+0	525	Taking damage spawns a projectile blocking orbital\nCaps at 3 orbitals\nThey deal 30 contact damage per second\nOrbitals are destroyed if they take too much damage
+0	526	Spawns a small horseman familiar that spawns locusts\nThe horseman and its locust changes every 10 seconds
+0	527	Displays a movable cursor for a few seconds, then summons a ghost that will, depending on the cursor position:\nOpen doors or chests\nFetch an item\n50% chance to steal from the Shop / Devil\nAttack an enemy until it dies\nExplode walls, rocks, shopkeepers, angel statues, machines, beggars\nPresses the button
+0	528	Orbital prism\nFriendly tears hitting it split into 4
+0	529	Isaac's tears bounce off each other and disappear when they stop moving
+0	530	Killing enemies in the order dictated by the mark above them grants a random pickup or stat increase
+0	531	+1 Damage\nx1.5 Damage multiplier\nx0.33 Fire rate multiplier\nx0.8 Range multiplier\nIsaac's tears fly in an arc and burst into smaller tears on impact
+0	532	Isaac's tears progressively slow down, stop, then explode into 5-8 smaller tears\nTears can merge and become bigger
+0	533	Replaces Isaac's tears with piercing beams of light\nThe beams deal 33% damage but can hit enemies multiple times
+0	534	Allows Isaac to hold 2 active items\nThe items can be swapped using the Drop button
+0	535	Heals 1 heart\n+1 Soul Heart\nEntering a boss room grants a Holy Mantle shield (prevents damage once)
+0	536	Sacrifices up to 2 familiars and spawns a devil item for each sacrifice\nTurns blue spiders/flies into coins
+0	537	Spawns a random pill on pickup\nFires a line of creep\nThe type of creep changes with each pill use
+0	538	Spawns 3 random trinkets\nSmelter Taking damage has a 10% chance to consume Isaac's held trinket and grant its effects permanently
+0	539	Taking damage spawns a friendly enemy\nSpawns stronger friends the more rooms are cleared without taking damage
+0	540	Isaac's tears bounce off the floor and cause splash damage on every bounce
+0	541	Spawns 3 Red Hearts\n+1 Bone Heart
+0	542	Orbital\nReflects enemy projectiles
+0	543	Taking damage spawns a white poop\nWhile inside the poop's aura:\nx2.5 Fire rate multiplier\nx1.2 Damage multiplier\nHoming tears\n50% chance to block damage
+0	544	Levitates in front of Isaac\nDeals 6x Isaac's damage per second
+0	545	Spawns a bone orbital or friendly bony per enemy killed in the room (up to 8)
+0	546	Grants an aura that petrifies enemies
+0	547	+0.7 Tears\n+1 Bone Heart\nMysterious Paper Spawns the Mysterious Paper trinket
+0	548	Boomerang-like familiar\nDeals 7 contact damage\nCan grab and bring back pickups
+0	549	Replaces all of Isaac's Red Heart containers with 6 empty Bone Hearts\nUpon losing a Bone Heart:\n+0.4 Fire rate\nShoots 10 bone tears in all directions
+0	550	Mom's Foot constantly tries to stomp Isaac\nUsing the item stops the stomping for the room (or one Boss Rush wave)\n(Try to beat Boss Rush with it!)
+0	551	Completes Mom's Shovel\nUse the shovel on the mound of dirt in the "Dark Room"
+0	552	Spawns a trapdoor to the next floor\nSpawns a crawlspace if used on a decorative floor tile (grass, small rocks, papers, gems, etc.)\nUse the shovel on the mound of dirt in the "Dark Room"
+0	553	25% chance to shoot a sticky spore tear\nNot affected by luck\nSpores blow up after 2.5 seconds, dealing damage, poisoning nearby enemies and releasing more spores
+0	554	Fears enemies in a small radius around Isaac
+0	555	+5 coins on pickup\nPay 5 coins and receive for the room:\n+1.2 Damage
+0	556	Brimstone for the room\nUsing it multiple times in one room grants increased damage and a larger beam
+0	557	Grants one of the following rewards:\nA fortune\nA Soul Heart\nA Rune or Soul Stone\nA Tarot card\nA Trinket
+0	558	Chance to shoot 1-3 extra tears in random directions\nNot affected by luck
+0	559	Repeatedly zaps nearby enemies\nElectricity deals up to 3.75x Isaac's damage per second\nSparks can arc to up to 4 other enemies
+0	560	When taking damage, receive for the room:\n+1.2 Fire rate on the first hit\n+0.4 Fire rate for each additional hit\nReleases a ring of 10 tears around Isaac
+0	561	x4 Fire rate multiplier\nx0.3 Damage multiplier\n-0.16 Tear size\nTears gain random worm trinket effects and some item effects
+0	562	Prevents stats from being lowered for the rest of the run
+0	563	+5 Bombs\nIsaac's bombs explode with random effects
+0	564	+0.5 Tears\n+0.2 Shot speed
+0	565	Chases enemies\nAfter killing 15 enemies, it deals more damage, spawns a half Red Heart every 10 kills, but tries to hurt Isaac\nAfter killing 40 enemies, it deals even more damage, spawns full Red Hearts, and can destroy rocks\nDealing enough damage to it returns it to its first phase
+0	566	+1 half Soul Heart when entering a new floor\nThe stage transition nightmare reveals the next floor's boss fight and Treasure Room item
+0	567	Clearing a room without taking damage grants +0.4 Fire rate\nCaps at +2 Fire rate (5 rooms)
+0	568	Double-tapping a fire key creates a shield\nThe shield lasts 1 second, pushes enemies away and reflects enemy projectiles and lasers
+0	569	Entering a new floor drains all of Isaac's Red Hearts, but grants speed and damage bonuses for each heart lost\nEach half heart lost counts as an individual hit for on-hit effects
+0	570	Each of Isaac's tears have a different color and status effect
+0	571	+0.3 Speed\n+2 Soul Hearts\nImmune to creep and floor spikes
+0	572	+1 Damage\n+2 Range\n-0.16 Shot speed\nIsaac's tears can be controlled in mid-air
+0	573	+1 Health\nx1.2 Damage multiplier\nFull health\n20% chance to shoot an extra orbiting spectral tear
+0	574	Isaac is surrounded by a damaging aura\nThe closer enemies are to Isaac, the more damage the aura deals to them
+0	575	Buries itself in Isaac's head and shoots 4 extra slowing tears that deal 1.5 damage\nTaking damage has a 25% chance to make the spider exit the head and chase enemies
+0	576	All Dip (small poop) enemies are friendly\nDestroying poop spawns 1-4 Dips\nDip type depends on the poop type\nRocks have a 6.25% chance to be replaced with poop
+0	577	Hangs a sword above Isaac's head, which doubles all pedestal items\nDoes not double items that have a price or come from chests\nAfter taking any damage, the sword has an extremely low chance to instantly kill Isaac every frame\nInvincibility effects can prevent the death
+0	578	Creates a large pool of yellow creep\nThe creep deals 24 damage per second
+0	579	Instead of shooting tears, swing a sword\nThe sword deals 3x Isaac's damage +3.5 and swings as fast as the fire button is tapped\nCharging does a spin attack + projectile shot\nShoots projectiles with swings at full health
+0	580	Creates a red room adjacent to a regular room, indicated by a door outline\nRed Rooms can be special rooms\nEntering a room outside the 13x13 floor map teleports Isaac to the I AM ERROR room
+0	581	Chases and blocks enemy projectiles\nDeals 15 contact damage per second
+0	582	+0.75 Fire rate\n-0.03 Speed\nDistorts the screen\nTakes longer to recharge each use\nLeaving or clearing rooms reduces the effects
+0	583	+5 Bombs\nPlacing a bomb while shooting fires a rocket in that direction instead
+0	584	+12.5% Angel Room chance while held\nSpawns an orbital wisp familiar that shoots spectral tears but can be destroyed\nCan be combined with a second active item to create special wisps\nTurns the first Devil Room into an Angel Room\nAllows Angel Rooms to spawn after taking a Devil deal
+0	585	Must be charged by picking up Soul Hearts, then spawns:\nThree Soul Hearts\nTwo Angel Room items\nOnly spawns 2 Soul Hearts and 1 Angel item if a Devil deal was taken previously
+0	586	Spawns a ladder in the first room of every floor that leads to a unique Angel Room shop with items and pickups
+0	588	Reveals the location of the Boss Room\nWhen the floor boss is defeated, receive for the floor:\n+3 Damage\n+1 Luck\nXIX - The Sun The Sun effect\nFully recharges the active item\nRemoves any curses
+0	589	Adds an extra Secret Room and Super Secret Room to each floor\nReveals one Secret Room each floor\nSecret Rooms contain a beam of light that grant for the floor:\n+0.5 Fire rate\nAdditional +0.5 Fire rate from the first beam per floor\nHalf a Soul Heart
+0	590	+0.4 Speed\nMost doors stay permanently open
+0	591	+1 Health\nHeals 1 heart\nCharms nearby enemies
+0	592	+1 Damage\nReplaces Isaac's tears with rocks\nRocks deal variable damage, can destroy obstacles and have increased knockback
+0	593	Double-tapping a movement key makes Isaac dash\nDuring a dash, Isaac is invincible and deals 4x his damage +8\n3 seconds cooldown
+0	594	+2 Empty heart containers\n-0.3 Speed\nHeals half a heart\nSpeed builds up to +0.5 while standing still\nMoving releases poison clouds\nPoison immunity
+0	595	Entering a room causes 7 tears to orbit Isaac\nThose tears last for 13 seconds and deal 1.5x Isaac's damage +5\nEnemy projectiles have a chance to orbit Isaac
+0	596	Isaac shoots petrifying tears that freeze enemies on death\nTouching a frozen enemy makes it slide away and explode into 10 ice shards
+0	597	Not shooting builds up a tear bonus over 3 seconds\nThe tear bonus decreases as Isaac shoots
+0	598	+0.7 Tears\nSignificantly shrinks Isaac, allowing him to squeeze between objects\nProjectiles can pass over him
+0	599	Spawns an additional Curse Room each floor\nImproves Curse Room layouts and rewards\nSpawns a coin in every Curse Room
+0	600	x1.4 Fire rate multiplier for the left eye
+0	601	+0.7 Tears\n+1 Eternal Heart\nAllows Angel Rooms to spawn even after taking a devil deal\nTaking Red Heart damage doesn't reduce Devil/Angel Room chance as much
+0	602	Opens a trapdoor in every Shop\nThe trapdoor leads to an underground shop that sells trinkets, runes, cards, special hearts and items from any pool
+0	603	Spawns 2-4 batteries\nFully recharges the active item
+0	604	Allows Isaac to pick up and throw rocks, TNT, poops, friendly Dips, Hosts and other obstacles\nAllows carrying them between rooms
+0	605	x1.35 Damage multiplier for the right eye\nSummons a Peeper familiar for the room, which leaves a trail of red creep and deals 36 contact damage per second
+0	606	5% chance to shoot tears that create rifts where they land\n20% chance at 15 luck\nRifts do 3x Isaac's damage per second and pull in nearby enemies, pickups, and projectiles
+0	607	Shoots chaotic bursts of tears in all directions\nDeals 3.5 or 5.25 damage per tear
+0	608	Shoots petrifying tears that deal 3.5 damage\nFreezes enemies upon killing them
+0	609	Rerolls all pedestal items in the room\nHas a 25% chance to delete items instead of rerolling them
+0	610	Leaps on the enemy that deals the first damage to Isaac in a room\nDeals 45 damage and releases a rock wave\nChases enemies afterwards for 6.5 contact damage per second
+0	611	Isaac screams, damages and knocks back nearby enemies\nThe scream gets stronger the more charges the item has
+0	612	Dies in one hit and respawns at the start of the next floor\nIf it is brought alive to the next floor, it can spawn:\n3 Soul Hearts\n2 Eternal Hearts\nA Treasure Room item\nAn Angel Room item
+0	614	+1 Health\nHeals 4 hearts\nIf Isaac has no bombs, one can be placed at the cost of half a heart\nIsaac's bombs leave red creep
+0	615	Deflects an enemy or projectile right before Isaac would take damage from it\nNeeds to be touched after deflecting to be reactivated
+0	616	8% chance to shoot a red fire that blocks enemy shots and deals contact damage\n50% chance at 10 luck\nFires disappear after blocking 4 shots, dealing damage 4 times or after 10 seconds
+0	617	17% chance to shoot magnetizing tears\n100% chance at 5 luck\nMagnetized enemies attract nearby pickups, projectiles and enemies
+0	618	17% chance to shoot tears that mark enemies\n100% chance at 5 luck\nMarked enemies are targeted by other enemies
+0	619	Has a different effect for each character
+0	621	+21.6 Damage\nFull health\nThe damage up wears off over 3 minutes\nKilling enemies while the effect is active extends it
+0	622	Removes all of Isaac's items and pickups\nTeleports Isaac to a bedroom with pickups and chests\nFor every item removed, Isaac can choose between 3 items from the same pool\nLeaving the bedroom takes Isaac to the next floor
+0	623	+5 Keys\nThrows one of Isaac's keys in the direction he shoots\nThrown keys deal damage, destroy obstacles, and open doors\nEnemies killed with keys can spawn the contents of a chest, including items
+0	624	Spawns 5 random cards
+0	625	Gigantifies Isaac and grants:\nx4 Damage multiplier\n+2 Range\n-1.9 Tears\nInvincibility\nAbility to crush enemies and obstacles\nLasts for 30 seconds and persists between rooms and floors
+0	626	Turns into a throwable knife that deals 25 damage when combined with Knife Piece 2\nThe knife can open a door made of flesh
+0	627	Turns into a throwable knife that deals 25 damage when combined with Knife Piece 1\nThe knife can open a door made of flesh
+0	628	Teleports Isaac to a floor that contains every item in the game\nChoosing an item from this floor teleports Isaac back to the room he came from
+0	629	Shoots shielded tears to destroy enemy projectiles\nDeals 3 contact damage per second
+0	631	Splits all enemies in the room into 2 smaller versions with 40% health\nEnemies that naturally split (like Envy) take enough damage to split instead\nDeals 25 damage to enemies that can't be split
+0	632	+2 Luck\nImmune to burn, confusion, fear, and poison effects
+0	633	+0.1 Speed\n+2 Damage\nFlight and one-time Holy Mantle shield\nHeals Isaac with Red and Soul Hearts if he has less than 6 hearts
+0	634	Red cracks spawn on the ground in hostile rooms\nWalking over the cracks summons homing exploding ghosts
+0	635	Spawns a familiar that moves in the direction Isaac shoots\nOn use, Isaac swaps places with the familiar and becomes briefly invincible\nTeleporting onto things can damage or destroy them
+0	636	Restarts the entire run\nAll items, trinkets, stats and pickups collected are kept\nThe timer does not reset
+0	637	10% chance to shoot a fist that inflicts confusion and extreme knockback\n100% chance at 9 luck\nEnemies take damage when they get knocked into a wall/obstacle
+0	638	Throws an eraser that instantly kills an enemy\nPrevents the erased enemy from spawning for the rest of the run\nDeals 15 damage to bosses\nCan only be used once per floor
+0	639	+1 Rotten Heart
+0	640	Spews a stream of flames\nKilling an enemy adds a charge to the urn
+0	641	Creates a chain of tears behind Isaac in hostile rooms\nThe tears deal 3.5 damage
+0	642	Spawns an item from the current room's item pool\nTurns 1 heart container or 1 Bone Heart or 2 Soul Hearts into a Broken Heart\nReplaces future items if Isaac isn't holding it (33% after 1 use, 50% after 2, 100% after 3)\nLower chance if Magic Skin is on a pedestal on the current floor
+0	643	+2 Soul Hearts\nFlight\nChargeable high damage holy beam\nDoes not replace Isaac's tears
+0	644	Increases Isaac's lowest stat out of Speed, Fire rate, Damage, and Range\nSpawns either 3 coins, 1 bomb, or 1 key depending on what Isaac has the least of
+0	645	Large orbital that blocks shots\nDeals 3.5 contact damage per second\nSplits into smaller versions of itself upon taking 3 hits\nThe smaller versions break into blue spiders\nRespawns 5 seconds after fully disappearing
+0	646	+5 Bombs\nBrimstone Isaac's bombs release a 4-way blood beam\nThe beams don't hurt Isaac
+0	647	Clearing rooms no longer charges active items\nDealing damage to enemies slowly fills up the charge bar\nDamage needed per charge increases each floor
+0	649	Propels herself diagonally around the room, firing tears in her path that deal 3 damage\nDeals 6 contact damage per second
+0	650	Summons a friendly Baby Plum in the room for 10 seconds
+0	651	Slowly travels from the first room of the floor to the Boss Room\nMoves faster if you're ahead of it, and slower if you're behind it\nStanding in its aura grants:\nx2.5 Tears multiplier\nx1.8 Damage multiplier\nHoming tears\n50% chance to ignore damage
+0	652	Can be kicked around by walking into it\nSlows and deals up to 17.5 contact damage depending on speed\nFreezes enemies it kills
+0	653	Holding the item causes non-ghost enemies to spawn small red ghosts on death\nUsing the item causes the ghosts to explode\nUsing the item also kills any ghost enemies (including bosses) that have less than 50% HP left
+0	654	+1 Black Heart\nIdentifies all pills\nConverts all good pills into bad pills\nEating a stat down pill grants +0.6 damage\nEating other bad pills spawns a Black Heart
+0	655	Passively grants an orbital that blocks enemy shots and deals 10.5 contact damage per second\nUsing the item grants:\n+0.5 Speed\nIncreases speed and damage of orbitals
+0	656	Hangs a sword above Isaac's head, which doubles all pedestal items\nDoes not double items that have a price or come from chests\nAfter taking any damage, the sword has an extremely low chance to instantly kill Isaac every frame\nInvincibility effects can prevent the death
+0	657	Enemies explode into tears upon death, which inherit the effects upon death
+0	658	Taking damage spawns a Minisaac\nMinisaacs chase and shoot at nearby enemies
+0	659	+2.5 Range\n+0.22 Tear size
+0	660	Spawns two portals in the first room of each floor\nLeaving the room despawns the portals\nRed: Boss Room\nYellow: Item Room\nBlue: Secret Room
+0	661	Killing an enemy spawns a stationary familiar in its place\nCaps at 5 familiars
+0	663	1 second of invincibility every 6 seconds\nIsaac flashes right before the effect triggers
+0	664	+1 Health\nFull health\nItem pedestals cycle between their item and a food item\nPicking up a food item grants:\nHeal 2 hearts\nTemporary +3.6 damage\n2 permanent stat ups (depending on the food)\n-0.03 speed
+0	665	Reveals the contents of chests, sacks, shopkeepers, and fireplaces before they're opened or destroyed
+0	667	+1 Bomb\nKeeper Spawns Keeper as a second character\nWhen he dies, spawns blue spiders and permanently removes Strawman and any item that he has picked up from the inventory\nDevil Room items cost coins while Strawman is alive\nStrawman can pick up story items
+0	668	Begins the Ascent\nTrinkets left in previous Treasure or Boss Rooms turn into Cracked Keys
+0	669	+1 Health\n+0.2 Speed\n+0.5 Tears\n+0.5 Damage\n+2.5 Range\n+0.16 Shot speed\n+1 Luck\nFull health\n+6.9% Devil/Angel Room chance\n+6.9% Planetarium chance
+0	670	Allows Isaac to choose from two different room clear rewards
+0	671	Healing with Red Hearts grants random permanent stat ups\nSpawns a Red Heart
+0	672	Devil Room items cost coins\nShop items cost hearts\nConsumables in Shops are surrounded by spikes
+0	673	Entering a new floor after visiting a Devil Room and not taking any item/pickup grants:\n+1 Damage\n+1 Soul Heart
+0	674	Taking fatal damage transforms Isaac into a ghost chained to his dead body and allows him to continue to fight with half a heart\nIf the ghost survives, Isaac revives after 10 seconds\nMust be recharged by picking up a Soul Heart
+0	675	Taking damage:\nUnlocks all locked doors in the room\nReveals a random room on the map\nDestroys all tinted and crawlspace rocks
+0	676	+1 Empty heart container when at 1 Red Heart or less at the start of a new floor
+0	677	Taking damage in an uncleared room grants for the fight:\nSpectral tears\nFlight\nNegates the next damage taken\nStops time for 2 seconds\nGreatly increases speed and fire rate for 2 seconds
+0	678	Replaces Isaac's tears with a charge attack that shoots homing, spectral fetus tears\nFetus tears deal about 2.8x Isaac's damage per second
+0	679	Maw of the Void Familiar that charges and unleashes a Maw of the Void circle\nIt deals 52.5 damage over 1 second
+0	680	Firing charges up a short-ranged high damage backwards beam\nDoes not replace Isaac's tears
+0	681	Deals contact damage and flies forward\nConsumes pickups in its path\nEach pickup consumed increases its size, damage, and spawns a blue fly\nConsuming four pickups spawns a portal to an unexplored room
+0	682	Sometimes bursts out of the ground and grabs an enemy\nGrabbed enemies take 8 damage per second, are slowed and cannot move
+0	683	Enemies spawn bone shards on death\nBones block projectiles and deal contact damage
+0	684	Killing an enemy has a 33% chance to spawn a ghost\nGhosts chase enemies, deal contact damage and explode after 5 seconds\nIsaac doesn't take damage from the explosion
+0	685	Spawns a random wisp\nSpawns one additional wisp with each use, up to 12
+0	686	Picking up Soul Hearts grants random permanent stat ups\nSpawns a Soul Heart
+0	687	Spawns a random friendly monster that mimics Isaac's movements and attacks
+0	688	+1 Life\nUpon death:\nRespawns Isaac in the same room with half a heart\n+0.2 Speed\nMassive size down
+0	689	Item pedestals quickly cycle between 5 random items
+0	690	Enemies bounce off of Isaac\n50% chance to negate contact damage\n50% chance to deflect enemy projectiles
+0	691	Prevents Quality 0/1 items from spawning\nQuality items have a 33% chance to be rerolled
+0	692	Spawns a set of spikes in the Devil Room\nTaking damage on the spikes grants:\n35%: Nothing\n33%: +0.5 Damage\n15%: 6 pennies\n10%: 2 Black Hearts\n5%: Random Devil item\n2%: Leviathan transformation
+0	693	Grants 8 orbital flies\nClearing a room spawns a new fly\nFlies turn into blue flies after blocking a shot
+0	694	+0.25 Damage for each Broken Heart\n+3 Broken Hearts\nEvery fatal hit grants +2 Broken Hearts\nIsaac dies at 12 Broken Hearts
+0	695	When taking damage, receive for the floor:\nSpeed up\nFire rate up\nCaps at +1.02 speed and +3 fire rate
+0	696	Isaac is surrounded by a halo\nEnemies that stand in the halo for too long are hit by a cross-shaped beam of light\nTaking damage increases the size of the halo for the floor
+0	697	Entering a boss room spawns a clone of the boss\nDefeating the clone spawns an extra item\nThe clone is slower and has 75% health
+0	698	Two familiars that shoot tears with the same stats and effects as Isaac\nThey deal 37.5% of Isaac's damage
+0	699	Brimstone Clearing 4 rooms fires a large Brimstone beam upon entering the next room
+0	700	Using a rune, card or pill also uses a copy of the last 3 runes/cards/pills used after picking up Echo Chamber
+0	701	Spawns an Old Chest at the start of every floor\nOld Chests require a key to unlock and can contain Soul Hearts, trinkets or Mom, Dad and Angel items
+0	702	Taking damage spawns an orbital wisp\nWisps shoot tears, do not block shots and disappear on the next floor\nCaps at 6 wisps
+0	703	Swaps between the current character and Esau Jr.\nEsau Jr. has 3 Black Hearts, +2 Damage, flight, and random items equal to the number of items the player has the first time this item is used\nCharacters have independent items and health\nDying as either character ends the run
+0	704	Charges with damage dealt\nReceive for 5 seconds:\n+0.4 Speed\nx0.5 Fire rate multiplier\n+2 Fire rate\n+3 Damage\nRestricts attacks to a melee that reflects shots\nEach kill increases the duration by 1 second and grants brief invincibility
+0	705	Receive for 1 second (or until shooting): +1 Speed\nIsaac can pass through enemies/projectiles and paralyzes them\nWhen the effect ends, damages paralyzed enemies, removes paralyzed projectiles and creates a blast at Isaac's location\nThe attacks and blast are more powerful the more enemies/projectiles have been hit
+0	706	Consumes all item pedestals in the room and spawns a locust familiar for each one\nLocusts deal Isaac's damage 2-3 times an attack\nSome items spawn a special locust when consumed
+0	707	+1 Health\nHeals 1 heart
+0	708	+1 Damage\nAll of Isaac's tears are shot from the right eye
+0	709	Isaac dashes in the direction he moves\nDashing into an enemy or boss picks it up and slams it into the ground\nSlam deals damage and spawns rock waves based on Isaac's size\nYou're invincible during the dash and slam
+0	710	Collects up to 8 pickups which cannot be dropped\nUsing the item with 8 pickups in the bag crafts an item\nItem quality is based on the quality of the pickups
+0	711	Entering a room with item pedestals displays a ghostly second item on the pedestals\nUsing the item flips the real and ghostly item\nUsing Flip after taking the first item allows Isaac to pick up the other item\nGhostly items alone on pedestals disappear after leaving the room
+0	712	Spawns an orbital that grants a random item's effect\nThe items have a 25% chance to be from the current room's item pool and 75% chance to be from a random item pool
+0	713	Removes half a heart and creates a clot\nClots copy Isaac's tears\nEach type of heart generates a clot with different HP, damage and tear effect
+0	714	Retrieves the Forgotten's body from any distance\nThe Soul is invincible while the Forgotten is returning
+0	715	Using the item when empty stores the next poop inside\nUsing the item with a poop inside uses that poop
+0	716	Spawns 3 coins and 1 key\nSpending 3 coins grants either:\n+0.03 Speed\n+0.5 Damage\n+0.25 Range
+0	717	Rocks and other obstacles spawn 2 blue spiders when destroyed\nRocks can occasionally spawn blue spiders in hostile rooms
+0	719	Spawns a random Shop item/pickup to be purchased
+0	720	Spawns pickups based on the number of charges\nCharge Rewards:\n1: Poop 2: Coin 3: Bomb 4: Key\n5: Heart 6: Pill 7: Card 8: Soul Heart\n9: Golden Heart 10: Golden Key 11: Golden Bomb\nTriggers a powerful random effect at 12 charges
+0	721	Causes all future items to be glitched\nGlitched items have completely random effects
+0	722	Chains down the nearest enemy for 5 seconds\nChained enemies cannot move or attack
+0	723	Rerolls all items in the room by decreasing their internal ID by one
+0	724	Taking damage drops a half or full Red Heart depending on how much Isaac lost\nThe hearts launch out and despawn after 1.5 seconds
+0	725	Dealing enough damage causes Isaac to flash red\nReleasing the fire button while Isaac is flashing either:\nThrows a random poop\nCreates buffing creep\nFarts a poison cloud\nSpawns 5 live bombs
+0	726	Double-tapping a fire button makes Isaac sneeze blood\nThe sneeze deals 1.5x Isaac's damage\n1 second cooldown\nAffected enemies take extra damage from Brimstone beams
+0	727	+5 Bombs\nIsaac's bombs spawn ghosts that chase enemies\nGhosts deal 2x Isaac's damage per second and explode after 10 seconds
+0	728	A demon familiar bursts out of Isaac for the room\nThe demon shoots towards the nearest enemy, mimicing Isaac's tears, stats and effects\nIts tears deal 75% of Isaac's damage
+0	729	Throws Isaac's head in a direction\nThe head deals contact damage and shoots tears from where it lands\nUsing the item again or stepping on the head reattaches it
+0	730	+0.75 Damage\n+1 Luck
+0	731	x1.28 Damage multiplier for the right eye\n+6.5 Range for the right eye\n-0.3 Shot speed for the right eye
+0	732	+1 Damage\nSpawns a random rune or soul stone
+1	1	Taking damage spawns 1 coin
+1	2	50% chance to get drops from poop
+1	3	-1 Charge needed for active items
+1	4	Teleport! Using an active item teleports Isaac to a random room
+1	5	2x chance for champion enemies
+1	6	Attracts coins to Isaac
+1	7	50% higher Angel Room chance\nThe Bible Higher chance to find The Bible in Shops and Libraries
+1	8	5% chance upon taking damage to receive for 6.5 seconds:\nInvincibility\nIsaac can't shoot but deals 40 contact damage per second\nKilling 2 enemies heals half a heart\nFears all enemies in the room
+1	9	Isaac's tears pulsate\nAffects tear hitbox
+1	10	+0.4 Tears\nSpectral tears\nIsaac's tears move in waves
+1	11	+0.4 Tears\nSpectral tears\nIsaac's tears move in spirals with high speed
+1	12	50% wider tears\nIncreases knockback
+1	13	Allows Isaac to take 1 Shop item for free
+1	14	Immune to creep and floor spikes
+1	15	Destroying rocks has a 33% chance to spawn a coin
+1	16	Mom's Foot stomps a random spot in the room every 20 seconds
+1	17	+10% chance for random Soul Hearts to spawn as Black Hearts
+1	18	+3% chance for Eternal Hearts
+1	19	Gold chests can be opened for free
+1	20	Spawns 1 Black Heart when Isaac's health is damaged down to half a heart\nDisappears after spawning 3 Black Hearts
+1	21	Randomly grants the effect of:\nThe Polaroid\nThe Negative\nA Missing Page\nMissing Poster
+1	22	Decreases spawn rate of hearts to 20%\nAll Heart pickups turn into Black Hearts\nIncreases the drop chance of keys
+1	23	The Lost Respawn as The Lost on death
+1	24	20% higher chance for coins to spawn from poop\nPicking up coins makes Isaac fart, which poisons and knocks back enemies and projectiles
+1	25	Isaac farts or spawns poop every 30 seconds
+1	26	+0.4 Tears\n+1.5 Range\nSpectral tears\nIsaac's tears move in angular patterns
+1	27	+0.5 Shot speed
+1	28	??? 22% chance to respawn as ??? (Blue Baby) on death
+1	29	Taking damage spawns 1-2 blue flies
+1	30	10% chance to shoot poison tears\n100% chance at 18 luck
+1	31	10% chance to shoot piercing + spectral tears\n100% chance at 18 luck
+1	32	25% chance for a random mushroom effect per room
+1	33	Having half a Red Heart or less grants Little Steven\nGemini Taking damage has a high chance to spawn a Gemini familiar for the room
+1	34	10% chance for the room clear reward to be a random heart\n33% chance for a bonus heart from chests, tinted rocks, and destroyed machines
+1	35	+2 Damage
+1	36	10% chance for the room clear reward to be a key\n33% chance for a bonus key from chests, tinted rocks, and destroyed machines
+1	37	+0.15 Speed
+1	38	+10% chance for heart drops to be Soul Hearts, Black Hearts or Bone Hearts
+1	39	+1 Fire rate
+1	40	Taking damage has a 20% chance to grant +1.8 damage for the room\n100% chance at 8 luck
+1	41	10% chance for the room clear reward to be a bomb\n33% chance for a bonus bomb from chests, tinted rocks, and destroyed machines\nRemoves Tick
+1	42	+1 Luck\n+8% room clear reward chance\n33% chance for an extra pickup from chests, tinted rocks, and destroyed machines
+1	43	When damaged down to half a heart or less, Isaac is teleported to a random room
+1	44	10% chance for the room clear reward to be a pill\n33% chance for a bonus pill from chests, tinted rocks, and destroyed machines
+1	45	10% chance for the room clear reward to be a card\n33% chance for a bonus card from chests, tinted rocks, and destroyed machines
+1	46	Clearing a room has a 10% chance to heal half a heart\n100% chance at 18 luck
+1	48	Taking damage has a 5% chance to deal 80 damage to all enemies in the room\nThe Necronomicon Black Hearts and Necronomicon-like effects deal double damage
+1	49	Picking up a coin has a 25% chance to spawn a half Red Heart\nHigher chance from nickels and dimes
+1	50	Picking up a coin has a 25% chance to spawn a bomb\nHigher chance from nickels and dimes
+1	51	Picking up a coin has a 25% chance to spawn a key\nHigher chance from nickels and dimes
+1	52	Picking up a coin has a 50% chance to add another coin to the counter
+1	53	Heals 1 heart when entering a Boss Room\n-15% boss health\nOnce picked up, it can't be removed\nOnly removeable with Match Stick or gulping
+1	54	Familiar with piercing tears\nDeals 3.5 damage per tear
+1	55	Entering a new floor grants +1 Eternal Heart
+1	56	Reduces all devil deal prices to 1 heart container\nDoesn't reduce 3 Soul Heart prices
+1	57	Familiar that bounces around the room\nShoots in the same direction as Isaac\nDeals 3.5 damage per tear
+1	58	Killing an enemy has a 6.66% chance to grant +0.5 damage for the room\n100% chance at 10 luck
+1	59	Entering a new floor has a 25% chance to reveal map icons\n100% chance at 3 luck
+1	60	Dead Bird Killing an enemy has a 5% chance to spawn a Dead Bird\n100% chance at 8 luck
+1	61	Turns all chests into Red Chests
+1	62	Crawlspace rocks and tinted rocks blink every 10 seconds
+1	63	Turns Troll Bombs into bomb pickups
+1	64	Grants a random worm effect every 3 seconds
+1	65	+3 Range
+1	66	-0.5 Shot speed
+1	67	Taking damage has a 50% chance to trigger one of these effects:\nThe D6 D6\nD8\nD10\nD12\nD20
+1	68	Isaac attracts pickups and enemies
+1	69	Randomly camouflages Isaac\nConfuses enemies\nCan be used to open the "Strange Door" in "Depths II"
+1	70	Occasionally spawns a blue spider in hostile rooms
+1	71	Isaac's bombs leave damaging creep
+1	72	6.66% chance for the room clear reward to be a battery\n+10% chance for random pickups to be a battery\n5% chance to add 1 charge to held active item when clearing a room
+1	73	10% chance for exploding bombs to drop a bomb pickup
+1	74	0.5% chance to reveal a crawlspace when breaking a rock
+1	75	Grants a random trinket effect every room
+1	76	50% chance for chests to spawn extra pickups\n50% chance for chests to contain a single fly
+1	77	Increases knockback
+1	78	Status effects applied to enemies last 2 times as long
+1	79	Using a rune, card or pill has a 25% chance to spawn a copy of that rune, card or pill
+1	80	+0.5 Damage for each "Evil up" item held
+1	81	Invincibility frames after taking damage last 2 times as long
+1	82	Future Treasure Rooms have +15% chance to let Isaac choose between two items
+1	83	Lets Isaac open Shops for free
+1	84	5% more coins and fewer hearts from room clear rewards\nGreed and Super Greed no longer appear in Shops or Secret Rooms
+1	85	Using a Donation Machine has a 33% chance to:\nHeal 1 heart (40%)\nGive 1 coin (40%)\nGrant +1 luck (15%)\nSpawn a Beggar (5%)
+1	86	Destroying poop spawns 1 blue fly
+1	87	Using a key heals half a heart\nTurns half hearts into full hearts
+1	88	Prevents active items from spawning
+1	89	Familiars stay closer to Isaac
+1	90	Poop explodes for 100 damage when destroyed
+1	91	33% chance for Black Poops to spawn\nDestroying Black Poop has a 5% chance to spawn a Black Heart
+1	92	x1.2 Stat multiplier for the stats that are above 1 speed, 2.73 tears, 3.5 damage, 6.5 range, 1 shot speed
+1	93	15% chance per room for all fly enemies to become friendly
+1	94	Doubles all blue fly / locust spawns
+1	95	3% chance to shoot poison tooth tears\nThe tooth deals 2x Isaac's damage
+1	96	+0.4 Tears\n+1.5 Range\nSpectral tears\n10% Chance for homing tears\n100% chance at 9 luck\nIsaac's tears move quickly in a spiral pattern
+1	97	Taking damage 12-20 times spawns a projectile blocking familiar\nDisappears after spawning 2 familiars
+1	98	10% chance to shoot a sticky tear\n50% chance for it to be homing\nBoogers deal Isaac's damage once per second\nBoogers stick for 10 seconds
+1	99	10% chance to shoot bouncing tears
+1	100	Holding a fully charged active item grants:\n+0.25 Speed\n+0.2 Tears\n+0.5 Damage\n+0.75 Range\n+0.1 Shot speed\n+1 Luck
+1	101	Holding a completely uncharged active item grants:\n+0.5 Speed\n+0.5 Tears\n+1.5 Damage\n+1.5 Range\n+0.3 Shot speed\n+2 Luck
+1	102	+1 extra Secret Room per floor while held
+1	103	Turns single pickups into double pickups when Isaac's coin, bomb and key counts are equal
+1	104	2% chance to get destroyed and spawn a pedestal item when hit
+1	105	Lunch 2% chance to get destroyed and spawn Lunch when hit
+1	106	Increases the radius of friendly creep
+1	107	Taking damage depletes Red Hearts before Soul/Black Hearts\nTaking Red Heart damage will reduce Devil/Angel Room chance
+1	108	Getting hit by explosions has a 33% chance to destroy the trinket and drops a random heart, coin, key and trinket\nTaking damage isn't required
+1	109	Familiars are stuck in place relative to Isaac's position
+1	110	Shops appear in the Womb and Corpse
+1	111	Treasure Rooms appear in the Womb and Corpse
+1	112	Restock boxes always spawn in Treasure Rooms
+1	113	Entering a hostile room spawns an exploding attack fly\nThe fly deals 2x Isaac's damage + explosion damage
+1	114	Entering a hostile room spawns a poison attack fly\nThe fly deals 2x Isaac's damage
+1	115	Entering a hostile room spawns a slowing attack fly\nThe fly deals 2x Isaac's damage
+1	116	Entering a hostile room spawns an attack fly\nThe fly deals 4x Isaac's damage
+1	117	Entering a hostile room spawns 1-4 attack flies\nEach fly deals 2x Isaac's damage
+1	118	Killing an enemy has a 5% chance to grant flight for the room
+1	119	Entering a new floor heals half of Isaac's empty Red/Bone Hearts\nHeals half a heart minimum
+1	120	Entering an uncleared boss room fully recharges active items
+1	121	Holy Mantle Grants a Holy shield that prevents damage once per floor
+1	122	Using an active item drops it on a pedestal on the ground\nTaking damage has a 2% chance to drop one of Isaac's passive items
+1	123	Angel bosses drop angel items instead of Key Pieces
+1	124	The last door used stays open
+1	125	Connects all familiars with beams of electricity\nThe beams deal 6 damage
+1	126	Picking up a coin spawns a blue fly
+1	127	Grants all familiars homing shots
+1	128	Taking damage has a 4% chance to grant a Bone Heart
+1	129	10% chance to shoot teeth that deal 3.2x Isaac's damage\n100% chance at 9 luck
+1	130	10% chance to shoot slowing tears\n100% chance at 18 luck
+1	131	Picking up a coin has a 17% chance to spawn a half Soul Heart\nHigher chance from nickels and dimes
+1	132	25% chance to get a random syringe effect each room
+1	133	Isaac's bombs explode faster
+1	134	Increases fart size
+1	135	Entering a room has a 20% chance to burn random enemies
+1	136	Doors, key blocks and golden chests can be opened with explosions\nExplosions can also open the "Strange Door" in "Depths II"
+1	137	Entering a new floor spawns up to 4 uncollected pickups from the previous floor in the starting room
+1	138	Using an active item rerolls it
+1	139	+4 Luck towards luck-based tear effects
+1	140	Picking up Red Hearts have a 50% chance to convert them into blue spiders\nWorks even while at full health\nEffect may consume hearts needed for healing
+1	141	2x Fire rate for familiars
+1	142	Book of Virtues Entering a new floor spawns 4 Book of Virtues wisps
+1	143	Prevents active item from charging by clearing a room\nClearing a room has a 20% chance to spawn a battery\n33% chance at 5 luck
+1	144	Tears turn 90 degrees to target enemies that they may have missed
+1	145	+10 Luck\nTaking damage destroys the trinket
+1	146	Treasure Room items are replaced with devil deals
+1	147	Picking up a coin has a 17% chance to add 1 charge to the active item\nHigher chance from nickels and dimes
+1	148	All familiars orbit around Isaac
+1	149	Right before taking damage, uses the active item if it is charged
+1	150	Locked doors can be opened for free, but Isaac has to clear a room from the Hush floor before accessing the room behind them
+1	151	Retracts most spikes, rendering them harmless\nAlso affects Curse Room doors, mimics and any spike obstacle
+1	152	+9% Planetarium chance\nAdditional +15% chance if a Planetarium hasn't been entered yet\nPlanetariums can spawn in the Womb and Corpse
+1	153	25% chance for a random Mom item effect each room
+1	154	50% chance per new room to grant a single use die consumable item\nThe die disappears when leaving\nThe die does not take up a pill/card slot
+1	155	Spawns a Treasure Room and Shop in Cathedral
+1	156	+1 Heart container while held
+1	157	Every 15 shots, Isaac shoots an Ipecac + My Reflection tear with a very high range value
+1	158	Taking damage makes Isaac drop 2 of his coins, keys or bombs\nThe pickups can be replaced with other variants, such as golden keys, nickels, dimes, etc.
+1	159	+1 Key on pickup\nReplaces all chests (except Old/Mega) with golden chests\nGolden chests can contain extra cards, pills or trinkets
+1	160	Entering a new floor spawns a sack
+1	161	Spawns a Treasure Room and Shop in Sheol
+1	162	Azazel Clearing a room has a 33% chance to turn the player into Azazel\nEffect lasts until clearing and leaving another room
+1	163	All Dip (small poop) enemies are friendly\nClearing a room spawns 1 random Dip
+1	164	Spawns 1 extra bomb for each bomb placed
+1	165	On Womb and beyond, replaces all coin and key spawns with a bomb, heart, pill, card, trinket, battery, or enemy fly
+1	166	50% chance to grant the effect of a random passive item each room
+1	167	Clearing a room has a 25% chance to spawn a friendly Bony
+1	168	Entering a new floor grants +1 Bone Heart
+1	169	Counts as 1 item towards the Guppy transformation while held
+1	170	Red Key Clearing a room has a 33% chance to create a Red Key room\nLower chance to occur when in a red room
+1	171	50% chance for devil deals to cost coins instead of hearts
+1	172	Picking up a coin teleports Isaac to a random room\nCan teleport to secret rooms
+1	173	Allows Isaac to take 1 Devil Room item for free\nThe free Devil deal still affects Angel Room chance
+1	174	+10% Devil Room chance\nPrevents Krampus from appearing in Devil Rooms\nDevil Rooms are special variants with more deals, Black Hearts and enemies
+1	175	Opens the door to the Hush floor regardless of the timer\nUsing Pandora's Box consumes the key and spawns 6 items from random pools
+1	176	Spawns a blood clot that mimics Isaac's movement\nCopies Isaac's stats, tear effects and 35% of his damage\nRespawns each room
+1	177	Clearing a Challenge Room spawns a chest\nClearing a Boss Challenge Room spawns an item
+1	178	Taking damage has a 50% chance for Isaac to explode\nDoesn't destroy Blood Donation Machines or Confessionals, while spawning pickups as if it did
+1	179	Familiars mimic Isaac's movement\nHold the drop button to keep the familiars in place
+1	180	Follows Isaac's movement and shoots spectral tears\nCopies Isaac's stats, tear effects and 50% of his damage\nUses most active items when Isaac does\nDies in one hit\nRespawns each floor
+1	181	Using an active item triggers the effect of an additional 1-2 charge active item
+1	182	Entering an Angel Room spawns 5 wisps\nDonating to Beggars has a 25% chance to spawn a wisp
+1	183	50% chance to duplicate a familiar each room\nGrants Brother Bobby or Sister Maggy if Isaac has no familiars
+1	184	Shops sell familiars for 10 coins
+1	185	Killing an enemy has a 17% chance to spawn a random locust
+1	186	Abyss Grants 1 Abyss locust
+1	187	50% chance of adding an extra blind item in Treasure Rooms\n50% chance to reveal the blind item in alt path Treasure Rooms
+1	188	Entering a room has a 20% chance to petrify random enemies\nKilling a petrified enemy freezes it
+1	189	Killing an enemy makes Isaac invincible for 1 second\nInvincibility stacks with successive enemy kills, up to 5 seconds
+2	1	Teleports Isaac to the first room of the floor
+2	2	Receive for the room:\n+3 Range\nHoming tears
+2	3	Mom's Foot stomps on an enemy\nMom's Foot stomps Isaac if there are no enemies
+2	4	Receive for the room:\n+0.3 Speed\n+1.5 Damage
+2	5	Teleports Isaac to the Boss Room
+2	6	Spawns 2 Soul Hearts
+2	7	Spawns 2 Red Hearts
+2	8	Receive for 6 seconds:\n+0.28 Speed\nInvincibility\nIsaac can't shoot but deals 40 contact damage per second
+2	9	Spawns a random heart, coin, bomb and key
+2	10	Teleports Isaac to the Shop
+2	11	Spawns a Slot Machine\n25% chance for it to be a Fortune Telling Machine
+2	12	Receive for the room:\n+1 Health\n+0.3 Speed\n+0.3 Damage\nx1.5 Damage multiplier\n+2.5 Range
+2	13	Flight for the room
+2	14	Deals 40 damage to all enemies in the room
+2	15	Spawns a Blood Donation Machine
+2	16	Receive for the room:\n+2 Damage
+2	17	Spawns 6 Troll Bombs
+2	18	Teleports Isaac to the Treasure Room\nIf there is a Planetarium, it teleports there instead
+2	19	Teleports Isaac to the Secret Room
+2	20	Full health\nDeals 100 damage to all enemies\nFull mapping effect for the floor (except Super / Ultra Secret Room)\nRemoves Curse of Darkness
+2	21	Spawns a Beggar\n33% chance for it to be a Devil Beggar\n5% chance for it to be a Key Master, Bomb Bum, Battery Bum, or Rotten Beggar
+2	22	Full mapping effect for the floor (except Super / Ultra Secret Room)
+2	23	Doubles Isaac's number of bombs
+2	24	Doubles Isaac's number of coins
+2	25	Doubles Isaac's number of keys
+2	26	Doubles Isaac's number of Red Hearts (not containers)
+2	27	Turns all pickups, chests and non-boss enemies into random bombs
+2	28	Turns all pickups, chests and non-boss enemies into random coins
+2	29	Turns all pickups, chests and non-boss enemies into random keys
+2	30	Turns all pickups, chests and non-boss enemies into random hearts
+2	31	Teleports Isaac to the Devil or Angel Room
+2	32	Destroy all rocks in the room
+2	33	Duplicates all pickups in room
+2	34	Spawns a trapdoor to the next floor\nSpawns a crawlspace if used on a decorative floor tile (grass, small rocks, papers, gems, etc.)
+2	35	+1 Soul Heart\nRemoves all curses for the floor
+2	36	Full mapping effect for the floor
+2	37	Rerolls all pedestal items in the room
+2	38	Summons 3 blue spiders and 3 blue flies
+2	39	Makes Isaac invincible for 20 seconds
+2	40	Triggers a random rune effect\n25% chance to duplicate itself when used
+2	41	Deals 40 damage to all enemies\nConverts all pedestal items in the room into random stat ups\nConverts all pickups in the room into blue flies
+2	42	Using the card throws it in the direction Isaac is moving\nInstantly kills ANY enemy it touches (except Delirium or the Beast)
+2	43	Makes all items and pickups in a Shop or Devil Room free
+2	44	Displays "helpful" tips on use
+2	45	Fills the whole room with poop
+2	46	Instantly kills Isaac and spawns 10 pickups or items on the floor\nSpawned items will use the current room's item pool
+2	47	Open all doors in the room
+2	48	Uses Isaac's active item for free
+2	49	Rerolls all item pedestals and pickups in the room
+2	50	Two of Mom's Hands come down and grab an enemy each
+2	51	A one-use Holy Mantle shield (prevents damage once)
+2	52	Receive for the room:\n+7 Damage\n+3 Range\nSize up\nAllows Isaac to destroy rocks by walking into them
+2	53	Spawns 3 random cards
+2	54	Receive for the room:\n+0.5 Speed\n-1 Shot speed\nSlow down enemies
+2	55	Activates a random rune effect\nThe rune effect is weaker
+2	56	Drops all of Isaac's hearts but one and all of his pickups on the floor\nCoins and bombs are dropped as A Quarter The Quarter or Boom! if possible
+2	57	Grants an aura that repels enemies and projectiles for 60 seconds
+2	58	Mom's Foot tries to stomp Isaac for 60 seconds
+2	59	Receive for 60 seconds:\n+2 Health\n+1.5 Fire rate\n-0.1 Speed
+2	60	Teleports Isaac to an extra Boss room that can be defeated for an item\nThe boss is chosen from two floors deeper than the current one
+2	61	Spawns 2 Bone Hearts
+2	62	Spawns an item from the current room's item pool\nConverts 1 heart container or 2 Soul Hearts into a Broken Heart
+2	63	Receive for 10 seconds:\nx4 Fire rate multiplier\nInvincible but can't move
+2	64	Spawns 2-4 golden chests
+2	65	Turns all pickups and items in the room into a number of coins equal to their Shop value\nIf there is nothing to turn, spawns a Penny instead
+2	66	Triggers a random Dice Room effect
+2	67	Enemies in the room are slowed and take double damage for 30 seconds
+2	68	Receive for 30 seconds:\n-0.1 Speed\nTriple shot\nKilled enemies drop coins
+2	69	Book of the Dead Activates Book of the Dead\nSpawns friendly Bone entities for each enemy killed in room
+2	70	Forces Isaac to eat 5 random pills
+2	71	Receive for 30 seconds:\nThe Bible Activates The Bible (flight)\nSeraphim familiar\nKills Mom's Foot and Mom's Heart instantly\nKills Isaac when used on Satan
+2	72	Spawns 7 clusters of random rocks and obstacles\nClusters often contain Tinted Rocks
+2	73	Removes Isaac's oldest collected passive item (ignoring starting items)\nSpawns 2 random items from the current room's item pool
+2	74	Teleports Isaac to the Ultra Secret Room\nPathway back will be made of red rooms
+2	75	Receive for the floor:\n+1.5 Damage\nFlight and spectral tears\nConverts heart containers into Bone Hearts (reverts)\nCurse of Darkness
+2	76	Spawns a Restock Machine
+2	77	Spawns a trapdoor to a crawlspace
+2	78	Red Key Single-use Red Key
+2	79	Spawns 1-20 Red Hearts
+2	80	Copies the effect of your most recently used pill, card, rune, soul stone or activated item
+2	81	Makes all item pedestals in the room cycle between two different items
+2	82	Effect lasts for the room:\nEnemies killed drop half Red Hearts that disappear after 2 seconds
+2	83	Opens all doors in the room\nRed Key Creates red rooms on every wall possible
+2	84	Dark Arts Activates Dark Arts with a 3 second duration\nTemporary damage up for every enemy/projectile hit
+2	85	Causes 8 poison farts with brown creep, then quickly spawns 7 Butt Bombs\nStanding on the creep grants:\n+1.5 Fire rate\n+1 Damage
+2	86	14 Dead Bird familiars fly in and attack enemies for the room
+2	87	Berserk! Activates Berserk! for 10 seconds\nEach kill increases the duration by 1 second
+2	88	Mega Blast Fires a Mega Blast beam for 7.5 seconds
+2	89	Isaac dies and immediately revives at half a heart\nThis item is automatically used upon taking fatal damage (acts as an extra life)
+2	90	Rerolls item pedestals and pickups in the room\nThe rerolled items come from random item pools
+2	91	The Lost Turns the player into The Lost for the room\nAllows taking one Devil Room item for free\nAllows entering the Mausoleum or Gehenna door for free
+2	92	Permanently grants a random familiar
+2	93	Spawns 1-25 random coins
+2	94	Spawns 15 random locusts
+2	95	The Forgotten Spawns The Forgotten as a secondary character for the room
+2	96	Book of Virtues Spawns 6 random Book of Virtues wisps
+2	97	Esau Spawns Esau as a secondary character for the room\nHe spawns with as many passive items as the player
+3	0	Isaac farts and poisons nearby enemies
+3	1	Deals 1 heart of damage to Isaac\nBecomes a Full Health pill at 1 heart or less
+3	2	+2 Soul Hearts
+3	3	Swaps Isaac's number of bombs and keys\nGolden bombs and keys are also swapped
+3	4	Isaac quickly spawns 5 lit bombs
+3	5	Fully heals all heart containers
+3	6	-1 Health\nBecomes a Health Up pill at 0 or 1 heart containers
+3	7	+1 Empty heart container
+3	8	No effect
+3	9	No effect\nEating 3 grants the Adult transformation:\n+1 Health
+3	10	+1 Fly orbital
+3	11	-1 Range
+3	12	+1.25 Range
+3	13	-0.12 Speed
+3	14	+0.15 Speed
+3	15	-0.28 Tears
+3	16	+0.35 Tears
+3	17	-1 Luck
+3	18	+1 Luck
+3	19	Teleports Isaac to a random room\nSmall chance to teleport Isaac to the I AM ERROR room
+3	20	Fully recharges the active item\nSpawns 1-2 batteries
+3	21	Drains all but one heart container\nSpawns 1-4 Red Hearts
+3	22	Prevents Isaac from moving and shooting for 2 seconds
+3	23	Opens all secret room entrances on the floor
+3	24	Charms all enemies in the room
+3	25	Hides the map for the floor
+3	26	Spawns a large puddle on the ground which damages enemies
+3	27	Isaac shoots diagonally for 30 seconds
+3	28	Reduces all damage taken to half a heart for the room
+3	29	Increases all damage taken to a full heart for the room
+3	30	Isaac spawns poop behind him for 2 seconds
+3	31	Curse of the Maze effect for the floor
+3	32	Increases Isaac's size\nDoesn't affect his hitbox
+3	33	Decreases Isaac's size\nAlso decreases his hitbox
+3	34	Spawns 1 blue spider for each poop in the room
+3	35	Spawn 1 blue spider for each enemy in the room\nSpawns 1-3 blue spiders if there are no enemies in the room
+3	36	Receive for 6.5 seconds:\nInvincibility\nIsaac can't shoot but deals 40 contact damage per second\nKilling 2 enemies heals half a heart\nFears all enemies in the room
+3	37	Pixelates the screen for 30 seconds
+3	38	Spawns 3 blue flies
+3	39	Spawns a pool of slippery creep
+3	40	Spawns a pool of slowing creep
+3	41	Slows Isaac and all enemies in the room
+3	42	Speeds up Isaac and all enemies in the room\nTriggers again after 30 and 60 seconds
+3	43	Consumes Isaac's trinket and grants its effects permanently
+3	44	Ipecac Shoots one Ipecac tear
+3	45	Receive for 6 seconds:\nInvincibility\nIsaac can't shoot (No contact damage)
+3	46	Spawns the last pill used before Vurp!
+3	47	-0.15 Shot speed
+3	48	+0.15 Shot speed
+3	49	Increases 1 random stat\nDecreases 1 random stat

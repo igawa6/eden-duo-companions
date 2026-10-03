@@ -22,14 +22,14 @@
 #   WONDER_ANDROID_SO android-arm64-v8a build of the Super Mario Bros. Wonder module
 # Versions default to each package's current release; override with P5R_VERSION, DREAD_VERSION,
 # LA_VERSION, MK8D_VERSION, WONDER_VERSION.
-# GAMES selects which archives to build (default: "p5r dread la mk8d wonder"); only the selected
+# GAMES selects which archives to build (default: "p5r dread la mk8d wonder acnh fe3h isaac"); only the selected
 # games' modules are required.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT=${1:-dist}
 mkdir -p "$OUT"
 OUT=$(cd "$OUT" && pwd)
-GAMES=" ${GAMES:-p5r dread la mk8d wonder} "
+GAMES=" ${GAMES:-p5r dread la mk8d wonder acnh fe3h isaac} "
 want() { [[ $GAMES == *" $1 "* ]]; }
 if want p5r; then
   : "${P5R_LINUX_SO:?set P5R_LINUX_SO}" "${P5R_ANDROID_SO:?set P5R_ANDROID_SO}"
@@ -42,6 +42,15 @@ if want mk8d; then
 fi
 if want wonder; then
   : "${WONDER_LINUX_SO:?set WONDER_LINUX_SO}" "${WONDER_ANDROID_SO:?set WONDER_ANDROID_SO}"
+fi
+if want acnh; then
+  : "${ACNH_LINUX_SO:?set ACNH_LINUX_SO}" "${ACNH_ANDROID_SO:?set ACNH_ANDROID_SO}"
+fi
+if want fe3h; then
+  : "${FE3H_LINUX_SO:?set FE3H_LINUX_SO}" "${FE3H_ANDROID_SO:?set FE3H_ANDROID_SO}"
+fi
+if want isaac; then
+  : "${ISAAC_LINUX_SO:?set ISAAC_LINUX_SO}" "${ISAAC_ANDROID_SO:?set ISAAC_ANDROID_SO}"
 fi
 PY=${PYTHON:-python3}
 export PYTHONDONTWRITEBYTECODE=1
@@ -95,5 +104,23 @@ if want wonder; then
   pkg SuperMarioWonder SuperMarioWonderDS "${WONDER_VERSION:-1.0.1}" \
     --module "android-arm64-v8a=$WONDER_ANDROID_SO" --module "linux-x86_64=$WONDER_LINUX_SO" \
     $(build_ids SuperMarioWonder)
+fi
+if want acnh; then
+  # shellcheck disable=SC2046
+  pkg AnimalCrossingNH AnimalCrossingNH "${ACNH_VERSION:-1.0.0}" \
+    --module "android-arm64-v8a=$ACNH_ANDROID_SO" --module "linux-x86_64=$ACNH_LINUX_SO" \
+    $(build_ids AnimalCrossingNH)
+fi
+if want fe3h; then
+  # shellcheck disable=SC2046
+  pkg FireEmblemThreeHouses FireEmblemThreeHousesDS "${FE3H_VERSION:-1.0.0}" \
+    --module "android-arm64-v8a=$FE3H_ANDROID_SO" --module "linux-x86_64=$FE3H_LINUX_SO" \
+    $(build_ids FireEmblemThreeHouses)
+fi
+if want isaac; then
+  # shellcheck disable=SC2046
+  pkg BindingOfIsaac BindingOfIsaacDS "${ISAAC_VERSION:-1.0.0}" --min-runtime 18 \
+    --module "android-arm64-v8a=$ISAAC_ANDROID_SO" --module "linux-x86_64=$ISAAC_LINUX_SO" \
+    $(build_ids BindingOfIsaac)
 fi
 (cd "$OUT" && sha256sum ./*.dsmod.zip)

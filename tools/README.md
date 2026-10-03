@@ -59,3 +59,15 @@ generators in `p5r/` and `dread/` read **your own** game files (an unpacked romf
 regenerate a manifest or to check the modules' output. Their paths are set through environment
 variables (`P5R_*`, `DREAD_ROMFS`). Nothing they read is written into a package except our own
 layout values and romfs references.
+
+## Animal Crossing, Fire Emblem and Isaac
+
+Their package sources are in `packages/AnimalCrossingNH`,
+`packages/FireEmblemThreeHouses` and `packages/BindingOfIsaac`. They require
+Eden Duo 1.1.0. Build `dsmod-acnh`, `dsmod-fe3h` and `dsmod-isaac` from
+the Eden Duo native-module CMake tree, then strip each platform's library.
+Pass `ACNH_LINUX_SO` / `ACNH_ANDROID_SO`, `FE3H_LINUX_SO` / `FE3H_ANDROID_SO`
+and `ISAAC_LINUX_SO` / `ISAAC_ANDROID_SO` to `tools/build_release.sh`.
+Use `GAMES="acnh fe3h isaac"` to build only the three new packages.
+The supplied manifests and data tables are the 1.0.0 package sources.
+Isaac's English EID data is credited in the main README.
