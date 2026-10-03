@@ -10,12 +10,14 @@ A declarative package can read pointer chains and draw widgets. Some games need 
 A **native module** handles those cases. It is a shared library, built for one title and loaded
 from the package. It talks to the emulator only through a small, stable C ABI.
 
+Most games start as a declarative package and add a module only when they need one. If you are
+new to companions, read [CONTRIBUTE.md](CONTRIBUTE.md) and
+[PORTING_A_GAME.md](PORTING_A_GAME.md) first.
+
 **Where things live.** Module sources live in the
 [Eden Duo](https://github.com/igawa6/eden-duo) repository under `src/core/mods/modules/`, next to
-the ABI headers. This companions repository holds the package sources
-(`packages/<Game>/dualscreen/...`), the package tools (`tools/build_dualscreen_package.py`,
-`tools/build_release.sh`, `tools/compact_zip.py`, `tools/p5r/`, `tools/dread/`) and these docs. All
-source paths below are in Eden Duo.
+the ABI headers. All source paths below are in Eden Duo. Package sources and the package tools
+are in this companions repository ([README.md, Repositories](README.md#repositories)).
 
 The headers are:
 
@@ -37,7 +39,7 @@ Dread module's map generator (`modules/010093801237C000.cpp` plus `dread_*.cpp`;
    → EdenDsmodModuleApi              get_tick, get_heap_begin, get_heap_end
        supports_build(build_hex)     is_mapped, read_memory, get_read_pointer
        create(host, config_json)     write_memory (≤64 B)
-       sample(inst, host)            read_romfs (romfs: or file: paths)
+       sample(inst, host)            read_romfs (romfs:, file:, base:, aoc:, user:)
        tick(inst, host)              publish_i64/f64/text/address/map
        destroy(inst)                 get_i64/f64/text (read the current snapshot)
                                      log
@@ -52,8 +54,27 @@ Dread module's map generator (`modules/010093801237C000.cpp` plus `dread_*.cpp`;
 **Constants.**
 
 - `EDEN_DSMOD_MODULE_ABI_VERSION = 1` and `EDEN_DSMOD_MODULE_ABI_HASH = 0x8d3f5b1e6a70c429`.
-- Capability bits: `CAP_WRITE_MEMORY`, `CAP_GUEST_CALL`, `CAP_ROMFS_READ`, `CAP_MAP_OUTPUT`, and
-  `CAP_EXTENSIONS` (the last is defined in the extensions header).
+- Capability bits (`EDEN_DSMOD_CAP_*`), one `uint64_t` in both the module table and the host
+  struct. Adding bits did not change the ABI version or hash.
+
+  | Bit | Name | Since | Meaning |
+  |---|---|---|---|
+  | 0 | `WRITE_MEMORY` | | Host: `write_memory` works |
+  | 1 | `GUEST_CALL` | | Never granted (see §1.3) |
+  | 2 | `ROMFS_READ` | | Host: `read_romfs` works |
+  | 3 | `MAP_OUTPUT` | | Host: `publish_map` works |
+  | 4 | `EXTENSIONS` | | Module: exports the base extensions (defined in the extensions header) |
+  | 5 | `TICK_WHEN_HIDDEN` | 15 | Module flag: tick while the second screen is hidden (§1.2) |
+  | 6 | `NO_TICK_WHEN_HIDDEN` | 15 | Module flag: never tick while hidden |
+  | 7 | `SOURCE_PREFIXES` | 15 | Host: `read_romfs` resolves `<prefix>:<path>` through the source registry (§1.3) |
+  | 8 | `SOURCE_BASE` | 15 | Host: the `base:` source is registered |
+  | 9 | `SOURCE_AOC` | 15 | Host: the `aoc:` source is registered |
+  | 10 | `SOURCE_USER` | 17 | Host: the `user:` source is registered |
+
+  A runtime-15+ host advertises bits 5 and 6, so a module may set either. An **older host
+  refuses** a module that sets one, because the module's bits must be a subset of the host's;
+  such a module's package should declare `"min_runtime": 15`. Bits 7–10 describe the host; check
+  them in `host->capabilities` rather than requesting them.
 
 **Borrowing rule.** Every pointer passed into a callback is borrowed for that call only. Copy
 anything you keep, including the host struct itself.
@@ -78,16 +99,21 @@ Return null to reject a host. The returned `EdenDsmodModuleApi` must contain:
 | Callback | When | Thread |
 |---|---|---|
 | `supports_build(build_hex)` | Once, after the loader's own build-ID check. `build_hex` is the running build ID in upper-case hex | Loader |
-| `create(host, config_json)` | Once, when the runtime starts or reloads. `config_json` is the **whole `manifest.json`**, with `_build_match` and `_build_id` added | Tick thread |
+| `create(host, config_json)` | Once, when the runtime starts or reloads. `config_json` is the **whole `manifest.json`**, with `_build_match` and `_build_id` added. Since runtime 16 the host is fully usable inside it: `read_romfs` works for every source, and a game romfs that is not ready yet is opened again on a later read (at most once a second) instead of staying unavailable for the session | Tick thread |
 | `sample(inst, host)` | Every tick (60 Hz) while the second screen is present, after the declarative points are sampled | Tick thread |
 | `tick(inst, host)` | Every tick, after touch capture and before derived values | Tick thread |
-| `on_action` (extension) | When a `module` action fires; serialized with `sample`/`tick` | Tick thread |
+| `on_action` (extension) | When a `module` action fires; serialized with `sample`/`tick`. Since runtime 16, returning false refuses the action (§2.1) | Tick thread |
 | `load_image` (extension) | On request for a `module:` image | **Asset worker**; may overlap `sample`/`tick` |
 | `load_data` (data extension) | On a `module:` byte read (map geometry, `map.areas_src`) | **Any runtime thread** (for example the redraw worker or the map-areas thread); calls are serialized and may block |
 | `destroy(inst)` | Shutdown or reload, after the map-areas thread and the asset worker are joined | Tick thread |
 
-- **Hidden screen.** While the second screen is absent, `sample` does not run. `tick` still runs
-  if the module has `on_action`, so that queued actions can finish.
+- **Hidden screen.** While the second screen is absent, `sample` does not run. Whether `tick`
+  runs is decided, first match wins, by:
+  1. the manifest's `module_tick_hidden` (`true` / `false`, runtime 15);
+  2. the module's `EDEN_DSMOD_CAP_TICK_WHEN_HIDDEN` or `EDEN_DSMOD_CAP_NO_TICK_WHEN_HIDDEN` flag
+     (runtime 15); set `NO_TICK_WHEN_HIDDEN` when `tick` is a full scan;
+  3. otherwise the long-standing rule: `tick` runs if the module has `on_action`, so that
+     queued actions (and a guest mailbox) can finish.
 - **The snapshot is cleared every tick.** Publish every value on every `sample`, or the value
   disappears.
 - **Exceptions.** A callback that throws sets `module_error`, and the module is shut down. Catch
@@ -101,16 +127,28 @@ Return null to reject a host. The returned `EdenDsmodModuleApi` must contain:
 | `read_memory(addr, out, size)` | Checks `is_mapped`, then copies. Returns false on any failure |
 | `get_read_pointer(addr, size)` | Zero-copy host pointer. Returns **null if the range crosses a 4 KiB guest page** |
 | `write_memory(addr, in, size)` | ≤64 bytes, mapped only. Aligned 1/2/4/8-byte writes are single stores. Works under NCE and Dynarmic |
-| `read_romfs(path, off, out, size)` | Paths without a prefix mean `romfs:`. `file:` means the package's `dualscreen/` folder. `out == NULL` returns the size. `#` sub-paths read into containers. Capped at 64 MiB per call |
+| `read_romfs(path, off, out, size)` | Paths without a prefix mean `romfs:`. `file:` means the package's `dualscreen/` folder. Since runtime 15, `base:` (the unpatched program romfs) and `aoc:` (the DLC data romfs) work too, and since 17 `user:` (files the player supplies; read-only, 32 MiB per file). Since runtime 15 an unknown prefix returns 0 (it used to be read as a romfs path that could only miss); `module:` is not readable here. `out == NULL` returns the size. `#` sub-paths read into containers. Paths ≤4096 characters, capped at 64 MiB per call |
 | `publish_i64/f64/text/address(name, v)` | Writes into the snapshot under the bare `name`. Names ≤256 bytes, text ≤1 MiB. Non-finite doubles are dropped |
 | `publish_map(frame)` | Map fog, water, walls and points for an area declared in the manifest. The visibility grid is 650×300 with values 0/1/2 |
-| `get_i64/f64/text(name, …)` | Reads the current snapshot. Special names: `get_i64("__relocation_delta")`, `get_text("__sequence:<name>")` |
+| `get_i64/f64/text(name, …)` | Reads the current snapshot, including `@` values such as `@map_tap_x` / `@map_tap_y` / `@map_tap_seq` (runtime 14) and `@clock.*` (runtime 16; published only when the package's manifest or data file mentions `@clock.` / `@game.` or uses `countdown`). Special names: `get_i64("__relocation_delta")`, `get_text("__sequence:<name>")`, and since runtime 15 `get_i64("__source:<prefix>")`: 1 = the source is available, 0 = known but unavailable (no DLC installed; for `user:`, the folder cannot be created), the fallback = a prefix this host does not know (an older runtime) |
 | `get_heap_begin/end` | Read from the live page table. Correct under NCE, where the heap is elsewhere |
 | `begin_output`, `end_output` | Present in the struct, but **no-ops** in the current host |
 | `queue_guest_call`, `poll_guest_result` | Present in the struct, but **never set by the current host** (always null). `CAP_GUEST_CALL` is never granted. Do not rely on them |
 
-**Capabilities.** The host grants `ROMFS_READ | MAP_OUTPUT | EXTENSIONS | WRITE_MEMORY`. A
-module whose `capabilities` include any bit outside that set is rejected.
+**Capabilities.** The host grants `ROMFS_READ | MAP_OUTPUT | EXTENSIONS | WRITE_MEMORY`, and
+since runtime 15 also `TICK_WHEN_HIDDEN | NO_TICK_WHEN_HIDDEN | SOURCE_PREFIXES` plus one
+`SOURCE_*` bit per registered source. A module whose `capabilities` include any bit outside the
+host's set is rejected.
+
+```c
+/* Prefer the DLC's copy of a table when the host has aoc: and the DLC is installed. */
+const char* path = "data/table.bin";
+if ((host->capabilities & EDEN_DSMOD_CAP_SOURCE_AOC) != 0 &&
+    host->get_i64(host->userdata, "__source:aoc", 0) == 1) {
+    path = "aoc:data/table.bin";
+}
+size_t size = host->read_romfs(host->userdata, path, 0, NULL, 0);
+```
 
 ### 1.4 How module values reach the page
 
@@ -124,6 +162,10 @@ module whose `capabilities` include any bit outside that set is rejected.
     (up to 128 pending) and returns nothing for now.
   - The worker calls your `load_image`. Finished images are drained on the next tick, into a
     64 MiB LRU cache.
+  - A key that failed is asked for again after 2, 4, 6 and 8 seconds, then given up (5 attempts;
+    runtime 14), so a decoder that needs the running game can succeed later.
+  - Keys are at most 4096 characters since runtime 16 (256 before). `module:` data keys keep the
+    256 limit.
   - When module images land, the page is repainted in full.
 - **Other image paths.** A `src_bind` text value starting with `module:` is used directly as an
   image source. Composite layers and `font_atlas` also accept `module:` keys.
@@ -132,8 +174,9 @@ module whose `capabilities` include any bit outside that set is rejected.
 
 ### 1.5 The module SDK
 
-`src/core/mods/modules/dsmod_module_sdk.h` collects helpers the three shipped modules used to
-copy privately. It depends only on the two ABI headers and the standard library.
+`src/core/mods/modules/dsmod_module_sdk.h` collects helpers the shipped modules used to copy
+privately. The Mario Kart 8 Deluxe, Metroid Dread, Persona 5 Royal and Super Mario Bros. Wonder
+modules all include it. It depends only on the two ABI headers and the standard library.
 
 | Helper | Purpose |
 |---|---|
@@ -169,24 +212,29 @@ Constants: `EDEN_DSMOD_EXT_VERSION 1`, `EDEN_DSMOD_EXT_HASH 0x719d8b206e4fa351`.
 | Callback | Purpose |
 |---|---|
 | `configure(inst, const EdenDsmodHostExtensions*)` | **Required.** Receives the guest mailbox (`mailbox_address`, `mailbox_size`, plus aligned atomic `load_u32/u64` and `store_u32/u64` limited to the mailbox) and `decode_astc` |
-| `on_action(inst, action, argument)` | Handles `{"kind":"module","action":…,"argument":…}`. Return true for "accepted", **not** "done". Publish the outcome through normal values |
-| `load_image(inst, host, key, receiver, sink)` | Decodes a `module:` key. Call `sink(receiver, w, h, rgba, w*h*4)` once, with straight RGBA8, at most 4096×4096 and 16 MiB. Runs on the asset worker, so keep decoder state isolated from `sample` |
+| `on_action(inst, action, argument)` | Handles `{"kind":"module","action":…,"argument":…}`. Return true for "accepted", **not** "done". Publish the outcome through normal values. Since runtime 16, returning false (or throwing) **refuses** the action: the package's `refused` haptic plays and nothing after it runs. Older runtimes ignored the return value |
+| `load_image(inst, host, key, receiver, sink)` | Decodes a `module:` key (≤4096 characters since runtime 16). Call `sink(receiver, w, h, rgba, w*h*4)` once, with straight RGBA8, at most 4096×4096 and 16 MiB. Runs on the asset worker, so keep decoder state isolated from `sample`. A paged font atlas (runtime 17) asks for each page as its own key, within the same limits |
 
 The guest mailbox exists only when the package has a `load_plan`: load-time code patches that
-reserve a mailbox in the executable. None of the published modules uses it: Mario Kart 8
-Deluxe, Persona 5 Royal and Metroid Dread read the game directly.
+reserve a mailbox in the executable. None of the published modules uses it; they all read the
+game directly.
 
 ### 2.2 Font: `eden_dsmod_get_font_extensions`
 
-`decode_font(inst, bytes, size, receiver, sink)` is called once, synchronously, with the raw
-bytes of the manifest's `font` asset. Report the result through the sink:
+`decode_font(inst, bytes, size, receiver, sink)` is called synchronously with the raw bytes of
+the manifest's `font` asset. If no decoder recognises the bytes and the module exports
+`decode_font`, the host tries again about once a second, up to 30 times (runtime 14), so a
+decoder that needs the running game can succeed once it is ready. Report the result through the
+sink:
 
 - `line_height`;
 - `first_codepoint`;
 - one `EdenDsmodFontGlyph` per glyph: `x`, `y`, `w`, `h`, `bearing_x`, `bearing_y` and
   `advance`.
 
-Return false if you do not recognise the bytes; the host then tries its built-in parsers.
+Return false if you do not recognise the bytes; the host then tries its built-in parsers. With a
+paged atlas (`font_page_h`, runtime 17) report glyph y in the virtual atlas of all pages stacked
+top to bottom; the host splits it into pages.
 
 ### 2.3 Save (read-only): `eden_dsmod_get_save_extensions`
 
@@ -252,14 +300,16 @@ typedef void (*EdenDsmodDataSink)(void* receiver, const uint8_t* bytes, size_t s
 
 ### 2.6 What each shipped module exports
 
-| Symbol | MK8D | Dread | P5R |
-|---|---|---|---|
-| `eden_dsmod_get_module` | ✓ | ✓ | ✓ |
-| `eden_dsmod_get_extensions` | ✓ | ✓ | ✓ |
-| `eden_dsmod_get_font_extensions` | | ✓ | ✓ |
-| `eden_dsmod_get_write_extensions` | ✓ | | ✓ |
-| `eden_dsmod_get_data_extensions` | | ✓ | |
-| `eden_dsmod_get_save_extensions` | | | |
+| Symbol | MK8D | Dread | P5R | Wonder |
+|---|---|---|---|---|
+| `eden_dsmod_get_module` | ✓ | ✓ | ✓ | ✓ |
+| `eden_dsmod_get_extensions` | ✓ | ✓ | ✓ | ✓ |
+| `eden_dsmod_get_font_extensions` | | ✓ | ✓ | ✓ |
+| `eden_dsmod_get_write_extensions` | ✓ | | ✓ | |
+| `eden_dsmod_get_data_extensions` | | ✓ | | |
+| `eden_dsmod_get_save_extensions` | | | | |
+
+Link's Awakening has no module.
 
 These match the `EXPORTS` lists in `src/core/mods/modules/CMakeLists.txt`. Dread's base
 extensions provide `on_action` but no `load_image`.
@@ -288,7 +338,8 @@ Title modules live in the Eden Duo repository under `src/core/mods/modules/`. It
 |---|---|---|
 | `dsmod-p5r` | `01005CA01580E000.so` (`01005CA01580E000.cpp`, `p5r_reader_*.cpp`, `p5r_romfs_assets.cpp`) | No (`EXCLUDE_FROM_ALL`); build it by name |
 | `dsmod-dread` | `010093801237C000.so` (`010093801237C000.cpp`, `dread_romfs.cpp`, `dread_rfl.cpp`, `dread_mapgen.cpp`, `dread_mapgen_util.cpp`, `dread_maproom.cpp`) | No (`EXCLUDE_FROM_ALL`) |
-| `dsmod-mk8d` | `0100152000022000.so` (`0100152000022000.cpp`, `mk8d_reader.cpp`, `mk8d_ids.cpp`, `mk8d_assets.cpp`, code pins in `mk8d_pins*.inc`) | Yes |
+| `dsmod-mk8d` | `0100152000022000.so` (`0100152000022000.cpp`, `mk8d_reader.cpp`, `mk8d_ids.cpp`, `mk8d_anim.cpp`, `mk8d_assets.cpp`, code pins in `mk8d_pins*.inc`) | Yes |
+| `dsmod-wonder` | `010015100B514000.so` (`010015100B514000.cpp`, `wonder_assets.cpp`, `wonder_catalog.cpp`, `wonder_font.cpp`, `wonder_glyphs.cpp`, plus zstd's decompressor from the emulator's CPM cache) | No (`EXCLUDE_FROM_ALL`) |
 
 Target properties that matter:
 
@@ -333,7 +384,7 @@ ctest --test-dir /tmp/mods-linux -R dsmod-
 ```
 
 - **Available tests:** `dsmod-p5r-{reader,assets,dwrite,recipes,font,map-overlay,dialogue}`,
-  `dsmod-dread`, `dsmod-dread-rfl`, `dsmod-dread-mapgen` and `dsmod-mk8d-{reader,assets}`.
+  `dsmod-dread`, `dsmod-dread-rfl`, `dsmod-dread-mapgen` and `dsmod-mk8d-{reader,anim,assets}`.
 - **Real-data tests.** Some take real data through environment variables (for example
   `P5R_ROMFS` or `DREAD_ROMFS` pointing at your own romfs dump) and skip when it is absent.
 - **Host-side tests.** The emulator's own Catch2 tests cover the loader with a fake module
@@ -585,5 +636,14 @@ matches x86-64. `dsmod-dread` and `dsmod-dread-rfl` read a real romfs when `DREA
 - [ ] The target's `EXPORTS` list names every getter you export.
 - [ ] Data the package would otherwise ship from game files is served through `load_data`, and
       the package declares `"min_runtime": 12` if it relies on that.
+- [ ] `on_action` returns false only to refuse an action (runtime 16 plays `refused`).
+- [ ] Optional sources (`aoc:`, `user:`) are checked with `__source:<prefix>` and have a fallback.
+- [ ] A module that sets `TICK_WHEN_HIDDEN` / `NO_TICK_WHEN_HIDDEN` ships in a package with
+      `"min_runtime": 15`.
 - [ ] Linux and Android builds are done, hashes are pinned, and the package is rebuilt.
 - [ ] Sample cost is measured.
+
+
+### Font refresh (runtime 18)
+
+Publish `__font_epoch` as an integer whenever the font's glyph set changes. Check the host's `EDEN_DSMOD_CAP_FONT_EPOCH` before relying on refresh; do not add that bit to the module's required capabilities, because older hosts reject unknown requirements. The module ABI remains version 1. Decode requests are bounded and serialized with image decoding; preserve valid decoder state if a refresh is declined.

@@ -1,7 +1,11 @@
 # Porting a game to Eden Duo
 
+New to companions? Read [CONTRIBUTE.md](CONTRIBUTE.md) first for the overview and the reading
+order. Look up manifest keys in [PACKAGE_FORMAT.md](PACKAGE_FORMAT.md) and terms in
+[GLOSSARY.md](GLOSSARY.md) as you go.
+
 This is the method used to build companions for Persona 5 Royal (P5R), Link's Awakening (LA),
-Hollow Knight (HK), Metroid Dread and Mario Kart 8 Deluxe (MK8D). It works from your own legally obtained copy of the game.
+Metroid Dread and Mario Kart 8 Deluxe (MK8D). It works from your own legally obtained copy of the game.
 Nothing extracted from it is shipped.
 
 ```
@@ -173,9 +177,12 @@ A value that cannot pass these steps is not published.
    `page_binds`. Keep compound logic in `derived` entries, because gates are single names.
 3. **Native module** (optional). Add one when chains are not enough; see
    [MODULE_GUIDE.md](MODULE_GUIDE.md).
-4. **`min_runtime`.** Set it to the runtime version whose features you use (currently 13). Use 13
-   if the package uses press-and-hold (`on_hold`), 12 if it reads `module:` byte sources or
-   `map.areas_src`, 11 for scroll regions or `module:` composite layers.
+4. **`min_runtime`.** Set it to the highest runtime version whose features you use (currently
+   18, Eden Duo 1.1.0). For example, `chart`, `expr` or `settings` need 17. The table of which
+   runtime added which key is in
+   [PACKAGE_FORMAT.md §6](PACKAGE_FORMAT.md#6-runtime-history-and-min_runtime). An older runtime
+   ignores keys it does not know and shows its update page only when `min_runtime` is higher
+   than its own version.
 5. **Build** with this repository's package builder:
    ```sh
    python3 tools/build_dualscreen_package.py --package packages/<Game> --output out/ \
@@ -193,6 +200,8 @@ runtime from the player's own files.
 |---|---|---|
 | A texture | `"src": "romfs:/path/file.bntx#tex"`, plus `src_rect` for a sprite from a sheet | `module:<key>`, decoded in `load_image` from `read_romfs` bytes |
 | Derived data (map geometry, map areas) | None: without a module it has to ship as `file:` data you generated | `module:<key>` byte sources served by `load_data`, plus `map.areas_src` (runtime 12) |
+| Art the update removed, or DLC art | `base:/…` (the unpatched program romfs) and `aoc:/…` (the DLC romfs), runtime 15 | `read_romfs("base:…")` / `read_romfs("aoc:…")`, checked with `get_i64("__source:aoc")` |
+| Material the player supplies (a portrait, a translation) | `user:<path>` (runtime 17), with an `empty_src` fallback | `read_romfs("user:…")` |
 | Layered art | `composites` whose layers are `romfs:` or `module:` sources | The same |
 | Font | `"font": "romfs:/…bffnt"` (built-in parsers) | `decode_font` for proprietary formats |
 | Text | `msbt` aliases and `text_src: "msbt:<alias>#<label>"` | Module decodes its own tables |
@@ -200,7 +209,7 @@ runtime from the player's own files.
 - **P5R** goes furthest. Its art is a table of *recipes*: small programs that crop, scale,
   composite and draw game art. They reproduce the offline page designs exactly
   ([MODULE_GUIDE.md §7.5](MODULE_GUIDE.md#75-asset-free-art)).
-- **LA, Dread and Story of Seasons** use host-side decoders (BNTX, SARC, BFFNT, MSBT, bctex,
+- **LA and Dread** use host-side decoders (BNTX, SARC, BFFNT, MSBT, bctex,
   lzs/xtx).
 - **Dread** also generates its map geometry and map areas in the module from the game's level
   files ([MODULE_GUIDE.md §8](MODULE_GUIDE.md#8-worked-example-metroid-dread-map-data-010093801237c000)).
@@ -269,11 +278,11 @@ env EDEN_VSYNC=0 EDEN_DSMOD_CMD=/tmp/run/cmd.in \
 
 ## 7. Deploy to an Android dual-screen handheld
 
-1. **Build the APK** ([README.md](README.md#android)) and the arm64 module
+1. **Build the APK** ([README.md, Android](README.md#android)) and the arm64 module
    ([MODULE_GUIDE.md §4](MODULE_GUIDE.md#4-build)). Rebuild the package so the module hash
    matches.
-2. **Install the package.** Go to Add-ons → Install → **Dual-screen mods**, then pick
-   `<TITLEID>.dsmod.zip`. The installer removes the title's older installer-created packages;
+2. **Install the package.** Long-press the game, then Add-ons → Install → **Dual screen mods**,
+   and pick `<TITLEID>.dsmod.zip`. The installer removes the title's older installer-created packages;
    disable any hand-made dual-screen folder for the same title.
 3. **Env vars do not exist on Android.** Use manifest `flags` (for example `gpu_composite`) and
    the app settings (CPU backend) instead.
@@ -297,6 +306,10 @@ env EDEN_VSYNC=0 EDEN_DSMOD_CMD=/tmp/run/cmd.in \
 | Game freezes after a guest call | Returned to the hook address | Return through a trampoline |
 | Guest calls or patches do nothing on the device | NCE | Buttons or writes; `optional` patches |
 | Package silently ignored on an old APK | Old runtimes ignore unknown keys and fail quietly | Set `min_runtime`; ship APK and package together |
+| A swipe, chart or `expr` value does nothing on one device | That device runs an older runtime, which ignores the newer key | Declare the key's runtime as `min_runtime` (PACKAGE_FORMAT.md §6) |
+| A module stops loading on an older APK after adding `TICK_WHEN_HIDDEN` | Hosts before runtime 15 refuse unknown capability bits | `"min_runtime": 15`, or use the manifest's `module_tick_hidden` instead |
+| A drop or tap runs although the module rejected it | Runtimes before 16 ignore `on_action`'s return value | `"min_runtime": 16` |
+| The game ignores the controller while the companion shows a frame | Controller focus mode is on (runtime 17) | Press the `nav.toggle` chord (default `LS+RS`) or B; set `"nav": false` to opt out (packages below `min_runtime` 17 are off unless they set `nav`) |
 | "checksum mismatch; reinstall the package" | Module rebuilt without rebuilding the package | Rebuild with the builder, which rewrites the hashes |
 | Android installer rejects the zip | A non-`.so` file under `modules/`, an upper-case hash, or `package.json` ≠ manifest `module` | Move data files out of `modules/`; use the builder |
 | Direct `adb push` into the app's data dir fails, or files are unreadable | Ownership and permissions of shell-pushed files | Stage via `/data/local/tmp`, copy, then fix permissions; prefer the in-app installer |

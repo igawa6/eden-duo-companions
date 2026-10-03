@@ -1,7 +1,10 @@
 # Eden Duo dual-screen architecture
 
 This document covers how a sampled guest value becomes pixels on the second screen, and how a
-touch travels back. It names components by class and function. All paths are in the
+touch travels back. It names components by class and function. Read it after
+[PORTING_A_GAME.md](PORTING_A_GAME.md) and [PACKAGE_FORMAT.md](PACKAGE_FORMAT.md), when you need
+to know why the runtime behaves as it does (see [CONTRIBUTE.md](CONTRIBUTE.md) for the reading
+order). All paths are in the
 [Eden Duo](https://github.com/igawa6/eden-duo) repository; the runtime lives in
 `src/core/mods/`, split by area:
 
@@ -11,14 +14,22 @@ touch travels back. It names components by class and function. All paths are in 
 | `mod_manifest.cpp` | `Discover`, the `min_runtime` gate, `ParseManifestJson` and the other `Parse*` helpers, console `reload` |
 | `mod_state.cpp` | `SampleState`, `ResolvePoint` / `ReadPoint`, `EvaluateDerived`, `ApplyEnforceRules` |
 | `mod_input.cpp` | `UpdateGestures`, `DrainTaps`, `FlushHaptic`, `PublishMapState`, `PublishScroll`, `PublishInteraction` |
+| `mod_input_hold.h`, `mod_input_swipe.h`, `mod_input_drag.h` | Press-and-hold, swipe and drag trackers, kept free of `ModRuntime` for unit tests |
+| `mod_nav.cpp`, `mod_types_nav.h` | Controller focus mode (runtime 17); the HID side is `src/hid_core/resources/npad/dsmod_pad_gate.h` |
+| `mod_clock.cpp`, `mod_expr.cpp`, `mod_chart.h` | `@clock.*` / `@game.seconds` and `countdown` (runtime 16); the `expr` compiler and the chart sampler (runtime 17) |
+| `mod_settings.cpp`, `mod_persist.cpp` | The built-in `@settings` page (runtime 17); persisted flags (runtime 15) |
+| `mod_view_default.h`, `mod_map_view_rect.h` | Bound default views: non-map `pan_zoom` widgets (runtime 15) and the map's view rect (runtime 14) |
 | `mod_actions.cpp` | `RunAction` and action operands |
 | `mod_pages.cpp` | `DrivePageBinds`, `DrivePageTransition`, widget-group animations |
 | `mod_redraw.cpp` | `UiSignature`, per-widget dependency hashes, `BuildRenderExtras`, `PublishUi`, `DispatchRedraw`, the `DSModRedraw` worker |
 | `mod_ui.cpp` and `mod_ui_*.cpp` | `RenderPage` and the widget drawing: canvas, text, image, map widget, scroll, expansion and hit-testing, transitions, widget state |
-| `mod_assets.cpp` | `ReadAssetBytes` (`file:`, `romfs:`, `module:`), font loading, the image cache |
+| `mod_assets.cpp` | `ReadAssetBytes`, source registration, font loading, the image cache |
+| `mod_sources.cpp`, `mod_romfs_sources.cpp`, `mod_user_source.cpp` | The `AssetSources` registry: `file:`, `romfs:`, `module:`, `base:` and `aoc:` (runtime 15), `user:` (runtime 17) |
+| `mod_font_epoch.h` | Runtime 18 font refresh requests and atlas-page matching |
+| `mod_font_pages.cpp` | Paged font atlases loaded on demand (runtime 17) |
 | `mod_map.cpp` | Fog of war, map geometry and the `map:` rasteriser |
 | `mod_nx_runtime.cpp`, `mod_nx_assets.cpp`, `mod_msbt.cpp` | Nintendo asset references, composites, the Nx asset worker, MSBT text |
-| `engine_mercury.cpp`, `engine_il2cpp.cpp`, `engine_ichigo.cpp`, `engine_formats.h` | Per-engine code: Mercury (Metroid Dread), Unity IL2CPP lookups, Ichigo (Story of Seasons) |
+| `engine_mercury.cpp`, `engine_il2cpp.cpp`, `engine_ichigo.cpp`, `engine_formats.h` | Per-engine code: Mercury (Metroid Dread), Unity IL2CPP lookups, Ichigo |
 | `mod_guest_bridge.cpp` | Guest calls, spies, patches, symbol resolution (Dynarmic only) |
 | `mod_module.cpp`, `mod_module_host.cpp`, `mod_module_services.cpp` | Module loader, host API, and the extensions, module images, module data and module map areas |
 | `mod_load_plan.cpp` | Load-time patches and the guest mailbox |
@@ -46,7 +57,8 @@ touch travels back. It names components by class and function. All paths are in 
    - loads the native module (`InitializeGameModule`, `mod_module_host.cpp`), which also starts
      the module asset worker and, for a package with `map.areas_src`, the module map-areas fetch
      (`StartModuleAreas`, §2.10);
-   - seeds runtime flags from `flags`;
+   - seeds runtime flags from `flags` (and `settings` defaults), then restores `persist_flags`
+     from their file (runtime 15);
    - resolves the GPU-composite mode;
    - disables the guest-call bridge when NCE is on.
 4. **Shutdown.** The runtime is reset when the process shuts down. The module map-areas thread
@@ -60,20 +72,23 @@ touch travels back. It names components by class and function. All paths are in 
    │
    ├─ InstallModuleAreas (once, when module-generated map areas are ready; §2.10)
    ├─ DrainModuleImages, DrainGuestBridgeResults, headless input drivers
-   ├─ aux screen not present? → only module tick (if it has on_action) → return
+   ├─ aux screen not present? → focus mode off; module tick only if it ticks hidden (§2.2) → return
    │
    ├─ SampleState ─────────── points (pointer chains) → ints/floats/texts/addresses
    │                          spies, sequence outputs, counters (@name)
    │                          module sample()  → publish_* into the same snapshot
    ├─ touch capture ───────── AuxRouting::GetTouch (+ console synthetic drags)
-   ├─ module tick()           runtime flags → @flag:<name>
+   ├─ module tick()           runtime flags → @flag:<name>, @clock.* / @game.seconds (if used)
    ├─ EvaluateDerived (pass 1, cached dependency order)
-   ├─ view_custom:*, PublishMapState, PublishScroll (fling physics)
-   ├─ UpdateGestures ──────── tap / pan / pinch / drag-and-drop / scroll
+   ├─ ApplyViewDefaults, view_custom:*, PublishMapState, PublishScroll (fling physics)
+   ├─ UpdateGestures ──────── tap / hold / swipe / pan / pinch / drag-and-drop / scroll
+   ├─ UpdateNav ───────────── controller focus mode; its A press queues a tap
+   ├─ (taps queued?) PublishInteraction + volatile derived: @sel / @drag* before the taps
    ├─ DrainTaps ───────────── hit-test (last frame's draw records) → RunAction
    ├─ FlushHaptic (≤1 per tick)
    ├─ PublishInteraction, EvaluateDerived (pass 2: volatile entries only)
    ├─ ApplyEnforceRules, DrivePageBinds
+   ├─ chart sampler (every chart widget, every page)
    └─ PublishUi
         ├─ PumpNxAssets (decoded romfs art lands)
         ├─ throttle: every 2nd tick (≈30 Hz) unless an animation needs 60
@@ -117,7 +132,15 @@ value must be republished on every tick.
 | Module | `api->sample(instance, host)`, called through `RunGameModule` (`mod_module_host.cpp`). The module calls `publish_i64/f64/text/address/map`. |
 
 The module's `tick()` runs after touch capture. Runtime flags are then published as
-`@flag:<name>`.
+`@flag:<name>`, followed by the clock points (`@clock.*`, `@game.seconds`; runtime 16), so
+derived values can read both. The clock points are published only when the manifest or data file
+mentions them (`JsonReferencesClockKeys`: a string or key containing `@clock.` or `@game.`, or a
+`countdown` entry), because they change every second and would otherwise churn `UiSignature`. A
+native module reading them by name in a package that never mentions them gets nothing.
+
+- **Hidden screen.** While the second screen is absent, only the module's `tick` runs, and only
+  if `module_tick_hidden`, the module's tick flags, or (by default) an `on_action` export says so
+  (runtime 15; [MODULE_GUIDE.md §1.2](MODULE_GUIDE.md#12-lifecycle-and-threads)).
 
 ### 2.3 Derived values
 
@@ -127,7 +150,13 @@ The module's `tick()` runs after touch capture. Runtime flags are then published
 - The dependency order is computed once (`derived_order`), and entries may reference each other
   in any order.
 - A second pass after interaction recomputes only **volatile** entries, meaning those that read
-  `@...` interaction values or `view_custom:` values.
+  `@...` interaction values or `view_custom:` values. The clock points do not make an entry
+  volatile.
+- Since runtime 16, on a tick with queued taps or drops the runtime runs `PublishInteraction`
+  and the volatile pass once **before** the taps too, so an `enabled_bind` judges a tap or drop
+  against the selection and drag state it acts on.
+- `expr` entries (runtime 17) are compiled once at load (`CompileExpr`) and take part in the same
+  dependency order as the other forms.
 
 ### 2.4 Interaction
 
@@ -142,15 +171,35 @@ The module's `tick()` runs after touch capture. Runtime flags are then published
     (wall clock), is queued like a tap with the widget's action (no hit test, log source
     "hold"), and the lift that ends it is not a tap. Moving past the slop, a second finger, a
     drag, a page transition or any page change cancels it;
+  - swipe (runtime 14 horizontal, 15 vertical): `SwipeTracker` (`mod_input_swipe.h`) arms on
+    the topmost swipe widget under the first finger, locks a direction when the finger leaves
+    the slop (|dx| > 2|dy| or the reverse), and fires at the lift if `swipe_px` was reached
+    within 600 ms. The lift is not a tap;
+  - hold and drag on one widget (runtime 16): a hold may arm over a drag candidate; leaving the
+    slop before `hold_ms` cancels the hold and starts the drag;
   - input is ignored while a page transition runs, and `input_block` widgets absorb touches.
+- **Controller focus mode (runtime 17).** `UpdateNav` (`mod_nav.cpp`) reads the real buttons of
+  player 1 and handheld, toggles the mode on the `nav.toggle` chord, moves the focus among the
+  page's tappable widgets (`NavCandidates`) and queues an **A** press as a tap at the focused
+  centre, which then takes the normal tap path. The chord does not enter the mode on a page
+  with nothing to focus. Without a `nav` key the mode is enabled only when the package's
+  `min_runtime` is 17 or higher (`NavDefaultOn`, manifest or `package.json`); older packages
+  opt in with `"nav": true` or a `nav` object. While the mode is on, `Core::HID::DSModPadGate`
+  (a set of process-wide atomics applied in `NPad::RequestPadStateUpdate`) gives the game a
+  neutral pad for every frontend, and buttons still held when it ends stay hidden until
+  released. `@nav.*` values are uncovered draw inputs, so a focus move repaints the page.
 - **Taps.** `DrainTaps` hit-tests queued taps against the **previous render's** map draw
   records (`map_draw_records_published`). This one-frame lag is deliberate: it tests the tap
   against what the user actually saw. Hits run `RunAction`.
-- **Actions.** `RunAction` (`mod_actions.cpp`) supports these kinds: `write`, `slot_write`, `button` (virtual pad),
-  `page`, `call`, `sequence`, `flag`/`set_value`, `view_reset`, `module` (forwarded to the
-  module's `on_action`), and `map_select`.
-- **Haptics.** A fired hold plays the `hold` kind (runtime 13) instead of the action's tap
-  haptic. At most one haptic is raised per tick (`FlushHaptic` →
+- **Actions.** `RunAction` (`mod_actions.cpp`) supports these kinds: `write`, `slot_write`, `button` (virtual pad;
+  a two-button chord such as `"L+R"` presses both on the same tick),
+  `page` (including the runtime 17 targets `@settings` and `@back`), `call`, `sequence`,
+  `flag`/`set_value`, `view_reset`, `module` (forwarded to the module's `on_action`), and
+  `map_select`. Since runtime 16 a `module` action whose `on_action` returns false is
+  **Refused**, which plays the `refused` haptic and stops what follows. A flag change that
+  touches a `persist_flags` entry rewrites the persisted-flags file (runtime 15).
+- **Haptics.** A fired hold plays the `hold` kind (runtime 13), and a fired swipe the `swipe`
+  kind (runtime 14), instead of the action's tap haptic. At most one haptic is raised per tick (`FlushHaptic` →
   `AuxRouting::RaiseHaptic`). A separate notifier thread delivers it to the frontend.
 
 ### 2.5 Page binds and transitions
@@ -325,6 +374,7 @@ data that would otherwise ship as files.
 | Nx asset worker | romfs decode, composites, MSBT | `NxAssetState` `queue_mutex`/`cv`, `io_mutex`, `state_mutex` |
 | Module asset worker | Module `load_image` (one thread; at most 4 finished images buffered) | `module_asset_mutex`/`cv`, `module_loader_mutex` |
 | Module map-areas thread | `load_data` for `map.areas_src`, then the JSON parse (runtime 12) | `module_data_mutex`, `module_areas_mutex`, atomic `module_areas_ready`; installed by the tick thread |
+| Font page worker | Loads one page of a paged font atlas at a time (runtime 17) | `FontPages` mutex; a landed page triggers a repaint on the next tick |
 | Haptic notifier | Frontend haptic sink | `haptic_mutex`/`cv` (queue bounded at 8) |
 | GPU thread | `RendererVulkan::Composite`, `SyncAuxWindow`, aux uploads | `ui_mutex`, `comp_mutex`, atomic serials, `aux_mutex` |
 | Aux present thread | Presents the aux swapchain | Scheduler submit lock |
@@ -348,7 +398,7 @@ Ownership rules that keep this race-free:
 ## 4. Runtime version and `min_runtime`
 
 `DualScreenRuntimeVersion` in `src/core/mods/mod_runtime.h` is the contract version that this
-build implements. It is currently **13**.
+build implements. It is currently **18**, the version Eden Duo 1.1.0 ships.
 
 | Version | Added |
 |---|---|
@@ -356,6 +406,10 @@ build implements. It is currently **13**.
 | 11 | Scroll regions (page `scrolls`), a text dirty-rect fix, `module:` composite layers with a full repaint when module images land, and `min_runtime` gating. The module `write_memory` service and the write-batch extension arrived in the same release |
 | 12 | The module data extension (`load_data`): `module:` byte sources read through `ReadAssetBytes`, such as map geometry, and `map.areas_src`, map areas generated by the module from the game's romfs (§2.10) |
 | 13 | Press-and-hold (`on_hold`, `hold_ms`) and the `hold` haptic kind (§2.4). The redraw worker no longer drops a job that a newer dispatch superseded, and a stale job's region is published by the next job (`UnpublishedRegions`, §2.6), which fixes stuck rows and late module images. `EDEN_DSMOD_IMAGE_TIMING` (§7) |
+| 14 | Horizontal swipe (`on_swipe_left` / `on_swipe_right`, `swipe_px`) and the `swipe` haptic kind; map widget `image_bind`, `overlays`, per-slot dynamic-marker pictures, bars, dim, frame and tint; map `view_rect_*_bind`; `@map_tap_x` / `_y` / `_seq` readable by modules; label `color_markup`; module image and font retries |
+| 15 | Named asset sources (`AssetSources`): `base:` and `aoc:`, module `read_romfs` through them, `EDEN_DSMOD_CAP_SOURCE_*` and `get_i64("__source:<prefix>")`, unknown prefixes refused; `module_tick_hidden` and the `TICK_WHEN_HIDDEN` / `NO_TICK_WHEN_HIDDEN` module flags; `outline_copy`; button `border` / `text_inset`, pips `gap`, bar `frame`, map `label_offset` and the `map.style` door, collectible, blink and pin keys; more `{i}` fields; vertical swipe; the bound default view of a non-map `pan_zoom` widget; `persist_flags`. Runtimes 14 and 15 first shipped together (Eden Duo 1.0.2), which also brought text `outline` / `outline_px` / `rise` and `"L+R"` button chords |
+| 16 | Hold and drag on one widget; a module action returning false is Refused; `@sel:` / `@drag*` published before the taps; `read_romfs` from `create()` (romfs source `retry_ms`); module image keys up to 4096 characters; image `rotate` / `rotate_bind` / `pivot` / `scale_bind`, `tint` / `tint_bind` / `tint_colors`, `fill` stretch / tile / slice + `slice`, bar `fill_dir` + `image`; `@clock.*`, `@game.seconds` and derived `countdown` |
+| 17 | Widget type `chart`; derived `expr`; `auto_w`, value `group` / `group_sep`; `{i}` in every repeat string field; paged font atlases (`font_page_h`); controller focus mode (`nav`, page `nav_order`, `@nav.*`, HID pad gate); the `user:` source (`EDEN_DSMOD_CAP_SOURCE_USER`); manifest `settings`, the built-in `@settings` page and the `@back` page target |
 
 - **How the requirement is read.** A package declares the oldest runtime it needs as
   `min_runtime`, in `manifest.json` and/or `package.json`. `PackageMinRuntime(manifest, package)`
@@ -365,14 +419,18 @@ build implements. It is currently **13**.
     package is always gated and never half-loaded.
 - **Where it is checked.**
   - In `Discover` (`mod_manifest.cpp`), on the raw JSON, before anything else is parsed. If the requirement is newer
-    than this build, the runtime shows the built-in `UpdateRequiredManifest` page ("UPDATE EDEN",
-    "runtime N, have 13") and loads none of the package.
+    than this build, the runtime shows the built-in `UpdateRequiredManifest` page ("UPDATE EDEN
+    DUO", "runtime N, have 17") and loads none of the package.
   - In `DiscoverModLoadPlan` (`mod_load_plan.cpp`): no load-time patches are applied.
   - On a console `reload`: the reload is refused with "restart the game".
 - **Older runtimes.** Runtimes before 11 do not know the key. They ignore it, and may reject
   unknown fields silently. A runtime-11 build does gate a package that declares
   `"min_runtime": 12`, and shows its update page. This is why the APK and the package should be
   shipped together.
+- **Unknown keys degrade silently.** Every runtime ignores manifest keys it does not know, so a
+  package using a runtime-N key without declaring `"min_runtime": N` still loads on an older
+  runtime, minus that feature. Declare N whenever the package depends on the key
+  ([PACKAGE_FORMAT.md §6](PACKAGE_FORMAT.md#6-runtime-history-and-min_runtime)).
 
 Only the integer constant is compared against `min_runtime`.
 
@@ -412,7 +470,8 @@ per-widget draw times.
 | Point | Mechanism | Negotiation |
 |---|---|---|
 | Declarative package | `manifest.json` + per-build data file | `min_runtime` |
-| Native module | `eden_dsmod_get_module` → `EdenDsmodModuleApi` (`supports_build`, `create`, `sample`, `tick`, `destroy`) | ABI version 1 + ABI hash, `struct_size`, capability bits, SHA-256 pin, build-ID allow-list |
+| Native module | `eden_dsmod_get_module` → `EdenDsmodModuleApi` (`supports_build`, `create`, `sample`, `tick`, `destroy`) | ABI version 1 + ABI hash, `struct_size`, capability bits (module flags since runtime 15; host source bits since 15, `SOURCE_USER` since 17), SHA-256 pin, build-ID allow-list |
+| Asset sources | `AssetSources::Register` (`mod_sources.h`): a prefix with a directory root (`open_dir`) or a byte reader (`read_bytes`), optional `capability`, `accept_path`, `max_file_size`, `retry_ms` | Runtime-internal. A module asks `get_i64("__source:<prefix>")`; a package declares `min_runtime` |
 | Base extensions | `eden_dsmod_get_extensions` → `configure`, `on_action`, `load_image`. The host provides a guest mailbox (atomic `load_*`/`store_*`) and an ASTC decoder | Own version and hash. Required if the module sets `EDEN_DSMOD_CAP_EXTENSIONS` |
 | Font | `eden_dsmod_get_font_extensions` → `decode_font`, called once for the manifest's `font` asset | Optional; independent version and hash |
 | Save (read-only) | `eden_dsmod_get_save_extensions` → `configure(read_save_file)`, limited to the title's own save directory | Optional. No shipped module uses it yet |

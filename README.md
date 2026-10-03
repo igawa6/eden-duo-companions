@@ -145,13 +145,17 @@ The companion ships no game art: pictures, icons, the font and course names are 
 
 ---
 
+## Contribute to Another Game
+
+Anyone can write a companion for another game, without rebuilding Eden Duo. Start with [**Contribute to Another Game**](docs/CONTRIBUTE.md): what a companion is, what the runtime offers, the reverse-engineering tools, which documents to read in which order, and how to share your companion.
+
 ## Building Packages
 
 | Path | Contents |
 |------|----------|
-| [`packages/`](packages/) | Package sources, one folder per game: `dualscreen/manifest.json`, the per-build address table `<BUILDID>.json` (one per supported build) and, for Persona 5 Royal, the art recipe table `p5r_art.rec`. |
+| [`packages/`](packages/) | Package sources, one folder per game: `dualscreen/manifest.json`, the per-build data file `<BUILD16>.json` (one per supported build) and, for Persona 5 Royal, the art recipe table `p5r_art.rec`. |
 | [`tools/`](tools/) | `build_release.sh` builds the five `.dsmod.zip` archives. The page generators for Persona 5 Royal ([`tools/p5r/`](tools/p5r/)), Metroid Dread ([`tools/dread/`](tools/dread/)), Mario Kart 8 Deluxe ([`tools/mk8d/`](tools/mk8d/)) and Super Mario Bros. Wonder ([`tools/wonder/`](tools/wonder/)) are here too. |
-| [`docs/`](docs/) | How the companion runtime works, the package format, writing a native module and porting a new game. |
+| [`docs/`](docs/) | How the companion runtime works, the package format, writing a native module and porting a new game. Start with [`docs/CONTRIBUTE.md`](docs/CONTRIBUTE.md). |
 | [`screenshots/`](screenshots/) | Captures of both screens for each game. |
 
 The native modules for Persona 5 Royal, Metroid Dread, Mario Kart 8 Deluxe and Super Mario Bros. Wonder are C++ and live in the Eden Duo repository under [`src/core/mods/modules`](https://github.com/igawa6/eden-duo/tree/main/src/core/mods/modules). Build them there, strip them, and pass them to the release script:
@@ -181,7 +185,7 @@ Companion packages contain **no game assets**: no art, text, audio or level data
 
 ## AI Assistance
 
-These companions were developed with AI assistance. The companion modules, the reverse engineering of each game's data and the package generators were written with an AI coding assistant (Claude, by Anthropic), then reviewed, tested and verified against each game's own screens.
+These companions were developed with AI assistance. The companion modules, the reverse engineering of each game's data and the package generators were written with an AI coding assistant, then reviewed, tested and verified against each game's own screens.
 
 ## License
 

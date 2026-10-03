@@ -1,9 +1,10 @@
 # Eden Duo: dual-screen companion runtime
 
-Eden Duo is a fork of the Eden Nintendo Switch emulator. Its dual-screen mod runtime ("DSMod" in
-the code) works like this: while a game runs on the main screen, a second screen shows a live **companion page**, such as a map, inventory, party status, a quest
-log or a battle helper. The page is built from the game's own memory and the player's own game
-files. It updates in real time, and the player can use it by touch.
+Eden Duo is a fork of the Eden Nintendo Switch emulator for dual-screen Android handhelds. Its
+dual-screen **runtime** ("DSMod" in the code) works like this: while a game runs on the main
+screen, the second screen shows a live **companion** page, such as a map, inventory, party
+status, a quest log or a battle helper. The page is built from the game's own memory and the
+player's own game files. It updates in real time, and the player can use it by touch.
 
 Nothing in the emulator is specific to one game. Each game gets a **package**, which contains:
 
@@ -15,9 +16,10 @@ Nothing in the emulator is specific to one game. Each game gets a **package**, w
   values, and can decode art straight from the game's romfs.
 
 This documentation set is written for engineers who want to understand the method or build a
-companion for a new game.
+companion for a new game. **New here? Start with [CONTRIBUTE.md](CONTRIBUTE.md)**: it gives the
+overview and the order in which to read the other documents.
 
-Documentation last checked against the source: 2026-09-28 (GMT+7), runtime version 13,
+Documentation last checked against the source: 2026-10-02 (GMT+7), runtime version 17,
 module ABI 1.
 
 ## Repositories
@@ -25,7 +27,7 @@ module ABI 1.
 | Repository | Holds |
 |---|---|
 | [Eden Duo](https://github.com/igawa6/eden-duo) | The emulator, the runtime (`src/core/mods/`) and the native title-module sources (`src/core/mods/modules/`) |
-| This companions repository | Package sources (`packages/<Game>/dualscreen/...`), tools (`tools/build_dualscreen_package.py`, `tools/build_release.sh`, `tools/compact_zip.py`, `tools/p5r/`, `tools/dread/`, `tools/mk8d/`) and these docs |
+| This companions repository | Package sources (`packages/<Game>/dualscreen/...`), tools (`tools/build_dualscreen_package.py`, `tools/build_release.sh`, `tools/compact_zip.py` and the page generators in `tools/p5r/`, `tools/dread/`, `tools/mk8d/`, `tools/wonder/`; see [`tools/README.md`](../tools/README.md)) and these docs |
 
 Source paths such as `src/core/mods/mod_manifest.cpp` in these docs refer to the Eden Duo
 repository. Paths under `packages/` and `tools/` refer to this repository.
@@ -71,10 +73,10 @@ repository. Paths under `packages/` and `tools/` refer to this repository.
 |---|---|---|
 | `ModRuntime` | `src/core/mods/mod_runtime.h`; lifecycle and the tick in `mod_runtime.cpp`, split by area into `mod_*.cpp` (see [ARCHITECTURE.md](ARCHITECTURE.md)) | Discovers packages, runs the 60 Hz tick, samples memory, evaluates derived values, handles gestures and actions, and decides when to redraw. |
 | Package discovery and parser | `mod_manifest.cpp` | `Discover`, the `min_runtime` gate, `ParseManifestJson` and the per-build data file. |
-| Manifest types | `mod_types.h` plus `mod_types_points.h`, `mod_types_map.h`, `mod_types_text.h`, `mod_types_page.h`, `mod_types_action.h`, `mod_types_guest.h`, `mod_types_composite.h` | Data structs for pages, widgets, points, actions, the map and the `StateSnapshot`. |
+| Manifest types | `mod_types.h` plus `mod_types_points.h`, `mod_types_map.h`, `mod_types_text.h`, `mod_types_page.h`, `mod_types_action.h`, `mod_types_guest.h`, `mod_types_composite.h`, `mod_types_nav.h` | Data structs for pages, widgets, points, actions, the map and the `StateSnapshot`. |
 | Renderer | `mod_ui.h`, `mod_ui.cpp` (`RenderPage`) and `mod_ui_*.cpp` (canvas, text, image, map widget, scroll, expansion, transitions, widget state) | Draws a page into a CPU canvas, or builds a GPU quad list for map widgets. |
 | Redraw and publish | `mod_redraw.cpp` | The redraw decision, the `DSModRedraw` worker and the publish to `AuxRouting`. |
-| Asset layer | `mod_assets.cpp`, `mod_nx_runtime.cpp`, `mod_nx_assets.cpp`, `mod_msbt.cpp`, `mod_map.cpp`, `engine_mercury.cpp`, `engine_ichigo.cpp` | Asset bytes (`file:`, `romfs:`, `module:`), the user's romfs art (BNTX, SARC, BFFNT and others), composites, game text (MSBT), the map rasteriser and per-engine decoders. |
+| Asset layer | `mod_assets.cpp`, `mod_sources.cpp`, `mod_romfs_sources.cpp`, `mod_user_source.cpp`, `mod_font_pages.cpp`, `mod_nx_runtime.cpp`, `mod_nx_assets.cpp`, `mod_msbt.cpp`, `mod_map.cpp`, `engine_mercury.cpp`, `engine_ichigo.cpp` | Asset bytes (`file:`, `romfs:`, `base:`, `aoc:`, `user:`, `module:`), the user's romfs art (BNTX, SARC, BFFNT and others), paged font atlases, composites, game text (MSBT), the map rasteriser and per-engine decoders. |
 | Module host | `mod_module.cpp` (loader), `mod_module_host.cpp`, `mod_module_services.cpp` | Verifies, stages and `dlopen`s the native module, and implements the host side of the C ABI and its extensions. |
 | Module ABI | `dsmod_module_abi.h`, `dsmod_module_extensions.h` | Stable C interface. Has no emulator dependency. |
 | Load plan | `mod_load_plan.cpp/.h` | Optional code patches and a guest mailbox, applied when the executable loads. |
@@ -155,8 +157,8 @@ A package ships as `<TITLEID>.dsmod.zip` or `<TITLEID>-<Name>-<version>.dsmod.zi
     └── modules/<platform>/<TITLEID>.so  # optional native module
 ```
 
-- **Android:** open the game's Add-ons screen, choose Install, then **Dual-screen mods**, and pick
-  the zip. The installer checks the archive, including the module SHA-256 values and title IDs,
+- **Android:** long-press the game, open **Add-ons**, tap **Install**, choose **Dual screen
+  mods**, and pick the zip. The installer checks the archive, including the module SHA-256 values and title IDs,
   and extracts it to `load/<TITLEID>/DualScreen-<TITLEID>/`, or to `load/<TITLEID>/<Name>-<version>/`
   for the named form. It then removes the title's older installer-created package folders;
   hand-made folders without a `package.json` are left alone.
@@ -168,16 +170,35 @@ A package ships as `<TITLEID>.dsmod.zip` or `<TITLEID>-<Name>-<version>.dsmod.zi
   folders exist for one title, the first usable one in name order wins. There is no merging.
 
 If a package declares a `min_runtime` newer than the emulator supports, the second screen shows
-a built-in "UPDATE EDEN" page (the literal text on screen) and does not load the package.
+a built-in "UPDATE EDEN DUO" page (the literal text on screen) and does not load the package.
+
+**Files a package asks the player for** (runtime 17, `user:` sources) go in
+`dualscreen/user/<TITLEID>/` inside Eden Duo's data folder:
+`Android/data/<app id>/files/dualscreen/user/<TITLEID>/` on Android,
+`~/.local/share/eden/dualscreen/user/<TITLEID>/` on Linux. The folder is created the first time a
+package looks for a file there.
+
+**Second Screen settings.** On Android, Settings → Graphics → **Second Screen** holds three app
+settings that are not part of the package format:
+
+- **Swap Screens** puts the game on the second screen and the companion on the main one.
+- **Companion Ratio** is **Fit** (keeps the page's canvas shape) or **Stretch** (fills the
+  screen).
+- **No Companion** chooses what the second screen shows for a game that has no package:
+  **Icon**, **Black**, **Off** (the screen stays free for other apps), or **App**, which opens an
+  Android app you pick on the second screen (global or per game).
 
 ## Where to go next
 
+In reading order:
+
 | Doc | Read it for |
 |---|---|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Per-frame data flow, threads and locks, versioning, performance design, extension points |
-| [PACKAGE_FORMAT.md](PACKAGE_FORMAT.md) | `package.json` and `manifest.json` reference with real examples |
-| [MODULE_GUIDE.md](MODULE_GUIDE.md) | Writing a native per-title module, with Persona 5 Royal and Metroid Dread as worked examples |
+| [CONTRIBUTE.md](CONTRIBUTE.md) | Start here: what a companion is, what the runtime offers, the tools, the reading path and how to share a companion |
 | [PORTING_A_GAME.md](PORTING_A_GAME.md) | The end-to-end method for a new game, and the gotchas list |
+| [PACKAGE_FORMAT.md](PACKAGE_FORMAT.md) | `package.json`, `manifest.json` and data-file reference, with real examples |
+| [MODULE_GUIDE.md](MODULE_GUIDE.md) | Writing a native module, with Persona 5 Royal and Metroid Dread as worked examples |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Per-frame data flow, threads and locks, versioning, performance design, extension points |
 | [GLOSSARY.md](GLOSSARY.md) | Terms |
 
 ## Legal boundary
