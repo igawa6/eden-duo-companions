@@ -4,6 +4,10 @@
   Second-screen companions for <a href="https://github.com/igawa6/eden-duo">Eden Duo</a>, one installable package per game.
 </p>
 
+<div align="center">
+  <a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>&nbsp;<a href="https://ko-fi.com/igawa6"><img src="https://img.shields.io/badge/Support_me_on_Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi"></a>&nbsp;<a href="https://ko-fi.com/polls/2nd-Poll-Next-Switch-Game-on-Eden-Duo-Q6B3284653"><img src="https://img.shields.io/badge/%F0%9F%97%B3%EF%B8%8F_Next_Game_Poll-1ABC9C?style=for-the-badge" alt="Poll"></a>
+</div>
+
 ---
 
 A companion turns the second screen of a dual-screen Android handheld into a live, touchable panel for the game you are playing: maps, menus, status and more, read from the running game. Each companion ships as a `.dsmod.zip` package and is installed from the game's **Add-ons** menu in Eden Duo.
@@ -12,14 +16,12 @@ This repository holds the companion packages, their documentation and screenshot
 
 ## Supported Games
 
-The three new companions require Eden Duo 1.1.0 or newer.
-
-| No | Game | Title ID | Patch Version | Companion | Requires<br>(or newer) | Download | Contributor/Supporter |
+| No | Game | Title ID | Patch Version | Companion | Requires<br>(or newer) | Download | Contributor/<br>Supporter |
 |---:|------|----------|---------------|-----------|----------|----------|:---------:|
 | 1 | [Persona 5 Royal](#persona-5-royal) | `01005CA01580E000` | 1.0.2 | 1.1.0 | Eden Duo 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/persona5royal-1.1.0) | 🥇<sup>1</sup> |
 | 2 | [Metroid Dread](#metroid-dread) | `010093801237C000` | 2.1.0 | 1.0.0 | Eden Duo 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/metroid-dread-1.0.0) | |
 | 3 | [The Legend of Zelda: Link's Awakening](#the-legend-of-zelda-links-awakening) | `01006BB00C6F0000` | 1.0.1 | 1.0.0 | Eden Duo 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/links-awakening-1.0.0) | |
-| 4 | [Mario Kart 8 Deluxe](#mario-kart-8-deluxe) | `0100152000022000` | 4.0.0, 3.0.3 | 1.0.0 | Eden Duo 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/mario-kart-8-deluxe-1.0.0) | |
+| 4 | [Mario Kart 8 Deluxe](#mario-kart-8-deluxe) (also with CTGP-DX v1.1.1) | `0100152000022000` | 4.0.0, 3.0.3 | 1.0.0 | Eden Duo 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/mario-kart-8-deluxe-1.0.0) | |
 | 5 | [Super Mario Bros. Wonder](#super-mario-bros-wonder) | `010015100B514000` | 1.2.1 | 1.0.1 | Eden Duo 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/super-mario-bros-wonder-1.0.1) | ⭐<sup>1</sup> |
 | 6 | [Animal Crossing: New Horizons](#animal-crossing-new-horizons) | `01006F8002326000` | 3.0.3 | 1.0.0 | Eden Duo 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/animal-crossing-new-horizons-1.0.0) | 🥇<sup>2</sup> |
 | 7 | [Fire Emblem: Three Houses](#fire-emblem-three-houses) | `010055D009F78000` | 1.2.0 | 1.0.0 | Eden Duo 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/fire-emblem-three-houses-1.0.0) |  |
@@ -56,7 +58,7 @@ Installing a newer version of a companion replaces the older one.
 <!-- screenshots/persona5royal/*.png -->
 | Field | Menu | Battle |
 |:-----:|:----:|:------:|
-| ![Field](screenshots/persona5royal/field.png) | ![Menu](screenshots/persona5royal/menu.png) | ![Battle](screenshots/persona5royal/battle.png) |
+| <img src="screenshots/persona5royal/field.png" width="300" alt="Field"> | <img src="screenshots/persona5royal/menu.png" width="300" alt="Menu"> | <img src="screenshots/persona5royal/battle.png" width="300" alt="Battle"> |
 
 A full bottom-screen version of the game's own start menu, with live data:
 
@@ -79,7 +81,7 @@ The companion ships no game art: menus, fonts and icons are drawn from your own 
 <!-- screenshots/metroid-dread/*.png -->
 | Map | EMMI zone | Water drain |
 |:---:|:---------:|:-----------:|
-| ![Map](screenshots/metroid-dread/map.png) | ![EMMI zone](screenshots/metroid-dread/emmi.png) | ![Water](screenshots/metroid-dread/water.png) |
+| <img src="screenshots/metroid-dread/map.png" width="300" alt="Map"> | <img src="screenshots/metroid-dread/emmi.png" width="300" alt="EMMI zone"> | <img src="screenshots/metroid-dread/water.png" width="300" alt="Water drain"> |
 
 A live area map on the second screen, drawn the way the game draws its own:
 
@@ -97,7 +99,7 @@ The companion ships no game art: map geometry and icons are built from your own 
 <!-- screenshots/links-awakening/*.png -->
 | Map | Gear | Items |
 |:---:|:----:|:-----:|
-| ![Map](screenshots/links-awakening/map.png) | ![Gear](screenshots/links-awakening/gear.png) | ![Items](screenshots/links-awakening/items.png) |
+| <img src="screenshots/links-awakening/map.png" width="300" alt="Map"> | <img src="screenshots/links-awakening/gear.png" width="300" alt="Gear"> | <img src="screenshots/links-awakening/items.png" width="300" alt="Items"> |
 
 - **Map** of the overworld and dungeons with Link's live position, region names, rupees, seashells and what is on X, Y and B. Dungeon maps show rooms, chests, stairs and the boss room, and switch automatically when you enter a dungeon. Place, change and remove your own map pins.
 - **Gear**: the items you can assign, such as magic powder, bombs, arrows, hookshot, rod, boomerang and bottles, with their counts. Equip to X or Y by dragging an item onto a slot, or by tapping the item and then the slot.
@@ -112,7 +114,7 @@ The companion ships no game art: it uses your own game files.
 <!-- screenshots/mario-kart-8-deluxe/*.png -->
 | Map | Horn | Next race |
 |:---:|:----:|:---------:|
-| ![Map](screenshots/mario-kart-8-deluxe/map_long_light.png) | ![Horn](screenshots/mario-kart-8-deluxe/horn_short_dark.png) | ![Next race](screenshots/mario-kart-8-deluxe/waiting.png) |
+| <img src="screenshots/mario-kart-8-deluxe/map_long_light.png" width="300" alt="Map"> | <img src="screenshots/mario-kart-8-deluxe/horn_short_dark.png" width="300" alt="Horn"> | <img src="screenshots/mario-kart-8-deluxe/waiting.png" width="300" alt="Next race"> |
 
 The race screen of the Wii U GamePad, on your second screen:
 
@@ -141,7 +143,7 @@ Limitations:
 <!-- screenshots/super-mario-bros-wonder/*.png -->
 | Title | World map | Course |
 |:-----:|:---------:|:------:|
-| ![Title](screenshots/super-mario-bros-wonder/title.png) | ![World map](screenshots/super-mario-bros-wonder/map.png) | ![Course](screenshots/super-mario-bros-wonder/course.png) |
+| <img src="screenshots/super-mario-bros-wonder/title.png" width="300" alt="Title"> | <img src="screenshots/super-mario-bros-wonder/map.png" width="300" alt="World map"> | <img src="screenshots/super-mario-bros-wonder/course.png" width="300" alt="Course"> |
 
 - **Course.** The world and course name over a blurred picture of the course, and a progress rail from start to goal with your character riding it. The rail marks checkpoints, 10-flower coins, Wonder Seeds and the secret goal as found or missing, and shows how far through the area you are.
 - **Status.** The course's 10-flower coins, the world's Wonder Seeds (and how many this run), your current form and the item in your balloon.
@@ -161,7 +163,7 @@ The companion ships no game art: pictures, icons, the font and course names are 
 <!-- screenshots/animal-crossing-new-horizons/*.png -->
 | Island map | Pockets | Critterpedia |
 |:----------:|:-------:|:------------:|
-| ![Island map](screenshots/animal-crossing-new-horizons/map.png) | ![Pockets](screenshots/animal-crossing-new-horizons/pockets.png) | ![Critterpedia](screenshots/animal-crossing-new-horizons/critterpedia.png) |
+| <img src="screenshots/animal-crossing-new-horizons/map.png" width="300" alt="Island map"> | <img src="screenshots/animal-crossing-new-horizons/pockets.png" width="300" alt="Pockets"> | <img src="screenshots/animal-crossing-new-horizons/critterpedia.png" width="300" alt="Critterpedia"> |
 
 Your island information and NookPhone pages, always within reach on the second screen:
 
@@ -181,7 +183,7 @@ The companion ships no game art: maps, item pictures, icons, fonts and text are 
 <!-- screenshots/fire-emblem-three-houses/*.png -->
 | Monastery | Academy | Battle |
 |:---------:|:-------:|:------:|
-| ![Monastery](screenshots/fire-emblem-three-houses/monastery.png) | ![Academy](screenshots/fire-emblem-three-houses/academy.png) | ![Battle](screenshots/fire-emblem-three-houses/battle.png) |
+| <img src="screenshots/fire-emblem-three-houses/monastery.png" width="300" alt="Monastery"> | <img src="screenshots/fire-emblem-three-houses/academy.png" width="300" alt="Academy"> | <img src="screenshots/fire-emblem-three-houses/battle.png" width="300" alt="Battle"> |
 
 Keep the monastery, your students and the battlefield on the second screen:
 
@@ -200,7 +202,7 @@ The companion ships no game art: maps, portraits, icons, fonts and text are read
 <!-- screenshots/the-binding-of-isaac/*.png -->
 | Map | Items | Room |
 |:---:|:-----:|:----:|
-| ![Map](screenshots/the-binding-of-isaac/map.png) | ![Items](screenshots/the-binding-of-isaac/items.png) | ![Room](screenshots/the-binding-of-isaac/room.png) |
+| <img src="screenshots/the-binding-of-isaac/map.png" width="300" alt="Map"> | <img src="screenshots/the-binding-of-isaac/items.png" width="300" alt="Items"> | <img src="screenshots/the-binding-of-isaac/room.png" width="300" alt="Room"> |
 
 A parchment companion for your run, with one package for **Afterbirth+ without DLC** and **Repentance with its DLC installed and enabled**. It selects the edition automatically.
 
