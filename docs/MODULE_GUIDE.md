@@ -14,10 +14,12 @@ Most games start as a declarative package and add a module only when they need o
 new to companions, read [CONTRIBUTE.md](CONTRIBUTE.md) and
 [PORTING_A_GAME.md](PORTING_A_GAME.md) first.
 
-**Where things live.** Module sources live in the
-[Eden Duo](https://github.com/igawa6/eden-duo) repository under `src/core/mods/modules/`, next to
-the ABI headers. All source paths below are in Eden Duo. Package sources and the package tools
-are in this companions repository ([README.md, Repositories](README.md#repositories)).
+**Where things live.** Game-specific sources, their tests and build targets live in this
+companions repository under `native/modules/`. The generic ABI headers and shared SDK remain
+in [Eden Duo](https://github.com/igawa6/eden-duo). Select a compatible checkout with
+`-DEDEN_SOURCE_ROOT=/absolute/path/to/eden-duo`; see [native/README.md](../native/README.md).
+Paths starting with `src/` below refer to Eden Duo; `native/`, `packages/` and `tools/` refer
+to this repository.
 
 The headers are:
 
@@ -26,9 +28,9 @@ The headers are:
 - `src/core/mods/modules/dsmod_module_sdk.h`: header-only helpers shared by the shipped modules
   (§1.5).
 
-The worked examples are the Persona 5 Royal module (`modules/01005CA01580E000.cpp`, `p5r_reader.h`,
+The worked examples are the Persona 5 Royal module (`native/modules/01005CA01580E000.cpp`, `p5r_reader.h`,
 the `p5r_reader_*.cpp` area files and the header-only `p5r_*.h` decoders; §7) and the Metroid
-Dread module's map generator (`modules/010093801237C000.cpp` plus `dread_*.cpp`; §8).
+Dread module's map generator (`native/modules/010093801237C000.cpp` plus `dread_*.cpp`; §8).
 
 ## 1. The ABI at a glance
 
@@ -311,7 +313,7 @@ typedef void (*EdenDsmodDataSink)(void* receiver, const uint8_t* bytes, size_t s
 
 Link's Awakening has no module.
 
-These match the `EXPORTS` lists in `src/core/mods/modules/CMakeLists.txt`. Dread's base
+These match the `EXPORTS` lists in `native/modules/CMakeLists.txt`. Dread's base
 extensions provide `on_action` but no `load_image`.
 
 ## 3. Build ids and `supports_build`
@@ -330,7 +332,7 @@ updates, so every supported build must be verified separately.
 
 ## 4. Build
 
-Title modules live in the Eden Duo repository under `src/core/mods/modules/`. It is a
+Title modules live in this companions repository under `native/modules/`. It is a
 **standalone CMake project**, never part of the APK build. Each module is declared with the
 `dsmod_add_module(<target> TITLE <id> SOURCES … EXPORTS …)` helper in its `CMakeLists.txt`.
 
@@ -338,7 +340,10 @@ Title modules live in the Eden Duo repository under `src/core/mods/modules/`. It
 |---|---|---|
 | `dsmod-p5r` | `01005CA01580E000.so` (`01005CA01580E000.cpp`, `p5r_reader_*.cpp`, `p5r_romfs_assets.cpp`) | No (`EXCLUDE_FROM_ALL`); build it by name |
 | `dsmod-dread` | `010093801237C000.so` (`010093801237C000.cpp`, `dread_romfs.cpp`, `dread_rfl.cpp`, `dread_mapgen.cpp`, `dread_mapgen_util.cpp`, `dread_maproom.cpp`) | No (`EXCLUDE_FROM_ALL`) |
-| `dsmod-mk8d` | `0100152000022000.so` (`0100152000022000.cpp`, `mk8d_reader.cpp`, `mk8d_ids.cpp`, `mk8d_anim.cpp`, `mk8d_assets.cpp`, code pins in `mk8d_pins*.inc`) | Yes |
+| `dsmod-mk8d` | `0100152000022000.so` (`0100152000022000.cpp`, `mk8d_reader.cpp`, `mk8d_ids.cpp`, `mk8d_anim.cpp`, `mk8d_assets.cpp`, code pins in `mk8d_pins*.inc`) | No (`EXCLUDE_FROM_ALL`) |
+| `dsmod-acnh` | `01006F8002326000.so` | No (`EXCLUDE_FROM_ALL`) |
+| `dsmod-fe3h` | `010055D009F78000.so` | No (`EXCLUDE_FROM_ALL`) |
+| `dsmod-isaac` | `010021C000B6A000.so` | No (`EXCLUDE_FROM_ALL`) |
 | `dsmod-wonder` | `010015100B514000.so` (`010015100B514000.cpp`, `wonder_assets.cpp`, `wonder_catalog.cpp`, `wonder_font.cpp`, `wonder_glyphs.cpp`, plus zstd's decompressor from the emulator's CPM cache) | No (`EXCLUDE_FROM_ALL`) |
 
 Target properties that matter:
@@ -360,11 +365,13 @@ Target properties that matter:
 
 ```sh
 # Linux x86_64
-cmake -S src/core/mods/modules -B /tmp/mods-linux -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake -S native/modules -B /tmp/mods-linux -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DEDEN_SOURCE_ROOT="/absolute/path/to/eden-duo"
 cmake --build /tmp/mods-linux --target dsmod-p5r
 
 # Android arm64 (NDK r28c, API 24+)
-cmake -S src/core/mods/modules -B /tmp/mods-android -G Ninja \
+cmake -S native/modules -B /tmp/mods-android -G Ninja \
+  -DEDEN_SOURCE_ROOT="/absolute/path/to/eden-duo" \
   -DCMAKE_TOOLCHAIN_FILE="$ANDROID_SDK_ROOT/ndk/28.2.13676358/build/cmake/android.toolchain.cmake" \
   -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-24 -DANDROID_STL=c++_static \
   -DCMAKE_BUILD_TYPE=Release

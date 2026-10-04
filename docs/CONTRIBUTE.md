@@ -120,8 +120,8 @@ Then study the five published packages as working examples, in
 | Mario Kart 8 Deluxe | Two game versions with one data file per build, press-and-hold toggles, a guarded write batch |
 | Super Mario Bros. Wonder | Outlined game-font numbers and art decoded from romfs |
 
-The native module sources are in the Eden Duo repository under
-[`src/core/mods/modules/`](https://github.com/igawa6/eden-duo/tree/main/src/core/mods/modules).
+The native module sources are in this companions repository under
+[`native/modules/`](https://github.com/igawa6/eden-duo-companions/tree/main/native/modules).
 The page generators for the published packages are in [`tools/`](../tools/README.md).
 
 ## Share your companion

@@ -3,8 +3,8 @@
 `packages/MetroidDread/dualscreen/manifest.json` is asset-free. It holds our page layout, the map
 style, and area templates whose geometry is `module:dread:...`. The textures and the font are
 `romfs:` references. Everything derived from level data is built at game load by the Dread module
-in Eden Duo (`dread_mapgen.cpp`, `dread_maproom.cpp`, `dread_rfl.cpp`, `dread_romfs.cpp` under
-`src/core/mods/modules`). That covers the room geometry, icons, doors, water pools, occluders,
+in this repository (`dread_mapgen.cpp`, `dread_maproom.cpp`, `dread_rfl.cpp`, `dread_romfs.cpp` under
+`native/modules`). That covers the room geometry, icons, doors, water pools, occluders,
 camera rects and so on. `646761F643AFEBB3.json` is the per-build address table.
 
 ## Regenerating the manifest

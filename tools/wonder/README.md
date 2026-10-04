@@ -2,8 +2,8 @@
 
 `packages/SuperMarioWonder/dualscreen/` is asset-free. `manifest.json` holds our page layout,
 colours and page logic; every piece of game art is a `module:wonder:...` key that the Wonder
-module in Eden Duo decodes from the player's own game files at runtime (`wonder_assets.cpp`,
-`wonder_font.cpp` and `wonder_catalog.cpp` under `src/core/mods/modules`: zstd, SARC, BNTX, the
+module in this repository decodes from the player's own game files at runtime (`wonder_assets.cpp`,
+`wonder_font.cpp` and `wonder_catalog.cpp` under `native/modules`: zstd, SARC, BNTX, the
 game font, BYML and MSBT). `wonder_font.txt` names the game font the module rasterises. The
 per-build data files are small constant tables:
 

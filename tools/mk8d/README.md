@@ -2,8 +2,8 @@
 
 `packages/MarioKart8Deluxe/dualscreen/` is asset-free. `manifest.json` holds our page layout,
 colours and the page logic; every piece of game art is a `module:mk8d:...` key or a `romfs:`
-reference that the MK8D module in Eden Duo decodes from the player's own game files at runtime
-(`mk8d_assets.cpp` under `src/core/mods/modules`: SARC, Yaz0, BNTX, BFFNT and MSBT). The three
+reference that the MK8D module in this repository decodes from the player's own game files at runtime
+(`mk8d_assets.cpp` under `native/modules`: SARC, Yaz0, BNTX, BFFNT and MSBT). The three
 per-build data files are small constant tables:
 
 | File | Build |

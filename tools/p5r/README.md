@@ -4,7 +4,7 @@ These scripts generate `packages/Persona5Royal/` (`dualscreen/manifest.json` and
 `dualscreen/p5r_art.rec`) from the base manifest and the snippets in this directory.
 
 The package is **asset-free**. `p5r_art.rec` is a table of small recipes: "cut sprite N of this SPD
-sheet, scale it, tint it, draw this text in the game font". The P5R module in Eden Duo
+sheet, scale it, tint it, draw this text in the game font". The P5R module in this repository
 (`p5r_recipes.h`, `p5r_romfs_assets.cpp`) replays those recipes against the player's own romfs at
 runtime. The generators evaluate every recipe with Pillow while they build, so they read the same
 game files the module will read. That is why a rebuild needs your own unpacked copy of the game.

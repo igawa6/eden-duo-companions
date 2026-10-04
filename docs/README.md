@@ -19,15 +19,15 @@ This documentation set is written for engineers who want to understand the metho
 companion for a new game. **New here? Start with [CONTRIBUTE.md](CONTRIBUTE.md)**: it gives the
 overview and the order in which to read the other documents.
 
-Documentation last checked against the source: 2026-10-02 (GMT+7), runtime version 17,
-module ABI 1.
+Native build documentation updated for source separation: 2026-10-04 (GMT+7).
+The compatible host is Eden Duo 1.1.0, runtime version 18, module ABI 1.
 
 ## Repositories
 
 | Repository | Holds |
 |---|---|
-| [Eden Duo](https://github.com/igawa6/eden-duo) | The emulator, the runtime (`src/core/mods/`) and the native title-module sources (`src/core/mods/modules/`) |
-| This companions repository | Package sources (`packages/<Game>/dualscreen/...`), tools (`tools/build_dualscreen_package.py`, `tools/build_release.sh`, `tools/compact_zip.py` and the page generators in `tools/p5r/`, `tools/dread/`, `tools/mk8d/`, `tools/wonder/`; see [`tools/README.md`](../tools/README.md)) and these docs |
+| [Eden Duo](https://github.com/igawa6/eden-duo) | The emulator, the runtime (`src/core/mods/`) and the generic module ABI/SDK |
+| This companions repository | Native title-module sources and tests (`native/modules/`), package sources (`packages/<Game>/dualscreen/...`), tools (`tools/build_dualscreen_package.py`, `tools/build_release.sh`, `tools/compact_zip.py` and the page generators in `tools/p5r/`, `tools/dread/`, `tools/mk8d/`, `tools/wonder/`; see [`tools/README.md`](../tools/README.md)) and these docs |
 
 Source paths such as `src/core/mods/mod_manifest.cpp` in these docs refer to the Eden Duo
 repository. Paths under `packages/` and `tools/` refer to this repository.
@@ -69,7 +69,7 @@ repository. Paths under `packages/` and `tools/` refer to this repository.
                                     touch ────────┘ back into AuxRouting → ModRuntime
 ```
 
-| Component | Where (Eden Duo repository) | Role |
+| Component | Where (Eden Duo unless stated otherwise) | Role |
 |---|---|---|
 | `ModRuntime` | `src/core/mods/mod_runtime.h`; lifecycle and the tick in `mod_runtime.cpp`, split by area into `mod_*.cpp` (see [ARCHITECTURE.md](ARCHITECTURE.md)) | Discovers packages, runs the 60 Hz tick, samples memory, evaluates derived values, handles gestures and actions, and decides when to redraw. |
 | Package discovery and parser | `mod_manifest.cpp` | `Discover`, the `min_runtime` gate, `ParseManifestJson` and the per-build data file. |
@@ -85,7 +85,7 @@ repository. Paths under `packages/` and `tools/` refer to this repository.
 | `dsm:u` service | `src/core/hle/service/dsm/` | HLE service so homebrew or guest code can query the aux display, read touch, or bind a VI layer to it. |
 | Desktop window | `src/yuzu_cmd/emu_window/emu_window_sdl3_aux.cpp` | SDL3 second window for `eden-cli`. The Qt frontend has no aux support. |
 | Android | `AuxPresentation.kt`, `DualScreenPackageInstaller.kt` | Presentation on the second display, touch and haptics, and the `.dsmod.zip` installer. |
-| Title modules | `src/core/mods/modules/` | Standalone CMake project with one `.so` per title, named by title ID, plus the header-only module SDK (`dsmod_module_sdk.h`). |
+| Title modules | `native/modules/` | Standalone CMake project with one `.so` per title, named by title ID, in the companions repository. The header-only module SDK stays in Eden Duo. |
 
 ## Build
 
@@ -134,12 +134,13 @@ type passes `-DEDEN_DSMOD_BUILD_DEV_TOOLS=OFF`.
 
 ### Title modules
 
-Title modules are **never** built into the APK or the emulator. Their sources live in the Eden Duo
-repository under `src/core/mods/modules/`, which is a separate CMake project, described in
+Title modules are **never** built into the APK or the emulator. Their sources live in this companions
+repository under `native/modules/`, which is a separate CMake project, described in
 [MODULE_GUIDE.md](MODULE_GUIDE.md#4-build).
 
 ```sh
-cmake -S src/core/mods/modules -B /tmp/mods -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake -S native/modules -B /tmp/mods -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DEDEN_SOURCE_ROOT="/absolute/path/to/eden-duo"
 cmake --build /tmp/mods --target dsmod-p5r
 ```
 

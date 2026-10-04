@@ -1,4 +1,4 @@
-# Built native modules: they come from the Eden Duo tree (src/core/mods/modules), never from here.
+# Built native modules are local build outputs, never package source.
 *.so
 # Release archives and build output
 *.zip
@@ -14,3 +14,6 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# Standalone native build directories
+build-*/

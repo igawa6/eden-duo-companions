@@ -4,7 +4,7 @@
 |------|--------------|
 | `build_dualscreen_package.py` | Packs a `packages/<Game>/` directory plus optional native modules into a reproducible `<TITLEID>.dsmod.zip`. It validates the package first: `file:` references, module sha256 pins, build IDs and JSON. |
 | `compact_zip.py` | Rewrites `dualscreen/manifest.json` inside an archive without whitespace. The Android installer caps that file at 4 MiB. |
-| `build_release.sh` | Builds all five release archives with their release names, `<TITLEID>-<Name>DS-<version>.dsmod.zip`. `GAMES` picks a subset. |
+| `build_release.sh` | Builds all eight release archives with their release names, `<TITLEID>-<Name>DS-<version>.dsmod.zip`. `GAMES` picks a subset. |
 | `p5r/` | Persona 5 Royal page generators: manifest, art recipe table and package directory. See [`p5r/README.md`](p5r/README.md). |
 | `dread/` | Metroid Dread page generator, the asset-free conversion and the Python reference for the module's map generator. See [`dread/README.md`](dread/README.md). |
 | `links-awakening/` | Notes on the Link's Awakening package, which is maintained by hand. |
@@ -23,27 +23,35 @@
 
 ## Building the release archives
 
-The native modules are built from the Eden Duo source tree. Each module's output is named after its title ID:
+The native modules are built from this repository’s `native/modules` source tree. Each module's output is named after its title ID:
 
 ```sh
-cmake -S src/core/mods/modules -B build-mods -G Ninja -DCMAKE_BUILD_TYPE=Release
-ninja -C build-mods dsmod-p5r dsmod-dread dsmod-mk8d dsmod-wonder
+cmake -S native/modules -B build-mods -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DEDEN_SOURCE_ROOT="/absolute/path/to/eden-duo"
+ninja -C build-mods dsmod-p5r dsmod-dread dsmod-mk8d dsmod-wonder dsmod-acnh dsmod-fe3h dsmod-isaac
 llvm-strip --strip-all -o p5r-linux.so build-mods/01005CA01580E000.so
 llvm-strip --strip-all -o dread-linux.so build-mods/010093801237C000.so
 llvm-strip --strip-all -o mk8d-linux.so build-mods/0100152000022000.so
 llvm-strip --strip-all -o wonder-linux.so build-mods/010015100B514000.so
+llvm-strip --strip-all -o acnh-linux.so build-mods/01006F8002326000.so
+llvm-strip --strip-all -o fe3h-linux.so build-mods/010055D009F78000.so
+llvm-strip --strip-all -o isaac-linux.so build-mods/010021C000B6A000.so
 ```
 
 The module tree is a standalone CMake project. It takes fmt and nlohmann_json headers from Eden
 Duo's CPM cache (`.cache/cpm`), so configure Eden Duo once first. Build the `android-arm64-v8a`
 variants the same way with the Android NDK toolchain file (`-DANDROID_ABI=arm64-v8a
--DANDROID_STL=c++_static`). Then, from this repository:
+-DANDROID_STL=c++_static`). See [native/README.md](../native/README.md) for all seven targets, SDK compatibility,
+tests and Android commands. Then, from this repository:
 
 ```sh
 P5R_LINUX_SO=p5r-linux.so P5R_ANDROID_SO=p5r-android.so \
 DREAD_LINUX_SO=dread-linux.so DREAD_ANDROID_SO=dread-android.so \
 MK8D_LINUX_SO=mk8d-linux.so MK8D_ANDROID_SO=mk8d-android.so \
 WONDER_LINUX_SO=wonder-linux.so WONDER_ANDROID_SO=wonder-android.so \
+ACNH_LINUX_SO=acnh-linux.so ACNH_ANDROID_SO=acnh-android.so \
+FE3H_LINUX_SO=fe3h-linux.so FE3H_ANDROID_SO=fe3h-android.so \
+ISAAC_LINUX_SO=isaac-linux.so ISAAC_ANDROID_SO=isaac-android.so \
 tools/build_release.sh dist
 ```
 
@@ -65,7 +73,7 @@ layout values and romfs references.
 Their package sources are in `packages/AnimalCrossingNH`,
 `packages/FireEmblemThreeHouses` and `packages/BindingOfIsaac`. They require
 Eden Duo 1.1.0. Build `dsmod-acnh`, `dsmod-fe3h` and `dsmod-isaac` from
-the Eden Duo native-module CMake tree, then strip each platform's library.
+this repository’s native-module CMake tree, then strip each platform's library.
 Pass `ACNH_LINUX_SO` / `ACNH_ANDROID_SO`, `FE3H_LINUX_SO` / `FE3H_ANDROID_SO`
 and `ISAAC_LINUX_SO` / `ISAAC_ANDROID_SO` to `tools/build_release.sh`.
 Use `GAMES="acnh fe3h isaac"` to build only the three new packages.

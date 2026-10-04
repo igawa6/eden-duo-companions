@@ -9,8 +9,8 @@
 #
 # usage: tools/build_release.sh [out dir]            (default: dist)
 #
-# Native modules (already stripped: llvm-strip --strip-all) come from the Eden Duo tree
-# (src/core/mods/modules, targets dsmod-p5r, dsmod-dread, dsmod-mk8d and dsmod-wonder). Pass them
+# Native modules (already stripped: llvm-strip --strip-all) come from this repository
+# (native/modules; see native/README.md for all seven targets). Pass them
 # by environment:
 #   P5R_LINUX_SO     linux-x86_64 build of the Persona 5 Royal module
 #   P5R_ANDROID_SO   android-arm64-v8a build of the Persona 5 Royal module
