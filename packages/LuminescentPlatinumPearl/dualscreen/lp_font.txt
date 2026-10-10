@@ -1,0 +1,3 @@
+# Game text font for the companion pages: <font in Data/resources.assets>:<pixel size>.
+# The module rasterises it from the player's own romfs; nothing is shipped.
+FOT-UDKakugoC80Pro-DB:48

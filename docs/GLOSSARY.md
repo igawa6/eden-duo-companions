@@ -44,7 +44,7 @@
 | **Redraw worker** | The low-priority `DSModRedraw` thread that renders pages off the tick thread. |
 | **Refused action** | An action that did not run: a closed or unreadable `enabled_bind`, a `slot_write` with no free slot, or since runtime 16 a `module` action whose `on_action` returned false. Plays the `refused` haptic. |
 | **romfs / exefs** | The game's read-only file system, and its executable partition (`main`, `rtld`, `sdk`, …). |
-| **Runtime version** | `DualScreenRuntimeVersion` (currently 18, in Eden Duo 1.1.0). Packages gate on it with `min_runtime`; older runtimes ignore keys they do not know. |
+| **Runtime version** | `DualScreenRuntimeVersion` (currently 19, in Eden Duo 1.2.0; Eden Duo 1.1.0 has 18). Module ABI remains 1. Packages gate on it with `min_runtime`; format-2 guest helpers require at least 19. Older runtimes ignore keys they do not know. |
 | **Second screen** | The handheld's second display, where the companion is drawn. The code calls it the aux screen. |
 | **Sentinel test** | Change a value reversibly in RAM, check that the native menu and the companion both follow, then restore it. |
 | **Sequence** | A manifest-declared chain of guest calls. Dynarmic only. |

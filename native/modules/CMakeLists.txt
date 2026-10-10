@@ -135,6 +135,17 @@ dsmod_add_module(dsmod-mk8d EXCLUDE_FROM_ALL
     EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_write_extensions
     INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
 
+# Crash Team Racing Nitro-Fueled 1.0.15: race reader (ranks, positions, track, laps, the live
+# minimap widget) and pictures composed from the player's romfs (Alchemy igArchive/IGZ, raw LZMA,
+# BC3 via the shared BC decoder, the game's bitmap fonts).
+set(CTR_ASSET_SOURCES ctr_lzma.cpp ctr_lzma.h ctr_alchemy.cpp ctr_alchemy.h ctr_art.cpp ctr_art.h
+    "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp")
+dsmod_add_module(dsmod-ctr EXCLUDE_FROM_ALL
+    TITLE 0100F9F00C696000
+    SOURCES 0100F9F00C696000.cpp ctr_reader.cpp ctr_reader.h ${CTR_ASSET_SOURCES}
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions
+    INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+
 # Super Mario Bros. Wonder 1.2.1: read-only reader, globals resolved from accessor code, art
 # decoded from the player's romfs (zstd -> SARC -> BNTX). zstd's decompressor is compiled in
 # from the emulator's CPM cache (decoder only, no asm, so Linux and Android build the same code).
@@ -276,6 +287,10 @@ endfunction()
 option(BUILD_TESTING "Build companion test executables" OFF)
 include(CTest)
 if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-wonder-catalog KEEP_ASSERTS
+        SOURCES wonder_catalog_test.cpp ${WONDER_ASSET_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_NLOHMANN_JSON_INCLUDE_DIR}"
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder" "${WONDER_ZSTD_LIB}")
     dsmod_add_test(dsmod-p5r-reader
         SOURCES 01005CA01580E000_test.cpp ${P5R_READER_SOURCES} p5r_romfs_assets.cpp)
     # Needs the player's romfs (P5R_ROMFS); exits 77 (skipped) without one.
@@ -311,6 +326,18 @@ if(BUILD_TESTING AND NOT ANDROID)
     dsmod_add_test(dsmod-mk8d-reader KEEP_ASSERTS
         SOURCES 0100152000022000_test.cpp ${MK8D_MODULE_SOURCES}
         INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    # CTR_ROMFS=<dir with archives/*.pak> enables the romfs checks; without it only LZMA runs.
+    dsmod_add_test(dsmod-ctr-assets KEEP_ASSERTS
+        SOURCES 0100F9F00C696000_test.cpp ${CTR_ASSET_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-ctr-reader KEEP_ASSERTS
+        SOURCES ctr_reader_test.cpp ctr_reader.cpp ${CTR_ASSET_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    # the console-check diagnostics build (CTR_DSMOD_DIAGNOSTICS) must keep compiling
+    dsmod_add_test(dsmod-ctr-reader-diag KEEP_ASSERTS
+        SOURCES ctr_reader_test.cpp ctr_reader.cpp ${CTR_ASSET_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder"
+        COMPILE_DEFINITIONS CTR_DSMOD_DIAGNOSTICS=1)
     dsmod_add_test(dsmod-mk8d-anim KEEP_ASSERTS
         SOURCES mk8d_anim_test.cpp ${MK8D_ANIM_SOURCES})
     # Synthetic checks always; the real-data checks run when MK8D_ROMFS names your own 4.0.0
@@ -432,3 +459,186 @@ dsmod_add_module(dsmod-isaac EXCLUDE_FROM_ALL
     TITLE 010021C000B6A000
     SOURCES ${ISAAC_MODULE_SOURCES}
     EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions)
+
+# Isaac regressions: compiled animation coordinates and memory-reader pickup selection.
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-isaac-anm2 KEEP_ASSERTS
+        SOURCES isaac_anm2_test.cpp isaac_anm2.cpp isaac_map.cpp isaac_pcx.cpp)
+    dsmod_add_test(dsmod-isaac-reader KEEP_ASSERTS
+        SOURCES isaac_reader_test.cpp isaac_reader.cpp ${ISAAC_ASSET_SOURCES})
+    # Integration fixtures from your own game files (defaults: the configure environment).
+    # Without them the test fails, unless ISAAC_FIXTURES_OPTIONAL reports it as Skipped.
+    set(ISAAC_ABP_IMAGE "$ENV{ISAAC_ABP_IMAGE}" CACHE FILEPATH "AfterbirthPlus.nro (Isaac test fixture)")
+    set(ISAAC_REP_IMAGE "$ENV{ISAAC_REP_IMAGE}" CACHE FILEPATH "Repentance.nro (Isaac test fixture)")
+    set(ISAAC_ROMFS "$ENV{ISAAC_ROMFS}" CACHE PATH "Merged Isaac program romfs (Isaac test fixture)")
+    set(ISAAC_FILE "$ENV{ISAAC_FILE}" CACHE PATH "Isaac package dir with eid_*.dat (Isaac test fixture)")
+    option(ISAAC_FIXTURES_OPTIONAL "Report missing Isaac reader fixtures as Skipped, not failed" OFF)
+    set(isaac_fixture_env)
+    foreach(var ISAAC_ABP_IMAGE ISAAC_REP_IMAGE ISAAC_ROMFS ISAAC_FILE)
+        if(${var})
+            list(APPEND isaac_fixture_env "${var}=${${var}}")
+        endif()
+    endforeach()
+    if(ISAAC_FIXTURES_OPTIONAL)
+        list(APPEND isaac_fixture_env "ISAAC_ALLOW_MISSING_FIXTURES=1")
+    endif()
+    set_tests_properties(dsmod-isaac-reader PROPERTIES SKIP_RETURN_CODE 77)
+    if(isaac_fixture_env)
+        set_tests_properties(dsmod-isaac-reader PROPERTIES ENVIRONMENT "${isaac_fixture_env}")
+    endif()
+endif()
+
+# Dragon Quest III HD-2D Remake 1.1.0.0: read-only field party reader with code-pinned routes;
+# art and font decoded at runtime from the player's own Nicola-Switch.pak (pinned members,
+# hash-checked, Oodle via the vendored ooz in third_party/ooz, GPLv3+), BC7 and stb_truetype.
+set(DQ3_OOZ_SOURCES
+    third_party/ooz/kraken.cpp
+    third_party/ooz/lzna.cpp
+    third_party/ooz/bitknit.cpp
+    third_party/ooz/oozlib.cpp
+    third_party/ooz/ooz.h
+    third_party/ooz/ooz_simd.h
+    third_party/ooz/stdafx.h)
+# ooz type-puns through pointer casts; its upstream code is kept as is (warnings off). Its LZ
+# copies read 8-byte words that overlap the bytes they write (delta literals at a small negative
+# last offset); GCC's vectorizer at -O3 reorders those and decodes wrongly (found by the
+# decoded-hash check on the B8G8R8A8 sprite atlases), so vectorization is off for these files.
+# GCC's -fno-tree-vectorize turns off both the loop and the SLP vectorizer; in Clang (Android NDK)
+# it only aliases -fno-vectorize, so Clang also gets -fno-slp-vectorize.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(DQ3_OOZ_NOVEC "-fno-vectorize;-fno-slp-vectorize")
+else()
+    set(DQ3_OOZ_NOVEC "-fno-tree-vectorize")
+endif()
+set_source_files_properties(third_party/ooz/kraken.cpp third_party/ooz/lzna.cpp
+    third_party/ooz/bitknit.cpp third_party/ooz/oozlib.cpp
+    PROPERTIES COMPILE_OPTIONS "-fno-strict-aliasing;${DQ3_OOZ_NOVEC};-w")
+set(DQ3_CORE_SOURCES
+    dq3_pak.cpp
+    dq3_pak.h
+    dq3_art.cpp
+    dq3_art.h
+    dq3_font.cpp
+    dq3_font.h
+    dq3_reader.cpp
+    dq3_reader.h
+    dq3_sprites.cpp
+    dq3_sprites.h
+    dq3_sprite_pins.inc
+    dq3_battle.cpp
+    dq3_battle.h
+    dq3_battle_art.cpp
+    dq3_battle_art.h
+    dq3_battle_pins.inc
+    dq3_element_art.cpp
+    dq3_element_art.h
+    dq3_element_pins.inc
+    dq3_battle_view.cpp
+    dq3_battle_view.h
+    dq3_cooked.h
+    dq3_tables.cpp
+    dq3_tables.h
+    dq3_map.cpp
+    dq3_map.h
+    dq3_map_pins.inc
+    dq3_map_swap.h
+    dq3_info.cpp
+    dq3_info.h
+    dq3_info_pins.inc
+    dq3_info_view.cpp
+    dq3_info_view.h
+    dq3_system.cpp
+    dq3_system.h
+    dq3_system_pins.inc
+    dq3_heal.h
+    dq3_keys.h
+    dq3_layout.h
+    dq3_page_layout.h
+    third_party/stb_truetype.h
+    "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+    ${DQ3_OOZ_SOURCES})
+dsmod_add_module(dsmod-dq3 EXCLUDE_FROM_ALL
+    TITLE 01003E601E324000
+    SOURCES 01003E601E324000.cpp ${DQ3_CORE_SOURCES}
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
+    INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+if(BUILD_TESTING AND NOT ANDROID)
+    # Synthetic checks always; DQ3_PAK (environment) = your own merged Nicola-Switch.pak adds the
+    # real-archive checks (every pinned member, textures, font atlas, composed art).
+    # DQ3_TEST_API: the test-only entry points (ReadBags, GameTextMetrics, ...), left out of the module.
+    dsmod_add_test(dsmod-dq3 KEEP_ASSERTS
+        SOURCES 01003E601E324000_test.cpp ${DQ3_CORE_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder"
+        COMPILE_DEFINITIONS DQ3_TEST_API=1)
+endif()
+
+# Pokémon Brilliant Diamond/Shining Pearl 1.3.0 + Luminescent Platinum 2.2F: live party/battle reader
+# (lp_live), battle-menu drive and art/text/data decoded from the player's romfs through the
+# Unity asset reader (lp_unity, from lp.cmake).
+include("${CMAKE_CURRENT_LIST_DIR}/lp.cmake")
+set(LP_MODULE_SOURCES
+    0100000011D90000.cpp
+    lp_live.cpp
+    lp_live.h
+    lp_pk8.h
+    lp_assets.cpp
+    lp_assets.h
+    lp_dex.h
+    lp_dex_text.h
+    lp_poketch.cpp
+    lp_poketch.h
+    lp_raster.h
+    lp_strings.h
+    lp_strings_data.h
+    lp_switch.h
+    ${LP_UNITY_SOURCES})
+dsmod_add_module(dsmod-lp EXCLUDE_FROM_ALL
+    TITLE 0100000011D90000
+    SOURCES ${LP_MODULE_SOURCES}
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
+        eden_dsmod_get_write_extensions
+    INCLUDE_DIRECTORIES ${LP_UNITY_INCLUDE_DIRECTORIES})
+# The importer and module ABI bind a package to one title. Keep the implementation shared,
+# but build a separate Pearl library with its own address profile and title identity.
+dsmod_add_module(dsmod-lp-pearl EXCLUDE_FROM_ALL
+    TITLE 010018E011D92000
+    SOURCES ${LP_MODULE_SOURCES}
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
+        eden_dsmod_get_write_extensions
+    INCLUDE_DIRECTORIES ${LP_UNITY_INCLUDE_DIRECTORIES}
+    COMPILE_DEFINITIONS LP_PEARL=1)
+option(LP_DEBUG_KEYS "Pokémon companions: also publish the values only the harness and console read" OFF)
+foreach(lp_target IN ITEMS dsmod-lp dsmod-lp-pearl)
+    if(LP_DEBUG_KEYS)
+        target_compile_definitions(${lp_target} PRIVATE LP_DEBUG_KEYS=1)
+    endif()
+    # lp_unity's dev-tool entry points (sprite/texture/font/object listings, raw texture decode,
+    # cache control, ...) serve lp-unity-tool and the tests only: the shipped library drops all
+    # code nothing references.
+    if(NOT MSVC)
+        target_compile_options(${lp_target} PRIVATE -ffunction-sections -fdata-sections)
+        target_link_options(${lp_target} PRIVATE "-Wl,--gc-sections")
+    endif()
+endforeach()
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-lp-poketch-display KEEP_ASSERTS
+        SOURCES lp_poketch_display_test.cpp lp_poketch_display.h lp_poketch.cpp lp_raster.h
+            ${LP_UNITY_SOURCES}
+        INCLUDE_DIRECTORIES ${LP_UNITY_INCLUDE_DIRECTORIES})
+    dsmod_add_test(dsmod-lp-reader KEEP_ASSERTS
+        SOURCES 0100000011D90000_test.cpp lp_dex.h lp_live.cpp lp_live.h lp_pk8.h lp_strings.h lp_strings_data.h lp_switch.h)
+    dsmod_add_test(dsmod-lp-pearl-reader KEEP_ASSERTS
+        SOURCES 0100000011D90000_test.cpp lp_dex.h lp_live.cpp lp_live.h lp_pk8.h lp_strings.h lp_strings_data.h lp_switch.h
+        COMPILE_DEFINITIONS LP_PEARL=1)
+    # The whole module through its C ABI with an empty host (no game memory, no romfs).
+    dsmod_add_test(dsmod-lp-module KEEP_ASSERTS
+        SOURCES lp_module_test.cpp ${LP_MODULE_SOURCES}
+        INCLUDE_DIRECTORIES ${LP_UNITY_INCLUDE_DIRECTORIES})
+    dsmod_add_test(dsmod-lp-pearl-module KEEP_ASSERTS
+        SOURCES lp_module_test.cpp ${LP_MODULE_SOURCES}
+        INCLUDE_DIRECTORIES ${LP_UNITY_INCLUDE_DIRECTORIES}
+        COMPILE_DEFINITIONS LP_PEARL=1)
+endif()
+
+# Chained Echoes: Unity asset reader (no module target yet).
+include("${CMAKE_CURRENT_LIST_DIR}/chained_echoes.cmake")

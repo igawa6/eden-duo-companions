@@ -1,0 +1,170 @@
+key	it	ja	notes
+start_starting	Avvio di Luminescent Platinum…	Luminescent Platinumを起動中…	LP has no Italian or Japanese mod; kept for completeness.
+start_starting_bd	Avvio di Diamante Lucente…	ブリリアントダイヤモンドを起動中…	Official titles: it Pokémon Diamante Lucente, ja ポケットモンスター ブリリアントダイヤモンド.
+start_starting_sp	Avvio di Perla Splendente…	シャイニングパールを起動中…	Native dp_options DP_options_840 confirms Splendente / シャイニング; official titles Pokémon Perla Splendente / ポケットモンスター シャイニングパール.
+map_sinnoh	Sinnoh	シンオウ地方
+map_route_pokemon	Pokémon locali	道路のポケモン
+map_route	Percorso	道路
+map_town	Paese	町	it: the legend's City is the game label Città (dp_options), so Town is Paese.
+map_special	Speciale	特別
+map_not_visited	Non visitato	未訪問
+map_not_available	La Mappa città non è ancora disponibile.	タウンマップはまだ使えません。
+poketch_apps	App	アプリ
+poketch_theme	Tema	テーマ
+poketch_not_available	Il PokéKron non è ancora disponibile.	ポケッチはまだ使えません。	it: Pokétch is PokéKron (dlp_adventure_note).
+bag_in_bag	Nella Borsa: {n}	バッグに{n}個
+bag_open_in_bag	Apri nella Borsa	バッグで開く
+pocket_extra	Altri strumenti	その他のどうぐ
+bag_repel_active	Repellente attivo: ancora {n} passi.	むしよけ効果中: あと{n}歩
+bag_battery	Batteria: {n}%	バッテリー: {n}%
+dex_tab_entry	Scheda	説明
+tab_weak	Debol.	弱点
+stats	Statistiche	能力
+moves	Mosse	わざ
+weak_to	Debole a	弱点
+resists	Resiste a	耐性
+nothing	Nessuno	なし
+abilities	Abilità	とくせい
+dex_not_available	Il Pokédex non è ancora disponibile.	図鑑はまだ使えません。
+dex_no_data	Dati del Pokédex non disponibili.	図鑑のデータを読み込めません。
+dex_empty	Nessun Pokémon registrato.	まだポケモンが登録されていません。
+stat_total	Totale	合計
+hidden_ability	{ability} (nascosta)	{ability}（隠れ特性）
+route_subtitle	Pokémon catturabili · incontri e livelli	ここで捕まえられるポケモン · 出現方法とレベル
+route_reading	Lettura dati degli incontri…	出現データを読み込み中…
+route_none	Nessun Pokémon selvatico qui	野生のポケモンはいません
+route_none_hint	Quest’area non ha una tabella di incontri standard	このエリアには通常の出現データがありません
+route_grass	Erba alta	くさむら
+route_grass_day	Erba alta · giorno	くさむら · 昼
+route_grass_night	Erba alta · notte	くさむら · 夜
+route_swarm	Solo in massa	大量発生のみ
+party_not_included	Abilità e strumenti non inclusi	とくせいと持ち物は含みません
+party_no_types	Dati sui tipi non disponibili	タイプのデータがありません
+no_held_item	Nessuno strumento	持ち物なし
+healthy	In salute	元気
+fainted	Esausto	ひんし
+field	Campo	フィールド
+terrain	Campo	フィールド
+weather	Meteo	天気
+effects	Effetti	効果
+none_effects	Nessuno	なし
+weather_none	Nessuno	なし
+terrain_none	Nessuno	なし
+weather_heavy_rain	Diluvio	大雨
+weather_extreme_sun	Sole estremo	大日照り
+weather_strong_winds	Forti venti	乱気流
+effect_active	Attivo	発動中
+turn	Turno {n}	{n}ターン目
+turns_left_one	{n} turno rimasto	あと{n}ターン
+turns_left_other	{n} turni rimasti	あと{n}ターン
+status_move	Mossa di stato	変化わざ
+status_short	Stato	変化
+stab	STAB	一致	ja: タイプ一致 (same-type attack bonus), shortened as on the move chip.
+description	Descrizione	説明
+your_party	La tua squadra	手持ち
+enemy_party	Squadra avversaria	相手の手持ち
+speed_tie	Velocità pari	素早さが同じ
+speed_you_first	Probabilmente attacchi prima tu	たぶん先に動ける
+speed_foe_first	Probabilmente l’avversario attacca prima	たぶん相手が先に動く
+bagnote_title	La Borsa è aperta sullo schermo principale	バッグはメイン画面で開いています
+bagnote_hint	Scegli lì uno strumento, o premi B per chiuderla.	そこで道具を選ぶか、Bで閉じてください。
+switch_suggestions	Cambi consigliati	交代のおすすめ
+switch_none	Nessun altro Pokémon può lottare.	ほかに戦えるポケモンがいません。
+switch_best	Ideale	最適
+switch_vs	contro {foe}	{foe}に対して
+switch_immune	Immune a {type}	{type}が効かない
+switch_resists	Resiste a {type}	{type}に耐性
+switch_super	{move} superefficace	{move}がばつぐん
+switch_faster	Più veloce	素早い
+switch_weak	Debole a {type}	{type}が弱点
+switch_low_hp	PS bassi	HPが少ない
+switch_even	Scontro alla pari	五分五分
+toast_fly_hint	Tocca una città sulla mappa, poi Vola.	マップで町をタッチして、そらをとぶ。
+toast_cant_open	Ora non si può aprire.	今は開けません。
+toast_opening_bag	Apertura della Borsa sullo schermo principale…	メイン画面でバッグを開いています…
+toast_using	Uso di {item}…	{item}を使っています…
+toast_used_on	{item} usato su {who}.	{who}に{item}を使った。
+toast_wait	Attendi…	お待ちください…
+popup_give_hp	A quale Pokémon dare PS?	どのポケモンにHPを分けますか？
+settings_classic_theme	Tema Platino classico	クラシック・プラチナテーマ
+nav_map	Mappa	マップ
+nav_poketch	PokéKron	ポケッチ
+fly_here	Vola qui	ここへ飛ぶ
+map_you	Tu	あなた
+bag_no_items	Nessuno strumento	どうぐがありません
+party_held_item	Strumento	持ち物
+tab_move	Mossa	わざ
+toast_repel_used	{item} usato. I Pokémon selvatici staranno lontani.	{item}を使った。野生のポケモンが出にくくなった。
+toast_cant_now	Ora non si può usare.	今は使えません。
+toast_revived	Tutti i Pokémon esausti sono stati rianimati!	ひんしのポケモンが全員回復した！
+toast_recovered	{who} recupera {n} PS.	{who}のHPが{n}回復した。
+toast_used	{item} usato.	{item}を使った。
+popup_pp_up	Di quale mossa aumentare i PP?	どのわざのPPを増やしますか？
+popup_pp_restore	A quale mossa ripristinare i PP?	どのわざのPPを回復しますか？
+popup_use_on	Su quale Pokémon usare {item}?	{item}をどのポケモンに使いますか？
+status_confused	Confuso	こんらん
+route_level_range	Lv. {min}–{max}	Lv. {min}～{max}
+evasion	Elusione	回避率
+bag_bp	Punti Lotta: {n} PL	バトルポイント: {n}BP
+dex_sort_number	N.	番号
+dex_sort_az	A–Z	50音
+dex_sort_caught	Catturati	捕まえた
+dex_state_caught	Catturato	捕まえた
+route_radar_required	Serve {item}	{item}が必要
+dex_tab_evo	Evoluzione	進化
+dex_area	Zona	分布
+dex_genderless	Asessuato	性別不明
+dex_forms	Forme	すがた
+dex_training	Allenamento	育成
+dex_breeding	Allevamento	タマゴ
+dex_ev_yield	PB ottenuti	もらえる努力値
+dex_catch_rate	Tasso di cattura	捕まえやすさ
+dex_friendship	Amicizia iniziale	初期なつき度
+dex_base_exp	Esp. base	基礎経験値
+dex_growth	Crescita	経験値タイプ
+dex_egg_groups	Gruppi Uova	タマゴグループ
+dex_hatch	Schiusa	孵化
+dex_steps	{n} passi	{n}歩
+growth_medium_fast	Medio-veloce	100万タイプ	ja: the growth groups are named by their total Exp. (100万, 60万, 164万, 105万, 80万, 125万).
+growth_erratic	Irregolare	60万タイプ
+growth_fluctuating	Fluttuante	164万タイプ
+growth_medium_slow	Medio-lenta	105万タイプ
+growth_fast	Veloce	80万タイプ
+growth_slow	Lenta	125万タイプ
+egg_monster	Mostro	怪獣
+egg_water1	Acqua 1	水中1
+egg_bug	Coleottero	虫
+egg_flying	Volante	飛行
+egg_field	Campo	陸上
+egg_fairy	Magico	妖精
+egg_grass	Erba	植物
+egg_human_like	Umanoide	人型
+egg_water3	Acqua 3	水中3
+egg_mineral	Minerale	鉱物
+egg_amorphous	Amorfo	不定形
+egg_water2	Acqua 2	水中2
+egg_dragon	Drago	ドラゴン
+egg_undiscovered	Sconosciuto	タマゴ未発見
+evo_none	Non si evolve	進化しない
+evo_level_up	Aumento di livello	レベルアップ
+evo_friendship	Amicizia alta	なつき度が高い
+evo_day	Giorno	昼
+evo_night	Notte	夜
+evo_dusk	Crepuscolo	夕方
+evo_hold	Tenendo {item}	{item}を持たせる
+evo_knows	Conosce {move}	{move}を覚えている
+evo_knows_type	Conosce una mossa di tipo {type}	{type}タイプのわざを覚えている
+evo_with	{who} in squadra	手持ちに{who}
+evo_type_in_party	Pokémon di tipo {type} in squadra	手持ちに{type}タイプのポケモン
+evo_random	Casuale	ランダム
+evo_shedinja	Posto libero in squadra e {item} nella Borsa	手持ちに空きとバッグに{item}
+evo_beauty	Bellezza alta	美しさが高い
+evo_trade	Scambio	通信交換
+nav_dex		図鑑	A game label (SS_pokedex_134) elsewhere; ja reads ポケモンずかん, too wide for the tab: the X menu's 図鑑 (ss_xmenu).
+toast_cant_use_here	Non si può usare qui.	ここでは使えません。	
+ppup_toast	PP di {move} aumentati.	{move}のPPが増えた。	
+party_empty	Non hai ancora Pokémon in squadra.	まだ手持ちのポケモンがいません。	Valid empty party before receiving the starter.
+party_unavailable	Lettura della squadra…	手持ちのポケモンを読み込み中…	Party count not readable yet.
+cmd_continue	Continua	つづける	Companion UI polish.
+party_egg	Uovo	タマゴ	Companion UI polish.
+party_egg_info	Un Uovo. Si schiuderà quando sarà pronto.	タマゴです。ときがくると かえります。	Companion UI polish.

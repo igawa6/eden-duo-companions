@@ -1,0 +1,3 @@
+# Game font for the companion pages: the module rasterises Plantin MT Pro Semibold/Bold from the
+# player's own Nicola-Switch.pak (four styles, see native/modules/dq3_font.h). Nothing is shipped.
+dq3-font 1

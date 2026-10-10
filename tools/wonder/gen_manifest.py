@@ -173,7 +173,7 @@ DISC = '#B3FFFFFF'                        # translucent white marker discs
 
 
 def rail():
-    """Progress rail (start -> goal of the current area), markers and the player riding it."""
+    """Progress rail (entrance -> goal or linked exit), markers and the player riding it."""
     x0, y = RAIL_X, RAIL_Y
     rv = {'need_bind': 'wonder.rail.valid'}
     white = '#FFFFFFFF'
@@ -190,15 +190,20 @@ def rail():
         {'type': 'button', 'rect': [x0 - 20, y - 18, RAIL_W + 40, 36], 'bg': TRACK, 'color': '#00000000',
          'frame': 0, 'pill': True, **rv},
         label(x0, y + 58, 'START', 5, white, align='center', **rv),
-        label(x0, y + 50, 'GOAL', 5, white, align='center', x_bind='wonder.rail.goal_px', **rv),
+        label(x0, y + 50, 'GOAL', 5, white, align='center', x_bind='wonder.rail.goal_px',
+              need_bind='wonder.rail.goal_present'),
+        label(x0, y + 50, 'NEXT AREA', 4, white, align='center', x_bind='wonder.rail.goal_px',
+              need_bind='wonder.rail.next_area'),
         {**disc(MARK, DISC, '#00000000', 0, **rv), 'x_bind': 'wonder.rail.goal_px'},
+        label(x0, y - 18, '>', 7, white, align='center', x_bind='wonder.rail.goal_px',
+              need_bind='wonder.rail.next_area'),
         {'type': 'image', 'rect': [x0 - 30, y - 30, 60, 60], 'x_bind': 'wonder.rail.goal_px',
          'src': 'module:wonder:lyt/LMotherSeed/IconMotherSeedBlank^s', 'color': '#FF6F6B74',
          'need_bind': 'ui.goal.miss'},
         {'type': 'image', 'rect': [x0 - 30, y - 30, 60, 60], 'x_bind': 'wonder.rail.goal_px', 'src': 'module:wonder:pict/SeedBlue',
          'color': '#FFFFFFFF', 'need_bind': 'ui.goal.got'},
         {'type': 'image', 'rect': [x0 + 10, y - 44, 30, 34], 'x_bind': 'wonder.rail.goal_px', 'src': 'module:wonder:pict/GoalFlag',
-         'color': '#FFFFFFFF', **rv},
+         'color': '#FFFFFFFF', 'need_bind': 'wonder.rail.goal_present'},
         # Secret exit: hidden until discovered (its seed earned); then a branch lane rises off the
         # rail before the goal and runs to the secret pole's seed.
         {'type': 'rect', 'rect': [x0 - 18, y - 118, 36, 100], 'bg': TRACK, 'color': '#00000000',
@@ -318,9 +323,9 @@ def gallery_page():
 
 
 derived = [
-    {'name': 'ui.goal.got', 'all_nonzero': ['wonder.rail.valid', 'wonder.rail.goal_got']},
+    {'name': 'ui.goal.got', 'all_nonzero': ['wonder.rail.valid', 'wonder.rail.goal_present', 'wonder.rail.goal_got']},
     {'name': 'ui.goal.miss0', 'cmp': 'eq', 'a': 'wonder.rail.goal_got', 'b': 0},
-    {'name': 'ui.goal.miss', 'all_nonzero': ['wonder.rail.valid', 'ui.goal.miss0']},
+    {'name': 'ui.goal.miss', 'all_nonzero': ['wonder.rail.valid', 'wonder.rail.goal_present', 'ui.goal.miss0']},
     {'name': 'ui.secret.got', 'all_nonzero': ['wonder.rail.secret', 'wonder.rail.secret_got']},
     {'name': 'ui.small', 'cmp': 'eq', 'a': 'wonder.power_up', 'b': 0},
     {'name': 'ui.map.no_course', 'cmp': 'eq', 'a': 'wonder.map.has_course', 'b': 0},

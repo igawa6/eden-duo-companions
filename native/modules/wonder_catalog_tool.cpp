@@ -5,12 +5,14 @@
 //   wonder-catalog-tool <romfs> dump [lang]             every catalog row (TSV, see below)
 //   wonder-catalog-tool <romfs> route <resource>         one area's route
 //   wonder-catalog-tool <romfs> routes [lang]            routes of every catalog area
+//   wonder-catalog-tool <romfs> course-routes <id>       linked per-area rails of one course
 //   wonder-catalog-tool <romfs> byml <path>              a BYML/.bgyml/.byml.zs file as JSON
 //   wonder-catalog-tool <romfs> msbt <sarc.zs> <member>  an MSBT inside a (zstd) SARC
 // Rows: C course name | W world key course | R course area resource | A course label resource
 //       N world name title internal. It exercises exactly the code the module ships.
 
 #include <cmath>
+#include <charconv>
 #include <cstdio>
 #include <fstream>
 #include <iterator>
@@ -101,9 +103,9 @@ static void PrintRoute(const std::string& res, const Route& r) {
             std::snprintf(b, sizeof(b), "-");
         return std::string(b);
     };
-    std::printf("ROUTE\t%s\tstart=%s\tnormal=%s\tsecret=%s\tlength=%.2f\tmarkers=%zu\n",
+    std::printf("ROUTE\t%s\tstart=%s\tnormal=%s\tsecret=%s\tlength=%.2f\tmarkers=%zu\tgoal_id=%d\n",
                 res.c_str(), pt(r.start).c_str(), pt(r.normal_goal).c_str(),
-                pt(r.secret_goal).c_str(), r.length, r.markers.size());
+                pt(r.secret_goal).c_str(), r.length, r.markers.size(), r.normal_goal_id);
     for (const auto& m : r.markers)
         std::printf("M\t%s\t%d\t%d\t%.2f\t%.2f\t%.3f\n", res.c_str(), m.kind, m.id, m.x, m.y,
                     m.progress);
@@ -119,13 +121,24 @@ static std::string Clean(std::string s) {
 int main(int argc, char** argv) {
     if (argc < 3) {
         std::fprintf(stderr,
-                     "usage: %s <romfs> dump [lang] | route <res> | routes [lang] | byml <path> | "
+                     "usage: %s <romfs> dump [lang] | route <res> | routes [lang] | course-routes <id> | byml <path> | "
                      "msbt <sarc.zs> <member>\n",
                      argv[0]);
         return 2;
     }
     const std::string root = argv[1], op = argv[2];
     const WonderAssets::RomfsReader read = [&](const std::string& p) { return ReadFile(root + p); };
+    if (op == "course-routes" && argc == 4) {
+        int course = -1;
+        const std::string arg = argv[3];
+        const auto result = std::from_chars(arg.data(), arg.data() + arg.size(), course);
+        if (result.ec != std::errc{} || result.ptr != arg.data() + arg.size())
+            return 2;
+        const auto routes = BuildCourseRoutes(read, course);
+        for (const auto& [res, route] : routes)
+            PrintRoute(res, route);
+        return routes.empty() ? 1 : 0;
+    }
     if (op == "dump" || op == "routes") {
         const std::string lang = argc >= 4 ? argv[3] : "USen";
         const auto cat = BuildCatalog(read, lang, /*details=*/true);

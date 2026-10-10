@@ -34,7 +34,7 @@
 //            info_tr / info_pk / info_sel toggle it; isel_off clears it)
 //   room     info.kind/.id/.key(t)/.name(t)/.quote(t)/.quality/.pools(t)/.eid(t)/.eid_on/.blind
 //            .eid_paras/.eid_chars
-//            ped.count ped.i.id/.key(t)/.price/.blind/.opt/.name(t)/.near/.sel
+//            ped.count ped.i.id/.kind(0 collectible, 1 trinket)/.key(t)/.price/.blind/.opt/.name(t)/.near/.sel
 //            room.near room.near_dist room.sel room.auto                          (ui.page 2)
 //            (info.* = the ROOM selection: a tapped pedestal, else the nearest one by EID's
 //            rule, else the first one; kind -1 with no pedestal)

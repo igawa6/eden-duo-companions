@@ -177,8 +177,10 @@ A value that cannot pass these steps is not published.
    `page_binds`. Keep compound logic in `derived` entries, because gates are single names.
 3. **Native module** (optional). Add one when chains are not enough; see
    [MODULE_GUIDE.md](MODULE_GUIDE.md).
-4. **`min_runtime`.** Set it to the highest runtime version whose features you use (currently
-   18, Eden Duo 1.1.0). For example, `chart`, `expr` or `settings` need 17. The table of which
+4. **`min_runtime`.** Set it to the highest runtime version whose features you use. Eden Duo
+   1.2.0 has runtime 19 (module ABI 1); Eden Duo 1.1.0 has runtime 18.
+   Format-2 helpers and helper metadata above 1 MiB require 19. For example, `chart`, `expr`
+   or `settings` need 17. The table of which
    runtime added which key is in
    [PACKAGE_FORMAT.md §6](PACKAGE_FORMAT.md#6-runtime-history-and-min_runtime). An older runtime
    ignores keys it does not know and shows its update page only when `min_runtime` is higher

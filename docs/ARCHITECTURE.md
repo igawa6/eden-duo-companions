@@ -398,7 +398,7 @@ Ownership rules that keep this race-free:
 ## 4. Runtime version and `min_runtime`
 
 `DualScreenRuntimeVersion` in `src/core/mods/mod_runtime.h` is the contract version that this
-build implements. It is currently **18**, the version Eden Duo 1.1.0 ships.
+build implements. It is currently **19**, the version Eden Duo 1.2.0 ships.
 
 | Version | Added |
 |---|---|
@@ -410,6 +410,8 @@ build implements. It is currently **18**, the version Eden Duo 1.1.0 ships.
 | 15 | Named asset sources (`AssetSources`): `base:` and `aoc:`, module `read_romfs` through them, `EDEN_DSMOD_CAP_SOURCE_*` and `get_i64("__source:<prefix>")`, unknown prefixes refused; `module_tick_hidden` and the `TICK_WHEN_HIDDEN` / `NO_TICK_WHEN_HIDDEN` module flags; `outline_copy`; button `border` / `text_inset`, pips `gap`, bar `frame`, map `label_offset` and the `map.style` door, collectible, blink and pin keys; more `{i}` fields; vertical swipe; the bound default view of a non-map `pan_zoom` widget; `persist_flags`. Runtimes 14 and 15 first shipped together (Eden Duo 1.0.2), which also brought text `outline` / `outline_px` / `rise` and `"L+R"` button chords |
 | 16 | Hold and drag on one widget; a module action returning false is Refused; `@sel:` / `@drag*` published before the taps; `read_romfs` from `create()` (romfs source `retry_ms`); module image keys up to 4096 characters; image `rotate` / `rotate_bind` / `pivot` / `scale_bind`, `tint` / `tint_bind` / `tint_colors`, `fill` stretch / tile / slice + `slice`, bar `fill_dir` + `image`; `@clock.*`, `@game.seconds` and derived `countdown` |
 | 17 | Widget type `chart`; derived `expr`; `auto_w`, value `group` / `group_sep`; `{i}` in every repeat string field; paged font atlases (`font_page_h`); controller focus mode (`nav`, page `nav_order`, `@nav.*`, HID pad gate); the `user:` source (`EDEN_DSMOD_CAP_SOURCE_USER`); manifest `settings`, the built-in `@settings` page and the `@back` page target |
+| 18 | Font refresh epochs (`__font_epoch`); fitted and centered labels; image scrollbars; marker size caps; parser and rendering fixes. Shipped in Eden Duo 1.1.0 |
+| 19 | Format-2 guest helpers (separate RX code, main/code relocations, mailbox epochs) with Ready/page/auxiliary lifecycle; exact bounded metadata reads (4 MiB) and transactional reload validation; plans stay 1 MiB, native libraries 64 MiB. Shipped in Eden Duo 1.2.0 |
 
 - **How the requirement is read.** A package declares the oldest runtime it needs as
   `min_runtime`, in `manifest.json` and/or `package.json`. `PackageMinRuntime(manifest, package)`
@@ -477,7 +479,7 @@ per-widget draw times.
 | Save (read-only) | `eden_dsmod_get_save_extensions` → `configure(read_save_file)`, limited to the title's own save directory | Optional. No shipped module uses it yet |
 | Write batch | `eden_dsmod_get_write_extensions` → `configure(write_batch)`: up to 16 ops with expect-checks, applied as one unit with guest threads suspended | Optional |
 | Data (runtime 12) | `eden_dsmod_get_data_extensions` → `load_data`: bytes behind `module:` sources and `map.areas_src` | Optional; packages that rely on it set `min_runtime` 12 |
-| Load plan | `load_plan` in the manifest: load-time code patches and a guest mailbox | Validated JSON, 1 MiB cap |
+| Load plan | `load_plan` in the manifest: load-time code patches and a guest mailbox | Plan JSON stays ≤1 MiB; runtime 19 metadata ≤4 MiB (runtime 18 discovery ≤1 MiB); format-2 helpers require `min_runtime` ≥19 |
 | Guest service | `dsm:u` | IPC version 1 |
 
 Every extension has its own export symbol, version and hash (`dsmod_module_extensions.h`). None

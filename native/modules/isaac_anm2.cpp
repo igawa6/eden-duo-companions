@@ -197,8 +197,11 @@ struct BinaryCursor {
         float v[10];for(auto& n:v){n=Get<float>();if(!std::isfinite(n)||std::abs(n)>100000)throw std::runtime_error("animation float");}
         Frame f;f.x=static_cast<int>(v[0]);f.y=static_cast<int>(v[1]);
         f.w=static_cast<int>(v[2]);f.h=static_cast<int>(v[3]);
-        f.pivot_x=static_cast<int>(v[4]);f.pivot_y=static_cast<int>(v[5]);
-        f.scale_x=v[6]*100.0;f.scale_y=v[7]*100.0;f.pos_x=v[8];f.pos_y=v[9];
+        // Compiled frames store position before scale and pivot after it.
+        // XML lists the same fields by name; confusing these pairs drops the AB+ map inset.
+        f.pos_x=v[4];f.pos_y=v[5];
+        f.scale_x=v[6]*100.0;f.scale_y=v[7]*100.0;
+        f.pivot_x=static_cast<int>(v[8]);f.pivot_y=static_cast<int>(v[9]);
         f.delay=Get<std::int32_t>();f.visible=Get<std::uint8_t>()!=0;
         if(f.delay<0||f.delay>100000)throw std::runtime_error("animation delay");
         Skip(7*4+4+1);return f;

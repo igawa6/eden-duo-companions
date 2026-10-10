@@ -20,7 +20,8 @@ companion for a new game. **New here? Start with [CONTRIBUTE.md](CONTRIBUTE.md)*
 overview and the order in which to read the other documents.
 
 Native build documentation updated for source separation: 2026-10-04 (GMT+7).
-The compatible host is Eden Duo 1.1.0, runtime version 18, module ABI 1.
+The compatible host is Eden Duo 1.2.0, runtime version 19, module ABI 1. Packages using
+runtime-19 features need Eden Duo 1.2.0 or later; Eden Duo 1.1.0 has runtime 18. See [runtime history](PACKAGE_FORMAT.md#6-runtime-history-and-min_runtime).
 
 ## Repositories
 

@@ -145,15 +145,16 @@ struct RouteMarker {
     float progress{}; // Route::Progress(x, y), precomputed
 };
 
-/// One area's progress rail (SPEC 5.3), from /BancMapUnit/<resource>.bcett.byml.zs Actors[].
+/// One area's progress rail, from its Actors[] and the course's verified transition links.
 struct Route {
-    RoutePoint start; // first PlayerLocator
+    RoutePoint start; // first PlayerLocator, or a linked entrance when the area has no spawn
     // Goal poles (ObjectGoalPole / ObjectGoalPoleOnlyPole; the Fort decoration and the
     // knock-over ObjectGoalPoleDeadByBodyAttack are ignored). The lowest Dynamic.GoalID is the
     // main goal (a course's only pole may carry any id, e.g. Course005_Main's is 1), the next one
     // the secret exit. GoalID is the bit index into the save's goal/goal-seed bits.
-    RoutePoint normal_goal;
+    RoutePoint normal_goal; // actual pole, or a linked exit when normal_goal_id == -1
     std::optional<RoutePoint> secret_goal;
+    // -1 identifies a NextGoTo transition, not a goal pole or a goal seed.
     int normal_goal_id{0};
     int secret_goal_id{-1}; // -1 when the area has no secret pole
     float normal_progress{1.0f}; // Progress() of each pole, precomputed
@@ -169,5 +170,11 @@ struct Route {
 
 /// nullopt when the area has no start or goal, or the start and the main goal coincide.
 std::optional<Route> BuildRoute(const WonderAssets::RomfsReader& read, std::string_view resource);
+
+/// Builds per-area rails using the course's RefStages and directed NextGoTo actor links.
+/// Existing spawn-to-pole rails retain their geometry. Missing spawns use linked entrances;
+/// missing poles use exits with a verified path to a real pole (normal_goal_id == -1).
+/// Unreachable areas, ambiguous actor hashes and goal-free cycles never invent endpoints.
+std::map<std::string, Route> BuildCourseRoutes(const WonderAssets::RomfsReader& read, int course);
 
 } // namespace WonderCatalog

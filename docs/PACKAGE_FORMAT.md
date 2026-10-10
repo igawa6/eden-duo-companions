@@ -123,7 +123,7 @@ cell means runtime 13 or earlier. A package that uses a key from runtime N shoul
 | `nav` | bool / object | on with `min_runtime` ≥ 17, else off | 17 | Controller navigation of the second screen (§3.17) |
 | `enforce`, `enforce_gate` | array / object | — | | Periodic actions (§3.9) |
 | `module_tick_hidden` | bool | unset | 15 | Tick the native module while the second screen is hidden (`true`) or not (`false`). Unset: the module's own flag decides ([MODULE_GUIDE.md §1.2](MODULE_GUIDE.md#12-lifecycle-and-threads)). A non-bool value throws |
-| `load_plan`, `load_plan_module` | string | — | | Load-time patches (`DiscoverModLoadPlan`); the manifest must be ≤1 MiB for this path |
+| `load_plan`, `load_plan_module` | string | — | | Load-time patches (`DiscoverModLoadPlan`); runtime 19 accepts metadata ≤4 MiB, while the plan itself stays ≤1 MiB. Runtime 18 limits discovery metadata to 1 MiB |
 | `module_outputs` | array | — | | **Ignored by the runtime.** It only documents a module's output names |
 | `_about`, `_note`, `_*` | any | — | | Ignored (comments) |
 
@@ -867,7 +867,8 @@ package metadata and every `file:` reference, but not the manifest's semantics.
 
 ## 6. Runtime history and `min_runtime`
 
-`DualScreenRuntimeVersion` is currently **18** (Eden Duo 1.1.0). What each version added to the
+`DualScreenRuntimeVersion` is currently **19** (Eden Duo 1.2.0), with **module ABI 1 unchanged**.
+Eden Duo 1.1.0 provides runtime 18. What each version adds to the
 package format:
 
 | Runtime | Added for packages |
@@ -881,6 +882,7 @@ package format:
 | 16 | Hold and drag on one widget; refused module actions; `@sel:` / `@drag*` published before taps; image `rotate` / `rotate_bind` / `pivot` / `scale_bind`, `tint` / `tint_bind` / `tint_colors`, `fill` / `slice`; bar `fill_dir` / `image`; `@clock.*`, `@game.seconds`, derived `countdown` |
 | 17 | `chart` widget; derived `expr`; `auto_w`, value `group` / `group_sep`; `{i}` in every repeat field; `font_page_h`; `nav`, page `nav_order`, `@nav.*`; `user:` source; `settings`, the `@settings` page and the `@back` target |
 | 18 | Font refresh epochs; fitted/centered labels; image scrollbars; marker size caps; parser and rendering fixes |
+| 19 | Format-2 guest helpers with separate RX code, main/code relocations and mailbox epochs; Ready/page/auxiliary helper lifecycle; exact bounded metadata reads and transactional reload validation. Metadata 4 MiB, plans 1 MiB, native libraries 64 MiB; ABI 1 unchanged |
 
 Runtimes 14 and 15 were first released together, so the outline, rise and chord keys, whose exact
 version the source does not record, are listed under 15.
@@ -897,6 +899,26 @@ version the source does not record, are listed under 15.
   key (an outline, a tint) may be left to degrade on older runtimes.
 - Runtimes before 11 ignore `min_runtime` itself.
 
+
+### Runtime 19 helper and metadata compatibility
+
+Declare `min_runtime` at least **19** in the manifest and package metadata when using a
+**format-2 load plan**. The effective minimum is the larger of the two declarations. Runtime
+19 rejects an underdeclared format-2 plan before applying helper writes; runtime 18 gates a
+correctly declared package and shows its update page. Format-1 plans retain their older runtime
+compatibility. The 19 boundary does not add a controller binding router or a viewport API.
+
+Runtime 18 reuses its 1 MiB plan bound when discovering helper metadata, even though
+its UI can read larger manifests and its native loader accepts manifests up to 4 MiB. A helper
+package with a manifest above 1 MiB must therefore declare **19**, including Luminescent
+Platinum BD/SP (approximately 3.435 MB per manifest), so an older host cannot silently omit its
+helper. Runtime 19 consistently bounds `package.json`, `manifest.json` and companion
+JSON metadata at 4 MiB and checks exact reads. Actual load-plan JSON remains 1 MiB; native
+libraries remain 64 MiB. These are per-file limits, not a total module heap quota.
+
+Reload validates a temporary replacement and package minimum before shutting down the active
+module. Invalid replacements preserve the current manifest. This does not replace game-build,
+platform, optional capability or device validation.
 
 ### Runtime 18 layout details
 

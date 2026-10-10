@@ -723,29 +723,54 @@ float Route::Progress(float x, float y) const {
     return std::isfinite(p) ? std::clamp(p, 0.0f, 1.0f) : 0.0f;
 }
 
-std::optional<Route> BuildRoute(const WonderAssets::RomfsReader& read,
-                                std::string_view resource) {
-    if (resource.empty() || resource.size() > 64 ||
-        resource.find_first_of("/.\\") != std::string_view::npos)
-        return std::nullopt;
-    const auto unit = LoadByml(read, "/BancMapUnit/" + std::string(resource) + ".bcett.byml.zs");
-    const auto* actors = unit ? unit->Get("Actors") : nullptr;
-    if (!actors)
-        return std::nullopt;
+namespace {
 
+bool ValidResource(std::string_view resource) {
+    return !resource.empty() && resource.size() <= 64 &&
+           resource.find_first_of("/.\\") == std::string_view::npos;
+}
+
+std::optional<RoutePoint> ActorPoint(const BymlNode& actor) {
+    const auto* t = actor.Get("Translate");
+    if (!t || t->type != BymlNode::Type::Array || t->Size() < 2)
+        return std::nullopt;
+    const auto x = t->At(0)->Number(), y = t->At(1)->Number();
+    if (!x || !y || !std::isfinite(*x) || !std::isfinite(*y) ||
+        std::abs(*x) > std::numeric_limits<float>::max() ||
+        std::abs(*y) > std::numeric_limits<float>::max())
+        return std::nullopt;
+    const RoutePoint p{static_cast<float>(*x), static_cast<float>(*y)};
+    return std::isfinite(p.x) && std::isfinite(p.y) ? std::optional{p} : std::nullopt;
+}
+
+std::optional<u64> ActorHash(const BymlNode* n) {
+    if (!n)
+        return std::nullopt;
+    if (n->type == BymlNode::Type::UInt || n->type == BymlNode::Type::UInt64)
+        return n->num.u;
+    if (const auto i = n->Integer(); i && *i >= 0)
+        return static_cast<u64>(*i);
+    return std::nullopt;
+}
+
+std::optional<Route> BuildAreaRoute(const BymlNode& unit,
+                                  std::optional<RoutePoint> entrance = std::nullopt,
+                                  std::optional<RoutePoint> exit = std::nullopt) {
+    const auto* actors = unit.Get("Actors");
+    if (!actors || actors->type != BymlNode::Type::Array)
+        return std::nullopt;
     Route r;
     std::optional<RoutePoint> start;
     std::vector<std::pair<int, RoutePoint>> goals; // (GoalID, pole) in file order, one per id
     for (std::size_t i = 0; i < actors->Size(); ++i) {
         const auto* a = actors->At(i);
         const auto* g = a ? a->Get("Gyaml") : nullptr;
-        const auto* t = a ? a->Get("Translate") : nullptr;
-        if (!g || !g->String() || !t || t->type != BymlNode::Type::Array || t->Size() < 2)
+        if (!g || !g->String())
             continue;
-        const auto x = t->At(0)->Number(), y = t->At(1)->Number();
-        if (!x || !y || !std::isfinite(*x) || !std::isfinite(*y))
+        const auto point = ActorPoint(*a);
+        if (!point)
             continue;
-        const RoutePoint p{static_cast<float>(*x), static_cast<float>(*y)};
+        const RoutePoint p = *point;
         const std::string_view gyaml = *g->String();
         const auto* dyn = a->Get("Dynamic");
         auto dyn_int = [&](std::string_view k) -> std::optional<std::int64_t> {
@@ -780,6 +805,10 @@ std::optional<Route> BuildRoute(const WonderAssets::RomfsReader& read,
             save && *save >= 0 && *save <= 127 ? static_cast<std::int8_t>(*save) : -1;
         r.markers.push_back({kind, id, p.x, p.y});
     }
+    if (!start)
+        start = entrance;
+    if (goals.empty() && exit)
+        goals.emplace_back(-1, *exit);
     if (!start || goals.empty())
         return std::nullopt;
     r.start = *start;
@@ -850,6 +879,146 @@ std::optional<Route> BuildRoute(const WonderAssets::RomfsReader& read,
     if (r.secret_goal)
         r.secret_progress = r.Progress(r.secret_goal->x, r.secret_goal->y);
     return r;
+}
+
+} // namespace
+
+std::optional<Route> BuildRoute(const WonderAssets::RomfsReader& read, std::string_view resource) {
+    if (!ValidResource(resource))
+        return std::nullopt;
+    const auto unit = LoadByml(read, "/BancMapUnit/" + std::string(resource) + ".bcett.byml.zs");
+    return unit ? BuildAreaRoute(*unit) : std::nullopt;
+}
+
+std::map<std::string, Route> BuildCourseRoutes(const WonderAssets::RomfsReader& read, int course) {
+    std::map<std::string, Route> routes;
+    if (course < 0 || course > 999)
+        return routes;
+    char name[32];
+    std::snprintf(name, sizeof(name), "Course%03d_Course", course);
+    const auto course_unit = LoadByml(read, "/BancMapUnit/" + std::string(name) + ".bcett.byml.zs");
+    const auto* refs = course_unit ? course_unit->Get("RefStages") : nullptr;
+    if (!refs || refs->type != BymlNode::Type::Array || refs->Size() > 128)
+        return routes;
+    struct Area {
+        std::string resource;
+        BymlNode unit;
+        std::optional<RoutePoint> spawn;
+        bool goal{};
+    };
+    struct Endpoint {
+        std::size_t area;
+        RoutePoint point;
+    };
+    struct Link {
+        Endpoint src, dst;
+    };
+    std::vector<Area> areas;
+    std::map<u64, Endpoint> endpoints;
+    std::set<u64> duplicate_hashes;
+    std::set<std::string> resources;
+    for (const auto& ref : refs->array) {
+        if (!ref.String())
+            continue;
+        const std::string resource = BaseName(*ref.String());
+        if (!ValidResource(resource) || !resources.insert(resource).second)
+            continue;
+        auto unit = LoadByml(read, "/BancMapUnit/" + resource + ".bcett.byml.zs");
+        const auto* actors = unit ? unit->Get("Actors") : nullptr;
+        if (!actors || actors->type != BymlNode::Type::Array)
+            continue;
+        Area area{resource, {}, {}, false};
+        for (const auto& actor : actors->array) {
+            const auto* g = actor.Get("Gyaml");
+            const auto p = ActorPoint(actor);
+            if (!g || !g->String() || !p)
+                continue;
+            if (*g->String() == "PlayerLocator" && !area.spawn)
+                area.spawn = p;
+            if (*g->String() == "ObjectGoalPole" || *g->String() == "ObjectGoalPoleOnlyPole") {
+                const auto* dyn = actor.Get("Dynamic");
+                const auto* id_node = dyn ? dyn->Get("GoalID") : nullptr;
+                const auto id = id_node ? id_node->Integer().value_or(0) : 0;
+                area.goal |= id >= 0 && id < 8;
+            }
+            if (const auto hash = ActorHash(actor.Get("Hash")); hash &&
+                !endpoints.emplace(*hash, Endpoint{areas.size(), *p}).second)
+                duplicate_hashes.insert(*hash);
+        }
+        area.unit = std::move(*unit);
+        areas.push_back(std::move(area));
+    }
+    for (const auto hash : duplicate_hashes)
+        endpoints.erase(hash);
+    std::vector<Link> links;
+    const auto* raw_links = course_unit->Get("Links");
+    if (raw_links && raw_links->type == BymlNode::Type::Array && raw_links->Size() <= 4096) {
+        for (const auto& link : raw_links->array) {
+            const auto* kind = link.Get("Name");
+            const auto src = ActorHash(link.Get("Src")), dst = ActorHash(link.Get("Dst"));
+            if (!kind || kind->String() != "NextGoTo" || !src || !dst ||
+                !endpoints.contains(*src) || !endpoints.contains(*dst))
+                continue;
+            const auto a = endpoints.at(*src), b = endpoints.at(*dst);
+            if (a.area != b.area)
+                links.push_back({a, b});
+        }
+    }
+    // Directed distances rule out dead ends and goal-free loops. RefStages is an index table,
+    // not a traversal order: bonus areas commonly return to an earlier entry in that table.
+    constexpr int Unreachable = 1000;
+    std::vector<int> from_spawn(areas.size(), Unreachable), to_goal(areas.size(), Unreachable);
+    for (std::size_t i = 0; i < areas.size(); ++i) {
+        if (areas[i].spawn)
+            from_spawn[i] = 0;
+        if (areas[i].goal)
+            to_goal[i] = 0;
+    }
+    for (std::size_t pass = 0; pass < areas.size(); ++pass)
+        for (const auto& link : links) {
+            from_spawn[link.dst.area] = std::min(from_spawn[link.dst.area], from_spawn[link.src.area] + 1);
+            to_goal[link.src.area] = std::min(to_goal[link.src.area], to_goal[link.dst.area] + 1);
+        }
+    for (std::size_t i = 0; i < areas.size(); ++i) {
+        // Preserve complete legacy rails exactly, even if unrelated course links are broken.
+        if (auto r = BuildAreaRoute(areas[i].unit)) {
+            routes.emplace(areas[i].resource, std::move(*r));
+            continue;
+        }
+        if (from_spawn[i] == Unreachable || to_goal[i] == Unreachable)
+            continue;
+        auto entrance = areas[i].spawn;
+        if (!entrance) {
+            int best = Unreachable;
+            for (const auto& link : links)
+                if (link.dst.area == i && from_spawn[link.src.area] < best) {
+                    best = from_spawn[link.src.area];
+                    entrance = link.dst.point;
+                }
+        }
+        if (!entrance)
+            continue;
+        std::optional<RoutePoint> exit;
+        int best = Unreachable;
+        float furthest = -1.0f;
+        for (const auto& link : links) {
+            if (link.src.area != i || to_goal[link.dst.area] >= to_goal[i])
+                continue;
+            const float distance = std::hypot(link.src.point.x - entrance->x,
+                                              link.src.point.y - entrance->y);
+            // Prefer the shortest area chain to a pole; same-depth exits use the farthest
+            // portal from the entrance so an optional early shortcut does not end the rail.
+            if (to_goal[link.dst.area] < best ||
+                (to_goal[link.dst.area] == best && distance > furthest)) {
+                best = to_goal[link.dst.area];
+                furthest = distance;
+                exit = link.src.point;
+            }
+        }
+        if (auto r = BuildAreaRoute(areas[i].unit, entrance, exit))
+            routes.emplace(areas[i].resource, std::move(*r));
+    }
+    return routes;
 }
 
 } // namespace WonderCatalog

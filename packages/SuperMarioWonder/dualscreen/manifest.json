@@ -73,6 +73,7 @@
    "name": "ui.goal.got",
    "all_nonzero": [
     "wonder.rail.valid",
+    "wonder.rail.goal_present",
     "wonder.rail.goal_got"
    ]
   },
@@ -86,6 +87,7 @@
    "name": "ui.goal.miss",
    "all_nonzero": [
     "wonder.rail.valid",
+    "wonder.rail.goal_present",
     "ui.goal.miss0"
    ]
   },
@@ -791,7 +793,24 @@
      "color": "#FFFFFFFF",
      "align": "center",
      "x_bind": "wonder.rail.goal_px",
-     "need_bind": "wonder.rail.valid",
+     "need_bind": "wonder.rail.goal_present",
+     "outline": "#FF232723",
+     "outline_px": 2
+    },
+    {
+     "type": "label",
+     "rect": [
+      120,
+      520,
+      0,
+      0
+     ],
+     "text": "NEXT AREA",
+     "text_scale": 4,
+     "color": "#FFFFFFFF",
+     "align": "center",
+     "x_bind": "wonder.rail.goal_px",
+     "need_bind": "wonder.rail.next_area",
      "outline": "#FF232723",
      "outline_px": 2
     },
@@ -809,6 +828,23 @@
      "pill": true,
      "need_bind": "wonder.rail.valid",
      "x_bind": "wonder.rail.goal_px"
+    },
+    {
+     "type": "label",
+     "rect": [
+      120,
+      452,
+      0,
+      0
+     ],
+     "text": ">",
+     "text_scale": 7,
+     "color": "#FFFFFFFF",
+     "align": "center",
+     "x_bind": "wonder.rail.goal_px",
+     "need_bind": "wonder.rail.next_area",
+     "outline": "#FF232723",
+     "outline_px": 3
     },
     {
      "type": "image",
@@ -847,7 +883,7 @@
      "x_bind": "wonder.rail.goal_px",
      "src": "module:wonder:pict/GoalFlag",
      "color": "#FFFFFFFF",
-     "need_bind": "wonder.rail.valid"
+     "need_bind": "wonder.rail.goal_present"
     },
     {
      "type": "rect",

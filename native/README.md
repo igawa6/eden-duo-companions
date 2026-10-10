@@ -6,8 +6,9 @@ Link's Awakening is declarative and has no native module.
 
 ## Compatible host and dependencies
 
-Use the igawa6 [Eden Duo](https://github.com/igawa6/eden-duo) checkout at `v1.1.0`
-(commit `60c1ef31b600511927f5fb10f0cd34918e99a7a2`), or a tested SDK-compatible successor.
+Use the igawa6 [Eden Duo](https://github.com/igawa6/eden-duo) checkout at `v1.2.0`
+(commit `8c28fd5d745d1ba5756a85dee00f5587ce0b35ad`, runtime 19), or a tested SDK-compatible
+successor.
 The generic C ABI and header-only SDK stay in that repository. Select its absolute path with
 `-DEDEN_SOURCE_ROOT=...`; the build fails clearly if the SDK is missing. A C ABI version alone
 does not guarantee that every optional extension or helper is available in an older checkout.
@@ -30,13 +31,17 @@ cmake -S native/modules -B build-native-linux -G Ninja \
   -DEDEN_SOURCE_ROOT=/absolute/path/to/eden-duo \
   -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
 cmake --build build-native-linux --parallel 4 --target \
-  dsmod-p5r dsmod-dread dsmod-mk8d dsmod-wonder dsmod-acnh dsmod-fe3h dsmod-isaac
+  dsmod-p5r dsmod-dread dsmod-mk8d dsmod-wonder dsmod-acnh dsmod-fe3h dsmod-isaac \
+  dsmod-lp dsmod-lp-pearl dsmod-ctr dsmod-dq3 dsmod-ce
 ```
 
 To run the existing synthetic tests, configure another build with `-DBUILD_TESTING=ON`, build
 its default target, then run `ctest --test-dir <build-directory> --output-on-failure`.
-Tests requiring your own game dump skip without it. Test executables, fixtures and development
-tools stay in the source/build tree and are not passed to the release package script.
+Tests requiring your own game dump skip without it, except `dsmod-isaac-reader`: it fails unless
+its fixtures are configured (`ISAAC_ABP_IMAGE`, `ISAAC_REP_IMAGE`, `ISAAC_ROMFS`, `ISAAC_FILE`, from
+the configure environment or `-D`), or `-DISAAC_FIXTURES_OPTIONAL=ON` reports it as skipped.
+Test executables, fixtures and development tools stay in the source/build tree and are not
+passed to the release package script.
 
 ## Android arm64
 
@@ -47,7 +52,8 @@ cmake -S native/modules -B build-native-android -G Ninja \
   -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-24 -DANDROID_STL=c++_static \
   -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DEDEN_ACNH_BUILD_DIAGNOSTICS=OFF
 cmake --build build-native-android --parallel 4 --target \
-  dsmod-p5r dsmod-dread dsmod-mk8d dsmod-wonder dsmod-acnh dsmod-fe3h dsmod-isaac
+  dsmod-p5r dsmod-dread dsmod-mk8d dsmod-wonder dsmod-acnh dsmod-fe3h dsmod-isaac \
+  dsmod-lp dsmod-lp-pearl dsmod-ctr dsmod-dq3 dsmod-ce
 ```
 
 Keep this build outside Gradle's `.cxx` directories. Use `c++_static` so the installed module does
@@ -62,6 +68,11 @@ not require a separately distributed `libc++_shared.so`. ACNH diagnostics defaul
 | `dsmod-acnh` | `01006F8002326000.so` |
 | `dsmod-fe3h` | `010055D009F78000.so` |
 | `dsmod-isaac` | `010021C000B6A000.so` |
+| `dsmod-lp` | `0100000011D90000.so` |
+| `dsmod-lp-pearl` | `010018E011D92000.so` |
+| `dsmod-ctr` | `0100F9F00C696000.so` |
+| `dsmod-dq3` | `01003E601E324000.so` |
+| `dsmod-ce` | `0100C510166F0000.so` |
 
 Strip each platform's library with the matching toolchain's `llvm-strip --strip-all` and pass
 only those libraries to [`tools/build_release.sh`](../tools/build_release.sh), as documented in

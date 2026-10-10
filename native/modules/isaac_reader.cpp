@@ -413,6 +413,8 @@ struct Pedestal {
     s32 price;
     s32 opt;
     bool blind;
+    bool trinket;
+    bool golden;
     detail::NearCand near;
 };
 
@@ -1910,17 +1912,21 @@ void Reader::Impl::SampleInner(Out& o, bool& torn) {
             s32 tvs[3];
             if (!ents[i] || !Read(ents[i] + 0x38, tvs, sizeof(tvs)))
                 continue;
-            if (tvs[0] != 5 || tvs[1] != 100 || tvs[2] == 0) // collectible, not taken (C4)
+            if (tvs[0] != 5 || (tvs[1] != 100 && tvs[1] != 350) || tvs[2] <= 0)
                 continue;
             u8 pk[0x14];
             if (!Read(ents[i] + 0x55C, pk, sizeof(pk)))
                 continue;
             Pedestal pd{};
             pd.entity = ents[i];
-            pd.id = tvs[2];
+            pd.trinket = tvs[1] == 350;
+            pd.golden = pd.trinket && (tvs[2] & 0x8000);
+            pd.id = pd.trinket ? (tvs[2] & 0x7FFF) : tvs[2];
+            if (pd.id == 0)
+                continue;
             std::memcpy(&pd.opt, pk, 4);
             std::memcpy(&pd.price, pk + 8, 4);
-            pd.blind = dim != 2 && (blind_curse || pk[6] != 0);
+            pd.blind = !pd.trinket && dim != 2 && (blind_curse || pk[6] != 0);
             pd.near.flags = u64{1} << 46; // unreadable -> never the nearest
             if (near_on && Block(ents[i] + EBlock, EBlockEnd - EBlock, eb)) {
                 pd.near.flags = At<u64>(eb, EFlags - EBlock);
@@ -1969,13 +1975,18 @@ void Reader::Impl::SampleInner(Out& o, bool& torn) {
             const std::string k = "ped." + std::to_string(i) + ".";
             const Pedestal& pd = peds[i];
             o.I(k + "id", pd.blind ? 0 : pd.id);
-            o.T(k + "key", pd.blind ? std::string{} : Key("coll", pd.id));
+            o.I(k + "kind", pd.trinket ? 1 : 0);
+            o.T(k + "key", pd.blind ? std::string{}
+                                  : Key(pd.trinket ? "trink" : "coll", pd.id) +
+                                        (pd.golden ? "/g" : ""));
             o.I(k + "price", pd.price);
             o.I(k + "blind", pd.blind ? 1 : 0);
             o.I(k + "opt", pd.opt);
             o.I(k + "near", static_cast<int>(i) == near ? 1 : 0);
             o.I(k + "sel", static_cast<int>(i) == shown ? 1 : 0);
-            o.T(k + "name", pd.blind ? std::string{} : Name(isaac_text::Kind::Collectible, pd.id));
+            o.T(k + "name", pd.blind ? std::string{}
+                                   : Name(pd.trinket ? isaac_text::Kind::Trinket
+                                                     : isaac_text::Kind::Collectible, pd.id));
         }
         o.I("room.near", near);
         o.I("room.near_dist", near >= 0 ? static_cast<s64>(std::lround(near_d)) : -1);
@@ -1987,7 +1998,8 @@ void Reader::Impl::SampleInner(Out& o, bool& torn) {
             if (pd.blind) // hidden item: the game's "?" art, no text (EID: question mark)
                 describe("info.", 0, 0, "module:isaac:coll/q", {});
             else
-                describe("info.", 0, pd.id, Key("coll", pd.id), {});
+                describe("info.", pd.trinket ? 1 : 0, pd.id,
+                         Key(pd.trinket ? "trink" : "coll", pd.id) + (pd.golden ? "/g" : ""), {});
         } else {
             o.I("info.blind", 0);
             describe("info.", -1, 0, {}, {});

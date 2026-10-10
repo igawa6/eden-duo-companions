@@ -13,6 +13,7 @@
 #include "wonder_catalog.h"
 #include "wonder_font.h"
 #include "wonder_glyphs.h"
+#include "wonder_seed_state.h"
 
 #include <algorithm>
 #include <array>
@@ -27,6 +28,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <set>
 #include <string_view>
 #include <thread>
 
@@ -351,14 +353,15 @@ public:
             if (auto c = WonderCatalog::BuildCatalog(romfs))
                 built = std::make_shared<const WonderCatalog::Catalog>(std::move(*c));
             auto built_routes = std::make_shared<std::map<std::string, WonderCatalog::Route>>();
-            if (built)
+            if (built) {
+                std::set<int> courses;
                 for (const auto& [key, resource] : built->area_resource) {
                     if (stopping)
                         break;
-                    if (!built_routes->contains(resource))
-                        if (auto route = WonderCatalog::BuildRoute(romfs, resource))
-                            built_routes->emplace(resource, std::move(*route));
+                    if (courses.insert(key.first).second)
+                        built_routes->merge(WonderCatalog::BuildCourseRoutes(romfs, key.first));
                 }
+            }
             std::scoped_lock lock{catalog_mutex};
             catalog_state = built ? 1 : 2;
             catalog = std::move(built);
@@ -483,6 +486,7 @@ private:
     mutable std::mutex catalog_mutex;
     std::shared_ptr<const WonderCatalog::Catalog> catalog;
     std::shared_ptr<const std::map<std::string, WonderCatalog::Route>> routes;
+    std::optional<WonderState::RunSeeds> run_seeds; ///< live flags, sampled once per tick
     std::optional<SavedCourse> saved; ///< this tick's saved state for the current course
     std::string reached_key;            ///< course + area of the current visit
     float reached_x{-1e9f};             ///< furthest player x in that area this visit
@@ -536,7 +540,7 @@ private:
     // The current area's stage name ("Course852_Main") from the game's own area list.
     std::optional<std::string> AreaName() const;
     std::optional<int> FlowerCoinMask() const;
-    std::optional<int> RunSeeds() const;
+    std::optional<WonderState::RunSeeds> RunSeeds() const;
     bool WorldMap(int& selected_course_key);
     std::optional<VAddr> CourseProgress() const;
 
@@ -974,7 +978,7 @@ std::optional<int> Reader::FlowerCoinMask() const {
     return (*c)[0] | (*c)[1] << 1 | (*c)[2] << 2;
 }
 
-std::optional<int> Reader::RunSeeds() const {
+std::optional<WonderState::RunSeeds> Reader::RunSeeds() const {
     const auto o = Deref(CourseProgress(), 0x48);
     if (!o)
         return std::nullopt;
@@ -982,13 +986,7 @@ std::optional<int> Reader::RunSeeds() const {
     if (!dsmod_sdk::ReadGuest<dsmod_sdk::MissingIsMapped::Reject>(host, *o + 0x5b8, bytes.data(),
                                                                    bytes.size()))
         return std::nullopt;
-    int n = 0;
-    for (const u8 b : bytes) {
-        if (b > 1)
-            return std::nullopt;
-        n += b;
-    }
-    return n;
+    return WonderState::DecodeRunSeeds(bytes);
 }
 
 bool Reader::WorldMap(int& selected_course_key) {
@@ -1229,6 +1227,7 @@ void Reader::SampleValues() {
             line += " \u2022 SUB-AREA " + std::to_string(std::atoi(part.c_str() + 3));
     }
     Text("wonder.course_line", line);
+    run_seeds = RunSeeds();
     if (area) {
         if (const auto all = Routes()) {
             const std::string key = std::to_string(*course) + "/" + *area;
@@ -1241,13 +1240,12 @@ void Reader::SampleValues() {
                 PublishRail(r->second, pos->first, pos->second, flowers ? *flowers : 0, w, *course);
         }
     }
-    const auto seeds = RunSeeds();
-    I64("wonder.run_seeds", seeds ? *seeds : -1);
+    I64("wonder.run_seeds", run_seeds ? run_seeds->count : -1);
     Status(OverlayPresent() ? StatusTransition : StatusCourse);
 }
 
 // Whether a rail marker counts as obtained. 10-flower coins: the game's own per-course bytes
-// (including coins from earlier runs, as the game shows them). Wonder seed: the save's bit.
+// (including coins from earlier runs, as the game shows them). Wonder seed: its saved bit or its live collection flag.
 // Checkpoints trigger when Mario reaches them and stay for the rest of the visit, retries
 // included: the furthest x reached in this area of this visit (reset on the world map / new area).
 bool Reader::MarkerObtained(const WonderCatalog::RouteMarker& m, int flowers) const {
@@ -1256,7 +1254,7 @@ bool Reader::MarkerObtained(const WonderCatalog::RouteMarker& m, int flowers) co
     case K::BigFlowerCoin:
         return m.id >= 0 && m.id < 3 && (flowers >> m.id & 1);
     case K::WonderSeed:
-        return saved && (saved->wonder_seed & 1);
+        return WonderState::SeedObtained(saved ? saved->wonder_seed : 0, run_seeds, m.id);
     case K::Checkpoint:
         return reached_x >= m.x;
     default:
@@ -1289,6 +1287,8 @@ void Reader::PublishRail(const WonderCatalog::Route& route, float x, float y, in
     const float progress = route.Progress(x, y);
     const int player_px = rail_px(progress);
     I64("wonder.rail.valid", 1);
+    I64("wonder.rail.goal_present", route.normal_goal_id >= 0 ? 1 : 0);
+    I64("wonder.rail.next_area", route.normal_goal_id < 0 ? 1 : 0);
     I64("wonder.rail.px", player_px);
     I64("wonder.rail.pct", static_cast<s64>(std::floor(progress * 100.0f)));
     // Goal seeds and the Wonder-effect seed, from the save (persist across reruns). Each pole's

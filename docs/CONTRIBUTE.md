@@ -6,7 +6,7 @@ You do not change or rebuild the emulator to do this.
 
 This page is the starting point. It explains what a companion is, what the runtime gives you,
 which tools help, and in which order to read the other documents. It is current for **Eden Duo
-1.1.0, runtime 18**.
+1.2.0, runtime 19** (module ABI 1).
 
 ## What a companion is
 
@@ -65,6 +65,13 @@ examples:
 - **Text fitting** (18): `fit_text` reduces a single-line label to `text_min_scale` before ellipsis; `text_center_h` centers its lines vertically.
 - **Game-art scrollbars and map markers** (18): `bar_src` / `bar_track_src` replace scrollbar colours with images; `size_max` caps dynamic marker size in canvas pixels.
 - **Font refresh** (18): a native module can publish `__font_epoch` when its glyph set changes, including a language discovered after initialization. The host retries decoding and refreshes the atlas.
+
+**Runtime 19** (Eden Duo 1.2.0). Format-2 guest helpers add separate RX code, main/code relocations and
+mailbox epochs, with Ready/page/auxiliary lifecycle handling. Metadata discovery and reload
+use exact 4 MiB bounds and preserve the active manifest when a replacement is invalid. Keep
+`min_runtime` at least 19 for format-2 helpers, and for a helper package whose manifest exceeds
+runtime 18's discovery limit of 1 MiB, such as Luminescent Platinum BD/SP. Plans
+remain capped at 1 MiB and native libraries at 64 MiB. ABI 1 is unchanged.
 
 The full key reference, with the runtime that added each key, is in
 [PACKAGE_FORMAT.md](PACKAGE_FORMAT.md). Declare the highest runtime you use as `min_runtime`

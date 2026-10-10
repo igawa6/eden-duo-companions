@@ -4,12 +4,16 @@
 |------|--------------|
 | `build_dualscreen_package.py` | Packs a `packages/<Game>/` directory plus optional native modules into a reproducible `<TITLEID>.dsmod.zip`. It validates the package first: `file:` references, module sha256 pins, build IDs and JSON. |
 | `compact_zip.py` | Rewrites `dualscreen/manifest.json` inside an archive without whitespace. The Android installer caps that file at 4 MiB. |
-| `build_release.sh` | Builds all eight release archives with their release names, `<TITLEID>-<Name>DS-<version>.dsmod.zip`. `GAMES` picks a subset. |
+| `build_release.sh` | Builds all thirteen release archives with their release names, `<TITLEID>-<Name>DS-<version>.dsmod.zip`. `GAMES` picks a subset. |
 | `p5r/` | Persona 5 Royal page generators: manifest, art recipe table and package directory. See [`p5r/README.md`](p5r/README.md). |
 | `dread/` | Metroid Dread page generator, the asset-free conversion and the Python reference for the module's map generator. See [`dread/README.md`](dread/README.md). |
 | `links-awakening/` | Notes on the Link's Awakening package, which is maintained by hand. |
 | `mk8d/` | Mario Kart 8 Deluxe page generator: manifest and per-build data files. See [`mk8d/README.md`](mk8d/README.md). |
 | `wonder/` | Super Mario Bros. Wonder page generator: manifest and per-build data files. See [`wonder/README.md`](wonder/README.md). |
+| `luminescent-platinum/` | Pokémon Brilliant Diamond / Shining Pearl (Luminescent Platinum) page and guest load-plan generators, string tables and manifest tests. |
+| `ctr/` | Crash Team Racing Nitro-Fueled page generator. |
+| `dq3/` | Dragon Quest III HD-2D Remake page and guest load-plan generators, with the load-plan test. |
+| `chained-echoes/` | Chained Echoes page generator. |
 
 ## Requirements
 
@@ -79,3 +83,12 @@ and `ISAAC_LINUX_SO` / `ISAAC_ANDROID_SO` to `tools/build_release.sh`.
 Use `GAMES="acnh fe3h isaac"` to build only the three new packages.
 The supplied manifests and data tables are the 1.0.0 package sources.
 Isaac's English EID data is credited in the main README.
+
+## Pokémon, Crash Team Racing, Dragon Quest III and Chained Echoes
+
+Their package sources are in `packages/LuminescentPlatinum`, `packages/LuminescentPlatinumPearl`,
+`packages/CrashTeamRacingNitroFueled`, `packages/DragonQuest3HD2D` and `packages/ChainedEchoes`.
+Build `dsmod-lp`, `dsmod-lp-pearl`, `dsmod-ctr`, `dsmod-dq3` and `dsmod-ce`, strip each platform's
+library, and pass `LP_*_SO`, `LP_PEARL_*_SO`, `CTR_*_SO`, `DQ3_*_SO` and `CE_*_SO` to
+`tools/build_release.sh` (`GAMES="lp lp-pearl ctr dq3 ce"`). The two Pokémon packages pin their
+module hashes in the manifest and need Eden Duo 1.2.0 (runtime 19); the other three need runtime 18.
