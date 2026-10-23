@@ -37,6 +37,7 @@ if len(sys.argv) > 1:                # output directory override (sync_to_compan
 # (build id, served by the module, mkc.build_ver, version text, data-file _source)
 BUILDS = [
     ("2C336A9BCF79C304", 1, 400, "4.0.0", "4.0.0 (AArch64) base + update"),
+    ("158C0C7399AABD7B", 1, 401, "4.0.1", "4.0.1 (AArch64) base + update"),
     ("B5C39B5B7C62A88E", 0, 100, "1.0.0 (no update)", "1.0.0 base, no update"),
     ("6A85262F21B90364", 1, 303, "3.0.3", "3.0.3 (AArch32)"),
 ]

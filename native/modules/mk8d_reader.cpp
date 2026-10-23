@@ -87,6 +87,9 @@ namespace {
 namespace v400 {
 #include "mk8d_pins.inc"
 } // namespace v400
+namespace v401 {
+#include "mk8d_pins401.inc"
+} // namespace v401
 namespace v303 {
 #include "mk8d_pins303.inc"
 } // namespace v303
@@ -213,6 +216,131 @@ constexpr Profile Build{
     .pane_translate = 0x30,
 };
 } // namespace p400
+
+// ---- 4.0.1 -----------------------------------------------------------------------------------
+// The 4.0.0 profile at the 4.0.1 addresses: each 4.0.1 pin is its 4.0.0 instruction sequence with
+// only PC-relative targets moved (mk8d_pins401.inc), so every layout offset below is the 4.0.0 one
+// and only the global decoders' code addresses change.
+namespace p401 {
+using namespace v401;
+constexpr std::array<const Pin*, 17> ContextPins{
+    &PinRaceInfoHolder, &PinRaceInfo,        &PinActiveScene, &PinSceneKind,    &PinPhase,
+    &PinEngineClass,    &PinMirror,          &PinMapYScale,   &PinMapYScaleMul, &PinRaceCount,
+    &PinRaceRule,       &PinLapsTotal,       &PinTimer,       &PinTimerMin,     &PinTimerSec,
+    &PinTimerMs,        &PinCourseTokenIndex};
+constexpr std::array<const Pin*, 18> RacerPins{
+    &PinCheckerGoalCheck, &PinCheckerGoalSet, &PinCheckerGoalDone, &PinCheckers,
+    &PinCheckerRank,      &PinCheckerCoins,   &PinCheckerLap,      &PinDriverEntry,
+    &PinDriverVariant,    &PinKartDirector,   &PinKartUnit,        &PinKartUnitPlayer,
+    &PinKartUnitPos,      &PinKartUnitMove,   &PinSystemEngine,    &PinPlayerManager,
+    &PinLocalPlayerObj,   &PinRacerPlayerObj};
+constexpr std::array<const Pin*, 11> ItemPins{
+    &PinItemTripleFrame, &PinItemOwnerCreate, &PinItemOwnerCtor, &PinItemDirector,
+    &PinItemSlotItem,    &PinItemSlotState,   &PinItemSlotEmpty, &PinItemSlotCount,
+    &PinItemFrame,       &PinCoinKind,        &PinAnimalCourse};
+constexpr std::array<const Pin*, 17> TablePins{
+    &PinDriverParamDb, &PinDriverParamRecord, &PinEmblemFlag,      &PinEmblemCode,
+    &PinEmblemName,    &PinEmblemSuffix,      &PinCupMsg,          &PinUiRoot,
+    &PinUiResource,    &PinUiTypeCheck,       &PinDriverTableInit, &PinDriverName,
+    &PinDriverMsg,     &PinDriverSuffix,      &PinCoursePict,      &PinCupOfCourse,
+    &PinCourseTokens};
+constexpr std::array<const Pin*, 8> HornPins{&PinPlayerInput, &PinHornEvent,   &PinHornFill,
+                                             &PinHornBit,     &PinHornRequest, &PinHornLatch,
+                                             &PinHornPlay,    &PinSystemEngine};
+
+constexpr Profile Build{
+    .version = "4.0.1",
+    .build = {0x15, 0x8C, 0x0C, 0x73, 0x99, 0xAA, 0xBD, 0x7B, 0xF8, 0x37, 0x95, 0xC2, 0xEF, 0x34, 0x84, 0xC7},
+    .ptr = 8,
+    .ctx_pins = ContextPins,
+    .racer_pins = RacerPins,
+    .item_pins = ItemPins,
+    .table_pins = TablePins,
+    .horn_pins = HornPins,
+    .patch_windows = {},
+    .ctgp_plugin = false,
+    .root = {&PinRaceInfoHolder, 0x7e7404, 0x7e7408, Decode::AdrpLdrX},
+    .yscale = {&PinMapYScaleMul, 0x508c4c, 0x508c50, Decode::AdrpLdrS},
+    .ui = {&PinUiRoot, 0x8b3e90, 0x8b3e94, Decode::AdrpLdrX},
+    .tokens = {&PinCourseTokens, 0x1b554, 0x1b558, Decode::AdrpAdd},
+    .cups = {&PinCupOfCourse, 0x50d31c, 0x50d324, Decode::AdrpAdd},
+    .cup_msgs = {&PinCupMsg, 0x41fd84, 0x41fd88, Decode::AdrpAdd},
+    .param_db = {&PinDriverParamDb, 0x85b490, 0x85b494, Decode::AdrpLdrX},
+    .string_pool = {&PinEmblemCode, 0x85c854, 0x85c858, Decode::AdrpLdrX},
+    .frames = {&PinItemFrame, 0x423614, 0x423618, Decode::AdrpAdd},
+    .root_scene_holder = 0x20,
+    .scene_holder_scene = 0x08,
+    .scene_flags = 0x180,
+    .scene_kind = 0x184,
+    .root_engine = 0x28,
+    .engine_raceinfo_holder = 0x240,
+    .holder_raceinfo = 0x10,
+    .scene_object_engine = 0x190 + 8 * 4,
+    .oe_rd = 0x218,
+    .oe_kd = 0x238,
+    .oe_id = 0x240,
+    .rd_sequence = 0x50,
+    .rd_lap_manager = 0x58,
+    .rd_checker_count = 0x60,
+    .rd_checkers = 0x68,
+    .rd_timer = 0xe0,
+    .seq_phase = 0x38,
+    .lm_laps = 0x64,
+    .tm_time = 0x40,
+    .ck_flags = 0x3c,
+    .ck_rank = 0x40,
+    .ck_lap = 0x44,
+    .ck_coins = 0x50,
+    .kd_units = 0x50,
+    .kd_count = 0xc0,
+    .ku_vehicle = 0x48,
+    .ku_move = 0x50,
+    .vehicle_player = 0xa8,
+    .move_position = 0x08 + 0x24,
+    .engine_system = 0x190,
+    .se_player_manager = 0x800,
+    .pm_local_obj = 0x17c,
+    .pm_racer_obj = 0x1cc,
+    .id_owner_count = 0xe0,
+    .id_owners = 0xe8,
+    .io_slots = 0x60,
+    .owner_index = 0x40,
+    .slot_block = 0x40,
+    .slot_state = 0x41,
+    .slot_count = 0xa0,
+    .slot_item = 0xc8,
+    .slot_block_end = 0xcc,
+    .ui_object = 0x08,
+    .ui_resource3 = 0x18 + 8 * 3,
+    .r3_cup_table = 0x30,
+    .r3_driver_table = 0x298,
+    .r3_pict_table = 0x350,
+    .table_name_count = 0x78,
+    .table_names = 0x80,
+    .table_msg_count = 0x88,
+    .table_msgs = 0x90,
+    .driver_capacity = 0,
+    .pict_capacity = 0,
+    .db_root = 0xe8,
+    .db_present = 0x20,
+    .db_records = 0x30,
+    .db_count = 0xa2,
+    .db_code = 0x10,
+    .db_code_is_ptr = false,
+    .se_inputs = 0x7f0,
+    .inputs_count = 0x50,
+    .inputs_array = 0x58,
+    .input_entry_obj = 0x38,
+    .input_horn_request = 0x35d,
+    .map_icon_list = 0xc0,
+    .map_tv_flag = 0x449,
+    .icon_pid = 0xb4,
+    .icon_ku = 0,
+    .icon_part = 0x40,
+    .part_pane = 0x18,
+    .pane_translate = 0x30,
+};
+} // namespace p401
 
 // ---- 3.0.3 ----------------------------------------------------------------------------------
 namespace p303 {
@@ -353,7 +481,7 @@ constexpr Profile Build{
 };
 } // namespace p303
 
-constexpr std::array<const Profile*, 2> Profiles{&p400::Build, &p303::Build};
+constexpr std::array<const Profile*, 3> Profiles{&p400::Build, &p401::Build, &p303::Build};
 
 /// The reader copies several fields with one block read into a fixed buffer, relying on the
 /// field order of each profile. Checked here for every profile, so a new profile cannot overrun.
@@ -376,7 +504,7 @@ constexpr bool BlocksFit(const Profile& p) {
            // ReadLocalSlot: local controller table before the racer table
            p.pm_local_obj + 4 <= p.pm_racer_obj;
 }
-static_assert(BlocksFit(p400::Build) && BlocksFit(p303::Build));
+static_assert(BlocksFit(p400::Build) && BlocksFit(p401::Build) && BlocksFit(p303::Build));
 
 // ---- CTGP-DX 1.1.1 plugin on 3.0.3 ------------------------------------------------------------
 namespace ctgp {

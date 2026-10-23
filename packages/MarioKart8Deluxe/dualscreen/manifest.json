@@ -8,6 +8,7 @@
   "abi": 1,
   "build_ids": [
    "2C336A9BCF79C304",
+   "158C0C7399AABD7B",
    "6A85262F21B90364"
   ]
  },
@@ -5183,7 +5184,7 @@
      ],
      "text_scale": 5,
      "color": "#FF26282C",
-     "text": "4.0.0, 3.0.3",
+     "text": "4.0.0, 4.0.1, 3.0.3",
      "need_bind": "ui.badver"
     },
     {
@@ -7127,7 +7128,7 @@
      ],
      "text_scale": 5,
      "color": "#FFF2F5F8",
-     "text": "4.0.0, 3.0.3",
+     "text": "4.0.0, 4.0.1, 3.0.3",
      "need_bind": "ui.badver"
     },
     {
