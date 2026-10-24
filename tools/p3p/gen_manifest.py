@@ -46,6 +46,31 @@ def equip_widgets(outputs):
                        | {'color': COLORS['muted']})
     return widgets
 
+def stats_widgets(outputs):
+    """Active Persona stats (accessory part shown separately), next EXP, and the
+    protagonist's social stat ranks."""
+    widgets = member_buttons()
+    outputs += ['stat.ready', 'stat.header', 'stat.next', 'social.ready']
+    widgets.append(dict(label([40, 330, 1160, 36], bind='stat.header', scale=3), need_bind='stat.ready'))
+    for i, name in enumerate(('ST', 'MA', 'EN', 'AG', 'LU')):
+        p = f'stat.{i}'; outputs += [p + '.value', p + '.bonus']
+        y = 392 + i * 56
+        widgets += [dict(label([60, y, 80, 30], name), need_bind='stat.ready', color=COLORS['accent']),
+                    {'type': 'bar', 'rect': [150, y + 4, 700, 22], 'bind': p + '.value', 'max': 99,
+                     'color': '#FF78C9FF', 'bg': '#FF403349', 'need_bind': 'stat.ready'},
+                    {'type': 'value', 'rect': [880, y, 100, 30], 'bind': p + '.value', 'text_scale': 3,
+                     'color': COLORS['ink'], 'need_bind': 'stat.ready'},
+                    dict(label([990, y, 200, 30], bind=p + '.bonus'), need_bind='stat.ready', color=COLORS['accent'])]
+    widgets.append(dict(label([60, 680, 600, 30], bind='stat.next'), need_bind='stat.ready'))
+    for i, name in enumerate(('ACADEMICS', 'CHARM', 'COURAGE')):
+        p = f'social.{i}'; outputs += [p + '.rank', p + '.name']
+        y = 750 + i * 70
+        widgets += [dict(label([60, y, 300, 30], name), need_bind='social.ready', color=COLORS['accent']),
+                    dict(label([380, y, 420, 30], bind=p + '.name'), need_bind='social.ready'),
+                    {'type': 'pips', 'rect': [820, y, 360, 26], 'bind': p + '.rank', 'max': 6,
+                     'color': '#FFFF71AA', 'bg': '#FF403349', 'need_bind': 'social.ready'}]
+    return widgets
+
 def skills_widgets(outputs, scrolls):
     """Member buttons and the selected member's native Skill list."""
     widgets = member_buttons()
@@ -69,7 +94,7 @@ def main():
     # heavy lists are read only while their page shows.
     tabs = (('home', 'STATUS', 'Status'), ('personas', 'PERSONAS', 'Personas'),
             ('links', 'SOCIAL LINKS', 'Social Links'), ('skills', 'SKILLS', 'Skills'),
-            ('equip', 'EQUIP', 'Equip'))
+            ('equip', 'EQUIP', 'Equip'), ('stats', 'STATS', 'Stats'))
     actions = {f'ui.open.{n}': {'kind': 'module', 'action': 'ui_open', 'argument': n}
                for n in range(1, len(tabs) + 1)}
     actions.update({f'member.select.{i}': {'kind': 'module', 'action': 'member_select', 'argument': i}
@@ -80,8 +105,8 @@ def main():
     for page_id, title, _ in tabs:
         widgets = [label([40, 28, 900, 42], 'PERSONA 3 PORTABLE / ' + title, scale=4)]
         for i, (target, _, caption) in enumerate(tabs):
-            widgets.append({'type': 'button', 'rect': [40 + i * 235, 90, 225, 55], 'text': caption,
-                            'on_tap': f'ui.open.{i + 1}', 'text_scale': 3, 'color': COLORS['ink'],
+            widgets.append({'type': 'button', 'rect': [40 + i * 195, 90, 185, 55], 'text': caption,
+                            'on_tap': f'ui.open.{i + 1}', 'text_scale': 2, 'color': COLORS['ink'],
                             'bg': '#FF8C315B' if page_id == target else COLORS['panel']})
         widgets += [label([40, 165, 850, 30], bind='live.date', ready=True),
                     label([925, 165, 280, 30], bind='live.money', ready=True),
@@ -90,6 +115,10 @@ def main():
                     label([40, 1020, 1160, 24], bind='status', scale=2),
                     label([40, 1050, 1160, 20], 'Read-only preview | 2D field/camp support | Battle and dungeon exploration pending', scale=2),
                     dict(label([40, 700, 1160, 36], bind='module_error_message', scale=3), need_bind='module_error')]
+        if page_id == 'stats':
+            widgets += stats_widgets(outputs)
+            pages.append({'id': page_id, 'title': title, 'widgets': widgets})
+            continue
         if page_id == 'equip':
             widgets += equip_widgets(outputs)
             pages.append({'id': page_id, 'title': title, 'widgets': widgets})

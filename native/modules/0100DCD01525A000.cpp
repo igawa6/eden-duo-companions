@@ -30,8 +30,8 @@ struct Module {
     Reader reader;
     unsigned ticks{};
     bool names_ready{};
-    // Companion page (manifest ui_open: 1 status, 2 personas, 3 links, 4 skills, 5 equip) and
-    // the member selected on the skills/equip pages. Their lists are read only while open.
+    // Companion page (manifest ui_open: 1 status, 2 personas, 3 links, 4 skills, 5 equip,
+    // 6 stats) and the member selected on the per-member pages, read only while open.
     int page{1}, member{};
     std::vector<std::string> personas, links;
     explicit Module(const EdenDsmodHostApi& h) : host(h), reader(h) {}
@@ -84,7 +84,7 @@ struct Module {
         return names_ready&&id>=0&&size_t(id)<personas.size()?personas[id]:"Persona "+std::to_string(id);
     }
     bool Action(std::string_view action, int64_t arg) {
-        if(action=="ui_open"&&arg>=1&&arg<=5){page=int(arg);return true;}
+        if(action=="ui_open"&&arg>=1&&arg<=6){page=int(arg);return true;}
         if(action=="member_select"&&arg>=0&&arg<10){member=int(arg);return true;}
         return false;
     }
@@ -97,6 +97,7 @@ struct Module {
         }
         I("skill.ready",0);I("skill.count",0);T("skill.header","");
         I("equip.ready",0);T("equip.header","");
+        I("stat.ready",0);I("social.ready",0);T("stat.header","");T("stat.next","");
         for(int i=0;i<12;++i){auto p="persona."+std::to_string(i);I(p+".present",0);T(p+".line","");}
         for(int i=0;i<28;++i){auto p="link."+std::to_string(i);I(p+".present",0);T(p+".line","");}
     }
@@ -157,6 +158,22 @@ struct Module {
                 for(int i=0;i<4;++i){auto p="equip."+std::to_string(i);T(p+".name",equip[i].name);T(p+".stats",stats[i]);}
                 I("equip.ready",1);
             } catch(const std::exception& e) {T("status",std::string("Equipment unavailable: ")+e.what());}
+        }
+        if(page==6&&!v.members.empty()) {
+            try {
+                const auto& m=v.members.at(std::min<size_t>(member,v.members.size()-1));
+                auto st=reader.MemberStats(v,m);
+                T("stat.header",MemberName(v,m)+"   Lv "+std::to_string(m.level)+"     "+PersonaName(m.persona));
+                for(int i=0;i<5;++i){
+                    auto p="stat."+std::to_string(i);I(p+".value",st.stats[i]);
+                    T(p+".bonus",st.bonus[i]?"+"+std::to_string(st.bonus[i]):"");
+                }
+                T("stat.next",st.next_exp>=0?"NEXT EXP  "+std::to_string(st.next_exp):"NEXT EXP  --");
+                for(size_t i=0;i<st.social.size();++i){
+                    auto p="social."+std::to_string(i);I(p+".rank",st.social[i].rank);T(p+".name",st.social[i].name);
+                }
+                I("social.ready",st.social.empty()?0:1);I("stat.ready",1);
+            } catch(const std::exception& e) {T("status",std::string("Stats unavailable: ")+e.what());}
         }
     }
 };

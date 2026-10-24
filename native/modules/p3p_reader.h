@@ -38,6 +38,13 @@ struct Equip { int id{}, at{}, hit{}, df{}, ev{}; std::string name; };
 // One row of the native camp Skill list. cost_known is false only when the game would pick
 // between duplicate copies by battle effect (0x73b20) and their displayed costs differ.
 struct Skill { int id{}, type{}, cost{}; bool cost_known{true}; std::string name; };
+// Stats page values. stats/bonus follow 0x1d7e70 / 0x1d7f30 in St, Ma, En, Ag, Lu order.
+struct Social { int points{}, rank{}; std::string name; };
+struct Stats {
+    std::array<int, 5> stats{}, bonus{};
+    int next_exp{-1};                 // -1: not available (protagonist's curve not traced yet)
+    std::vector<Social> social;       // protagonist only: Academics, Charm, Courage
+};
 struct Persona {
     int id{}, level{}, slot{}; bool selected{};
     std::array<int, 8> skills{};
@@ -88,6 +95,32 @@ inline int SkillCost(const Bytes& entry, bool cost_free, int max_hp, int max_sp,
 }
 
 // Persona stock size from S+0x490c, as 0x1dab90/0x1d6c60 derive it.
+// Accessory stat bonus 0x1d7f30 for stat s: the accessory record's field plus effect counts
+// from the owner's weapon/body/feet (0x6f1e0), per-stat ranks 1-5 and x10, then all-stat.
+inline int AccessoryBonus(const Bytes& accessory, const std::map<int, int>& effects, int s) {
+    static constexpr int field[5]{0x14, 0x18, 0x16, 0x1a, 0x1c};
+    static constexpr int first[5]{0x01, 0x0b, 0x06, 0x10, 0x15};
+    auto count = [&](int e) { auto it = effects.find(e); return it == effects.end() ? 0 : it->second; };
+    int total = At<u16>(accessory, field[s]);
+    for (int k = 1; k <= 5; ++k) total += k * count(first[s] + k - 1);
+    total += 10 * count(0x83 + (s == 1 ? 2 : s == 2 ? 1 : s));
+    for (int k = 1; k <= 5; ++k) total += k * count(0x87 + k);
+    return total + 10 * count(0x8d);
+}
+// Displayed active-Persona stat 0x1d7e70: base +0x1c, signed bonuses +0x21 and +0x26, and the
+// accessory bonus truncated to a signed byte, clamped to 0..99.
+inline int PersonaStat(const Bytes& persona, int s, int accessory_bonus) {
+    int total = persona.at(0x1c + s) + int8_t(persona.at(0x21 + s)) + int8_t(persona.at(0x26 + s)) + int8_t(accessory_bonus);
+    return std::clamp(total, 0, 99);
+}
+// Social stat rank (0x1ddb30/bb0/c30): the first k in 1..6 whose cumulative threshold the
+// points have not reached, otherwise 6. thresholds[k-1] = 0x11a3c0(stat, k).
+inline int SocialRank(int points, const std::array<int, 6>& thresholds) {
+    int sum = 0;
+    for (int k = 1; k <= 6; ++k) { sum += thresholds[k - 1]; if (points < sum) return k; }
+    return 6;
+}
+
 inline int StockCapacity(u32 flags) {
     if (flags & 4) return 12;
     if (flags & 2) return 10;
@@ -253,6 +286,53 @@ public:
                 for (unsigned char c : e.name) if (c < 32 || c > 126) { e.name = "Item " + std::to_string(id); break; }
             }
             out.push_back(std::move(e));
+        }
+        return out;
+    }
+    // Stats page values for one member (cmpStatus / Persona status 0x21b390 paths).
+    Stats MemberStats(const Snapshot& v, const Member& m) const {
+        u64 state = Pointer(host.main_base + 0x70e800), allies = Pointer(host.main_base + 0x70e808);
+        u64 items = Pointer(Pointer(host.main_base + 0x70e7f8));
+        Bytes persona;
+        if (m.id == 1) {
+            auto it = std::find_if(v.personas.begin(), v.personas.end(), [](const Persona& p) { return p.selected; });
+            if (it == v.personas.end()) throw std::runtime_error("Persona selection absent");
+            persona = Read(state + 0x105c + it->slot * 0x34, 0x34);
+        } else persona = Read(allies + m.id * 0x118 - 0x22c + 0x88, 0x34);
+        if (At<u16>(persona, 2) != m.persona) throw std::runtime_error("context changed");
+        auto accessory = Read(items + m.equip[3] * 0x38, 0x38);
+        Stats out;
+        for (int s = 0; s < 5; ++s) {
+            out.bonus[s] = AccessoryBonus(accessory, m.effects, s);
+            out.stats[s] = PersonaStat(persona, s, out.bonus[s]);
+        }
+        if (m.id != 1) {
+            // 0x1d71b0 for party Personas: owner row of the level table behind GOT 0x70e838.
+            int pid = At<u16>(persona, 2);
+            if ((pid & 0xffe0) != 0xc0) throw std::runtime_error("unexpected ally Persona");
+            int owner = Get<int16_t>(Pointer(Pointer(host.main_base + 0x70e830)) + (pid - 0xc0) * 0x26e);
+            if (owner < 2 || owner > 10) throw std::runtime_error("unexpected Persona owner");
+            int level = std::min(m.level + 1, 99);
+            u32 need = Get<u32>(Pointer(Pointer(host.main_base + 0x70e838)) + owner * 0x188 + level * 4 - 0x318);
+            out.next_exp = int(std::max<int64_t>(0, int64_t(need) - At<u32>(persona, 8)));
+        } else {
+            // Points S+0x60/+0x62/+0x64 (0x1d1000/1040/1080); thresholds 0x11a3c0; names 0x11a2f0.
+            auto points = Read(state + 0x60, 6);
+            auto table = Read(Pointer(host.main_base + 0x813fd0), 0x28);
+            u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+            bool wide = lang == 6 || lang == 8;
+            u64 names = Pointer(host.main_base + 0x813fc8);
+            for (int stat = 0; stat < 3; ++stat) {
+                std::array<int, 6> thr{};
+                for (int k = 1; k <= 6; ++k) thr[k - 1] = At<u16>(table, stat * 10 + k * 2 + 6);
+                Social so; so.points = At<u16>(points, stat * 2); so.rank = SocialRank(so.points, thr);
+                size_t width = wide ? 0x17 : 0x11;
+                auto raw = Read(names + stat * (wide ? 0x8a : 0x66) + (so.rank - 1) * width + 8, width);
+                auto end = std::find(raw.begin(), raw.end(), u8{});
+                if (end != raw.end()) so.name.assign(raw.begin(), end);
+                for (unsigned char c : so.name) if (c < 32 || c > 126) { so.name.clear(); break; }
+                out.social.push_back(so);
+            }
         }
         return out;
     }

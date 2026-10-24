@@ -485,7 +485,27 @@
     "equip.2.name",
     "equip.2.stats",
     "equip.3.name",
-    "equip.3.stats"
+    "equip.3.stats",
+    "stat.ready",
+    "stat.header",
+    "stat.next",
+    "social.ready",
+    "stat.0.value",
+    "stat.0.bonus",
+    "stat.1.value",
+    "stat.1.bonus",
+    "stat.2.value",
+    "stat.2.bonus",
+    "stat.3.value",
+    "stat.3.bonus",
+    "stat.4.value",
+    "stat.4.bonus",
+    "social.0.rank",
+    "social.0.name",
+    "social.1.rank",
+    "social.1.name",
+    "social.2.rank",
+    "social.2.name"
   ],
   "module": {
     "abi": 1,
@@ -519,6 +539,11 @@
       "kind": "module",
       "action": "ui_open",
       "argument": 5
+    },
+    "ui.open.6": {
+      "kind": "module",
+      "action": "ui_open",
+      "argument": 6
     },
     "member.select.0": {
       "kind": "module",
@@ -606,6 +631,13 @@
       "when_equal": {
         "page": "equip"
       }
+    },
+    {
+      "point": "ui.page",
+      "equals": 6,
+      "when_equal": {
+        "page": "stats"
+      }
     }
   ],
   "pages": [
@@ -630,68 +662,82 @@
           "rect": [
             40,
             90,
-            225,
+            185,
             55
           ],
           "text": "Status",
           "on_tap": "ui.open.1",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF8C315B"
         },
         {
           "type": "button",
           "rect": [
-            275,
+            235,
             90,
-            225,
+            185,
             55
           ],
           "text": "Personas",
           "on_tap": "ui.open.2",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            510,
+            430,
             90,
-            225,
+            185,
             55
           ],
           "text": "Social Links",
           "on_tap": "ui.open.3",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            745,
+            625,
             90,
-            225,
+            185,
             55
           ],
           "text": "Skills",
           "on_tap": "ui.open.4",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            980,
+            820,
             90,
-            225,
+            185,
             55
           ],
           "text": "Equip",
           "on_tap": "ui.open.5",
-          "text_scale": 3,
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            1015,
+            90,
+            185,
+            55
+          ],
+          "text": "Stats",
+          "on_tap": "ui.open.6",
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
@@ -1359,68 +1405,82 @@
           "rect": [
             40,
             90,
-            225,
+            185,
             55
           ],
           "text": "Status",
           "on_tap": "ui.open.1",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            275,
+            235,
             90,
-            225,
+            185,
             55
           ],
           "text": "Personas",
           "on_tap": "ui.open.2",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF8C315B"
         },
         {
           "type": "button",
           "rect": [
-            510,
+            430,
             90,
-            225,
+            185,
             55
           ],
           "text": "Social Links",
           "on_tap": "ui.open.3",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            745,
+            625,
             90,
-            225,
+            185,
             55
           ],
           "text": "Skills",
           "on_tap": "ui.open.4",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            980,
+            820,
             90,
-            225,
+            185,
             55
           ],
           "text": "Equip",
           "on_tap": "ui.open.5",
-          "text_scale": 3,
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            1015,
+            90,
+            185,
+            55
+          ],
+          "text": "Stats",
+          "on_tap": "ui.open.6",
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
@@ -1696,68 +1756,82 @@
           "rect": [
             40,
             90,
-            225,
+            185,
             55
           ],
           "text": "Status",
           "on_tap": "ui.open.1",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            275,
+            235,
             90,
-            225,
+            185,
             55
           ],
           "text": "Personas",
           "on_tap": "ui.open.2",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            510,
+            430,
             90,
-            225,
+            185,
             55
           ],
           "text": "Social Links",
           "on_tap": "ui.open.3",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF8C315B"
         },
         {
           "type": "button",
           "rect": [
-            745,
+            625,
             90,
-            225,
+            185,
             55
           ],
           "text": "Skills",
           "on_tap": "ui.open.4",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            980,
+            820,
             90,
-            225,
+            185,
             55
           ],
           "text": "Equip",
           "on_tap": "ui.open.5",
-          "text_scale": 3,
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            1015,
+            90,
+            185,
+            55
+          ],
+          "text": "Stats",
+          "on_tap": "ui.open.6",
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
@@ -2257,68 +2331,82 @@
           "rect": [
             40,
             90,
-            225,
+            185,
             55
           ],
           "text": "Status",
           "on_tap": "ui.open.1",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            275,
+            235,
             90,
-            225,
+            185,
             55
           ],
           "text": "Personas",
           "on_tap": "ui.open.2",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            510,
+            430,
             90,
-            225,
+            185,
             55
           ],
           "text": "Social Links",
           "on_tap": "ui.open.3",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            745,
+            625,
             90,
-            225,
+            185,
             55
           ],
           "text": "Skills",
           "on_tap": "ui.open.4",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF8C315B"
         },
         {
           "type": "button",
           "rect": [
-            980,
+            820,
             90,
-            225,
+            185,
             55
           ],
           "text": "Equip",
           "on_tap": "ui.open.5",
-          "text_scale": 3,
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            1015,
+            90,
+            185,
+            55
+          ],
+          "text": "Stats",
+          "on_tap": "ui.open.6",
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
@@ -2947,70 +3035,84 @@
           "rect": [
             40,
             90,
-            225,
+            185,
             55
           ],
           "text": "Status",
           "on_tap": "ui.open.1",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            275,
+            235,
             90,
-            225,
+            185,
             55
           ],
           "text": "Personas",
           "on_tap": "ui.open.2",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            510,
+            430,
             90,
-            225,
+            185,
             55
           ],
           "text": "Social Links",
           "on_tap": "ui.open.3",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            745,
+            625,
             90,
-            225,
+            185,
             55
           ],
           "text": "Skills",
           "on_tap": "ui.open.4",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF282032"
         },
         {
           "type": "button",
           "rect": [
-            980,
+            820,
             90,
-            225,
+            185,
             55
           ],
           "text": "Equip",
           "on_tap": "ui.open.5",
-          "text_scale": 3,
+          "text_scale": 2,
           "color": "#FFF8EDF3",
           "bg": "#FF8C315B"
+        },
+        {
+          "type": "button",
+          "rect": [
+            1015,
+            90,
+            185,
+            55
+          ],
+          "text": "Stats",
+          "on_tap": "ui.open.6",
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
         },
         {
           "type": "label",
@@ -3758,6 +3860,1050 @@
           "text_scale": 3,
           "bind_text": "equip.3.stats",
           "need_bind": "equip.ready"
+        }
+      ]
+    },
+    {
+      "id": "stats",
+      "title": "STATS",
+      "widgets": [
+        {
+          "type": "label",
+          "rect": [
+            40,
+            28,
+            900,
+            42
+          ],
+          "text": "PERSONA 3 PORTABLE / STATS",
+          "color": "#FFF8EDF3",
+          "text_scale": 4
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            90,
+            185,
+            55
+          ],
+          "text": "Status",
+          "on_tap": "ui.open.1",
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            235,
+            90,
+            185,
+            55
+          ],
+          "text": "Personas",
+          "on_tap": "ui.open.2",
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            430,
+            90,
+            185,
+            55
+          ],
+          "text": "Social Links",
+          "on_tap": "ui.open.3",
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            625,
+            90,
+            185,
+            55
+          ],
+          "text": "Skills",
+          "on_tap": "ui.open.4",
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            820,
+            90,
+            185,
+            55
+          ],
+          "text": "Equip",
+          "on_tap": "ui.open.5",
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            1015,
+            90,
+            185,
+            55
+          ],
+          "text": "Stats",
+          "on_tap": "ui.open.6",
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "bg": "#FF8C315B"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            165,
+            850,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "live.date",
+          "need_bind": "live.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            925,
+            165,
+            280,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "live.money",
+          "need_bind": "live.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            440,
+            1120,
+            80
+          ],
+          "text": "Waiting for supported gameplay",
+          "text_scale": 4,
+          "color": "#FFC0B2C4",
+          "hide_bind": "live.ready",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            1020,
+            1160,
+            24
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "status"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            1050,
+            1160,
+            20
+          ],
+          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "color": "#FFF8EDF3",
+          "text_scale": 2
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            700,
+            1160,
+            36
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "module_error_message",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.0",
+          "need_bind": "member.0.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.0.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.0",
+          "need_bind": "member.0.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.0.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            52,
+            227,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.0.tab",
+          "need_bind": "member.0.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            275,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.1",
+          "need_bind": "member.1.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.1.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            275,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.1",
+          "need_bind": "member.1.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.1.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            287,
+            227,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.1.tab",
+          "need_bind": "member.1.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            510,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.2",
+          "need_bind": "member.2.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.2.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            510,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.2",
+          "need_bind": "member.2.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.2.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            522,
+            227,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.2.tab",
+          "need_bind": "member.2.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            745,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.3",
+          "need_bind": "member.3.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.3.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            745,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.3",
+          "need_bind": "member.3.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.3.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            757,
+            227,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.3.tab",
+          "need_bind": "member.3.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            980,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.4",
+          "need_bind": "member.4.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.4.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            980,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.4",
+          "need_bind": "member.4.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.4.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            992,
+            227,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.4.tab",
+          "need_bind": "member.4.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.5",
+          "need_bind": "member.5.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.5.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.5",
+          "need_bind": "member.5.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.5.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            52,
+            279,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.5.tab",
+          "need_bind": "member.5.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            275,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.6",
+          "need_bind": "member.6.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.6.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            275,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.6",
+          "need_bind": "member.6.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.6.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            287,
+            279,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.6.tab",
+          "need_bind": "member.6.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            510,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.7",
+          "need_bind": "member.7.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.7.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            510,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.7",
+          "need_bind": "member.7.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.7.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            522,
+            279,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.7.tab",
+          "need_bind": "member.7.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            745,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.8",
+          "need_bind": "member.8.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.8.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            745,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.8",
+          "need_bind": "member.8.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.8.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            757,
+            279,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.8.tab",
+          "need_bind": "member.8.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            980,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.9",
+          "need_bind": "member.9.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.9.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            980,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.9",
+          "need_bind": "member.9.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.9.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            992,
+            279,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.9.tab",
+          "need_bind": "member.9.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            330,
+            1160,
+            36
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "stat.header",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            392,
+            80,
+            30
+          ],
+          "text": "ST",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            150,
+            396,
+            700,
+            22
+          ],
+          "bind": "stat.0.value",
+          "max": 99,
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "value",
+          "rect": [
+            880,
+            392,
+            100,
+            30
+          ],
+          "bind": "stat.0.value",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            990,
+            392,
+            200,
+            30
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "bind_text": "stat.0.bonus",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            448,
+            80,
+            30
+          ],
+          "text": "MA",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            150,
+            452,
+            700,
+            22
+          ],
+          "bind": "stat.1.value",
+          "max": 99,
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "value",
+          "rect": [
+            880,
+            448,
+            100,
+            30
+          ],
+          "bind": "stat.1.value",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            990,
+            448,
+            200,
+            30
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "bind_text": "stat.1.bonus",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            504,
+            80,
+            30
+          ],
+          "text": "EN",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            150,
+            508,
+            700,
+            22
+          ],
+          "bind": "stat.2.value",
+          "max": 99,
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "value",
+          "rect": [
+            880,
+            504,
+            100,
+            30
+          ],
+          "bind": "stat.2.value",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            990,
+            504,
+            200,
+            30
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "bind_text": "stat.2.bonus",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            560,
+            80,
+            30
+          ],
+          "text": "AG",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            150,
+            564,
+            700,
+            22
+          ],
+          "bind": "stat.3.value",
+          "max": 99,
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "value",
+          "rect": [
+            880,
+            560,
+            100,
+            30
+          ],
+          "bind": "stat.3.value",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            990,
+            560,
+            200,
+            30
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "bind_text": "stat.3.bonus",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            616,
+            80,
+            30
+          ],
+          "text": "LU",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            150,
+            620,
+            700,
+            22
+          ],
+          "bind": "stat.4.value",
+          "max": 99,
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "value",
+          "rect": [
+            880,
+            616,
+            100,
+            30
+          ],
+          "bind": "stat.4.value",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            990,
+            616,
+            200,
+            30
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "bind_text": "stat.4.bonus",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            680,
+            600,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "stat.next",
+          "need_bind": "stat.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            750,
+            300,
+            30
+          ],
+          "text": "ACADEMICS",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "need_bind": "social.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            380,
+            750,
+            420,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "social.0.name",
+          "need_bind": "social.ready"
+        },
+        {
+          "type": "pips",
+          "rect": [
+            820,
+            750,
+            360,
+            26
+          ],
+          "bind": "social.0.rank",
+          "max": 6,
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "social.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            820,
+            300,
+            30
+          ],
+          "text": "CHARM",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "need_bind": "social.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            380,
+            820,
+            420,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "social.1.name",
+          "need_bind": "social.ready"
+        },
+        {
+          "type": "pips",
+          "rect": [
+            820,
+            820,
+            360,
+            26
+          ],
+          "bind": "social.1.rank",
+          "max": 6,
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "social.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            890,
+            300,
+            30
+          ],
+          "text": "COURAGE",
+          "color": "#FFFF71AA",
+          "text_scale": 3,
+          "need_bind": "social.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            380,
+            890,
+            420,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "social.2.name",
+          "need_bind": "social.ready"
+        },
+        {
+          "type": "pips",
+          "rect": [
+            820,
+            890,
+            360,
+            26
+          ],
+          "bind": "social.2.rank",
+          "max": 6,
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "social.ready"
         }
       ]
     }

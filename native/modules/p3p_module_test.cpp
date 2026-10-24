@@ -38,11 +38,11 @@ int main() {
         }
         auto ext = eden_dsmod_get_extensions(EDEN_DSMOD_EXT_VERSION, EDEN_DSMOD_EXT_HASH);
         Require(ext && ext->on_action && (api->capabilities & EDEN_DSMOD_CAP_EXTENSIONS), "action extension");
-        Require(ext->on_action(instance, "ui_open", 5) && !ext->on_action(instance, "ui_open", 6), "page range");
+        Require(ext->on_action(instance, "ui_open", 6) && !ext->on_action(instance, "ui_open", 7), "page range");
         Require(ext->on_action(instance, "member_select", 9) && !ext->on_action(instance, "member_select", 10), "member range");
         Require(!ext->on_action(instance, "press", 0), "unknown actions refused");
         output.clear(); api->sample(instance, &host);
-        Require(output.at("ui.page") == 5 && output.at("equip.ready") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
+        Require(output.at("ui.page") == 6 && output.at("stat.ready") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
         api->destroy(instance);
         Require(p3p::Maximum(101,{0x237},{},false)==202,"HP gain");
         Require(p3p::Maximum(101,{0x237},{},true)==51,"SP loss rounds down before subtract");
@@ -91,7 +91,21 @@ int main() {
         Require(p3p::SkillList(snap, hero, record).size() == 8, "slots beyond the present count are skipped like 0x1d6c60's loop");
         p3p::Member ally; ally.id = 2; ally.base_hp = 111; ally.base_sp = 104; ally.skills = {0x3d, 0xc0};
         Require(ids(p3p::SkillList(snap, ally, record)) == std::vector<int>{0xc0, 0x3d}, "ally lists own Persona only");
-        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill-cost and skill-list regressions passed");
+        // 0x1d7f30 / 0x1d7e70 / 0x1ddb30 rules.
+        p3p::Bytes acc(0x38); acc[0x18] = 2;                          // Ma field
+        Require(p3p::AccessoryBonus(acc, {}, 1) == 2 && p3p::AccessoryBonus(acc, {}, 0) == 0, "accessory field per stat");
+        Require(p3p::AccessoryBonus(acc, {{0x0c, 1}, {0x85, 1}}, 1) == 2 + 2 + 10, "stat effects rank and x10");
+        Require(p3p::AccessoryBonus(acc, {{0x8a, 2}}, 4) == 6, "all-stat effects");
+        p3p::Bytes per(0x34); per[0x1c] = 98; per[0x21] = 0xff; per[0x26] = 3;
+        Require(p3p::PersonaStat(per, 0, 0) == 99, "clamp at 99");
+        per[0x1c] = 3; per[0x26] = 0;
+        Require(p3p::PersonaStat(per, 0, 0) == 2, "signed bonus");
+        Require(p3p::PersonaStat(per, 0, 300) == 46, "accessory bonus truncated to a signed byte");
+        per[0x1c] = 0;
+        Require(p3p::PersonaStat(per, 0, 0) == 0, "clamp at 0");
+        Require(p3p::SocialRank(0, {10, 20, 30, 40, 50, 60}) == 1 && p3p::SocialRank(10, {10, 20, 30, 40, 50, 60}) == 2, "rank thresholds are cumulative");
+        Require(p3p::SocialRank(29, {10, 20, 30, 40, 50, 60}) == 2 && p3p::SocialRank(500, {10, 20, 30, 40, 50, 60}) == 6, "rank cap");
+        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat and social-rank regressions passed");
         return 0;
     } catch(const std::exception& e) {std::fprintf(stderr,"%s\n",e.what());return 1;}
 }
