@@ -41,6 +41,7 @@ int main() {
         Require(ext->on_action(instance, "ui_open", 7) && !ext->on_action(instance, "ui_open", 8), "page range");
         Require(ext->on_action(instance, "member_select", 9) && !ext->on_action(instance, "member_select", 10), "member range");
         Require(!ext->on_action(instance, "press", 0), "unknown actions refused");
+        Require(ext->on_action(instance, "persona_select", 11) && !ext->on_action(instance, "persona_select", 12), "persona pick range");
         Require(ext->on_action(instance, "item_tab", 2) && !ext->on_action(instance, "item_tab", 3), "item tab range");
         output.clear(); api->sample(instance, &host);
         Require(output.at("ui.page") == 7 && output.at("item.ready") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
@@ -126,7 +127,14 @@ int main() {
         Require(p3p::ItemCount(counts, flags, 0x3ff, 5) == 0, "negative flag index reads word 0");
         flags[0x46cc - 0x4640 + 3] = 0x80;
         Require(p3p::ItemCount(counts, flags, 0x3ff, 5) == 1, "negative flag index uses bit 31 of word 0");
-        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank and item regressions passed");
+        // Persona details rules.
+        Require(p3p::PersonaExpForLevel(3, 1) == 126, "Orpheus Lv 3 needs 126 (native NEXT EXP 23 at 103)");
+        Require(p3p::PersonaExpForLevel(1, 1) == 0 && p3p::PersonaExpForLevel(150, 1) == p3p::PersonaExpForLevel(99, 1), "level clamps");
+        Require(p3p::AffinityLabel(0x14).empty() && p3p::AffinityLabel(0x800) == "Wk" && p3p::AffinityLabel(0x1002) == "Str", "weak and resist");
+        Require(p3p::AffinityLabel(0x100) == "Nul" && p3p::AffinityLabel(0x200) == "Rpl" && p3p::AffinityLabel(0x400) == "Abs", "null, repel, absorb");
+        p3p::Bytes plain(0x34); plain[0x1c] = 98; plain[0x26] = 5;
+        Require(p3p::PersonaStatPlain(plain, 0) == 99, "plain stat cap");
+        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item and Persona-detail regressions passed");
         return 0;
     } catch(const std::exception& e) {std::fprintf(stderr,"%s\n",e.what());return 1;}
 }

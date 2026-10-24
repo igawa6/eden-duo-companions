@@ -72,6 +72,43 @@ def items_widgets(outputs, scrolls):
                    | {'color': COLORS['muted']})
     return widgets
 
+def personas_widgets(outputs):
+    """Stock list (tap to pick) and the native PERSONA -> Details panel for the pick."""
+    widgets = []
+    for i in range(12):
+        p = f'persona.{i}'; outputs += [p + '.present', p + '.line', p + '.picked']
+        rect = [40, 215 + i * 62, 420, 54]
+        for picked in (0, 1):
+            widgets.append({'type': 'button', 'rect': rect, 'text': '', 'on_tap': f'persona.select.{i}',
+                            'need_bind': p + '.present', 'bg': '#FF8C315B' if picked else COLORS['panel'],
+                            'hide_bind': p + '.picked', 'hide_eq': 1 - picked})
+        widgets.append(dict(label([56, 233 + i * 62, 390, 22], bind=p + '.line', scale=2), need_bind=p + '.present'))
+    outputs += ['pd.ready', 'pd.name', 'pd.arcana', 'pd.next', 'pd.card', 'pd.nextskill', 'ui.persona']
+    x = 490
+    ready = {'need_bind': 'pd.ready'}
+    widgets += [dict(label([x, 215, 710, 36], bind='pd.name', scale=3), **ready),
+                dict(label([x, 258, 710, 26], bind='pd.arcana', scale=2), **ready) | {'color': COLORS['muted']}]
+    for s, name in enumerate(('ST', 'MA', 'EN', 'AG', 'LU')):
+        y = 300 + s * 40; outputs.append(f'pd.stat.{s}')
+        widgets += [dict(label([x, y, 60, 26], name, scale=2), **ready) | {'color': COLORS['accent']},
+                    dict({'type': 'bar', 'rect': [x + 70, y + 4, 520, 16], 'bind': f'pd.stat.{s}', 'max': 99,
+                          'color': '#FF78C9FF', 'bg': '#FF403349'}, **ready),
+                    dict({'type': 'value', 'rect': [x + 610, y, 80, 26], 'bind': f'pd.stat.{s}', 'text_scale': 2,
+                          'color': COLORS['ink']}, **ready)]
+    for e, name in enumerate(('SL', 'ST', 'PI', 'FI', 'IC', 'EL', 'WI', 'LI', 'DK')):
+        outputs.append(f'pd.aff.{e}')
+        cx = x + e * 78
+        widgets += [dict({'type': 'rect', 'rect': [cx, 510, 72, 76], 'bg': COLORS['panel'], 'frame': 0}, **ready),
+                    dict(label([cx + 8, 518, 60, 22], name, scale=2), **ready) | {'color': COLORS['muted']},
+                    dict(label([cx + 8, 550, 60, 26], bind=f'pd.aff.{e}', scale=2), **ready) | {'color': COLORS['accent']}]
+    widgets.append(dict(label([x, 610, 700, 28], bind='pd.next', scale=2), **ready))
+    for k in range(8):
+        outputs.append(f'pd.skill.{k}')
+        widgets.append(dict(label([x + (k % 2) * 360, 660 + (k // 2) * 46, 340, 28], bind=f'pd.skill.{k}', scale=2), **ready))
+    widgets += [dict(label([x, 870, 710, 28], bind='pd.card', scale=2), **ready),
+                dict(label([x, 910, 710, 28], bind='pd.nextskill', scale=2), **ready) | {'color': COLORS['muted']}]
+    return widgets
+
 def stats_widgets(outputs):
     """Active Persona stats (accessory part shown separately), next EXP, and the
     protagonist's social stat ranks."""
@@ -126,6 +163,7 @@ def main():
     actions.update({f'member.select.{i}': {'kind': 'module', 'action': 'member_select', 'argument': i}
                     for i in range(10)})
     actions.update({f'item.tab.{i}': {'kind': 'module', 'action': 'item_tab', 'argument': i} for i in range(3)})
+    actions.update({f'persona.select.{i}': {'kind': 'module', 'action': 'persona_select', 'argument': i} for i in range(12)})
     page_binds = [{'point': 'ui.page', 'equals': n, 'when_equal': {'page': page_id}}
                   for n, (page_id, _, _) in enumerate(tabs, 1)]
     pages = []
@@ -142,6 +180,10 @@ def main():
                     label([40, 1020, 1160, 24], bind='status', scale=2),
                     label([40, 1050, 1160, 20], 'Read-only preview | 2D field/camp support | Battle and dungeon exploration pending', scale=2),
                     dict(label([40, 700, 1160, 36], bind='module_error_message', scale=3), need_bind='module_error')]
+        if page_id == 'personas':
+            widgets += personas_widgets(outputs)
+            pages.append({'id': page_id, 'title': title, 'widgets': widgets})
+            continue
         if page_id == 'items':
             scrolls = []
             widgets += items_widgets(outputs, scrolls)

@@ -46,6 +46,14 @@ struct Stats {
     std::vector<Social> social;       // protagonist only: Academics, Charm, Courage
 };
 struct Item { int id{}, count{}; std::string name; };
+// One stock Persona as the native PERSONA -> Details screen shows it.
+struct PersonaDetail {
+    int id{}, level{}, next_exp{}, card_level{-1};
+    std::string name, arcana, card;
+    std::array<int, 5> stats{};
+    std::array<std::string, 9> affinity; // Slash Strike Pierce Fire Ice Elec Wind Light Dark
+    std::array<std::string, 8> skills;
+};
 struct Persona {
     int id{}, level{}, slot{}; bool selected{};
     std::array<int, 8> skills{};
@@ -114,6 +122,30 @@ inline int PersonaStat(const Bytes& persona, int s, int accessory_bonus) {
     int total = persona.at(0x1c + s) + int8_t(persona.at(0x21 + s)) + int8_t(persona.at(0x26 + s)) + int8_t(accessory_bonus);
     return std::clamp(total, 0, 99);
 }
+// Non-active Persona stat 0x1d7dc0: base +0x1c plus signed +0x21/+0x26, capped at 99.
+inline int PersonaStatPlain(const Bytes& persona, int s) {
+    return std::min(99, persona.at(0x1c + s) + int8_t(persona.at(0x21 + s)) + int8_t(persona.at(0x26 + s)));
+}
+// Non-party Persona EXP for a level (0x1d71b0, float32 as the game computes it).
+inline int PersonaExpForLevel(int level, int base_level) {
+#pragma clang fp contract(off) // the game uses separate fmul/fadd; a fused multiply-add rounds differently
+    if (level < 2) return 0;
+    float l = float(std::min(level, 99));
+    float cube = l * 1.4f * l * l;
+    float scale = float(base_level) * -0.019f + 3.1f;
+    return int(cube * scale + 10.0f);
+}
+// Affinity label from a raw table value (0x1d79f0). Flag bits match the passives applied in
+// 0x73f68: Resist 0x1000, Null 0x100, Repel 0x200, Absorb 0x400; Weak is 0x800.
+inline std::string AffinityLabel(u16 raw) {
+    if (raw & 0x400) return "Abs";
+    if (raw & 0x200) return "Rpl";
+    if (raw & 0x100) return "Nul";
+    if (raw & 0x1000) return "Str";
+    if (raw & 0x800) return "Wk";
+    return "";
+}
+
 // Social stat rank (0x1ddb30/bb0/c30): the first k in 1..6 whose cumulative threshold the
 // points have not reached, otherwise 6. thresholds[k-1] = 0x11a3c0(stat, k).
 inline int SocialRank(int points, const std::array<int, 6>& thresholds) {
@@ -365,6 +397,55 @@ public:
             out.push_back(std::move(it));
         }
         return out;
+    }
+    // Details for the stock Persona in record slot `slot` (PERSONA -> Details, 0x21b290).
+    PersonaDetail Details(const Snapshot& v, const Member& hero, int slot) const {
+        auto it = std::find_if(v.personas.begin(), v.personas.end(), [&](const Persona& p) { return p.slot == slot; });
+        if (it == v.personas.end()) throw std::runtime_error("Persona absent");
+        u64 state = Pointer(host.main_base + 0x70e800);
+        auto persona = Read(state + 0x105c + slot * 0x34, 0x34);
+        PersonaDetail d;
+        d.id = At<u16>(persona, 2); d.level = persona.at(4);
+        if (d.id != it->id || d.id >= 0x100) throw std::runtime_error("context changed");
+        auto base = Read(Pointer(Pointer(host.main_base + 0x70e210)) + d.id * 0xe, 0xe);
+        int arcana = base.at(2), base_level = base.at(3);
+        auto text = [&](u64 at, size_t width) {
+            auto raw = Read(at, width);
+            auto end = std::find(raw.begin(), raw.end(), u8{});
+            std::string s(raw.begin(), end);
+            for (unsigned char c : s) if (c < 32 || c > 126) return std::string();
+            return s;
+        };
+        u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+        bool wide = lang == 3 || (lang >= 5 && lang <= 8); // 0x1d6a60
+        d.name = text(Pointer(Pointer(host.main_base + (wide ? 0x70e470 : 0x70e478))) + d.id * (wide ? 0x15 : 0x11), wide ? 0x15 : 0x11);
+        if (arcana < 0x20) d.arcana = text(Pointer(Pointer(host.main_base + 0x70e0f0)) + arcana * 0x15, 0x15); // 0x77600
+        auto aff = Read(Pointer(Pointer(host.main_base + 0x70e848)) + d.id * 0x22, 0x22);
+        static constexpr int element[9]{0, 1, 2, 3, 4, 5, 6, 8, 9};
+        for (int i = 0; i < 9; ++i) d.affinity[i] = AffinityLabel(At<u16>(aff, element[i] * 2));
+        if (it->selected) {
+            auto accessory = Read(Pointer(Pointer(host.main_base + 0x70e7f8)) + hero.equip[3] * 0x38, 0x38);
+            for (int s = 0; s < 5; ++s) d.stats[s] = PersonaStat(persona, s, AccessoryBonus(accessory, hero.effects, s));
+        } else for (int s = 0; s < 5; ++s) d.stats[s] = PersonaStatPlain(persona, s);
+        d.next_exp = d.level >= 99 ? 0 : std::max(0, PersonaExpForLevel(d.level + 1, base_level) - int(At<u32>(persona, 8)));
+        u64 skill_names = Pointer(Pointer(host.main_base + (wide ? 0x70e0e0 : 0x70e0e8)));
+        for (int k = 0; k < 8; ++k)
+            if (int id = At<u16>(persona, 0xc + k * 2); id > 0 && id < 0x270)
+                d.skills[k] = text(skill_names + id * (wide ? 0x1d : 0x13), wide ? 0x1d : 0x13);
+        // Skill card (0x21d0e0 / 0x21d380): the first kind-5 entry before an empty kind.
+        auto learn = Read(Pointer(Pointer(host.main_base + 0x70e840)) + d.id * 0x46, 0x46);
+        for (int k = 0; k < 16; ++k) {
+            int kind = learn.at(7 + 4 * k);
+            if (!kind) break;
+            if (kind != 5) continue;
+            int card = At<u16>(learn, 8 + 4 * k);
+            if (card < 0x690 || card >= ItemIds) break;
+            d.card_level = base_level + learn.at(6 + 4 * k);
+            u64 names = Pointer(Pointer(host.main_base + 0x70e828) + lang * 8);
+            if (u64 at = Get<u64>(names + card * 8)) d.card = text(at, 64);
+            break;
+        }
+        return d;
     }
     // Stats page values for one member (cmpStatus / Persona status 0x21b390 paths).
     Stats MemberStats(const Snapshot& v, const Member& m) const {

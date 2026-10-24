@@ -107,28 +107,69 @@
     "member.9.max_sp",
     "persona.0.present",
     "persona.0.line",
+    "persona.0.picked",
     "persona.1.present",
     "persona.1.line",
+    "persona.1.picked",
     "persona.2.present",
     "persona.2.line",
+    "persona.2.picked",
     "persona.3.present",
     "persona.3.line",
+    "persona.3.picked",
     "persona.4.present",
     "persona.4.line",
+    "persona.4.picked",
     "persona.5.present",
     "persona.5.line",
+    "persona.5.picked",
     "persona.6.present",
     "persona.6.line",
+    "persona.6.picked",
     "persona.7.present",
     "persona.7.line",
+    "persona.7.picked",
     "persona.8.present",
     "persona.8.line",
+    "persona.8.picked",
     "persona.9.present",
     "persona.9.line",
+    "persona.9.picked",
     "persona.10.present",
     "persona.10.line",
+    "persona.10.picked",
     "persona.11.present",
     "persona.11.line",
+    "persona.11.picked",
+    "pd.ready",
+    "pd.name",
+    "pd.arcana",
+    "pd.next",
+    "pd.card",
+    "pd.nextskill",
+    "ui.persona",
+    "pd.stat.0",
+    "pd.stat.1",
+    "pd.stat.2",
+    "pd.stat.3",
+    "pd.stat.4",
+    "pd.aff.0",
+    "pd.aff.1",
+    "pd.aff.2",
+    "pd.aff.3",
+    "pd.aff.4",
+    "pd.aff.5",
+    "pd.aff.6",
+    "pd.aff.7",
+    "pd.aff.8",
+    "pd.skill.0",
+    "pd.skill.1",
+    "pd.skill.2",
+    "pd.skill.3",
+    "pd.skill.4",
+    "pd.skill.5",
+    "pd.skill.6",
+    "pd.skill.7",
     "link.0.present",
     "link.0.line",
     "link.1.present",
@@ -1386,6 +1427,66 @@
       "kind": "module",
       "action": "item_tab",
       "argument": 2
+    },
+    "persona.select.0": {
+      "kind": "module",
+      "action": "persona_select",
+      "argument": 0
+    },
+    "persona.select.1": {
+      "kind": "module",
+      "action": "persona_select",
+      "argument": 1
+    },
+    "persona.select.2": {
+      "kind": "module",
+      "action": "persona_select",
+      "argument": 2
+    },
+    "persona.select.3": {
+      "kind": "module",
+      "action": "persona_select",
+      "argument": 3
+    },
+    "persona.select.4": {
+      "kind": "module",
+      "action": "persona_select",
+      "argument": 4
+    },
+    "persona.select.5": {
+      "kind": "module",
+      "action": "persona_select",
+      "argument": 5
+    },
+    "persona.select.6": {
+      "kind": "module",
+      "action": "persona_select",
+      "argument": 6
+    },
+    "persona.select.7": {
+      "kind": "module",
+      "action": "persona_select",
+      "argument": 7
+    },
+    "persona.select.8": {
+      "kind": "module",
+      "action": "persona_select",
+      "argument": 8
+    },
+    "persona.select.9": {
+      "kind": "module",
+      "action": "persona_select",
+      "argument": 9
+    },
+    "persona.select.10": {
+      "kind": "module",
+      "action": "persona_select",
+      "argument": 10
+    },
+    "persona.select.11": {
+      "kind": "module",
+      "action": "persona_select",
+      "argument": 11
     }
   },
   "page_binds": [
@@ -2393,172 +2494,1265 @@
           "need_bind": "module_error"
         },
         {
+          "type": "button",
+          "rect": [
+            40,
+            215,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.0",
+          "need_bind": "persona.0.present",
+          "bg": "#FF282032",
+          "hide_bind": "persona.0.picked",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            215,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.0",
+          "need_bind": "persona.0.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "persona.0.picked",
+          "hide_eq": 0
+        },
+        {
           "type": "label",
           "rect": [
-            50,
-            220,
-            1140,
-            28
+            56,
+            233,
+            390,
+            22
           ],
           "text": "",
           "color": "#FFF8EDF3",
-          "text_scale": 3,
+          "text_scale": 2,
           "bind_text": "persona.0.line",
           "need_bind": "persona.0.present"
         },
         {
+          "type": "button",
+          "rect": [
+            40,
+            277,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.1",
+          "need_bind": "persona.1.present",
+          "bg": "#FF282032",
+          "hide_bind": "persona.1.picked",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            277,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.1",
+          "need_bind": "persona.1.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "persona.1.picked",
+          "hide_eq": 0
+        },
+        {
           "type": "label",
           "rect": [
-            50,
-            280,
-            1140,
-            28
+            56,
+            295,
+            390,
+            22
           ],
           "text": "",
           "color": "#FFF8EDF3",
-          "text_scale": 3,
+          "text_scale": 2,
           "bind_text": "persona.1.line",
           "need_bind": "persona.1.present"
         },
         {
+          "type": "button",
+          "rect": [
+            40,
+            339,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.2",
+          "need_bind": "persona.2.present",
+          "bg": "#FF282032",
+          "hide_bind": "persona.2.picked",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            339,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.2",
+          "need_bind": "persona.2.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "persona.2.picked",
+          "hide_eq": 0
+        },
+        {
           "type": "label",
           "rect": [
-            50,
-            340,
-            1140,
-            28
+            56,
+            357,
+            390,
+            22
           ],
           "text": "",
           "color": "#FFF8EDF3",
-          "text_scale": 3,
+          "text_scale": 2,
           "bind_text": "persona.2.line",
           "need_bind": "persona.2.present"
         },
         {
+          "type": "button",
+          "rect": [
+            40,
+            401,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.3",
+          "need_bind": "persona.3.present",
+          "bg": "#FF282032",
+          "hide_bind": "persona.3.picked",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            401,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.3",
+          "need_bind": "persona.3.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "persona.3.picked",
+          "hide_eq": 0
+        },
+        {
           "type": "label",
           "rect": [
-            50,
-            400,
-            1140,
-            28
+            56,
+            419,
+            390,
+            22
           ],
           "text": "",
           "color": "#FFF8EDF3",
-          "text_scale": 3,
+          "text_scale": 2,
           "bind_text": "persona.3.line",
           "need_bind": "persona.3.present"
         },
         {
+          "type": "button",
+          "rect": [
+            40,
+            463,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.4",
+          "need_bind": "persona.4.present",
+          "bg": "#FF282032",
+          "hide_bind": "persona.4.picked",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            463,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.4",
+          "need_bind": "persona.4.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "persona.4.picked",
+          "hide_eq": 0
+        },
+        {
           "type": "label",
           "rect": [
-            50,
-            460,
-            1140,
-            28
+            56,
+            481,
+            390,
+            22
           ],
           "text": "",
           "color": "#FFF8EDF3",
-          "text_scale": 3,
+          "text_scale": 2,
           "bind_text": "persona.4.line",
           "need_bind": "persona.4.present"
         },
         {
+          "type": "button",
+          "rect": [
+            40,
+            525,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.5",
+          "need_bind": "persona.5.present",
+          "bg": "#FF282032",
+          "hide_bind": "persona.5.picked",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            525,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.5",
+          "need_bind": "persona.5.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "persona.5.picked",
+          "hide_eq": 0
+        },
+        {
           "type": "label",
           "rect": [
-            50,
-            520,
-            1140,
-            28
+            56,
+            543,
+            390,
+            22
           ],
           "text": "",
           "color": "#FFF8EDF3",
-          "text_scale": 3,
+          "text_scale": 2,
           "bind_text": "persona.5.line",
           "need_bind": "persona.5.present"
         },
         {
+          "type": "button",
+          "rect": [
+            40,
+            587,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.6",
+          "need_bind": "persona.6.present",
+          "bg": "#FF282032",
+          "hide_bind": "persona.6.picked",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            587,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.6",
+          "need_bind": "persona.6.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "persona.6.picked",
+          "hide_eq": 0
+        },
+        {
           "type": "label",
           "rect": [
-            50,
-            580,
-            1140,
-            28
+            56,
+            605,
+            390,
+            22
           ],
           "text": "",
           "color": "#FFF8EDF3",
-          "text_scale": 3,
+          "text_scale": 2,
           "bind_text": "persona.6.line",
           "need_bind": "persona.6.present"
         },
         {
+          "type": "button",
+          "rect": [
+            40,
+            649,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.7",
+          "need_bind": "persona.7.present",
+          "bg": "#FF282032",
+          "hide_bind": "persona.7.picked",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            649,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.7",
+          "need_bind": "persona.7.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "persona.7.picked",
+          "hide_eq": 0
+        },
+        {
           "type": "label",
           "rect": [
-            50,
-            640,
-            1140,
-            28
+            56,
+            667,
+            390,
+            22
           ],
           "text": "",
           "color": "#FFF8EDF3",
-          "text_scale": 3,
+          "text_scale": 2,
           "bind_text": "persona.7.line",
           "need_bind": "persona.7.present"
         },
         {
+          "type": "button",
+          "rect": [
+            40,
+            711,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.8",
+          "need_bind": "persona.8.present",
+          "bg": "#FF282032",
+          "hide_bind": "persona.8.picked",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            711,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.8",
+          "need_bind": "persona.8.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "persona.8.picked",
+          "hide_eq": 0
+        },
+        {
           "type": "label",
           "rect": [
-            50,
-            700,
-            1140,
-            28
+            56,
+            729,
+            390,
+            22
           ],
           "text": "",
           "color": "#FFF8EDF3",
-          "text_scale": 3,
+          "text_scale": 2,
           "bind_text": "persona.8.line",
           "need_bind": "persona.8.present"
         },
         {
+          "type": "button",
+          "rect": [
+            40,
+            773,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.9",
+          "need_bind": "persona.9.present",
+          "bg": "#FF282032",
+          "hide_bind": "persona.9.picked",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            773,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.9",
+          "need_bind": "persona.9.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "persona.9.picked",
+          "hide_eq": 0
+        },
+        {
           "type": "label",
           "rect": [
-            50,
-            760,
-            1140,
-            28
+            56,
+            791,
+            390,
+            22
           ],
           "text": "",
           "color": "#FFF8EDF3",
-          "text_scale": 3,
+          "text_scale": 2,
           "bind_text": "persona.9.line",
           "need_bind": "persona.9.present"
         },
         {
-          "type": "label",
+          "type": "button",
           "rect": [
-            50,
-            820,
-            1140,
-            28
+            40,
+            835,
+            420,
+            54
           ],
           "text": "",
-          "color": "#FFF8EDF3",
-          "text_scale": 3,
-          "bind_text": "persona.10.line",
-          "need_bind": "persona.10.present"
+          "on_tap": "persona.select.10",
+          "need_bind": "persona.10.present",
+          "bg": "#FF282032",
+          "hide_bind": "persona.10.picked",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            835,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.10",
+          "need_bind": "persona.10.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "persona.10.picked",
+          "hide_eq": 0
         },
         {
           "type": "label",
           "rect": [
-            50,
-            880,
-            1140,
-            28
+            56,
+            853,
+            390,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "persona.10.line",
+          "need_bind": "persona.10.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            897,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.11",
+          "need_bind": "persona.11.present",
+          "bg": "#FF282032",
+          "hide_bind": "persona.11.picked",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            897,
+            420,
+            54
+          ],
+          "text": "",
+          "on_tap": "persona.select.11",
+          "need_bind": "persona.11.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "persona.11.picked",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            56,
+            915,
+            390,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "persona.11.line",
+          "need_bind": "persona.11.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            215,
+            710,
+            36
           ],
           "text": "",
           "color": "#FFF8EDF3",
           "text_scale": 3,
-          "bind_text": "persona.11.line",
-          "need_bind": "persona.11.present"
+          "bind_text": "pd.name",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            258,
+            710,
+            26
+          ],
+          "text": "",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "bind_text": "pd.arcana",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            300,
+            60,
+            26
+          ],
+          "text": "ST",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            560,
+            304,
+            520,
+            16
+          ],
+          "bind": "pd.stat.0",
+          "max": 99,
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "value",
+          "rect": [
+            1100,
+            300,
+            80,
+            26
+          ],
+          "bind": "pd.stat.0",
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            340,
+            60,
+            26
+          ],
+          "text": "MA",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            560,
+            344,
+            520,
+            16
+          ],
+          "bind": "pd.stat.1",
+          "max": 99,
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "value",
+          "rect": [
+            1100,
+            340,
+            80,
+            26
+          ],
+          "bind": "pd.stat.1",
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            380,
+            60,
+            26
+          ],
+          "text": "EN",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            560,
+            384,
+            520,
+            16
+          ],
+          "bind": "pd.stat.2",
+          "max": 99,
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "value",
+          "rect": [
+            1100,
+            380,
+            80,
+            26
+          ],
+          "bind": "pd.stat.2",
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            420,
+            60,
+            26
+          ],
+          "text": "AG",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            560,
+            424,
+            520,
+            16
+          ],
+          "bind": "pd.stat.3",
+          "max": 99,
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "value",
+          "rect": [
+            1100,
+            420,
+            80,
+            26
+          ],
+          "bind": "pd.stat.3",
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            460,
+            60,
+            26
+          ],
+          "text": "LU",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            560,
+            464,
+            520,
+            16
+          ],
+          "bind": "pd.stat.4",
+          "max": 99,
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "value",
+          "rect": [
+            1100,
+            460,
+            80,
+            26
+          ],
+          "bind": "pd.stat.4",
+          "text_scale": 2,
+          "color": "#FFF8EDF3",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            490,
+            510,
+            72,
+            76
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            498,
+            518,
+            60,
+            22
+          ],
+          "text": "SL",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            498,
+            550,
+            60,
+            26
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "pd.aff.0",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            568,
+            510,
+            72,
+            76
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            576,
+            518,
+            60,
+            22
+          ],
+          "text": "ST",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            576,
+            550,
+            60,
+            26
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "pd.aff.1",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            646,
+            510,
+            72,
+            76
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            654,
+            518,
+            60,
+            22
+          ],
+          "text": "PI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            654,
+            550,
+            60,
+            26
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "pd.aff.2",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            724,
+            510,
+            72,
+            76
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            732,
+            518,
+            60,
+            22
+          ],
+          "text": "FI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            732,
+            550,
+            60,
+            26
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "pd.aff.3",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            802,
+            510,
+            72,
+            76
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            810,
+            518,
+            60,
+            22
+          ],
+          "text": "IC",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            810,
+            550,
+            60,
+            26
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "pd.aff.4",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            880,
+            510,
+            72,
+            76
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            888,
+            518,
+            60,
+            22
+          ],
+          "text": "EL",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            888,
+            550,
+            60,
+            26
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "pd.aff.5",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            958,
+            510,
+            72,
+            76
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            966,
+            518,
+            60,
+            22
+          ],
+          "text": "WI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            966,
+            550,
+            60,
+            26
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "pd.aff.6",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1036,
+            510,
+            72,
+            76
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1044,
+            518,
+            60,
+            22
+          ],
+          "text": "LI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1044,
+            550,
+            60,
+            26
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "pd.aff.7",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1114,
+            510,
+            72,
+            76
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1122,
+            518,
+            60,
+            22
+          ],
+          "text": "DK",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1122,
+            550,
+            60,
+            26
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "pd.aff.8",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            610,
+            700,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "pd.next",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            660,
+            340,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "pd.skill.0",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            850,
+            660,
+            340,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "pd.skill.1",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            706,
+            340,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "pd.skill.2",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            850,
+            706,
+            340,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "pd.skill.3",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            752,
+            340,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "pd.skill.4",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            850,
+            752,
+            340,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "pd.skill.5",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            798,
+            340,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "pd.skill.6",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            850,
+            798,
+            340,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "pd.skill.7",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            870,
+            710,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "pd.card",
+          "need_bind": "pd.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            490,
+            910,
+            710,
+            28
+          ],
+          "text": "",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "bind_text": "pd.nextskill",
+          "need_bind": "pd.ready"
         }
       ]
     },

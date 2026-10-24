@@ -32,7 +32,7 @@ struct Module {
     bool names_ready{};
     // Companion page (manifest ui_open: 1 status, 2 personas, 3 links, 4 skills, 5 equip,
     // 6 stats, 7 items) and the member selected on the per-member pages, read only while open.
-    int page{1}, member{}, item_tab{}; // item_tab: native Use / Equip / Key
+    int page{1}, member{}, item_tab{}, persona_pick{}; // item_tab: native Use / Equip / Key
     std::vector<std::string> personas, links;
     explicit Module(const EdenDsmodHostApi& h) : host(h), reader(h) {}
     void I(const std::string& key, int64_t v) { host.publish_i64(host.userdata,key.c_str(),v); }
@@ -87,6 +87,7 @@ struct Module {
         if(action=="ui_open"&&arg>=1&&arg<=7){page=int(arg);return true;}
         if(action=="member_select"&&arg>=0&&arg<10){member=int(arg);return true;}
         if(action=="item_tab"&&arg>=0&&arg<3){item_tab=int(arg);return true;}
+        if(action=="persona_select"&&arg>=0&&arg<12){persona_pick=int(arg);return true;}
         return false;
     }
     void Clear() {
@@ -100,6 +101,7 @@ struct Module {
         I("equip.ready",0);T("equip.header","");
         I("stat.ready",0);I("social.ready",0);T("stat.header","");T("stat.next","");
         I("item.ready",0);I("item.count",0);T("item.header","");I("item.tab",item_tab);
+        I("pd.ready",0);I("ui.persona",persona_pick);
         for(int i=0;i<12;++i){auto p="persona."+std::to_string(i);I(p+".present",0);T(p+".line","");}
         for(int i=0;i<28;++i){auto p="link."+std::to_string(i);I(p+".present",0);T(p+".line","");}
     }
@@ -124,7 +126,7 @@ struct Module {
             I(p+".hp",m.hp);I(p+".sp",m.sp);I(p+".max_hp",m.max_hp);I(p+".max_sp",m.max_sp);I(p+".present",1);
         }
         for(size_t i=0;i<v.personas.size();++i) {
-            auto m=v.personas[i];auto p="persona."+std::to_string(i);
+            auto m=v.personas[i];auto p="persona."+std::to_string(i);I(p+".picked",int(i)==persona_pick);
             T(p+".line",(m.selected?"* ":"  ")+PersonaName(m.id)+"   Lv "+std::to_string(m.level));I(p+".present",1);
         }
         for(size_t i=0;i<v.links.size();++i) {
@@ -133,6 +135,22 @@ struct Module {
             T(p+".line",name+"   Rank "+std::to_string(m.rank));I(p+".present",1);
         }
         T("status",names_ready?"Read-only companion":"Read-only companion - names unavailable");I("live.ready",1);
+        if(page==2&&!v.personas.empty()&&!v.members.empty()) {
+            // PERSONA -> Details for the picked stock Persona; fails closed on its own.
+            try {
+                auto d=reader.Details(v,v.members.front(),v.personas.at(std::min<size_t>(persona_pick,v.personas.size()-1)).slot);
+                T("pd.name",(d.name.empty()?PersonaName(d.id):d.name)+"   Lv "+std::to_string(d.level));
+                T("pd.arcana",d.arcana);
+                static constexpr const char* stat[5]{"St","Ma","En","Ag","Lu"};
+                for(int s=0;s<5;++s){I("pd.stat."+std::to_string(s),d.stats[s]);(void)stat;}
+                for(int e=0;e<9;++e)T("pd.aff."+std::to_string(e),d.affinity[e]);
+                T("pd.next","NEXT EXP  "+std::to_string(d.next_exp));
+                for(int k=0;k<8;++k)T("pd.skill."+std::to_string(k),d.skills[k]);
+                T("pd.card",d.card_level>=0?"Skill card  Lv "+std::to_string(d.card_level)+"   "+d.card:"");
+                T("pd.nextskill","Next skill  --");
+                I("pd.ready",1);
+            } catch(const std::exception& e) {T("status",std::string("Persona details unavailable: ")+e.what());}
+        }
         if(page==4&&!v.members.empty()) {
             // A failed skill read hides only the skill list (fail closed per domain).
             try {
