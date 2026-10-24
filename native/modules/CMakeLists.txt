@@ -299,6 +299,180 @@ endfunction()
 
 option(BUILD_TESTING "Build companion test executables" OFF)
 include(CTest)
+
+# Echoes of Wisdom 1.1.0: native resources and read-only companion state.
+set(ECHOES_TEXTURE_SOURCES acnh_tex.cpp
+    "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp")
+set(ECHOES_RESOURCE_SOURCES echoes_catalog.cpp echoes_inventory_catalog.cpp echoes_story.cpp echoes_player.cpp echoes_map_assets.cpp echoes_map_labels.cpp echoes_map_markers.cpp echoes_quest_markers.cpp echoes_landmarks.cpp echoes_entrances.cpp echoes_map_annotations.cpp echoes_map_annotation_reader.cpp echoes_warp.cpp echoes_dungeon.cpp echoes_dungeon_assets.cpp echoes_dungeon_variants.cpp echoes_prologue.cpp echoes_prologue_fonts.cpp echoes_font_reader.cpp echoes_fonts.cpp
+    echoes_resources.cpp ${ECHOES_TEXTURE_SOURCES})
+set(ECHOES_MODULE_SOURCES echoes_module.cpp echoes_reader.cpp echoes_selector.cpp echoes_live.cpp
+    echoes_drive.cpp echoes_context.cpp echoes_inventory.cpp echoes_menu.cpp echoes_menu_drive.cpp echoes_stamps.cpp echoes_stamp_bridge.cpp echoes_map.cpp
+    echoes_assets.cpp echoes_map_icon_assets.cpp echoes_dungeon_icons.cpp echoes_dungeon_reader.cpp echoes_warp_menu.cpp echoes_warp_drive.cpp echoes_warp_choice.cpp ${ECHOES_RESOURCE_SOURCES})
+dsmod_add_module(dsmod-echoes EXCLUDE_FROM_ALL TITLE 01008CF01BAAC000
+    SOURCES ${ECHOES_MODULE_SOURCES}
+    INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder"
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions
+        eden_dsmod_get_font_extensions eden_dsmod_get_data_extensions)
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-echoes-reader KEEP_ASSERTS
+        SOURCES echoes_reader_test.cpp echoes_reader.cpp)
+    dsmod_add_test(dsmod-echoes-selector KEEP_ASSERTS
+        SOURCES echoes_selector_test.cpp echoes_selector.cpp)
+    dsmod_add_test(dsmod-echoes-automatons KEEP_ASSERTS
+        SOURCES echoes_automatons_test.cpp)
+    dsmod_add_test(dsmod-echoes-live KEEP_ASSERTS
+        SOURCES echoes_live_test.cpp echoes_live.cpp echoes_reader.cpp echoes_selector.cpp)
+    dsmod_add_test(dsmod-echoes-module KEEP_ASSERTS
+        SOURCES echoes_module_test.cpp ${ECHOES_MODULE_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-echoes-catalog KEEP_ASSERTS
+        SOURCES echoes_catalog_test.cpp echoes_catalog.cpp)
+    set_tests_properties(dsmod-echoes-catalog PROPERTIES SKIP_RETURN_CODE 77)
+    dsmod_add_test(dsmod-echoes-drive KEEP_ASSERTS
+        SOURCES echoes_drive_test.cpp echoes_drive.cpp)
+    dsmod_add_test(dsmod-echoes-inventory KEEP_ASSERTS
+        SOURCES echoes_inventory_test.cpp echoes_inventory.cpp)
+    dsmod_add_test(dsmod-echoes-asset-cache KEEP_ASSERTS
+        SOURCES echoes_asset_cache_test.cpp)
+    dsmod_add_test(dsmod-echoes-code-guard KEEP_ASSERTS
+        SOURCES echoes_code_guard_test.cpp)
+    dsmod_add_test(dsmod-echoes-context KEEP_ASSERTS
+        SOURCES echoes_context_test.cpp echoes_context.cpp echoes_reader.cpp)
+    dsmod_add_test(dsmod-echoes-menu KEEP_ASSERTS
+        SOURCES echoes_menu_test.cpp echoes_menu.cpp echoes_context.cpp)
+    set_tests_properties(dsmod-echoes-menu PROPERTIES SKIP_RETURN_CODE 77)
+    dsmod_add_test(dsmod-echoes-menu-drive KEEP_ASSERTS
+        SOURCES echoes_menu_drive_test.cpp echoes_menu_drive.cpp)
+    dsmod_add_test(dsmod-echoes-stamps KEEP_ASSERTS
+        SOURCES echoes_stamps_test.cpp echoes_stamps.cpp)
+    dsmod_add_test(dsmod-echoes-stamp-bridge KEEP_ASSERTS
+        SOURCES echoes_stamp_bridge_test.cpp echoes_stamps.cpp echoes_stamp_bridge.cpp)
+    dsmod_add_test(dsmod-echoes-map-annotations KEEP_ASSERTS
+        SOURCES echoes_map_annotations_test.cpp echoes_map_annotations.cpp echoes_map_annotation_reader.cpp echoes_catalog.cpp)
+    set_tests_properties(dsmod-echoes-map-annotations PROPERTIES SKIP_RETURN_CODE 77)
+    dsmod_add_test(dsmod-echoes-map-annotation-reader KEEP_ASSERTS
+        SOURCES echoes_map_annotation_reader_test.cpp echoes_map_annotations.cpp echoes_map_annotation_reader.cpp echoes_catalog.cpp)
+    set_tests_properties(dsmod-echoes-map-annotation-reader PROPERTIES SKIP_RETURN_CODE 77)
+    dsmod_add_test(dsmod-echoes-map-labels KEEP_ASSERTS
+        SOURCES echoes_map_labels_test.cpp echoes_map_labels.cpp echoes_catalog.cpp)
+    set_tests_properties(dsmod-echoes-map-labels PROPERTIES SKIP_RETURN_CODE 77)
+    dsmod_add_test(dsmod-echoes-map-markers KEEP_ASSERTS
+        SOURCES echoes_map_markers_test.cpp echoes_map_markers.cpp)
+    dsmod_add_test(dsmod-echoes-quest-markers KEEP_ASSERTS
+        SOURCES echoes_quest_markers_test.cpp echoes_quest_markers.cpp echoes_map_markers.cpp echoes_catalog.cpp)
+    dsmod_add_test(dsmod-echoes-entrances KEEP_ASSERTS
+        SOURCES echoes_entrances_test.cpp echoes_entrances.cpp)
+    dsmod_add_test(dsmod-echoes-landmarks KEEP_ASSERTS
+        SOURCES echoes_landmarks_test.cpp echoes_landmarks.cpp echoes_map_annotation_reader.cpp echoes_catalog.cpp)
+    set_tests_properties(dsmod-echoes-map-markers dsmod-echoes-quest-markers dsmod-echoes-landmarks
+        PROPERTIES SKIP_RETURN_CODE 77)
+    dsmod_add_test(dsmod-echoes-dungeon-view KEEP_ASSERTS
+        SOURCES echoes_dungeon_view_test.cpp)
+    dsmod_add_test(dsmod-echoes-dungeon KEEP_ASSERTS
+        SOURCES echoes_dungeon_test.cpp echoes_dungeon.cpp)
+    dsmod_add_test(dsmod-echoes-dungeon-variants KEEP_ASSERTS
+        SOURCES echoes_dungeon_variants_test.cpp echoes_dungeon_variants.cpp)
+    dsmod_add_test(dsmod-echoes-dungeon-icons KEEP_ASSERTS
+        SOURCES echoes_dungeon_icons_test.cpp)
+    dsmod_add_test(dsmod-echoes-dungeon-reader KEEP_ASSERTS
+        SOURCES echoes_dungeon_reader_test.cpp echoes_dungeon_reader.cpp)
+    set_tests_properties(dsmod-echoes-dungeon dsmod-echoes-dungeon-reader dsmod-echoes-dungeon-variants PROPERTIES SKIP_RETURN_CODE 77)
+    dsmod_add_test(dsmod-echoes-warp-choice KEEP_ASSERTS
+        SOURCES echoes_warp_choice_test.cpp)
+    dsmod_add_test(dsmod-echoes-warp-menu KEEP_ASSERTS
+        SOURCES echoes_warp_menu_test.cpp echoes_warp.cpp echoes_map_annotations.cpp echoes_map_annotation_reader.cpp echoes_catalog.cpp)
+    dsmod_add_test(dsmod-echoes-warp-drive KEEP_ASSERTS
+        SOURCES echoes_warp_drive_test.cpp echoes_warp_drive.cpp echoes_warp.cpp echoes_map_annotations.cpp echoes_map_annotation_reader.cpp echoes_catalog.cpp)
+    dsmod_add_test(dsmod-echoes-warp KEEP_ASSERTS
+        SOURCES echoes_warp_test.cpp echoes_warp.cpp echoes_map_annotations.cpp echoes_map_annotation_reader.cpp echoes_catalog.cpp)
+    set_tests_properties(dsmod-echoes-warp PROPERTIES SKIP_RETURN_CODE 77)
+    dsmod_add_test(dsmod-echoes-prologue KEEP_ASSERTS
+        SOURCES echoes_prologue_test.cpp echoes_prologue.cpp echoes_map_annotations.cpp echoes_map_annotation_reader.cpp echoes_catalog.cpp)
+    set_tests_properties(dsmod-echoes-prologue PROPERTIES SKIP_RETURN_CODE 77)
+    dsmod_add_test(dsmod-echoes-map KEEP_ASSERTS
+        SOURCES echoes_map_test.cpp echoes_map.cpp echoes_reader.cpp)
+    dsmod_add_test(dsmod-echoes-story KEEP_ASSERTS
+        SOURCES echoes_story_test.cpp echoes_story.cpp)
+    dsmod_add_test(dsmod-echoes-player KEEP_ASSERTS
+        SOURCES echoes_player_test.cpp echoes_player.cpp echoes_map.cpp echoes_reader.cpp)
+    set_tests_properties(dsmod-echoes-player PROPERTIES SKIP_RETURN_CODE 77)
+    dsmod_add_test(dsmod-echoes-inventory-catalog KEEP_ASSERTS
+        SOURCES echoes_inventory_catalog_test.cpp echoes_inventory_catalog.cpp echoes_catalog.cpp)
+    set_tests_properties(dsmod-echoes-inventory-catalog PROPERTIES SKIP_RETURN_CODE 77)
+    dsmod_add_test(dsmod-echoes-font-reader KEEP_ASSERTS
+        SOURCES echoes_font_reader_test.cpp echoes_font_reader.cpp)
+    dsmod_add_test(dsmod-echoes-fonts KEEP_ASSERTS
+        SOURCES echoes_fonts_test.cpp echoes_fonts.cpp echoes_font_reader.cpp acnh_tex.cpp
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-echoes-prologue-fonts KEEP_ASSERTS
+        SOURCES echoes_prologue_fonts_test.cpp echoes_prologue_fonts.cpp echoes_fonts.cpp
+            echoes_font_reader.cpp acnh_tex.cpp
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-echoes-resources KEEP_ASSERTS
+        SOURCES echoes_resources_test.cpp echoes_reader.cpp ${ECHOES_RESOURCE_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    # Standalone texture tests use the host CPU ASTC decoder with a synchronous
+    # build-only worker, as lp-unity-tool does. Production uses host decode_astc.
+    set(echoes_shim_dir "${CMAKE_CURRENT_BINARY_DIR}/echoes_astc_shim")
+    file(WRITE "${echoes_shim_dir}/video_core/textures/workers.h" [=[
+// Generated by native/modules/CMakeLists.txt; test-only synchronous texture worker.
+#pragma once
+#include <utility>
+namespace Common {
+class ThreadWorker {
+public:
+    template <typename F> void QueueWork(F&& work) { std::forward<F>(work)(); }
+    void WaitForRequests() {}
+};
+}
+namespace Tegra::Texture {
+inline Common::ThreadWorker& GetThreadWorkers() {
+    static Common::ThreadWorker workers;
+    return workers;
+}
+}
+]=])
+    file(GLOB echoes_boost_includes LIST_DIRECTORIES true
+        "${EDEN_CPM_CACHE}/boost/*/libs/*/include")
+    dsmod_add_test(dsmod-echoes-assets KEEP_ASSERTS
+        SOURCES echoes_assets_test.cpp echoes_assets.cpp ${ECHOES_TEXTURE_SOURCES}
+            "${EDEN_SOURCE_ROOT}/src/video_core/textures/astc.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder"
+            ${echoes_boost_includes}
+        COMPILE_DEFINITIONS ECHOES_TEST_NATIVE_ASTC=1)
+    dsmod_add_test(dsmod-echoes-map-assets KEEP_ASSERTS
+        SOURCES echoes_map_assets_test.cpp echoes_map_assets.cpp echoes_assets.cpp ${ECHOES_TEXTURE_SOURCES}
+            "${EDEN_SOURCE_ROOT}/src/video_core/textures/astc.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder"
+            ${echoes_boost_includes}
+        COMPILE_DEFINITIONS ECHOES_TEST_NATIVE_ASTC=1)
+    dsmod_add_test(dsmod-echoes-map-icon-assets KEEP_ASSERTS
+        SOURCES echoes_map_icon_assets_test.cpp echoes_map_icon_assets.cpp ${ECHOES_TEXTURE_SOURCES}
+            "${EDEN_SOURCE_ROOT}/src/video_core/textures/astc.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder" ${echoes_boost_includes}
+        COMPILE_DEFINITIONS ECHOES_TEST_NATIVE_ASTC=1)
+    target_include_directories(dsmod-echoes-map-icon-assets-test BEFORE PRIVATE "${echoes_shim_dir}")
+    target_include_directories(dsmod-echoes-map-assets-test BEFORE PRIVATE "${echoes_shim_dir}")
+    set(ECHOES_TEST_ROMFS "" CACHE PATH "Optional local Echoes native RomFS test fixture")
+    set_tests_properties(dsmod-echoes-map-assets PROPERTIES SKIP_RETURN_CODE 77)
+    if(ECHOES_TEST_ROMFS)
+        set_tests_properties(dsmod-echoes-map-assets PROPERTIES
+            ENVIRONMENT "ECHOES_ROMFS=${ECHOES_TEST_ROMFS}")
+    endif()
+    dsmod_add_test(dsmod-echoes-dungeon-assets KEEP_ASSERTS
+        SOURCES echoes_dungeon_assets_test.cpp echoes_dungeon_assets.cpp echoes_dungeon.cpp ${ECHOES_TEXTURE_SOURCES}
+            "${EDEN_SOURCE_ROOT}/src/video_core/textures/astc.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder"
+            ${echoes_boost_includes}
+        COMPILE_DEFINITIONS ECHOES_TEST_NATIVE_ASTC=1)
+    target_include_directories(dsmod-echoes-dungeon-assets-test BEFORE PRIVATE "${echoes_shim_dir}")
+    set_tests_properties(dsmod-echoes-dungeon-assets PROPERTIES SKIP_RETURN_CODE 77)
+    target_include_directories(dsmod-echoes-assets-test BEFORE PRIVATE "${echoes_shim_dir}")
+endif()
+set_source_files_properties(echoes_fonts.cpp PROPERTIES COMPILE_OPTIONS -ffp-contract=off)
+
 if(BUILD_TESTING AND NOT ANDROID)
     dsmod_add_test(dsmod-wonder-catalog KEEP_ASSERTS
         SOURCES wonder_catalog_test.cpp ${WONDER_ASSET_SOURCES}
@@ -811,4 +985,14 @@ if(BUILD_TESTING AND NOT ANDROID)
         SOURCES smo_map_test.cpp smo_map.cpp smo_save.cpp fe3h_ui2d.cpp
             "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
         INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+endif()
+
+if(BUILD_TESTING AND NOT ANDROID)
+  add_executable(dsmod-echoes-quick-slots-test echoes_quick_slots_test.cpp)
+  add_test(NAME dsmod-echoes-quick-slots COMMAND dsmod-echoes-quick-slots-test)
+endif()
+
+if(BUILD_TESTING AND NOT ANDROID)
+  add_executable(dsmod-echoes-quick-slot-bridge-test echoes_quick_slot_bridge_test.cpp)
+  add_test(NAME dsmod-echoes-quick-slot-bridge COMMAND dsmod-echoes-quick-slot-bridge-test)
 endif()
