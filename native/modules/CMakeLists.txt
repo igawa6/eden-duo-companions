@@ -365,6 +365,7 @@ if(BUILD_TESTING AND NOT ANDROID)
     dsmod_add_test(dsmod-echoes-landmarks KEEP_ASSERTS
         SOURCES echoes_landmarks_test.cpp echoes_landmarks.cpp echoes_map_annotation_reader.cpp echoes_catalog.cpp)
     set_tests_properties(dsmod-echoes-map-markers dsmod-echoes-quest-markers dsmod-echoes-landmarks
+        dsmod-echoes-entrances
         PROPERTIES SKIP_RETURN_CODE 77)
     dsmod_add_test(dsmod-echoes-dungeon-view KEEP_ASSERTS
         SOURCES echoes_dungeon_view_test.cpp)

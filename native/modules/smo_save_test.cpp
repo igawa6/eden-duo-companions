@@ -371,7 +371,7 @@ void TestRealFixtures() {
                  "decode test");
         return;
     }
-    // research/SAVE-FORMAT.md's own validated counts for this fixture.
+    // The save format notes' validated counts for this fixture.
     assert(hundred->achievements_available == true);
     assert(hundred->achievement_counters.at("PlayerJumpCount") == 27962);
     assert(hundred->achievement_counters.at("ItemCap") == 41);
@@ -383,7 +383,7 @@ void TestRealFixtures() {
     assert(hundred->captures_seen.size() == 52);
     assert(hundred->world_id == 14 && hundred->stage_name == "PeachWorldHomeStage");
     // Stats-tab extension: raw owned item_name sets
-    // and the live CollectBgmList music counter, cross-checked against research/SAVE-FORMAT.md's
+    // and the live CollectBgmList music counter, cross-checked against the save format notes'
     // own validated "41/42/26/17" set-equal table and RE batch 9's live "82/82" finding.
     assert(hundred->owned_caps.size() == 41);
     assert(hundred->owned_cloth.size() == 42);
@@ -420,7 +420,7 @@ void TestRealFixtures() {
     assert(cascade->checkpoint_count == 1);
     assert(cascade->achievements_claimed.empty());
     assert(cascade->captures_seen.size() == 2);
-    // research/SAVE-FORMAT.md: "the live `work` save's early-game state parsed... to 4 tracks, in
+    // Save format notes: "the live `work` save's early-game state parsed... to 4 tracks, in
     // Cascade" -- confirmed directly against this exact fixture this session (4 CollectBgmList
     // entries, all collected).
     assert(cascade->music_valid && cascade->music_total == 82 && cascade->music_owned == 4);
@@ -576,7 +576,7 @@ void TestRealFixtures() {
         std::size_t pairs = 0;
         for (const auto& name : *cap_names)
             if (cloth_names->contains(name)) ++pairs;
-        // research/SAVE-FORMAT.md / 04-stats-extension README: 41 cap-only + 42 clothes-only
+        // Save format notes: 41 cap-only + 42 clothes-only
         // entries, 39 names present in both tables.
         assert(pairs == 39);
         const std::set<std::string> owned_caps{hundred->owned_caps.begin(), hundred->owned_caps.end()};

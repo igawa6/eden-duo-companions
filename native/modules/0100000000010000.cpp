@@ -201,7 +201,7 @@ struct SaveState {
     std::vector<SmoSave::Task> tasks;
     std::optional<SmoSave::TaskRules> task_rules;
     std::map<std::string, std::string> capture_names;
-    // Stats-tab extension (04-stats-extension): static item_name catalogues, parsed once.
+    // Stats-tab extension: static item_name catalogues, parsed once.
     std::optional<std::set<std::string>> costume_cap_names, costume_cloth_names, souvenir_names;
 };
 
@@ -536,7 +536,7 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
         // ---- D: Stats-tab Collections strip (souvenir/music/costume-set ownership) -----------
         // Souvenir and costume-set ownership are confirmed live save counters (ItemGift[] /
         // ItemCap[]+ItemCloth[] joined by item_name against the package's own static catalogues).
-        // Music ownership is CollectBgmList[]'s IsCollected field (research/SAVE-FORMAT.md,
+        // Music ownership is CollectBgmList[]'s IsCollected field (save format notes,
         // RE batch 9 "82/82" live finding) -- a real save/data source, not left unproven; if the
         // array itself is absent or empty on a save this build cannot read, music_valid stays
         // false and the page shows the native unavailable treatment, never a fabricated number.

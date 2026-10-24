@@ -5,7 +5,7 @@
 // two distinct node-value encodings (node-header "(payload<<8)|type" vs. hash-entry
 // "(type<<24)|nameIndex") are ported from a verified reference BYML decoder's own documentation,
 // which derived them empirically and validated them by set-equality against the romfs tables
-// (research/SAVE-FORMAT.md).
+// (see the save format notes).
 
 #include "smo_save.h"
 
@@ -341,7 +341,7 @@ SaveProgress ExtractProgress(const Node& root) {
         if (const auto* v = root.Find(key); v && v->IsArray())
             for (const auto& item : v->arr)
                 if (item.type == Node::Type::String && !item.s.empty()) dest->push_back(item.s);
-    // CollectBgmList[] = {BgmResourceName, IsCollected} (research/SAVE-FORMAT.md). Unlike
+    // CollectBgmList[] = {BgmResourceName, IsCollected}. Unlike
     // ShineData/GetCoinCollectData, this array is APPEND-ONLY (grows as tracks are discovered,
     // not a fixed 82-slot roster with placeholders) -- confirmed this session against two
     // fixtures (8 entries / 8 collected on sand-16-moons-en; 82 / 82 on 100-percent-en, matching
@@ -413,7 +413,7 @@ SaveProgress ExtractProgress(const Node& root) {
         for (const auto& e : cps->arr) {
             const auto* stage = e.Find("StageName");
             const auto* obj = e.Find("ObjId");
-            // Empty-string array slots are placeholder entries (research/SAVE-FORMAT.md): both
+            // Empty-string array slots are placeholder entries: both
             // fields must be non-empty, matching save_read.py's "if e.get(...) and e.get(...)".
             if (stage && !stage->AsStringView().empty() && obj && !obj->AsStringView().empty()) {
                 ++out.checkpoint_count;

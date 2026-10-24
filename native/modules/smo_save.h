@@ -3,7 +3,7 @@
 
 // Super Mario Odyssey save reader. Ports a verified reference BYML/save decoder prototype to
 // C++: File1.bin is a 16-byte header followed by a BYML v3 document at offset 0x10
-// (research/SAVE-FORMAT.md). Every progress field
+// (see the save format notes). Every progress field
 // is named in the save's own hash-key table (ShineData, GetCoinCollectData, Checkpoint,
 // AchievementSaveData, HackDictionary, WorldInfo, StageName/WorldId, ...).
 //
@@ -113,7 +113,7 @@ struct SaveProgress {
     // task-scoped join). The caller intersects these with the package's static name tables to
     // get "costume sets owned" / "souvenirs owned" against their static totals.
     std::vector<std::string> owned_caps, owned_cloth, owned_gifts;
-    // CollectBgmList[] = {BgmResourceName, IsCollected} (research/SAVE-FORMAT.md). Empirically
+    // CollectBgmList[] = {BgmResourceName, IsCollected}. Empirically
     // confirmed this session (not just assumed): the array is APPEND-ONLY, growing as tracks are
     // discovered -- every entry ever observed in it is already IsCollected=1 (the sand-16-moons-en
     // fixture has only 8 entries, all collected; the 100-percent-en fixture has exactly 82, all
