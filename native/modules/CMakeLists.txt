@@ -755,3 +755,60 @@ if(NOT ANDROID AND BUILD_TESTING)
             COMPILE_OPTIONS -Wall -Wextra -Werror)
     endforeach()
 endif()
+
+# Super Mario Odyssey (title 0100000000010000), game build 1.4.1. One translation unit
+# (0100000000010000.cpp) plus the smo_*.{h,cpp} readers and pages: smo_reader (coins/health via a
+# verified StageScene -> GameDataHolder -> gameData chain), smo_save (a read-only BYML v3 parser
+# for File1.bin, wired through eden_dsmod_get_save_extensions), smo_romfs_tables (kingdom/task/
+# capture tables built from the player's own romfs), smo_map/smo_world (native per-kingdom maps,
+# live player position and touched checkpoints), smo_capture (Stats capture portraits and names),
+# smo_progress (task/achievement readiness), smo_warp (direct checkpoint travel) and smo_hud/
+# smo_ui (HUD visibility and page layout). smo_font.cpp merges six native BFFNTs into one glyph
+# atlas (PACKAGE_FORMAT.md section 3.1 allows only one font/font_atlas pair per manifest), reusing
+# the project's existing BC4/RGBA8 BNTX decoder (bc_decoder, already linked by other modules that
+# decode Switch textures, e.g. dsmod-acnh/dsmod-mk8d above).
+dsmod_add_module(dsmod-smo EXCLUDE_FROM_ALL
+    TITLE 0100000000010000
+    SOURCES 0100000000010000.cpp 0100000000010000.h smo_reader.cpp smo_font.cpp smo_font.h
+        smo_save.cpp smo_save.h smo_map.cpp smo_map.h smo_capture.cpp smo_capture.h smo_progress.cpp smo_world.cpp smo_ui.cpp smo_hud.cpp smo_warp.cpp fe3h_ui2d.cpp
+        smo_romfs_tables.cpp smo_romfs_tables.h
+        "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
+        eden_dsmod_get_save_extensions eden_dsmod_get_write_extensions
+    INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+set_source_files_properties("${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp" PROPERTIES COMPILE_OPTIONS -w) # upstream file
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-smo-reader KEEP_ASSERTS
+        SOURCES 0100000000010000_test.cpp smo_reader.cpp)
+    dsmod_add_test(dsmod-smo-font KEEP_ASSERTS
+        SOURCES smo_font_test.cpp smo_font.cpp "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    set_source_files_properties("${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp" PROPERTIES COMPILE_OPTIONS -w)
+    dsmod_add_test(dsmod-smo-save KEEP_ASSERTS
+        SOURCES smo_save_test.cpp smo_save.cpp smo_romfs_tables.cpp fe3h_ui2d.cpp smo_map.cpp
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-smo-romfs-tables KEEP_ASSERTS
+        SOURCES smo_romfs_tables_test.cpp smo_romfs_tables.cpp smo_save.cpp smo_world.cpp fe3h_ui2d.cpp smo_map.cpp
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-smo-capture KEEP_ASSERTS
+        SOURCES smo_capture_test.cpp smo_capture.cpp fe3h_ui2d.cpp
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-smo-hud KEEP_ASSERTS SOURCES smo_hud_test.cpp smo_hud.cpp)
+    dsmod_add_test(dsmod-smo-warp KEEP_ASSERTS SOURCES smo_warp_test.cpp smo_warp.cpp)
+    dsmod_add_test(dsmod-smo-world-assets KEEP_ASSERTS
+        SOURCES smo_world_assets_test.cpp smo_world.cpp smo_map.cpp smo_save.cpp smo_ui.cpp fe3h_ui2d.cpp smo_romfs_tables.cpp
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-smo-progress KEEP_ASSERTS SOURCES smo_progress_test.cpp smo_progress.cpp)
+    dsmod_add_test(dsmod-smo-world KEEP_ASSERTS
+        SOURCES smo_world_test.cpp smo_world.cpp smo_romfs_tables.cpp smo_save.cpp smo_map.cpp fe3h_ui2d.cpp
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-smo-map KEEP_ASSERTS
+        SOURCES smo_map_test.cpp smo_map.cpp smo_save.cpp fe3h_ui2d.cpp
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+endif()
