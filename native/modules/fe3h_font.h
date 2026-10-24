@@ -106,4 +106,16 @@ bool Build(Face face, const GameTables& tables, const std::vector<uint32_t>& cod
 // "FE3HFONT sans" (any trailing text ignored). False for anything else.
 bool ParseRequest(std::span<const uint8_t> bytes, Face& face);
 
+struct TtfAtlas {
+    uint32_t width{0};
+    uint32_t height{0};
+    std::vector<uint8_t> rgba; // RGBA8 pixels
+};
+
+// Rasterize TTF font containing Chinese/ASCII glyphs into an atlas and populate Font glyphs
+bool BuildFromTtf(std::span<const uint8_t> ttf_data, Font& out, TtfAtlas& atlas);
+
+// Attempt loading Android system CJK fonts or local font files and building the font
+bool TryLoadChineseFont(Font& out, TtfAtlas& atlas);
+
 } // namespace fe3h_font

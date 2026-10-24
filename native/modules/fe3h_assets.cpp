@@ -298,6 +298,8 @@ private:
     SourcePtr ui_atlas_[UiAtlasLast - UiAtlasFirst + 1];
     std::map<uint32_t, SourcePtr> ui_g1t_;
     SourcePtr font_tex_, stills_, stills_dlc_, faces_dlc_;
+    fe3h_font::TtfAtlas dynamic_font_atlas_;
+    bool has_dynamic_font_atlas_{false};
     uint32_t arc_id_{};
     std::vector<uint8_t> arc_; // the last ui2d SARC read (they are read whole, <= 18 MiB)
     std::vector<fe3h_ui2d::SarcFile> arc_files_;
@@ -577,6 +579,12 @@ bool LibraryImpl::Load(const EdenDsmodHostApi* host, std::string_view key_view,
             Weapons();
     }
     const std::string key{key_view.starts_with("module:") ? key_view.substr(7) : key_view};
+    if (key == "fe3h:font/latin" && has_dynamic_font_atlas_) {
+        rgba = dynamic_font_atlas_.rgba;
+        w = dynamic_font_atlas_.width;
+        h = dynamic_font_atlas_.height;
+        return true;
+    }
     if (key.starts_with("fe3h:ui2d/") || key.starts_with("fe3h:dport") ||
         key.starts_with("fe3h:panel") || key.starts_with("fe3h:sport") ||
         key.starts_with("fe3h:oport/") || key.starts_with("fe3h:gauge/") ||
@@ -2628,6 +2636,19 @@ bool LibraryImpl::ClassIcon(const EdenDsmodHostApi* host, std::string_view key,
 
 bool LibraryImpl::DecodeFont(const EdenDsmodHostApi* host, std::span<const uint8_t> bytes,
                              FontOut& out) {
+    fe3h_font::Font font;
+    if (fe3h_font::TryLoadChineseFont(font, dynamic_font_atlas_)) {
+        has_dynamic_font_atlas_ = true;
+        out.line_height = font.line_height;
+        out.first_codepoint = font.first_codepoint;
+        out.glyphs.resize(font.glyphs.size());
+        for (size_t i = 0; i < font.glyphs.size(); ++i) {
+            const auto& g = font.glyphs[i];
+            out.glyphs[i] = {g.x, g.y, g.w, g.h, g.bearing_x, g.bearing_y, g.advance};
+        }
+        return true;
+    }
+
     fe3h_font::Face face;
     if (!host || !fe3h_font::ParseRequest(bytes, face))
         return false;
@@ -2641,7 +2662,7 @@ bool LibraryImpl::DecodeFont(const EdenDsmodHostApi* host, std::span<const uint8
         if (!e || !e->ReadAll(table, uint64_t{1} << 20))
             return false;
     }
-    fe3h_font::Font font;
+    font = {};
     if (!fe3h_font::Build(face, tables, fe3h_font::DecodeCodeTable(table), font))
         return false;
     out.line_height = font.line_height;
