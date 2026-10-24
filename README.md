@@ -67,12 +67,14 @@ Installing a newer version of a companion replaces the older one.
 
 ## Persona 5 Royal
 
+<details>
+<summary>Screenshots and details</summary>
+
 `01005CA01580E000` · game version 1.0.2 · companion 1.1.0
 
 | Field | Menu | Battle |
 |:---:|:---:|:---:|
 | <img src="screenshots/persona5royal/field.png" width="300" alt="Persona 5 Royal: Field"> | <img src="screenshots/persona5royal/menu.png" width="300" alt="Persona 5 Royal: Menu"> | <img src="screenshots/persona5royal/battle.png" width="300" alt="Persona 5 Royal: Battle"> |
-
 
 Follow your position on the area map, browse the native-style camp menu, and keep enemy and party information visible during battle.
 
@@ -90,14 +92,20 @@ A full bottom-screen version of the game's own start menu, with live data:
 
 The companion ships no game art: menus, fonts and icons are drawn from your own game files when the page first opens.
 
+</details>
+
+---
+
 ## Metroid Dread
+
+<details>
+<summary>Screenshots and details</summary>
 
 `010093801237C000` · game version 2.1.0 · companion 1.0.0
 
 | Map | EMMI zone | Water drain |
 |:---:|:---:|:---:|
 | <img src="screenshots/metroid-dread/map.png" width="300" alt="Metroid Dread: Map"> | <img src="screenshots/metroid-dread/emmi.png" width="300" alt="Metroid Dread: EMMI zone"> | <img src="screenshots/metroid-dread/water.png" width="300" alt="Metroid Dread: Water drain"> |
-
 
 Keep explored rooms, doors and item markers beside the action. The EMMI and water-area examples show the map following different parts of Artaria.
 
@@ -110,14 +118,20 @@ A live area map on the second screen, drawn the way the game draws its own:
 
 The companion ships no game art: map geometry and icons are built from your own game files.
 
+</details>
+
+---
+
 ## The Legend of Zelda: Link's Awakening
+
+<details>
+<summary>Screenshots and details</summary>
 
 `01006BB00C6F0000` · game version 1.0.1 · companion 1.0.0
 
 | Map | Gear | Items |
 |:---:|:---:|:---:|
 | <img src="screenshots/links-awakening/map.png" width="300" alt="The Legend of Zelda: Link’s Awakening: Map"> | <img src="screenshots/links-awakening/gear.png" width="300" alt="The Legend of Zelda: Link’s Awakening: Gear"> | <img src="screenshots/links-awakening/items.png" width="300" alt="The Legend of Zelda: Link’s Awakening: Items"> |
-
 
 Browse the island map, equipment and collected items on the companion while the main screen stays on the adventure.
 
@@ -127,14 +141,20 @@ Browse the island map, equipment and collected items on the companion while the 
 
 The companion ships no game art: it uses your own game files.
 
+</details>
+
+---
+
 ## Mario Kart 8 Deluxe
+
+<details>
+<summary>Screenshots and details</summary>
 
 `0100152000022000` · game version 4.0.0 or 3.0.3 (also with CTGP-DX v1.1.1) · companion 1.0.0
 
 | Map | Horn | Next race |
 |:---:|:---:|:---:|
 | <img src="screenshots/mario-kart-8-deluxe/map_long_light.png" width="300" alt="Mario Kart 8 Deluxe: Map"> | <img src="screenshots/mario-kart-8-deluxe/horn_short_dark.png" width="300" alt="Mario Kart 8 Deluxe: Horn"> | <img src="screenshots/mario-kart-8-deluxe/waiting.png" width="300" alt="Mario Kart 8 Deluxe: Next race"> |
-
 
 Follow standings and the course map during a race, use the touch horn, and see the next-race screen between events.
 
@@ -158,14 +178,20 @@ Limitations:
 - An item that is being used, such as an active Bullet Bill, is not shown in the rank bar.
 - CTGP-DX is supported on game version 3.0.3 only, not on 4.0.0.
 
+</details>
+
+---
+
 ## Super Mario Bros. Wonder
+
+<details>
+<summary>Screenshots and details</summary>
 
 `010015100B514000` · game version 1.2.1 · companion 1.0.2
 
 | Title | World map | Course |
 |:---:|:---:|:---:|
 | <img src="screenshots/super-mario-bros-wonder/title.png" width="300" alt="Super Mario Bros. Wonder: Title"> | <img src="screenshots/super-mario-bros-wonder/map.png" width="300" alt="Super Mario Bros. Wonder: World map"> | <img src="screenshots/super-mario-bros-wonder/course.png" width="300" alt="Super Mario Bros. Wonder: Course"> |
-
 
 The title, world map and course views keep the game’s visual style across states. Course progress and collectible information sit alongside the platforming.
 
@@ -178,16 +204,20 @@ The title, world map and course views keep the game’s visual style across stat
 
 The companion ships no game art: pictures, icons, the font and course names are read from your own game files.
 
+</details>
+
 ---
 
 ## Animal Crossing: New Horizons
+
+<details>
+<summary>Screenshots and details</summary>
 
 `01006F8002326000` · game version 3.0.3 · companion 1.0.0
 
 | Island map | Pockets | Critterpedia |
 |:---:|:---:|:---:|
 | <img src="screenshots/animal-crossing-new-horizons/map.png" width="300" alt="Animal Crossing: New Horizons: Island map"> | <img src="screenshots/animal-crossing-new-horizons/pockets.png" width="300" alt="Animal Crossing: New Horizons: Pockets"> | <img src="screenshots/animal-crossing-new-horizons/critterpedia.png" width="300" alt="Animal Crossing: New Horizons: Critterpedia"> |
-
 
 Keep the island map and residents visible, inspect pocket contents, and browse recorded creatures with the game’s own artwork.
 
@@ -202,14 +232,20 @@ Your island information and NookPhone pages, always within reach on the second s
 
 The companion ships no game art: maps, item pictures, icons, fonts and text are read from your own game files.
 
+</details>
+
+---
+
 ## Fire Emblem: Three Houses
+
+<details>
+<summary>Screenshots and details</summary>
 
 `010055D009F78000` · game version 1.2.0 · companion 1.0.0
 
 | Monastery | Academy | Battle |
 |:---:|:---:|:---:|
 | <img src="screenshots/fire-emblem-three-houses/monastery.png" width="300" alt="Fire Emblem: Three Houses: Monastery"> | <img src="screenshots/fire-emblem-three-houses/academy.png" width="300" alt="Fire Emblem: Three Houses: Academy"> | <img src="screenshots/fire-emblem-three-houses/battle.png" width="300" alt="Fire Emblem: Three Houses: Battle"> |
-
 
 Switch between monastery navigation, academy information and battlefield details without crowding the main game screen.
 
@@ -223,14 +259,20 @@ Keep the monastery, your students and the battlefield on the second screen:
 
 The companion ships no game art: maps, portraits, icons, fonts and text are read from your own game files.
 
+</details>
+
+---
+
 ## The Binding of Isaac: Afterbirth+ and Repentance DLC
+
+<details>
+<summary>Screenshots and details</summary>
 
 `010021C000B6A000` · game version 1.7.9b (Switch update v524288) · companion 1.0.2
 
 | Map | Items | Room |
 |:---:|:---:|:---:|
 | <img src="screenshots/the-binding-of-isaac/map.png" width="300" alt="The Binding of Isaac: Afterbirth+ and Repentance DLC: Map"> | <img src="screenshots/the-binding-of-isaac/items.png" width="300" alt="The Binding of Isaac: Afterbirth+ and Repentance DLC: Items"> | <img src="screenshots/the-binding-of-isaac/room.png" width="300" alt="The Binding of Isaac: Afterbirth+ and Repentance DLC: Room"> |
-
 
 Keep the floor layout visible, inspect collected items, and read the selected room pickup’s description while the main screen shows the room.
 
@@ -247,6 +289,8 @@ The companion ships no game art: parchment, icons, item pictures and fonts are r
 
 The launcher must be updated to 1.7.9b in either edition; unpatched base v0 is not supported.
 
+</details>
+
 ---
 
 <a id="pokemon-brilliant-diamond-luminescent-platinum"></a>
@@ -260,7 +304,6 @@ The launcher must be updated to 1.7.9b in either edition; unpatched base v0 is n
 | Map | Party | Battle |
 |:---:|:---:|:---:|
 | <img src="screenshots/pokemon-luminescent-platinum/map.png" width="300" alt="Pokémon Brilliant Diamond / Luminescent Platinum: Map"> | <img src="screenshots/pokemon-luminescent-platinum/party.png" width="300" alt="Pokémon Brilliant Diamond / Luminescent Platinum: Party"> | <img src="screenshots/pokemon-luminescent-platinum/battle.png" width="300" alt="Pokémon Brilliant Diamond / Luminescent Platinum: Battle"> |
-
 
 The Sinnoh map keeps your position and destination visible; Party exposes move order and PP; Battle presents native commands and opponent information.
 
@@ -281,6 +324,7 @@ Limitations:
 - Supports Brilliant Diamond 1.3.0, vanilla or with Luminescent Platinum 2.2F.
 - Shining Pearl has its own package; do not install the Brilliant Diamond package for Pearl.
 
+---
 
 <a id="pokemon-shining-pearl-luminescent-platinum"></a>
 
@@ -294,7 +338,6 @@ Limitations:
 |:---:|:---:|:---:|
 | <img src="screenshots/pokemon-shining-pearl/map.png" width="300" alt="Pokémon Shining Pearl / Luminescent Platinum: Map"> | <img src="screenshots/pokemon-shining-pearl/party.png" width="300" alt="Pokémon Shining Pearl / Luminescent Platinum: Party"> | <img src="screenshots/pokemon-shining-pearl/poketch.png" width="300" alt="Pokémon Shining Pearl / Luminescent Platinum: Pokétch"> |
 
-
 The Shining Pearl companion shows the Sinnoh map, party details and its own Pokétch, here with Luminescent Platinum.
 
 Requires Eden Duo 1.2.1 or newer.
@@ -303,14 +346,18 @@ It has the same Map, Party, Bag, Pokédex, Pokétch and Battle pages as the Bril
 
 The companion ships no game art: pictures, fonts and text are read from your own game files.
 
+---
+
 ## Crash Team Racing Nitro-Fueled
+
+<details>
+<summary>Screenshots and details</summary>
 
 `0100F9F00C696000` · game version 1.0.15 · companion 1.0.0
 
 | Race | HUD settings | Native HUD comparison |
 |:---:|:---:|:---:|
 | <img src="screenshots/crash-team-racing-nitro-fueled/race.png" width="300" alt="Crash Team Racing Nitro-Fueled: Race"> | <img src="screenshots/crash-team-racing-nitro-fueled/settings.png" width="300" alt="Crash Team Racing Nitro-Fueled: HUD settings"> | <img src="screenshots/crash-team-racing-nitro-fueled/hud.png" width="300" alt="Crash Team Racing Nitro-Fueled: Native HUD comparison"> |
-
 
 Follow racer order, course positions, lap and clock on the companion. The settings and comparison views show control of the native game’s five HUD elements.
 
@@ -328,15 +375,20 @@ Limitations:
 
 - Designed for one local player in races.
 
+</details>
+
+---
 
 ## Dragon Quest III HD-2D Remake
+
+<details>
+<summary>Screenshots and details</summary>
 
 `01003E601E324000` · game version 1.1.0.0 · companion 1.0.0
 
 | Map | Party | Battle |
 |:---:|:---:|:---:|
 | <img src="screenshots/dragon-quest-iii-hd-2d-remake/map.png" width="300" alt="Dragon Quest III HD-2D Remake: Map"> | <img src="screenshots/dragon-quest-iii-hd-2d-remake/party.png" width="300" alt="Dragon Quest III HD-2D Remake: Party"> | <img src="screenshots/dragon-quest-iii-hd-2d-remake/battle.png" width="300" alt="Dragon Quest III HD-2D Remake: Battle"> |
-
 
 Keep the current map and floor information beside exploration, inspect party spells and equipment, and view enemy details and possible spells during battle.
 
@@ -354,15 +406,20 @@ Limitations:
 
 - Supports executable build 4F41309B39EEBE5E; other builds are not validated.
 
+</details>
+
+---
 
 ## Chained Echoes
+
+<details>
+<summary>Screenshots and details</summary>
 
 `0100C510166F0000` · game version 1.41 · companion 1.0.0
 
 | Field | Battle | Crystals planner |
 |:---:|:---:|:---:|
 | <img src="screenshots/chained-echoes/field.png" width="300" alt="Chained Echoes: Field"> | <img src="screenshots/chained-echoes/battle.png" width="300" alt="Chained Echoes: Battle"> | <img src="screenshots/chained-echoes/crystals.png" width="300" alt="Chained Echoes: Crystals planner"> |
-
 
 Field Home combines the native area map with exploration information. Battle keeps skills, turn order and Overdrive together; Crystals lets you plan slot changes before making them in the native menu.
 
@@ -382,9 +439,14 @@ Limitations:
 - Supports update build 17B6A110CC529FBE; the base build only shows an unsupported-version notice.
 - Skill and crystal plans guide changes in the native menu; the companion does not independently apply smith fusion or equipment edits.
 
+</details>
+
 ---
 
 ## Yoru Tomosu
+
+<details>
+<summary>Screenshots and details</summary>
 
 🥇 <a href="https://ko-fi.com/igawa6/commissions"><img src="https://img.shields.io/badge/Anon.-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Anon."></a>
 
@@ -404,7 +466,14 @@ Browse past dialogue and unlocked art on the second screen while the story stays
 
 The companion ships no game art: dialogue, fonts and pictures are read from your own game files and patch.
 
+</details>
+
+---
+
 ## Diablo III: Eternal Collection
+
+<details>
+<summary>Screenshots and details</summary>
 
 🥇 <a href="https://ko-fi.com/Z2B723BQK6"><img src="https://img.shields.io/badge/shy-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="shy"></a>
 
@@ -424,7 +493,14 @@ Keep the map, hero sheet and gear beside the action, read live from the running 
 
 The companion ships no game art: portraits, item icons and map art are read from your own game files.
 
+</details>
+
+---
+
 ## Farming Simulator: Nintendo Switch Edition
+
+<details>
+<summary>Screenshots and details</summary>
 
 🥇 <a href="https://ko-fi.com/igawa6/commissions"><img src="https://img.shields.io/badge/Anon.-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Anon."></a>
 
@@ -442,7 +518,14 @@ Run the farm's menus on the second screen while the field stays on the main one.
 
 The companion ships no game art: icons, maps and text are read from your own game files.
 
+</details>
+
+---
+
 ## VA-11 Hall-A: Cyberpunk Bartender Action
+
+<details>
+<summary>Screenshots and details</summary>
 
 ⭐ <a href="https://ko-fi.com/matinc"><img src="https://img.shields.io/badge/Mati-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Mati"></a>
 
@@ -457,55 +540,9 @@ Mix drinks on the second screen while the story plays on the main one.
 
 The companion ships no game art: Jill, the cans, the shaker, the drinks, the doodles, the sounds and the dialogue are read from your own game files. The bar window, the SUCCESS and error windows and the other overlay art are original to the companion.
 
-## Contribute to Another Game
+</details>
 
-Anyone can write a companion for another game, without rebuilding Eden Duo. Start with [**Contribute to Another Game**](docs/CONTRIBUTE.md): what a companion is, what the runtime offers, the reverse-engineering tools, which documents to read in which order, and how to share your companion.
-
-## Building Packages
-
-| Path | Contents |
-|------|----------|
-| [`native/`](native/) | Native game modules, shared companion helpers, tests and standalone CMake build. See [`native/README.md`](native/README.md). |
-| [`packages/`](packages/) | Package sources, one folder per game: `dualscreen/manifest.json`, the per-build data file `<BUILD16>.json` (one per supported build) and, for Persona 5 Royal, the art recipe table `p5r_art.rec`. |
-| [`tools/`](tools/) | `build_release.sh` packages its supported companion targets from the package sources and separately built native modules; companions maintained in separate source trees use their own packaging tools. The page generators for Persona 5 Royal ([`tools/p5r/`](tools/p5r/)), Metroid Dread ([`tools/dread/`](tools/dread/)), Mario Kart 8 Deluxe ([`tools/mk8d/`](tools/mk8d/)) and Super Mario Bros. Wonder ([`tools/wonder/`](tools/wonder/)) are here too. |
-| [`docs/`](docs/) | How the companion runtime works, the package format, writing a native module and porting a new game. Start with [`docs/CONTRIBUTE.md`](docs/CONTRIBUTE.md). |
-| [`screenshots/`](screenshots/) | Captures of both screens for each game. |
-
-The native modules for Persona 5 Royal, Metroid Dread, Mario Kart 8 Deluxe, Super Mario Bros. Wonder, Animal Crossing: New Horizons, Fire Emblem: Three Houses and The Binding of Isaac are C++ and live in this repository under [`native/modules`](https://github.com/igawa6/eden-duo-companions/tree/main/native/modules). Build them here using [the native build guide](native/README.md), strip them, and pass them to the release script:
-
-```sh
-P5R_LINUX_SO=... P5R_ANDROID_SO=... DREAD_LINUX_SO=... DREAD_ANDROID_SO=... \
-MK8D_LINUX_SO=... MK8D_ANDROID_SO=... WONDER_LINUX_SO=... WONDER_ANDROID_SO=... \
-ACNH_LINUX_SO=... ACNH_ANDROID_SO=... FE3H_LINUX_SO=... FE3H_ANDROID_SO=... \
-ISAAC_LINUX_SO=... ISAAC_ANDROID_SO=... tools/build_release.sh dist
-```
-
-See [`tools/README.md`](tools/README.md) for the details. Link's Awakening needs no native module.
-
-Everything a companion needs is in this repository: the package source, the native module source, the generators and the documentation. The Eden Duo runtime itself is game-agnostic — it has no title IDs, offsets or game names of its own — so a companion is the only place a game's details live. A companion can be built and run on a desktop with `eden-cli` and its virtual second screen (`--aux-virtual`) before it goes to a device; see [`docs/PORTING_A_GAME.md`](docs/PORTING_A_GAME.md). The maintainer's reverse-engineering notes and working files are not published; the comments in each module state what a value is and how it was derived.
-
-## Reporting Problems
-
-Open an issue and include:
-
-- the game, its version and its title ID;
-- the companion version (in **Add-ons**);
-- the Eden Duo version;
-- the device.
-
-A screenshot of both screens helps.
-
-## Game Assets
-
-Companion packages contain **no game assets**: no art, text, audio or level data. Everything game-specific that a companion shows is read at runtime from the player's own game files and from the running game. Do not upload game files, keys, firmware or ROMs to this repository.
-
-## AI Assistance
-
-These companions were developed with AI assistance. The companion modules, the reverse engineering of each game's data and the package generators were written with an AI coding assistant, then reviewed, tested and verified against each game's own screens.
-
-## License
-
-Companion packages and tools are free software, released under the [GNU General Public License v3.0](LICENSE). They are not affiliated with or endorsed by Nintendo, Atlus, SEGA, Sukeban Games, Ysbryd Games, the CTGP-DX team, or the Eden project. All trademarks belong to their respective owners.
+---
 
 ## The Legend of Zelda: Breath of the Wild
 
@@ -530,6 +567,8 @@ The Sheikah Slate moves to the second screen: equip, eat, plan and travel withou
 The companion ships no game art: icons, the map, the font and all text are read from your own game files.
 
 Requires Eden Duo 1.3.2 or newer.
+
+---
 
 ## Castlevania: Belmont's Curse
 
@@ -609,3 +648,55 @@ Zelda's map, Echoes and gear on the second screen, so you can swap, eat and plan
 The companion ships no game art: icons, the map, the font and all text are read from your own game files.
 
 Requires Eden Duo 1.3.2.2 or newer.
+
+---
+
+## Contribute to Another Game
+
+Anyone can write a companion for another game, without rebuilding Eden Duo. Start with [**Contribute to Another Game**](docs/CONTRIBUTE.md): what a companion is, what the runtime offers, the reverse-engineering tools, which documents to read in which order, and how to share your companion.
+
+## Building Packages
+
+| Path | Contents |
+|------|----------|
+| [`native/`](native/) | Native game modules, shared companion helpers, tests and standalone CMake build. See [`native/README.md`](native/README.md). |
+| [`packages/`](packages/) | Package sources, one folder per game: `dualscreen/manifest.json`, the per-build data file `<BUILD16>.json` (one per supported build) and, for Persona 5 Royal, the art recipe table `p5r_art.rec`. |
+| [`tools/`](tools/) | `build_release.sh` packages its supported companion targets from the package sources and separately built native modules; companions maintained in separate source trees use their own packaging tools. The page generators for Persona 5 Royal ([`tools/p5r/`](tools/p5r/)), Metroid Dread ([`tools/dread/`](tools/dread/)), Mario Kart 8 Deluxe ([`tools/mk8d/`](tools/mk8d/)) and Super Mario Bros. Wonder ([`tools/wonder/`](tools/wonder/)) are here too. |
+| [`docs/`](docs/) | How the companion runtime works, the package format, writing a native module and porting a new game. Start with [`docs/CONTRIBUTE.md`](docs/CONTRIBUTE.md). |
+| [`screenshots/`](screenshots/) | Captures of both screens for each game. |
+
+The native modules for Persona 5 Royal, Metroid Dread, Mario Kart 8 Deluxe, Super Mario Bros. Wonder, Animal Crossing: New Horizons, Fire Emblem: Three Houses and The Binding of Isaac are C++ and live in this repository under [`native/modules`](https://github.com/igawa6/eden-duo-companions/tree/main/native/modules). Build them here using [the native build guide](native/README.md), strip them, and pass them to the release script:
+
+```sh
+P5R_LINUX_SO=... P5R_ANDROID_SO=... DREAD_LINUX_SO=... DREAD_ANDROID_SO=... \
+MK8D_LINUX_SO=... MK8D_ANDROID_SO=... WONDER_LINUX_SO=... WONDER_ANDROID_SO=... \
+ACNH_LINUX_SO=... ACNH_ANDROID_SO=... FE3H_LINUX_SO=... FE3H_ANDROID_SO=... \
+ISAAC_LINUX_SO=... ISAAC_ANDROID_SO=... tools/build_release.sh dist
+```
+
+See [`tools/README.md`](tools/README.md) for the details. Link's Awakening needs no native module.
+
+Everything a companion needs is in this repository: the package source, the native module source, the generators and the documentation. The Eden Duo runtime itself is game-agnostic — it has no title IDs, offsets or game names of its own — so a companion is the only place a game's details live. A companion can be built and run on a desktop with `eden-cli` and its virtual second screen (`--aux-virtual`) before it goes to a device; see [`docs/PORTING_A_GAME.md`](docs/PORTING_A_GAME.md). The maintainer's reverse-engineering notes and working files are not published; the comments in each module state what a value is and how it was derived.
+
+## Reporting Problems
+
+Open an issue and include:
+
+- the game, its version and its title ID;
+- the companion version (in **Add-ons**);
+- the Eden Duo version;
+- the device.
+
+A screenshot of both screens helps.
+
+## Game Assets
+
+Companion packages contain **no game assets**: no art, text, audio or level data. Everything game-specific that a companion shows is read at runtime from the player's own game files and from the running game. Do not upload game files, keys, firmware or ROMs to this repository.
+
+## AI Assistance
+
+These companions were developed with AI assistance. The companion modules, the reverse engineering of each game's data and the package generators were written with an AI coding assistant, then reviewed, tested and verified against each game's own screens.
+
+## License
+
+Companion packages and tools are free software, released under the [GNU General Public License v3.0](LICENSE). They are not affiliated with or endorsed by Nintendo, Atlus, SEGA, Sukeban Games, Ysbryd Games, the CTGP-DX team, or the Eden project. All trademarks belong to their respective owners.
