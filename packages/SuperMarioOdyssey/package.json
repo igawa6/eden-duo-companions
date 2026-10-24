@@ -1,0 +1,25 @@
+{
+ "format": 1,
+ "type": "dual-screen-mod",
+ "title_id": "0100000000010000",
+ "name": "Super Mario Odyssey companion",
+ "version": "1.0.0",
+ "requires_module": true,
+ "module": {
+  "abi": 1,
+  "build_ids": [
+   "B424BE150A8E7D78701CBE7A439D9EBF00000000000000000000000000000000"
+  ],
+  "libraries": {
+   "linux-x86_64": {
+    "path": "modules/linux-x86_64/0100000000010000.so",
+    "sha256": "f57367580e29ea46bc684dc46efa8b35e61889f7f43006706a80a5365a7b0e84"
+   },
+   "android-arm64-v8a": {
+    "path": "modules/android-arm64-v8a/0100000000010000.so",
+    "sha256": "4847c3dca20da663220b55bc858e7950e5da809ec0e0e0dbe55c717d11f99ec7"
+   }
+  }
+ },
+ "min_runtime": 22
+}
