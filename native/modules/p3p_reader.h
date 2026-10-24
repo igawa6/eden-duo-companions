@@ -45,6 +45,7 @@ struct Stats {
     int next_exp{-1};                 // -1: not available (protagonist's curve not traced yet)
     std::vector<Social> social;       // protagonist only: Academics, Charm, Courage
 };
+struct Item { int id{}, count{}; std::string name; };
 struct Persona {
     int id{}, level{}, slot{}; bool selected{};
     std::array<int, 8> skills{};
@@ -121,6 +122,40 @@ inline int SocialRank(int points, const std::array<int, 6>& thresholds) {
     return 6;
 }
 
+// Item IDs run 0..0x78f (the table behind GOT 0x70e7f8 has 0x790 records).
+constexpr int ItemIds = 0x790;
+// Owned count 0x1d09f0. counts = S+0x4bc (one byte per ID); flags = S+0x4640, where the
+// type-5 records (+0 == 5) keep a single bit indexed from 0x400 at S+0x46cc.
+inline int ItemCount(const Bytes& counts, const Bytes& flags, int id, u32 type) {
+    if (type != 5) return counts.at(id);
+    int bit = id - 0x400, word = (bit < 0 ? bit + 31 : bit) >> 5;
+    return (At<u32>(flags, 0x46cc - 0x4640 + word * 4) >> (bit & 31)) & 1;
+}
+// The native camp Item tabs (cmpItem.c): 0 Use (0xebeb0: 0x500..0x5ff, 0x690..0x78f),
+// 1 Equip (0xebf90: category passes over 0..0x1fe by the +4 word, then 0x200..0x4ff; an item
+// matching several masks is listed again, as the game does), 2 Key (0xebd88: 0x600..0x68f).
+inline std::vector<std::pair<int, int>> ItemList(int tab, const Bytes& counts, const Bytes& flags,
+                                                 const std::vector<u32>& type, const std::vector<u32>& category) {
+    std::vector<std::pair<int, int>> out;
+    auto range = [&](int first, int end) {
+        for (int id = first; id < end; ++id)
+            if (int n = ItemCount(counts, flags, id, type.at(id))) out.emplace_back(id, n);
+    };
+    if (tab == 0) { range(0x500, 0x600); range(0x690, 0x790); }
+    else if (tab == 2) range(0x600, 0x690);
+    else {
+        static constexpr u32 passes[]{0x802, 0x100, 0x1004, 0x401, 0x8020, 0x80200, 0x10040, 0x20080, 0x2008, 0x10};
+        for (u32 mask : passes)
+            for (int id = 0; id < 0x1ff; ++id)
+                if ((category.at(id) & mask) && ItemCount(counts, flags, id, type.at(id)))
+                    out.emplace_back(id, ItemCount(counts, flags, id, type.at(id)));
+        range(0x200, 0x500);
+    }
+    static constexpr size_t limit[]{0x200, 0x500, 0x90}; // the builders' asserts
+    if (out.size() > limit[tab]) throw std::runtime_error("item list too long");
+    return out;
+}
+
 inline int StockCapacity(u32 flags) {
     if (flags & 4) return 12;
     if (flags & 2) return 10;
@@ -192,7 +227,10 @@ std::vector<Skill> SkillList(const Snapshot& v, const Member& m, Record record) 
 class Reader {
 public:
     explicit Reader(const EdenDsmodHostApi& h) : host(h) {}
-    void UpdateHost(const EdenDsmodHostApi& h) { if (h.main_base != host.main_base) pins_ok = false; host = h; }
+    void UpdateHost(const EdenDsmodHostApi& h) {
+        if (h.main_base != host.main_base) { pins_ok = false; item_table = 0; }
+        host = h;
+    }
     Bytes Read(u64 at, size_t n) const {
         if (!at || n > 32768 || at + n < at || !host.is_mapped || !host.read_memory ||
             !host.is_mapped(host.userdata, at, n)) throw std::runtime_error("memory unavailable");
@@ -289,6 +327,45 @@ public:
         }
         return out;
     }
+    // One native camp Item tab with names (getter 0x1d3bf0). Reads the item table's +0/+4
+    // words for every ID and the inventory twice to reject torn reads.
+    std::vector<Item> Items(int tab) const {
+        if (tab < 0 || tab > 2) throw std::runtime_error("invalid item tab");
+        u64 state = Pointer(host.main_base + 0x70e800);
+        u64 items = Pointer(Pointer(host.main_base + 0x70e7f8));
+        // The item table is static data loaded at boot; its +0/+4 words are cached per table
+        // address and refreshed periodically rather than re-read (108 KB) every sample.
+        if (items != item_table || ++item_table_age >= 120) {
+            std::vector<u32> type(ItemIds), category(ItemIds);
+            for (int first = 0; first < ItemIds; first += 0x200) {
+                int n = std::min(0x200, ItemIds - first);
+                auto block = Read(items + first * 0x38, n * 0x38);
+                for (int i = 0; i < n; ++i) { type[first + i] = At<u32>(block, i * 0x38); category[first + i] = At<u32>(block, i * 0x38 + 4); }
+            }
+            item_type = std::move(type); item_category = std::move(category); item_table = items; item_table_age = 0;
+        }
+        const auto& type = item_type; const auto& category = item_category;
+        auto counts = Read(state + 0x4bc, ItemIds), flags = Read(state + 0x4640, 0x100);
+        auto list = ItemList(tab, counts, flags, type, category);
+        if (counts != Read(state + 0x4bc, ItemIds) || flags != Read(state + 0x4640, 0x100))
+            throw std::runtime_error("context changed");
+        u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+        if (lang > 15) throw std::runtime_error("unsupported language");
+        u64 names = Pointer(Pointer(host.main_base + 0x70e828) + lang * 8);
+        std::vector<Item> out;
+        for (auto [id, count] : list) {
+            Item it{id, count};
+            if (u64 text = Get<u64>(names + id * 8)) {
+                auto raw = Read(text, 64);
+                auto end = std::find(raw.begin(), raw.end(), u8{});
+                if (end != raw.end()) it.name.assign(raw.begin(), end);
+                for (unsigned char c : it.name) if (c < 32 || c > 126) { it.name.clear(); break; }
+            }
+            if (it.name.empty()) it.name = "Item " + std::to_string(id);
+            out.push_back(std::move(it));
+        }
+        return out;
+    }
     // Stats page values for one member (cmpStatus / Persona status 0x21b390 paths).
     Stats MemberStats(const Snapshot& v, const Member& m) const {
         u64 state = Pointer(host.main_base + 0x70e800), allies = Pointer(host.main_base + 0x70e808);
@@ -339,6 +416,9 @@ public:
 private:
     EdenDsmodHostApi host;
     bool pins_ok{};
+    mutable u64 item_table{};
+    mutable int item_table_age{};
+    mutable std::vector<u32> item_type, item_category;
     struct Context {
         u64 observer{}, data{}, field{}, field_data{}, resource{}, menu{};
         int state{}, area{}, subarea{};

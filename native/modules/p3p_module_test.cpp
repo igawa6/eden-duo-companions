@@ -38,11 +38,12 @@ int main() {
         }
         auto ext = eden_dsmod_get_extensions(EDEN_DSMOD_EXT_VERSION, EDEN_DSMOD_EXT_HASH);
         Require(ext && ext->on_action && (api->capabilities & EDEN_DSMOD_CAP_EXTENSIONS), "action extension");
-        Require(ext->on_action(instance, "ui_open", 6) && !ext->on_action(instance, "ui_open", 7), "page range");
+        Require(ext->on_action(instance, "ui_open", 7) && !ext->on_action(instance, "ui_open", 8), "page range");
         Require(ext->on_action(instance, "member_select", 9) && !ext->on_action(instance, "member_select", 10), "member range");
         Require(!ext->on_action(instance, "press", 0), "unknown actions refused");
+        Require(ext->on_action(instance, "item_tab", 2) && !ext->on_action(instance, "item_tab", 3), "item tab range");
         output.clear(); api->sample(instance, &host);
-        Require(output.at("ui.page") == 6 && output.at("stat.ready") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
+        Require(output.at("ui.page") == 7 && output.at("item.ready") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
         api->destroy(instance);
         Require(p3p::Maximum(101,{0x237},{},false)==202,"HP gain");
         Require(p3p::Maximum(101,{0x237},{},true)==51,"SP loss rounds down before subtract");
@@ -105,7 +106,27 @@ int main() {
         Require(p3p::PersonaStat(per, 0, 0) == 0, "clamp at 0");
         Require(p3p::SocialRank(0, {10, 20, 30, 40, 50, 60}) == 1 && p3p::SocialRank(10, {10, 20, 30, 40, 50, 60}) == 2, "rank thresholds are cumulative");
         Require(p3p::SocialRank(29, {10, 20, 30, 40, 50, 60}) == 2 && p3p::SocialRank(500, {10, 20, 30, 40, 50, 60}) == 6, "rank cap");
-        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat and social-rank regressions passed");
+        // 0x1d09f0 and the three cmpItem.c builders.
+        p3p::Bytes counts(p3p::ItemIds), flags(0x100);
+        std::vector<p3p::u32> type(p3p::ItemIds), category(p3p::ItemIds);
+        counts[3] = 2; category[3] = 0x100;                       // Equip, second pass
+        counts[7] = 5; category[7] = 0x800;                       // Equip, first pass (mask 0x802)
+        counts[9] = 1; category[9] = 0x10 | 0x400;                // passes 0x401 and bit 4: listed twice
+        counts[0x210] = 1; counts[0x205] = 1;                     // Equip, ID order after the passes
+        counts[0x572] = 2; counts[0x501] = 3; counts[0x700] = 1;  // Use: 0x500..0x5ff then 0x690..0x78f
+        counts[0x650] = 1;                                        // Key
+        type[0x401] = 5; flags[0x46cc - 0x4640] = 0x02;           // flag-bit item: bit 1 = ID 0x401
+        counts[0x401] = 9;                                        // ignored for type 5
+        using List = std::vector<std::pair<int, int>>;
+        Require(p3p::ItemList(1, counts, flags, type, category) == List{{7, 5}, {3, 2}, {9, 1}, {9, 1}, {0x205, 1}, {0x210, 1}, {0x401, 1}},
+                "Equip tab order, duplicates and flag-bit counts");
+        Require(p3p::ItemList(0, counts, flags, type, category) == List{{0x501, 3}, {0x572, 2}, {0x700, 1}}, "Use tab ranges");
+        Require(p3p::ItemList(2, counts, flags, type, category) == List{{0x650, 1}}, "Key tab range");
+        // ID 0x3ff: bit -1, word (-1 + 31) >> 5 = 0, shift 31 (0x1d09f0's csel/asr/lsr).
+        Require(p3p::ItemCount(counts, flags, 0x3ff, 5) == 0, "negative flag index reads word 0");
+        flags[0x46cc - 0x4640 + 3] = 0x80;
+        Require(p3p::ItemCount(counts, flags, 0x3ff, 5) == 1, "negative flag index uses bit 31 of word 0");
+        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank and item regressions passed");
         return 0;
     } catch(const std::exception& e) {std::fprintf(stderr,"%s\n",e.what());return 1;}
 }

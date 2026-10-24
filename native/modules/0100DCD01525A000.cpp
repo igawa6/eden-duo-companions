@@ -31,8 +31,8 @@ struct Module {
     unsigned ticks{};
     bool names_ready{};
     // Companion page (manifest ui_open: 1 status, 2 personas, 3 links, 4 skills, 5 equip,
-    // 6 stats) and the member selected on the per-member pages, read only while open.
-    int page{1}, member{};
+    // 6 stats, 7 items) and the member selected on the per-member pages, read only while open.
+    int page{1}, member{}, item_tab{}; // item_tab: native Use / Equip / Key
     std::vector<std::string> personas, links;
     explicit Module(const EdenDsmodHostApi& h) : host(h), reader(h) {}
     void I(const std::string& key, int64_t v) { host.publish_i64(host.userdata,key.c_str(),v); }
@@ -84,8 +84,9 @@ struct Module {
         return names_ready&&id>=0&&size_t(id)<personas.size()?personas[id]:"Persona "+std::to_string(id);
     }
     bool Action(std::string_view action, int64_t arg) {
-        if(action=="ui_open"&&arg>=1&&arg<=6){page=int(arg);return true;}
+        if(action=="ui_open"&&arg>=1&&arg<=7){page=int(arg);return true;}
         if(action=="member_select"&&arg>=0&&arg<10){member=int(arg);return true;}
+        if(action=="item_tab"&&arg>=0&&arg<3){item_tab=int(arg);return true;}
         return false;
     }
     void Clear() {
@@ -98,6 +99,7 @@ struct Module {
         I("skill.ready",0);I("skill.count",0);T("skill.header","");
         I("equip.ready",0);T("equip.header","");
         I("stat.ready",0);I("social.ready",0);T("stat.header","");T("stat.next","");
+        I("item.ready",0);I("item.count",0);T("item.header","");I("item.tab",item_tab);
         for(int i=0;i<12;++i){auto p="persona."+std::to_string(i);I(p+".present",0);T(p+".line","");}
         for(int i=0;i<28;++i){auto p="link."+std::to_string(i);I(p+".present",0);T(p+".line","");}
     }
@@ -174,6 +176,19 @@ struct Module {
                 }
                 I("social.ready",st.social.empty()?0:1);I("stat.ready",1);
             } catch(const std::exception& e) {T("status",std::string("Stats unavailable: ")+e.what());}
+        }
+        if(page==7) {
+            try {
+                auto items=reader.Items(item_tab);
+                constexpr size_t rows=256; // manifest rows; the native list allows 0x500
+                size_t shown=std::min(items.size(),rows);
+                for(size_t i=0;i<shown;++i){
+                    auto p="item."+std::to_string(i);
+                    T(p+".name",items[i].name);T(p+".count","x "+std::to_string(items[i].count));I(p+".present",1);
+                }
+                T("item.header",std::to_string(items.size())+(items.size()==1?" item":" items")+(items.size()>rows?"  (first "+std::to_string(rows)+" shown)":""));
+                I("item.count",int64_t(shown));I("item.ready",1);
+            } catch(const std::exception& e) {T("status",std::string("Items unavailable: ")+e.what());}
         }
     }
 };
