@@ -38,11 +38,11 @@ int main() {
         }
         auto ext = eden_dsmod_get_extensions(EDEN_DSMOD_EXT_VERSION, EDEN_DSMOD_EXT_HASH);
         Require(ext && ext->on_action && (api->capabilities & EDEN_DSMOD_CAP_EXTENSIONS), "action extension");
-        Require(ext->on_action(instance, "ui_open", 4) && !ext->on_action(instance, "ui_open", 5), "page range");
+        Require(ext->on_action(instance, "ui_open", 5) && !ext->on_action(instance, "ui_open", 6), "page range");
         Require(ext->on_action(instance, "member_select", 9) && !ext->on_action(instance, "member_select", 10), "member range");
         Require(!ext->on_action(instance, "press", 0), "unknown actions refused");
         output.clear(); api->sample(instance, &host);
-        Require(output.at("ui.page") == 4 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
+        Require(output.at("ui.page") == 5 && output.at("equip.ready") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
         api->destroy(instance);
         Require(p3p::Maximum(101,{0x237},{},false)==202,"HP gain");
         Require(p3p::Maximum(101,{0x237},{},true)==51,"SP loss rounds down before subtract");

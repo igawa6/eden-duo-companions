@@ -5,6 +5,7 @@
 #include "core/mods/dsmod_module_abi.h"
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -27,8 +28,13 @@ struct Member {
     std::map<int, int> effects;    // equipment effect id -> count, for Maximum()
     bool cost_free{}; // unit +0xd bit 1: 0x74a10 charges nothing
     std::array<int, 8> skills{};
+    std::array<int, 4> equip{}; // 0x1d0c50 slots: weapon, body, feet, accessory
+    std::string name;           // native display name (0x1ddf50); empty if not printable ASCII
     bool operator==(const Member&) const = default;
 };
+// One equipment slot as the native Status panel (cmpStatus.c 0x10bb80) shows it. Weapons show
+// At/Hit (0x1d3c20 / 0x1d3cb0), body Df (0x1d3d60), feet Ev (0x1d3d80).
+struct Equip { int id{}, at{}, hit{}, df{}, ev{}; std::string name; };
 // One row of the native camp Skill list. cost_known is false only when the game would pick
 // between duplicate copies by battle effect (0x73b20) and their displayed costs differ.
 struct Skill { int id{}, type{}, cost{}; bool cost_known{true}; std::string name; };
@@ -213,6 +219,43 @@ public:
         if (Get<u32>(lang_at) != lang) throw std::runtime_error("context changed");
         return out;
     }
+    // Equipment names and stats for one member. Records come from the item table behind GOT
+    // 0x70e7f8 (stride 0x38); custom equipment listed through GOT 0x70e4e8 (0x15fb90) takes
+    // At/Hit from S+0x4ba8/+0x4baa, minimum 1. Names follow getter 0x1d3bf0.
+    std::vector<Equip> Equipment(const Member& m) const {
+        u64 state = Pointer(host.main_base + 0x70e800);
+        u64 items = Pointer(Pointer(host.main_base + 0x70e7f8));
+        auto custom = Read(Pointer(host.main_base + 0x70e4e8), 12);
+        int count = At<int32_t>(custom, 8);
+        if (count < 0 || count > 30) throw std::runtime_error("invalid equipment index");
+        Bytes custom_ids = count ? Read(At<u64>(custom, 0), count * 2) : Bytes{};
+        Bytes forged = count ? Read(state + 0x4ba8, count * 8) : Bytes{};
+        u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+        if (lang > 15) throw std::runtime_error("unsupported language");
+        u64 names = Pointer(Pointer(host.main_base + 0x70e828) + lang * 8);
+        std::vector<Equip> out;
+        for (int id : m.equip) {
+            if (id < 0 || id >= 0x1000) throw std::runtime_error("unsupported equipment");
+            auto rec = Read(items + id * 0x38, 0x38);
+            Equip e; e.id = id;
+            e.at = At<u16>(rec, 8); e.hit = At<u16>(rec, 0xa);
+            e.df = At<u16>(rec, 0x10); e.ev = At<u16>(rec, 0x12);
+            for (int j = 0; j < count; ++j) if (At<u16>(custom_ids, 2 * j) == id) {
+                e.at = std::max<int>(1, At<u16>(forged, 8 * j)); e.hit = std::max<int>(1, At<u16>(forged, 8 * j + 2));
+                break;
+            }
+            u64 text = Get<u64>(names + id * 8);
+            if (text) {
+                auto raw = Read(text, 64);
+                auto end = std::find(raw.begin(), raw.end(), u8{});
+                if (end == raw.end()) throw std::runtime_error("unterminated item name");
+                e.name.assign(raw.begin(), end);
+                for (unsigned char c : e.name) if (c < 32 || c > 126) { e.name = "Item " + std::to_string(id); break; }
+            }
+            out.push_back(std::move(e));
+        }
+        return out;
+    }
 private:
     EdenDsmodHostApi host;
     bool pins_ok{};
@@ -270,6 +313,35 @@ private:
             throw std::runtime_error("context changed");
         return c;
     }
+    // First-name getter 0x1ddff0: the player-entered name at main+0x864c24 for unit 1, otherwise
+    // the language's table behind GOT 0x70e860 (IDs up to 10). The player's name uses the game's
+    // two-byte text encoding; only the letters and space observed live are decoded.
+    std::string MemberName(int id) const {
+        try {
+            if (id == 1) {
+                auto raw = Read(host.main_base + 0x864c24, 0x14);
+                std::string name;
+                for (size_t i = 0; i < raw.size() && raw[i]; ++i) {
+                    if (raw[i] == ' ') { name += ' '; continue; }
+                    if (raw[i] != 0x80 || i + 1 >= raw.size()) return {};
+                    char c = char(raw[++i] - 0x60);
+                    if (!std::isalpha(static_cast<unsigned char>(c))) return {};
+                    name += c;
+                }
+                return name;
+            }
+            u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+            if (lang > 15 || id > 10) return {};
+            u64 text = Get<u64>(Pointer(Pointer(host.main_base + 0x70e860) + lang * 8) + id * 8);
+            if (!text) return {};
+            auto raw = Read(text, 32);
+            auto end = std::find(raw.begin(), raw.end(), u8{});
+            if (end == raw.end()) return {};
+            std::string name(raw.begin(), end);
+            for (unsigned char c : name) if (c < 32 || c > 126) return {};
+            return name;
+        } catch (const std::exception&) { return {}; } // names are cosmetic; never fail the snapshot
+    }
     static bool Flag(const Bytes& s, int flag) { return (At<u32>(s, 0x46cc + flag / 32 * 4) >> (flag % 32)) & 1; }
     Snapshot Values(const Bytes& s, const Bytes& a) const {
         Snapshot v; v.day = At<u16>(s, 0xc4c); v.time = s.at(0xc4e); v.money = At<u32>(s, 0x4b8c);
@@ -309,11 +381,13 @@ private:
             size_t persona = id == 1 ? 0x105c + selected * 0x34 : unit + 0x88;
             Member m; m.id = id; m.level = id == 1 ? s.at(unit + 6) : a.at(persona + 4);
             m.persona = At<u16>(units, persona + 2); m.cost_free = units.at(unit + 0xd) & 2;
+            m.name = MemberName(id);
             m.hp = At<u16>(units, unit + 8); m.sp = At<u16>(units, unit + 10);
             if (m.level < 1 || m.level > 99) throw std::runtime_error("invalid level");
             std::set<int> skills;
             for (int i = 0; i < 8; ++i) skills.insert(m.skills[i] = At<u16>(units, persona + 12 + i * 2));
             size_t equip = id == 1 ? 0x4b4 : unit + 0x50;
+            for (int i = 0; i < 4; ++i) m.equip[i] = At<u16>(units, equip + 2 * i);
             m.accessory_skill = At<u32>(item(At<u16>(units, equip + 6)), 0x24);
             skills.insert(m.accessory_skill);
             auto& effects = m.effects;

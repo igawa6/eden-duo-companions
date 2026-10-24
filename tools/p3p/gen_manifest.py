@@ -15,8 +15,8 @@ def label(rect, text='', bind=None, scale=3, ready=False):
 
 SKILL_ROWS = 96  # 0x108770 asserts fewer than 0x61 entries
 
-def skills_widgets(outputs, scrolls):
-    """Member buttons (two rows of five) and the selected member's native Skill list."""
+def member_buttons():
+    """Member buttons (two rows of five) selecting ui.member; shared by Skills and Equip."""
     widgets = []
     for i in range(10):
         p = f'member.{i}'
@@ -27,6 +27,28 @@ def skills_widgets(outputs, scrolls):
                             'hide_bind': p + '.selected', 'hide_eq': 1 - selected})
         widgets.append(dict(label([rect[0] + 12, rect[1] + 12, rect[2] - 24, 22], bind=p + '.tab', scale=2),
                             need_bind=p + '.present'))
+    return widgets
+
+def equip_widgets(outputs):
+    """The selected member's four slots with the native Status panel's figures."""
+    widgets = member_buttons()
+    outputs += ['equip.ready', 'equip.header']
+    widgets.append(dict(label([40, 330, 1160, 36], bind='equip.header', scale=3), need_bind='equip.ready'))
+    for i, slot in enumerate(('WEAPON', 'BODY', 'FEET', 'ACCESSORY')):  # native Equip labels
+        p = f'equip.{i}'; outputs += [p + '.name', p + '.stats']
+        y = 390 + i * 110
+        widgets.append({'type': 'rect', 'rect': [40, y, 1160, 96], 'bg': COLORS['panel'], 'frame': 0,
+                        'need_bind': 'equip.ready'})
+        widgets.append(dict(label([60, y + 12, 400, 22], slot, scale=2), need_bind='equip.ready',
+                            color=COLORS['accent']))
+        widgets.append(dict(label([60, y + 46, 700, 30], bind=p + '.name'), need_bind='equip.ready'))
+        widgets.append(dict(label([800, y + 46, 380, 30], bind=p + '.stats'), need_bind='equip.ready')
+                       | {'color': COLORS['muted']})
+    return widgets
+
+def skills_widgets(outputs, scrolls):
+    """Member buttons and the selected member's native Skill list."""
+    widgets = member_buttons()
     outputs += ['skill.ready', 'skill.count', 'skill.header']
     widgets.append(dict(label([40, 330, 1160, 36], bind='skill.header', scale=3), need_bind='skill.ready'))
     scrolls.append({'id': 'skills', 'rect': [40, 380, 1170, 576], 'count_bind': 'skill.count', 'row_h': 72,
@@ -46,7 +68,8 @@ def main():
     # Tabs tell the module which page is open (ui_open); page_binds follow its ui.page, so
     # heavy lists are read only while their page shows.
     tabs = (('home', 'STATUS', 'Status'), ('personas', 'PERSONAS', 'Personas'),
-            ('links', 'SOCIAL LINKS', 'Social Links'), ('skills', 'SKILLS', 'Skills'))
+            ('links', 'SOCIAL LINKS', 'Social Links'), ('skills', 'SKILLS', 'Skills'),
+            ('equip', 'EQUIP', 'Equip'))
     actions = {f'ui.open.{n}': {'kind': 'module', 'action': 'ui_open', 'argument': n}
                for n in range(1, len(tabs) + 1)}
     actions.update({f'member.select.{i}': {'kind': 'module', 'action': 'member_select', 'argument': i}
@@ -57,7 +80,7 @@ def main():
     for page_id, title, _ in tabs:
         widgets = [label([40, 28, 900, 42], 'PERSONA 3 PORTABLE / ' + title, scale=4)]
         for i, (target, _, caption) in enumerate(tabs):
-            widgets.append({'type': 'button', 'rect': [40 + i * 295, 90, 280, 55], 'text': caption,
+            widgets.append({'type': 'button', 'rect': [40 + i * 235, 90, 225, 55], 'text': caption,
                             'on_tap': f'ui.open.{i + 1}', 'text_scale': 3, 'color': COLORS['ink'],
                             'bg': '#FF8C315B' if page_id == target else COLORS['panel']})
         widgets += [label([40, 165, 850, 30], bind='live.date', ready=True),
@@ -67,6 +90,10 @@ def main():
                     label([40, 1020, 1160, 24], bind='status', scale=2),
                     label([40, 1050, 1160, 20], 'Read-only preview | 2D field/camp support | Battle and dungeon exploration pending', scale=2),
                     dict(label([40, 700, 1160, 36], bind='module_error_message', scale=3), need_bind='module_error')]
+        if page_id == 'equip':
+            widgets += equip_widgets(outputs)
+            pages.append({'id': page_id, 'title': title, 'widgets': widgets})
+            continue
         if page_id == 'skills':
             scrolls = []
             widgets += skills_widgets(outputs, scrolls)

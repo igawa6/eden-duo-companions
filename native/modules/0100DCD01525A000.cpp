@@ -30,10 +30,10 @@ struct Module {
     Reader reader;
     unsigned ticks{};
     bool names_ready{};
-    // Companion page (manifest ui_open: 1 status, 2 personas, 3 links, 4 skills) and the
-    // member selected on the skills page. Skill lists are read only while that page is open.
+    // Companion page (manifest ui_open: 1 status, 2 personas, 3 links, 4 skills, 5 equip) and
+    // the member selected on the skills/equip pages. Their lists are read only while open.
     int page{1}, member{};
-    std::vector<std::string> personas, links, members;
+    std::vector<std::string> personas, links;
     explicit Module(const EdenDsmodHostApi& h) : host(h), reader(h) {}
     void I(const std::string& key, int64_t v) { host.publish_i64(host.userdata,key.c_str(),v); }
     void T(const std::string& key, const std::string& v) { host.publish_text(host.userdata,key.c_str(),v.c_str()); }
@@ -73,20 +73,18 @@ struct Module {
             if(size!=2048||count!=32) throw std::runtime_error("unsupported social names");
             return Strings(table.subspan(8,2048),64);
         };
-        links=decode("cmmNameF.dat"); members=decode("cmmMemberNameF.dat");
-        names_ready=personas.size()==256 && links.size()==32 && members.size()==32;
+        links=decode("cmmNameF.dat");
+        names_ready=personas.size()==256 && links.size()==32;
     }
-    std::string MemberName(const Snapshot& v, const Member& m) const {
-        // Only these unit-to-name associations have native-menu validation.
-        if(names_ready&&v.female&&m.id==2)return members.at(5);
-        if(names_ready&&v.female&&m.id==5)return members.at(2);
+    std::string MemberName(const Snapshot&, const Member& m) const {
+        if(!m.name.empty())return m.name;
         return m.id==1 ? "Protagonist" : "Member "+std::to_string(m.id);
     }
     std::string PersonaName(int id) const {
         return names_ready&&id>=0&&size_t(id)<personas.size()?personas[id]:"Persona "+std::to_string(id);
     }
     bool Action(std::string_view action, int64_t arg) {
-        if(action=="ui_open"&&arg>=1&&arg<=4){page=int(arg);return true;}
+        if(action=="ui_open"&&arg>=1&&arg<=5){page=int(arg);return true;}
         if(action=="member_select"&&arg>=0&&arg<10){member=int(arg);return true;}
         return false;
     }
@@ -98,6 +96,7 @@ struct Module {
             for(auto k:{"hp","sp","max_hp","max_sp"}) I(p+"."+k,0);
         }
         I("skill.ready",0);I("skill.count",0);T("skill.header","");
+        I("equip.ready",0);T("equip.header","");
         for(int i=0;i<12;++i){auto p="persona."+std::to_string(i);I(p+".present",0);T(p+".line","");}
         for(int i=0;i<28;++i){auto p="link."+std::to_string(i);I(p+".present",0);T(p+".line","");}
     }
@@ -146,6 +145,18 @@ struct Module {
                 }
                 I("skill.count",int64_t(skills.size()));I("skill.ready",1);
             } catch(const std::exception& e) {T("status",std::string("Skills unavailable: ")+e.what());}
+        }
+        if(page==5&&!v.members.empty()) {
+            try {
+                const auto& m=v.members.at(std::min<size_t>(member,v.members.size()-1));
+                auto equip=reader.Equipment(m);
+                T("equip.header",MemberName(v,m)+"   Lv "+std::to_string(m.level));
+                auto n=[](int x){return std::to_string(x);};
+                // The native Status panel's per-slot figures (cmpStatus.c 0x10bb80).
+                const std::string stats[4]{"At "+n(equip[0].at)+"     Hit "+n(equip[0].hit),"Df "+n(equip[1].df),"Ev "+n(equip[2].ev),""};
+                for(int i=0;i<4;++i){auto p="equip."+std::to_string(i);T(p+".name",equip[i].name);T(p+".stats",stats[i]);}
+                I("equip.ready",1);
+            } catch(const std::exception& e) {T("status",std::string("Equipment unavailable: ")+e.what());}
         }
     }
 };

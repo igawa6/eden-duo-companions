@@ -15,4 +15,7 @@ constexpr Pin Pins[] = {
     {0x74a10, 0x1cc, UINT64_C(0x34c9ec523d346322)},
     {0x6eb30, 0x1a0, UINT64_C(0xbeaa475983560c38)},
     {0x77570, 0x90, UINT64_C(0x44b72fee7b96d2a9)},
+    {0x1d3bf0, 0x24, UINT64_C(0x7a931f2ec6f89a1f)},
+    {0x1d3c20, 0x180, UINT64_C(0xe9e13ab13a257912)},
+    {0x1ddff0, 0x60, UINT64_C(0x626392ea4a4080e5)},
 };
