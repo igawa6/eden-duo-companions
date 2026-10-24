@@ -18,31 +18,35 @@ This repository holds the companion source code, packages, documentation and scr
 
 | No | Game | Title ID | Patch Version | Download | Contributor/<br>Supporter |
 |---:|------|----------|---------------|----------|:---------:|
-| 1 | [Persona 5 Royal](#persona-5-royal) | `01005CA01580E000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/persona5royal-1.1.0) | 🥇 <a href="https://www.reddit.com/user/gymgooner123"><img src="https://img.shields.io/badge/gymgooner123-FF4500?style=flat-square&logo=reddit&logoColor=white" style="vertical-align: middle;" alt="gymgooner123"></a> |
+| 1 | [Persona 5 Royal](#persona-5-royal) | `01005CA01580E000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/persona5royal-1.1.0) | 🥇<br><a href="https://www.reddit.com/user/gymgooner123"><img src="https://img.shields.io/badge/gymgooner123-FF4500?style=flat-square&logo=reddit&logoColor=white" style="vertical-align: middle;" alt="gymgooner123"></a> |
 | 2 | [Metroid Dread](#metroid-dread) | `010093801237C000` | 2.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/metroid-dread-1.0.0) | |
 | 3 | [The Legend of Zelda: Link's Awakening](#the-legend-of-zelda-links-awakening) | `01006BB00C6F0000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/links-awakening-1.0.0) | |
 | 4 | [Mario Kart 8 Deluxe](#mario-kart-8-deluxe) (also with CTGP-DX v1.1.1) | `0100152000022000` | 4.0.0, 3.0.3 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/mario-kart-8-deluxe-1.0.0) | |
-| 5 | [Super Mario Bros. Wonder](#super-mario-bros-wonder) | `010015100B514000` | 1.2.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/super-mario-bros-wonder-1.0.2) | ⭐ <a href="https://www.patreon.com/cw/KalebPowell"><img src="https://img.shields.io/badge/KalebPowell-FF424D?style=flat-square&logo=patreon&logoColor=white" style="vertical-align: middle;" alt="Far_Entrepreneur_246"></a> |
-| 6 | [Animal Crossing: New Horizons](#animal-crossing-new-horizons) | `01006F8002326000` | 3.0.3 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/animal-crossing-new-horizons-1.0.0) | 🥇 <a href="https://ko-fi.com/W5J3253HW9"><img src="https://img.shields.io/badge/MsMeriBerry-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="MsMeriBerry"></a> |
+| 5 | [Super Mario Bros. Wonder](#super-mario-bros-wonder) | `010015100B514000` | 1.2.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/super-mario-bros-wonder-1.0.2) | ⭐<br><a href="https://www.patreon.com/cw/KalebPowell"><img src="https://img.shields.io/badge/KalebPowell-FF424D?style=flat-square&logo=patreon&logoColor=white" style="vertical-align: middle;" alt="Far_Entrepreneur_246"></a> |
+| 6 | [Animal Crossing: New Horizons](#animal-crossing-new-horizons) | `01006F8002326000` | 3.0.3 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/animal-crossing-new-horizons-1.0.0) | 🥇<br><a href="https://ko-fi.com/W5J3253HW9"><img src="https://img.shields.io/badge/MsMeriBerry-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="MsMeriBerry"></a> |
 | 7 | [Fire Emblem: Three Houses](#fire-emblem-three-houses) | `010055D009F78000` | 1.2.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/fire-emblem-three-houses-1.0.0) | |
-| 8 | [The Binding of Isaac: Afterbirth+ and Repentance DLC](#the-binding-of-isaac-afterbirth-and-repentance-dlc) | `010021C000B6A000` | 1.7.9b | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/the-binding-of-isaac-1.0.2) | 🥇 <a href="https://ko-fi.com/U3I527XBIL"><img src="https://img.shields.io/badge/Armando_Chacon-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Armando Chacon"></a> |
-| 9 | [Pokémon Brilliant Diamond / Luminescent Platinum](#pokemon-brilliant-diamond-luminescent-platinum) | `0100000011D90000` | 1.3.0 (vanilla or Luminescent Platinum 2.2F) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-luminescent-platinum-1.0.0) | 🗳️ <a href="https://ko-fi.com/polls/Next-Switch-Game-on-Eden-Duo-M0V127VUYA"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
-| 10 | [Pokémon Shining Pearl / Luminescent Platinum](#pokemon-shining-pearl-luminescent-platinum) | `010018E011D92000` | 1.3.0 (vanilla or Luminescent Platinum 2.2F) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-shining-pearl-1.0.0) | 🗳️ <a href="https://ko-fi.com/polls/Next-Switch-Game-on-Eden-Duo-M0V127VUYA"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
+| 8 | [The Binding of Isaac: Afterbirth+ and Repentance DLC](#the-binding-of-isaac-afterbirth-and-repentance-dlc) | `010021C000B6A000` | 1.7.9b | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/the-binding-of-isaac-1.0.2) | 🥇<br><a href="https://ko-fi.com/U3I527XBIL"><img src="https://img.shields.io/badge/Armando_Chacon-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Armando Chacon"></a> |
+| 9 | [Pokémon Brilliant Diamond / Luminescent Platinum](#pokemon-brilliant-diamond-luminescent-platinum) | `0100000011D90000` | 1.3.0 (vanilla or Luminescent Platinum 2.2F) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-luminescent-platinum-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/Next-Switch-Game-on-Eden-Duo-M0V127VUYA"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
+| 10 | [Pokémon Shining Pearl / Luminescent Platinum](#pokemon-shining-pearl-luminescent-platinum) | `010018E011D92000` | 1.3.0 (vanilla or Luminescent Platinum 2.2F) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-shining-pearl-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/Next-Switch-Game-on-Eden-Duo-M0V127VUYA"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 | 11 | [Crash Team Racing Nitro-Fueled](#crash-team-racing-nitro-fueled) | `0100F9F00C696000` | 1.0.15 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/crash-team-racing-nitro-fueled-1.0.0) | |
-| 12 | [Dragon Quest III HD-2D Remake](#dragon-quest-iii-hd-2d-remake) | `01003E601E324000` | 1.1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/dragon-quest-iii-hd-2d-remake-1.0.0) | 🥇 <a href="https://ko-fi.com/G0I027XSOG"><img src="https://img.shields.io/badge/jzc-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="jzc"></a> |
-| 13 | [Chained Echoes](#chained-echoes) | `0100C510166F0000` | 1.41 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/chained-echoes-1.0.0) | 🥇 <a href="https://ko-fi.com/U7U31RLL6S"><img src="https://img.shields.io/badge/Jadesigns-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Jadesigns"></a> |
-| 14 | [Yoru Tomosu](#yoru-tomosu) | `0100C2901153C000` | 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/yoru-tomosu-1.0.0) | 🥇 <a href="https://ko-fi.com/igawa6/commissions"><img src="https://img.shields.io/badge/Anon.-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Anon."></a> |
-| 15 | [Diablo III: Eternal Collection](#diablo-iii-eternal-collection) | `01001B300B9BE000` | 2.7.7, 2.7.6 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/diablo-iii-eternal-collection-1.0.0) | 🥇 <a href="https://ko-fi.com/Z2B723BQK6"><img src="https://img.shields.io/badge/shy-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="shy"></a> |
-| 16 | [Farming Simulator: Nintendo Switch Edition](#farming-simulator-nintendo-switch-edition) | `0100D04004176000` | 1.5.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/farming-simulator-nintendo-switch-edition-1.0.1) | 🥇 <a href="https://ko-fi.com/igawa6/commissions"><img src="https://img.shields.io/badge/Anon.-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Anon."></a> |
-| 17 | [VA-11 Hall-A: Cyberpunk Bartender Action](#va-11-hall-a-cyberpunk-bartender-action) | `010086500D3C8000` | 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/va-11-hall-a-1.0.0) | ⭐ <a href="https://ko-fi.com/matinc"><img src="https://img.shields.io/badge/Mati-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Mati"></a> |
-| 18 | [The Legend of Zelda: Breath of the Wild](#the-legend-of-zelda-breath-of-the-wild) | `01007EF00011E000` | 1.6.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/breath-of-the-wild-1.0.0) | 🗳️ <a href="https://ko-fi.com/polls/2nd-Poll-Next-Switch-Game-on-Eden-Duo-Q6B3284653"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
-| 19 | [Castlevania: Belmont's Curse](#castlevania-belmonts-curse) | `0100BA4026E94000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/castlevania-belmonts-curse-1.0.0) | 🥇 <a href="https://www.reddit.com/user/gymgooner123"><img src="https://img.shields.io/badge/gymgooner123-FF4500?style=flat-square&logo=reddit&logoColor=white" style="vertical-align: middle;" alt="gymgooner123"></a> |
+| 12 | [Dragon Quest III HD-2D Remake](#dragon-quest-iii-hd-2d-remake) | `01003E601E324000` | 1.1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/dragon-quest-iii-hd-2d-remake-1.0.0) | 🥇<br><a href="https://ko-fi.com/G0I027XSOG"><img src="https://img.shields.io/badge/jzc-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="jzc"></a> |
+| 13 | [Chained Echoes](#chained-echoes) | `0100C510166F0000` | 1.41 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/chained-echoes-1.0.0) | 🥇<br><a href="https://ko-fi.com/U7U31RLL6S"><img src="https://img.shields.io/badge/Jadesigns-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Jadesigns"></a> |
+| 14 | [Yoru Tomosu](#yoru-tomosu) | `0100C2901153C000` | 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/yoru-tomosu-1.0.0) | 🥇<br><a href="https://ko-fi.com/igawa6/commissions"><img src="https://img.shields.io/badge/Anon.-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Anon."></a> |
+| 15 | [Diablo III: Eternal Collection](#diablo-iii-eternal-collection) | `01001B300B9BE000` | 2.7.7, 2.7.6 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/diablo-iii-eternal-collection-1.0.0) | 🥇<br><a href="https://ko-fi.com/Z2B723BQK6"><img src="https://img.shields.io/badge/shy-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="shy"></a> |
+| 16 | [Farming Simulator: Nintendo Switch Edition](#farming-simulator-nintendo-switch-edition) | `0100D04004176000` | 1.5.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/farming-simulator-nintendo-switch-edition-1.0.1) | 🥇<br><a href="https://ko-fi.com/igawa6/commissions"><img src="https://img.shields.io/badge/Anon.-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Anon."></a> |
+| 17 | [VA-11 Hall-A: Cyberpunk Bartender Action](#va-11-hall-a-cyberpunk-bartender-action) | `010086500D3C8000` | 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/va-11-hall-a-1.0.0) | ⭐<br><a href="https://ko-fi.com/matinc"><img src="https://img.shields.io/badge/Mati-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Mati"></a> |
+| 18 | [The Legend of Zelda: Breath of the Wild](#the-legend-of-zelda-breath-of-the-wild) | `01007EF00011E000` | 1.6.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/breath-of-the-wild-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/2nd-Poll-Next-Switch-Game-on-Eden-Duo-Q6B3284653"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
+| 19 | [Castlevania: Belmont's Curse](#castlevania-belmonts-curse) | `0100BA4026E94000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/castlevania-belmonts-curse-1.0.0) | 🥇<br><a href="https://www.reddit.com/user/gymgooner123"><img src="https://img.shields.io/badge/gymgooner123-FF4500?style=flat-square&logo=reddit&logoColor=white" style="vertical-align: middle;" alt="gymgooner123"></a> |
+| 20 | [Super Mario Odyssey](#super-mario-odyssey) | `0100000000010000` | 1.4.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/super-mario-odyssey-1.0.0) | 🥈<br><a href="https://ko-fi.com/s/9e92af191b"><img src="https://img.shields.io/badge/Chip_In-C0C0C0?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Chip In"></a> |
+| 21 | [The Legend of Zelda: Echoes of Wisdom](#the-legend-of-zelda-echoes-of-wisdom) | `01008CF01BAAC000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/echoes-of-wisdom-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/3rd-Poll-Next-Switch-Game-on-Eden-Duo-C7J128KB48"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
 🥇 Commissioned companion. Huge thanks for your support!
 
-🗳️ Poll winner. Thanks to everyone who voted!  
+🗳️ Poll winner. Thanks to everyone who voted!
+
+🥈 Chip-in companion. Thanks to everyone who chipped in!  
 <br>
 
 Each companion supports exact game version in **Patch Version**. It checks the running build before it loads. On any other version it does not load and shows a notice, instead of reading memory it does not understand.
@@ -545,3 +549,63 @@ Keep the map, your pins and your loadout on the second screen while Belmont expl
 - **Feel.** Short fades between pages and haptic feedback on taps, equips and pin changes.
 
 The companion ships no game art: map geometry, fog, landmarks, fonts, icons and equipment artwork are read from your own game files.
+
+---
+
+<a id="super-mario-odyssey"></a>
+
+## Super Mario Odyssey
+
+🥈 <a href="https://ko-fi.com/s/9e92af191b"><img src="https://img.shields.io/badge/Chip_In-C0C0C0?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Chip In"></a>
+
+`0100000000010000` · game version 1.4.1 · companion 1.0.0
+
+| Map | Stats | Warp Here |
+|:---:|:---:|:---:|
+| <img src="screenshots/mario-odyssey/map.png" width="300" alt="Super Mario Odyssey: Map"> | <img src="screenshots/mario-odyssey/stats.png" width="300" alt="Super Mario Odyssey: Stats"> | <img src="screenshots/mario-odyssey/warp-here.png" width="300" alt="Super Mario Odyssey: Warp Here"> |
+
+Mario's Travel Brochure moves to the second screen: track Moons, check in with Toadette and warp across Kingdoms without opening the pause menu.
+
+- **Map.** Your live position and facing, camera direction and the current objective, on the map of the Kingdom you're in. Checkpoint flags you've touched get a one-tap Warp Here, using the game's own travel. Shops, minigames and Talkatoo are marked, along with every Power Moon you've collected; an optional "Show Uncollected Moons" setting reveals the rest.
+- **Tasks.** All 61 Toadette achievements, with progress on each and a running count of how many are ready to claim.
+- **Stats.** Global and per-Kingdom Moon counts, regional coin totals, your capture list with portraits, and your souvenir, music and costume counts.
+- **Globe and Collection Lists.** While the in-game globe (Kingdom select) is open, the selected Kingdom's headline and what's left to find in the Kingdoms you've visited; while a Collection List is open, its own matching page.
+- **HUD.** An optional "Hide Top-Screen HUD" setting moves the native overlay off the main screen; it returns the moment the companion itself is hidden.
+- Press and hold the companion to open settings.
+- Kingdoms you haven't visited yet, and post-game content, stay hidden until you reach them.
+
+The companion ships no game art: text, icons and Kingdom data are read from your own game files.
+
+Limitations:
+
+- The shop overview page is not included yet.
+
+Requires Eden Duo 1.3.2.2 or newer.
+
+---
+
+<a id="the-legend-of-zelda-echoes-of-wisdom"></a>
+
+## The Legend of Zelda: Echoes of Wisdom
+
+🗳️ <a href="https://ko-fi.com/polls/3rd-Poll-Next-Switch-Game-on-Eden-Duo-C7J128KB48"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a>
+
+`01008CF01BAAC000` · game version 1.1.0 · companion 1.0.0
+
+| Map | Notebooks | Equipment |
+|:---:|:---:|:---:|
+| <img src="screenshots/echoes-of-wisdom/map.png" width="300" alt="The Legend of Zelda: Echoes of Wisdom: Map"> | <img src="screenshots/echoes-of-wisdom/notebooks.png" width="300" alt="The Legend of Zelda: Echoes of Wisdom: Notebooks"> | <img src="screenshots/echoes-of-wisdom/equipment.png" width="300" alt="The Legend of Zelda: Echoes of Wisdom: Equipment"> |
+
+Zelda's map, Echoes and gear on the second screen, so you can swap, eat and plan without opening the pause menu.
+
+- **Map.** The map of Hyrule with the game's own icons and place names, where you are, your rupees and the area you are in. Place map pins (flag, heart, chest, diamond) and travel to any waypoint you have unlocked.
+- **Echo circles.** Three circles beside the map hold your favourite Echoes. Tap one and it is set on Y right away, with the top-screen icon updating too. During Swordfighter Form the circles show the Form's Bow, Sword and Bomb.
+- **Notebooks.** Every Echo and Automaton you have learned, with its cost, description and favourite mark. Tap an Echo, then a circle, to put it in that circle.
+- **Equipment.** Equip and remove accessories and change outfits straight from the second screen.
+- **Items.** Your ingredients with their counts. Tap Eat to recover hearts without opening the menu.
+- **Link's opening** has its own view with his Bow, Sword and Bomb. Title, loading and the pause menu keep a calm screen instead of flickering.
+- **Other versions.** On any other game version the companion shows its logo and reads nothing.
+
+The companion ships no game art: icons, the map, the font and all text are read from your own game files.
+
+Requires Eden Duo 1.3.2.2 or newer.
