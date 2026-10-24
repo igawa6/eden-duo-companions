@@ -1,0 +1,2852 @@
+{
+  "format": 1,
+  "title_id": "0100DCD01525A000",
+  "name": "Persona 3 Portable - Read-only Preview",
+  "min_runtime": 19,
+  "requires_module": true,
+  "poll_hz": 60,
+  "canvas_w": 1240,
+  "canvas_h": 1080,
+  "background": "#FF17131E",
+  "module_outputs": [
+    "live.ready",
+    "live.date",
+    "live.money",
+    "status",
+    "ui.page",
+    "ui.member",
+    "member.0.present",
+    "member.0.name",
+    "member.0.tab",
+    "member.0.selected",
+    "member.0.stats",
+    "member.0.hp",
+    "member.0.sp",
+    "member.0.max_hp",
+    "member.0.max_sp",
+    "member.1.present",
+    "member.1.name",
+    "member.1.tab",
+    "member.1.selected",
+    "member.1.stats",
+    "member.1.hp",
+    "member.1.sp",
+    "member.1.max_hp",
+    "member.1.max_sp",
+    "member.2.present",
+    "member.2.name",
+    "member.2.tab",
+    "member.2.selected",
+    "member.2.stats",
+    "member.2.hp",
+    "member.2.sp",
+    "member.2.max_hp",
+    "member.2.max_sp",
+    "member.3.present",
+    "member.3.name",
+    "member.3.tab",
+    "member.3.selected",
+    "member.3.stats",
+    "member.3.hp",
+    "member.3.sp",
+    "member.3.max_hp",
+    "member.3.max_sp",
+    "member.4.present",
+    "member.4.name",
+    "member.4.tab",
+    "member.4.selected",
+    "member.4.stats",
+    "member.4.hp",
+    "member.4.sp",
+    "member.4.max_hp",
+    "member.4.max_sp",
+    "member.5.present",
+    "member.5.name",
+    "member.5.tab",
+    "member.5.selected",
+    "member.5.stats",
+    "member.5.hp",
+    "member.5.sp",
+    "member.5.max_hp",
+    "member.5.max_sp",
+    "member.6.present",
+    "member.6.name",
+    "member.6.tab",
+    "member.6.selected",
+    "member.6.stats",
+    "member.6.hp",
+    "member.6.sp",
+    "member.6.max_hp",
+    "member.6.max_sp",
+    "member.7.present",
+    "member.7.name",
+    "member.7.tab",
+    "member.7.selected",
+    "member.7.stats",
+    "member.7.hp",
+    "member.7.sp",
+    "member.7.max_hp",
+    "member.7.max_sp",
+    "member.8.present",
+    "member.8.name",
+    "member.8.tab",
+    "member.8.selected",
+    "member.8.stats",
+    "member.8.hp",
+    "member.8.sp",
+    "member.8.max_hp",
+    "member.8.max_sp",
+    "member.9.present",
+    "member.9.name",
+    "member.9.tab",
+    "member.9.selected",
+    "member.9.stats",
+    "member.9.hp",
+    "member.9.sp",
+    "member.9.max_hp",
+    "member.9.max_sp",
+    "persona.0.present",
+    "persona.0.line",
+    "persona.1.present",
+    "persona.1.line",
+    "persona.2.present",
+    "persona.2.line",
+    "persona.3.present",
+    "persona.3.line",
+    "persona.4.present",
+    "persona.4.line",
+    "persona.5.present",
+    "persona.5.line",
+    "persona.6.present",
+    "persona.6.line",
+    "persona.7.present",
+    "persona.7.line",
+    "persona.8.present",
+    "persona.8.line",
+    "persona.9.present",
+    "persona.9.line",
+    "persona.10.present",
+    "persona.10.line",
+    "persona.11.present",
+    "persona.11.line",
+    "link.0.present",
+    "link.0.line",
+    "link.1.present",
+    "link.1.line",
+    "link.2.present",
+    "link.2.line",
+    "link.3.present",
+    "link.3.line",
+    "link.4.present",
+    "link.4.line",
+    "link.5.present",
+    "link.5.line",
+    "link.6.present",
+    "link.6.line",
+    "link.7.present",
+    "link.7.line",
+    "link.8.present",
+    "link.8.line",
+    "link.9.present",
+    "link.9.line",
+    "link.10.present",
+    "link.10.line",
+    "link.11.present",
+    "link.11.line",
+    "link.12.present",
+    "link.12.line",
+    "link.13.present",
+    "link.13.line",
+    "link.14.present",
+    "link.14.line",
+    "link.15.present",
+    "link.15.line",
+    "link.16.present",
+    "link.16.line",
+    "link.17.present",
+    "link.17.line",
+    "link.18.present",
+    "link.18.line",
+    "link.19.present",
+    "link.19.line",
+    "link.20.present",
+    "link.20.line",
+    "link.21.present",
+    "link.21.line",
+    "link.22.present",
+    "link.22.line",
+    "link.23.present",
+    "link.23.line",
+    "link.24.present",
+    "link.24.line",
+    "link.25.present",
+    "link.25.line",
+    "link.26.present",
+    "link.26.line",
+    "link.27.present",
+    "link.27.line",
+    "skill.ready",
+    "skill.count",
+    "skill.header",
+    "skill.0.present",
+    "skill.0.name",
+    "skill.0.cost",
+    "skill.1.present",
+    "skill.1.name",
+    "skill.1.cost",
+    "skill.2.present",
+    "skill.2.name",
+    "skill.2.cost",
+    "skill.3.present",
+    "skill.3.name",
+    "skill.3.cost",
+    "skill.4.present",
+    "skill.4.name",
+    "skill.4.cost",
+    "skill.5.present",
+    "skill.5.name",
+    "skill.5.cost",
+    "skill.6.present",
+    "skill.6.name",
+    "skill.6.cost",
+    "skill.7.present",
+    "skill.7.name",
+    "skill.7.cost",
+    "skill.8.present",
+    "skill.8.name",
+    "skill.8.cost",
+    "skill.9.present",
+    "skill.9.name",
+    "skill.9.cost",
+    "skill.10.present",
+    "skill.10.name",
+    "skill.10.cost",
+    "skill.11.present",
+    "skill.11.name",
+    "skill.11.cost",
+    "skill.12.present",
+    "skill.12.name",
+    "skill.12.cost",
+    "skill.13.present",
+    "skill.13.name",
+    "skill.13.cost",
+    "skill.14.present",
+    "skill.14.name",
+    "skill.14.cost",
+    "skill.15.present",
+    "skill.15.name",
+    "skill.15.cost",
+    "skill.16.present",
+    "skill.16.name",
+    "skill.16.cost",
+    "skill.17.present",
+    "skill.17.name",
+    "skill.17.cost",
+    "skill.18.present",
+    "skill.18.name",
+    "skill.18.cost",
+    "skill.19.present",
+    "skill.19.name",
+    "skill.19.cost",
+    "skill.20.present",
+    "skill.20.name",
+    "skill.20.cost",
+    "skill.21.present",
+    "skill.21.name",
+    "skill.21.cost",
+    "skill.22.present",
+    "skill.22.name",
+    "skill.22.cost",
+    "skill.23.present",
+    "skill.23.name",
+    "skill.23.cost",
+    "skill.24.present",
+    "skill.24.name",
+    "skill.24.cost",
+    "skill.25.present",
+    "skill.25.name",
+    "skill.25.cost",
+    "skill.26.present",
+    "skill.26.name",
+    "skill.26.cost",
+    "skill.27.present",
+    "skill.27.name",
+    "skill.27.cost",
+    "skill.28.present",
+    "skill.28.name",
+    "skill.28.cost",
+    "skill.29.present",
+    "skill.29.name",
+    "skill.29.cost",
+    "skill.30.present",
+    "skill.30.name",
+    "skill.30.cost",
+    "skill.31.present",
+    "skill.31.name",
+    "skill.31.cost",
+    "skill.32.present",
+    "skill.32.name",
+    "skill.32.cost",
+    "skill.33.present",
+    "skill.33.name",
+    "skill.33.cost",
+    "skill.34.present",
+    "skill.34.name",
+    "skill.34.cost",
+    "skill.35.present",
+    "skill.35.name",
+    "skill.35.cost",
+    "skill.36.present",
+    "skill.36.name",
+    "skill.36.cost",
+    "skill.37.present",
+    "skill.37.name",
+    "skill.37.cost",
+    "skill.38.present",
+    "skill.38.name",
+    "skill.38.cost",
+    "skill.39.present",
+    "skill.39.name",
+    "skill.39.cost",
+    "skill.40.present",
+    "skill.40.name",
+    "skill.40.cost",
+    "skill.41.present",
+    "skill.41.name",
+    "skill.41.cost",
+    "skill.42.present",
+    "skill.42.name",
+    "skill.42.cost",
+    "skill.43.present",
+    "skill.43.name",
+    "skill.43.cost",
+    "skill.44.present",
+    "skill.44.name",
+    "skill.44.cost",
+    "skill.45.present",
+    "skill.45.name",
+    "skill.45.cost",
+    "skill.46.present",
+    "skill.46.name",
+    "skill.46.cost",
+    "skill.47.present",
+    "skill.47.name",
+    "skill.47.cost",
+    "skill.48.present",
+    "skill.48.name",
+    "skill.48.cost",
+    "skill.49.present",
+    "skill.49.name",
+    "skill.49.cost",
+    "skill.50.present",
+    "skill.50.name",
+    "skill.50.cost",
+    "skill.51.present",
+    "skill.51.name",
+    "skill.51.cost",
+    "skill.52.present",
+    "skill.52.name",
+    "skill.52.cost",
+    "skill.53.present",
+    "skill.53.name",
+    "skill.53.cost",
+    "skill.54.present",
+    "skill.54.name",
+    "skill.54.cost",
+    "skill.55.present",
+    "skill.55.name",
+    "skill.55.cost",
+    "skill.56.present",
+    "skill.56.name",
+    "skill.56.cost",
+    "skill.57.present",
+    "skill.57.name",
+    "skill.57.cost",
+    "skill.58.present",
+    "skill.58.name",
+    "skill.58.cost",
+    "skill.59.present",
+    "skill.59.name",
+    "skill.59.cost",
+    "skill.60.present",
+    "skill.60.name",
+    "skill.60.cost",
+    "skill.61.present",
+    "skill.61.name",
+    "skill.61.cost",
+    "skill.62.present",
+    "skill.62.name",
+    "skill.62.cost",
+    "skill.63.present",
+    "skill.63.name",
+    "skill.63.cost",
+    "skill.64.present",
+    "skill.64.name",
+    "skill.64.cost",
+    "skill.65.present",
+    "skill.65.name",
+    "skill.65.cost",
+    "skill.66.present",
+    "skill.66.name",
+    "skill.66.cost",
+    "skill.67.present",
+    "skill.67.name",
+    "skill.67.cost",
+    "skill.68.present",
+    "skill.68.name",
+    "skill.68.cost",
+    "skill.69.present",
+    "skill.69.name",
+    "skill.69.cost",
+    "skill.70.present",
+    "skill.70.name",
+    "skill.70.cost",
+    "skill.71.present",
+    "skill.71.name",
+    "skill.71.cost",
+    "skill.72.present",
+    "skill.72.name",
+    "skill.72.cost",
+    "skill.73.present",
+    "skill.73.name",
+    "skill.73.cost",
+    "skill.74.present",
+    "skill.74.name",
+    "skill.74.cost",
+    "skill.75.present",
+    "skill.75.name",
+    "skill.75.cost",
+    "skill.76.present",
+    "skill.76.name",
+    "skill.76.cost",
+    "skill.77.present",
+    "skill.77.name",
+    "skill.77.cost",
+    "skill.78.present",
+    "skill.78.name",
+    "skill.78.cost",
+    "skill.79.present",
+    "skill.79.name",
+    "skill.79.cost",
+    "skill.80.present",
+    "skill.80.name",
+    "skill.80.cost",
+    "skill.81.present",
+    "skill.81.name",
+    "skill.81.cost",
+    "skill.82.present",
+    "skill.82.name",
+    "skill.82.cost",
+    "skill.83.present",
+    "skill.83.name",
+    "skill.83.cost",
+    "skill.84.present",
+    "skill.84.name",
+    "skill.84.cost",
+    "skill.85.present",
+    "skill.85.name",
+    "skill.85.cost",
+    "skill.86.present",
+    "skill.86.name",
+    "skill.86.cost",
+    "skill.87.present",
+    "skill.87.name",
+    "skill.87.cost",
+    "skill.88.present",
+    "skill.88.name",
+    "skill.88.cost",
+    "skill.89.present",
+    "skill.89.name",
+    "skill.89.cost",
+    "skill.90.present",
+    "skill.90.name",
+    "skill.90.cost",
+    "skill.91.present",
+    "skill.91.name",
+    "skill.91.cost",
+    "skill.92.present",
+    "skill.92.name",
+    "skill.92.cost",
+    "skill.93.present",
+    "skill.93.name",
+    "skill.93.cost",
+    "skill.94.present",
+    "skill.94.name",
+    "skill.94.cost",
+    "skill.95.present",
+    "skill.95.name",
+    "skill.95.cost"
+  ],
+  "module": {
+    "abi": 1,
+    "build_ids": [
+      "663052C2C7E8C357BA6EAD36641EE2792397EB1F000000000000000000000000"
+    ],
+    "libraries": {}
+  },
+  "actions": {
+    "ui.open.1": {
+      "kind": "module",
+      "action": "ui_open",
+      "argument": 1
+    },
+    "ui.open.2": {
+      "kind": "module",
+      "action": "ui_open",
+      "argument": 2
+    },
+    "ui.open.3": {
+      "kind": "module",
+      "action": "ui_open",
+      "argument": 3
+    },
+    "ui.open.4": {
+      "kind": "module",
+      "action": "ui_open",
+      "argument": 4
+    },
+    "member.select.0": {
+      "kind": "module",
+      "action": "member_select",
+      "argument": 0
+    },
+    "member.select.1": {
+      "kind": "module",
+      "action": "member_select",
+      "argument": 1
+    },
+    "member.select.2": {
+      "kind": "module",
+      "action": "member_select",
+      "argument": 2
+    },
+    "member.select.3": {
+      "kind": "module",
+      "action": "member_select",
+      "argument": 3
+    },
+    "member.select.4": {
+      "kind": "module",
+      "action": "member_select",
+      "argument": 4
+    },
+    "member.select.5": {
+      "kind": "module",
+      "action": "member_select",
+      "argument": 5
+    },
+    "member.select.6": {
+      "kind": "module",
+      "action": "member_select",
+      "argument": 6
+    },
+    "member.select.7": {
+      "kind": "module",
+      "action": "member_select",
+      "argument": 7
+    },
+    "member.select.8": {
+      "kind": "module",
+      "action": "member_select",
+      "argument": 8
+    },
+    "member.select.9": {
+      "kind": "module",
+      "action": "member_select",
+      "argument": 9
+    }
+  },
+  "page_binds": [
+    {
+      "point": "ui.page",
+      "equals": 1,
+      "when_equal": {
+        "page": "home"
+      }
+    },
+    {
+      "point": "ui.page",
+      "equals": 2,
+      "when_equal": {
+        "page": "personas"
+      }
+    },
+    {
+      "point": "ui.page",
+      "equals": 3,
+      "when_equal": {
+        "page": "links"
+      }
+    },
+    {
+      "point": "ui.page",
+      "equals": 4,
+      "when_equal": {
+        "page": "skills"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "home",
+      "title": "STATUS",
+      "widgets": [
+        {
+          "type": "label",
+          "rect": [
+            40,
+            28,
+            900,
+            42
+          ],
+          "text": "PERSONA 3 PORTABLE / STATUS",
+          "color": "#FFF8EDF3",
+          "text_scale": 4
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            90,
+            280,
+            55
+          ],
+          "text": "Status",
+          "on_tap": "ui.open.1",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF8C315B"
+        },
+        {
+          "type": "button",
+          "rect": [
+            335,
+            90,
+            280,
+            55
+          ],
+          "text": "Personas",
+          "on_tap": "ui.open.2",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            630,
+            90,
+            280,
+            55
+          ],
+          "text": "Social Links",
+          "on_tap": "ui.open.3",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            925,
+            90,
+            280,
+            55
+          ],
+          "text": "Skills",
+          "on_tap": "ui.open.4",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            165,
+            850,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "live.date",
+          "need_bind": "live.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            925,
+            165,
+            280,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "live.money",
+          "need_bind": "live.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            440,
+            1120,
+            80
+          ],
+          "text": "Waiting for supported gameplay",
+          "text_scale": 4,
+          "color": "#FFC0B2C4",
+          "hide_bind": "live.ready",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            1020,
+            1160,
+            24
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "status"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            1050,
+            1160,
+            20
+          ],
+          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "color": "#FFF8EDF3",
+          "text_scale": 2
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            700,
+            1160,
+            36
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "module_error_message",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            220,
+            600,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.0.name",
+          "need_bind": "member.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            670,
+            220,
+            530,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.0.stats",
+          "need_bind": "member.0.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            258,
+            530,
+            10
+          ],
+          "bind": "member.0.hp",
+          "max_bind": "member.0.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.0.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            670,
+            258,
+            530,
+            10
+          ],
+          "bind": "member.0.sp",
+          "max_bind": "member.0.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            298,
+            600,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.1.name",
+          "need_bind": "member.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            670,
+            298,
+            530,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.1.stats",
+          "need_bind": "member.1.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            336,
+            530,
+            10
+          ],
+          "bind": "member.1.hp",
+          "max_bind": "member.1.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.1.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            670,
+            336,
+            530,
+            10
+          ],
+          "bind": "member.1.sp",
+          "max_bind": "member.1.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            376,
+            600,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.2.name",
+          "need_bind": "member.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            670,
+            376,
+            530,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.2.stats",
+          "need_bind": "member.2.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            414,
+            530,
+            10
+          ],
+          "bind": "member.2.hp",
+          "max_bind": "member.2.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.2.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            670,
+            414,
+            530,
+            10
+          ],
+          "bind": "member.2.sp",
+          "max_bind": "member.2.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            454,
+            600,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.3.name",
+          "need_bind": "member.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            670,
+            454,
+            530,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.3.stats",
+          "need_bind": "member.3.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            492,
+            530,
+            10
+          ],
+          "bind": "member.3.hp",
+          "max_bind": "member.3.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.3.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            670,
+            492,
+            530,
+            10
+          ],
+          "bind": "member.3.sp",
+          "max_bind": "member.3.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            532,
+            600,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.4.name",
+          "need_bind": "member.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            670,
+            532,
+            530,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.4.stats",
+          "need_bind": "member.4.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            570,
+            530,
+            10
+          ],
+          "bind": "member.4.hp",
+          "max_bind": "member.4.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.4.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            670,
+            570,
+            530,
+            10
+          ],
+          "bind": "member.4.sp",
+          "max_bind": "member.4.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            610,
+            600,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.5.name",
+          "need_bind": "member.5.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            670,
+            610,
+            530,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.5.stats",
+          "need_bind": "member.5.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            648,
+            530,
+            10
+          ],
+          "bind": "member.5.hp",
+          "max_bind": "member.5.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.5.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            670,
+            648,
+            530,
+            10
+          ],
+          "bind": "member.5.sp",
+          "max_bind": "member.5.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.5.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            688,
+            600,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.6.name",
+          "need_bind": "member.6.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            670,
+            688,
+            530,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.6.stats",
+          "need_bind": "member.6.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            726,
+            530,
+            10
+          ],
+          "bind": "member.6.hp",
+          "max_bind": "member.6.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.6.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            670,
+            726,
+            530,
+            10
+          ],
+          "bind": "member.6.sp",
+          "max_bind": "member.6.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.6.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            766,
+            600,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.7.name",
+          "need_bind": "member.7.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            670,
+            766,
+            530,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.7.stats",
+          "need_bind": "member.7.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            804,
+            530,
+            10
+          ],
+          "bind": "member.7.hp",
+          "max_bind": "member.7.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.7.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            670,
+            804,
+            530,
+            10
+          ],
+          "bind": "member.7.sp",
+          "max_bind": "member.7.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.7.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            844,
+            600,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.8.name",
+          "need_bind": "member.8.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            670,
+            844,
+            530,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.8.stats",
+          "need_bind": "member.8.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            882,
+            530,
+            10
+          ],
+          "bind": "member.8.hp",
+          "max_bind": "member.8.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.8.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            670,
+            882,
+            530,
+            10
+          ],
+          "bind": "member.8.sp",
+          "max_bind": "member.8.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.8.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            922,
+            600,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.9.name",
+          "need_bind": "member.9.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            670,
+            922,
+            530,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.9.stats",
+          "need_bind": "member.9.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            960,
+            530,
+            10
+          ],
+          "bind": "member.9.hp",
+          "max_bind": "member.9.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.9.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            670,
+            960,
+            530,
+            10
+          ],
+          "bind": "member.9.sp",
+          "max_bind": "member.9.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.9.present"
+        }
+      ]
+    },
+    {
+      "id": "personas",
+      "title": "PERSONAS",
+      "widgets": [
+        {
+          "type": "label",
+          "rect": [
+            40,
+            28,
+            900,
+            42
+          ],
+          "text": "PERSONA 3 PORTABLE / PERSONAS",
+          "color": "#FFF8EDF3",
+          "text_scale": 4
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            90,
+            280,
+            55
+          ],
+          "text": "Status",
+          "on_tap": "ui.open.1",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            335,
+            90,
+            280,
+            55
+          ],
+          "text": "Personas",
+          "on_tap": "ui.open.2",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF8C315B"
+        },
+        {
+          "type": "button",
+          "rect": [
+            630,
+            90,
+            280,
+            55
+          ],
+          "text": "Social Links",
+          "on_tap": "ui.open.3",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            925,
+            90,
+            280,
+            55
+          ],
+          "text": "Skills",
+          "on_tap": "ui.open.4",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            165,
+            850,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "live.date",
+          "need_bind": "live.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            925,
+            165,
+            280,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "live.money",
+          "need_bind": "live.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            440,
+            1120,
+            80
+          ],
+          "text": "Waiting for supported gameplay",
+          "text_scale": 4,
+          "color": "#FFC0B2C4",
+          "hide_bind": "live.ready",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            1020,
+            1160,
+            24
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "status"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            1050,
+            1160,
+            20
+          ],
+          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "color": "#FFF8EDF3",
+          "text_scale": 2
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            700,
+            1160,
+            36
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "module_error_message",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            220,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "persona.0.line",
+          "need_bind": "persona.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            280,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "persona.1.line",
+          "need_bind": "persona.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            340,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "persona.2.line",
+          "need_bind": "persona.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            400,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "persona.3.line",
+          "need_bind": "persona.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            460,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "persona.4.line",
+          "need_bind": "persona.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            520,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "persona.5.line",
+          "need_bind": "persona.5.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            580,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "persona.6.line",
+          "need_bind": "persona.6.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            640,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "persona.7.line",
+          "need_bind": "persona.7.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            700,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "persona.8.line",
+          "need_bind": "persona.8.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            760,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "persona.9.line",
+          "need_bind": "persona.9.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            820,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "persona.10.line",
+          "need_bind": "persona.10.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            880,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "persona.11.line",
+          "need_bind": "persona.11.present"
+        }
+      ]
+    },
+    {
+      "id": "links",
+      "title": "SOCIAL LINKS",
+      "widgets": [
+        {
+          "type": "label",
+          "rect": [
+            40,
+            28,
+            900,
+            42
+          ],
+          "text": "PERSONA 3 PORTABLE / SOCIAL LINKS",
+          "color": "#FFF8EDF3",
+          "text_scale": 4
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            90,
+            280,
+            55
+          ],
+          "text": "Status",
+          "on_tap": "ui.open.1",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            335,
+            90,
+            280,
+            55
+          ],
+          "text": "Personas",
+          "on_tap": "ui.open.2",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            630,
+            90,
+            280,
+            55
+          ],
+          "text": "Social Links",
+          "on_tap": "ui.open.3",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF8C315B"
+        },
+        {
+          "type": "button",
+          "rect": [
+            925,
+            90,
+            280,
+            55
+          ],
+          "text": "Skills",
+          "on_tap": "ui.open.4",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            165,
+            850,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "live.date",
+          "need_bind": "live.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            925,
+            165,
+            280,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "live.money",
+          "need_bind": "live.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            440,
+            1120,
+            80
+          ],
+          "text": "Waiting for supported gameplay",
+          "text_scale": 4,
+          "color": "#FFC0B2C4",
+          "hide_bind": "live.ready",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            1020,
+            1160,
+            24
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "status"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            1050,
+            1160,
+            20
+          ],
+          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "color": "#FFF8EDF3",
+          "text_scale": 2
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            700,
+            1160,
+            36
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "module_error_message",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            220,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.0.line",
+          "need_bind": "link.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            248,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.1.line",
+          "need_bind": "link.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            276,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.2.line",
+          "need_bind": "link.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            304,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.3.line",
+          "need_bind": "link.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            332,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.4.line",
+          "need_bind": "link.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            360,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.5.line",
+          "need_bind": "link.5.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            388,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.6.line",
+          "need_bind": "link.6.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            416,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.7.line",
+          "need_bind": "link.7.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            444,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.8.line",
+          "need_bind": "link.8.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            472,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.9.line",
+          "need_bind": "link.9.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            500,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.10.line",
+          "need_bind": "link.10.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            528,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.11.line",
+          "need_bind": "link.11.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            556,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.12.line",
+          "need_bind": "link.12.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            584,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.13.line",
+          "need_bind": "link.13.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            612,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.14.line",
+          "need_bind": "link.14.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            640,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.15.line",
+          "need_bind": "link.15.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            668,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.16.line",
+          "need_bind": "link.16.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            696,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.17.line",
+          "need_bind": "link.17.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            724,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.18.line",
+          "need_bind": "link.18.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            752,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.19.line",
+          "need_bind": "link.19.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            780,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.20.line",
+          "need_bind": "link.20.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            808,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.21.line",
+          "need_bind": "link.21.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            836,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.22.line",
+          "need_bind": "link.22.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            864,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.23.line",
+          "need_bind": "link.23.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            892,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.24.line",
+          "need_bind": "link.24.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            920,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.25.line",
+          "need_bind": "link.25.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            948,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.26.line",
+          "need_bind": "link.26.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            976,
+            1140,
+            28
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "link.27.line",
+          "need_bind": "link.27.present"
+        }
+      ]
+    },
+    {
+      "id": "skills",
+      "title": "SKILLS",
+      "widgets": [
+        {
+          "type": "label",
+          "rect": [
+            40,
+            28,
+            900,
+            42
+          ],
+          "text": "PERSONA 3 PORTABLE / SKILLS",
+          "color": "#FFF8EDF3",
+          "text_scale": 4
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            90,
+            280,
+            55
+          ],
+          "text": "Status",
+          "on_tap": "ui.open.1",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            335,
+            90,
+            280,
+            55
+          ],
+          "text": "Personas",
+          "on_tap": "ui.open.2",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            630,
+            90,
+            280,
+            55
+          ],
+          "text": "Social Links",
+          "on_tap": "ui.open.3",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF282032"
+        },
+        {
+          "type": "button",
+          "rect": [
+            925,
+            90,
+            280,
+            55
+          ],
+          "text": "Skills",
+          "on_tap": "ui.open.4",
+          "text_scale": 3,
+          "color": "#FFF8EDF3",
+          "bg": "#FF8C315B"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            165,
+            850,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "live.date",
+          "need_bind": "live.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            925,
+            165,
+            280,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "live.money",
+          "need_bind": "live.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            440,
+            1120,
+            80
+          ],
+          "text": "Waiting for supported gameplay",
+          "text_scale": 4,
+          "color": "#FFC0B2C4",
+          "hide_bind": "live.ready",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            1020,
+            1160,
+            24
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "status"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            1050,
+            1160,
+            20
+          ],
+          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "color": "#FFF8EDF3",
+          "text_scale": 2
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            700,
+            1160,
+            36
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "module_error_message",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.0",
+          "need_bind": "member.0.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.0.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.0",
+          "need_bind": "member.0.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.0.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            52,
+            227,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.0.tab",
+          "need_bind": "member.0.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            275,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.1",
+          "need_bind": "member.1.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.1.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            275,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.1",
+          "need_bind": "member.1.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.1.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            287,
+            227,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.1.tab",
+          "need_bind": "member.1.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            510,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.2",
+          "need_bind": "member.2.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.2.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            510,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.2",
+          "need_bind": "member.2.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.2.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            522,
+            227,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.2.tab",
+          "need_bind": "member.2.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            745,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.3",
+          "need_bind": "member.3.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.3.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            745,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.3",
+          "need_bind": "member.3.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.3.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            757,
+            227,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.3.tab",
+          "need_bind": "member.3.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            980,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.4",
+          "need_bind": "member.4.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.4.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            980,
+            215,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.4",
+          "need_bind": "member.4.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.4.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            992,
+            227,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.4.tab",
+          "need_bind": "member.4.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.5",
+          "need_bind": "member.5.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.5.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            40,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.5",
+          "need_bind": "member.5.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.5.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            52,
+            279,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.5.tab",
+          "need_bind": "member.5.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            275,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.6",
+          "need_bind": "member.6.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.6.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            275,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.6",
+          "need_bind": "member.6.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.6.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            287,
+            279,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.6.tab",
+          "need_bind": "member.6.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            510,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.7",
+          "need_bind": "member.7.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.7.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            510,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.7",
+          "need_bind": "member.7.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.7.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            522,
+            279,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.7.tab",
+          "need_bind": "member.7.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            745,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.8",
+          "need_bind": "member.8.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.8.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            745,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.8",
+          "need_bind": "member.8.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.8.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            757,
+            279,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.8.tab",
+          "need_bind": "member.8.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            980,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.9",
+          "need_bind": "member.9.present",
+          "bg": "#FF282032",
+          "hide_bind": "member.9.selected",
+          "hide_eq": 1
+        },
+        {
+          "type": "button",
+          "rect": [
+            980,
+            267,
+            225,
+            44
+          ],
+          "text": "",
+          "on_tap": "member.select.9",
+          "need_bind": "member.9.present",
+          "bg": "#FF8C315B",
+          "hide_bind": "member.9.selected",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            992,
+            279,
+            201,
+            22
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.9.tab",
+          "need_bind": "member.9.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            330,
+            1160,
+            36
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "skill.header",
+          "need_bind": "skill.ready"
+        },
+        {
+          "repeat": 96,
+          "repeat_dy": 72,
+          "scroll": "skills",
+          "type": "rect",
+          "rect": [
+            40,
+            380,
+            1150,
+            60
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "skill.{i}.present"
+        },
+        {
+          "repeat": 96,
+          "repeat_dy": 72,
+          "scroll": "skills",
+          "type": "label",
+          "rect": [
+            60,
+            396,
+            800,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "skill.{i}.name",
+          "need_bind": "skill.{i}.present"
+        },
+        {
+          "repeat": 96,
+          "repeat_dy": 72,
+          "scroll": "skills",
+          "type": "label",
+          "rect": [
+            1000,
+            396,
+            180,
+            30
+          ],
+          "text": "",
+          "color": "#FFC0B2C4",
+          "text_scale": 3,
+          "bind_text": "skill.{i}.cost",
+          "need_bind": "skill.{i}.present"
+        }
+      ],
+      "scrolls": [
+        {
+          "id": "skills",
+          "rect": [
+            40,
+            380,
+            1170,
+            576
+          ],
+          "count_bind": "skill.count",
+          "row_h": 72,
+          "bar": "#FFFF71AA",
+          "bar_track": "#33FFFFFF",
+          "bar_w": 6,
+          "show_bind": "skill.ready",
+          "reset_bind": "ui.member"
+        }
+      ]
+    }
+  ]
+}

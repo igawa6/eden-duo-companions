@@ -1,0 +1,337 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+#pragma once
+// Read-only base-build P3P reader. Every address below was traced from the base executable and
+// checked live against the native menus; the build pins in p3p_pins.inc guard the code it relies on.
+#include "core/mods/dsmod_module_abi.h"
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <map>
+#include <set>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+namespace p3p {
+using u8 = uint8_t; using u16 = uint16_t; using u32 = uint32_t; using u64 = uint64_t;
+using Bytes = std::vector<u8>;
+template<class T> T At(const Bytes& b, size_t at) {
+    if (at > b.size() || sizeof(T) > b.size() - at) throw std::runtime_error("truncated record");
+    T v; std::memcpy(&v, b.data() + at, sizeof(v)); return v;
+}
+struct Member {
+    int id{}, level{}, hp{}, sp{}, max_hp{}, max_sp{}, persona{}, accessory_skill{};
+    int base_hp{}, base_sp{};      // level table values before Maximum()
+    std::map<int, int> effects;    // equipment effect id -> count, for Maximum()
+    bool cost_free{}; // unit +0xd bit 1: 0x74a10 charges nothing
+    std::array<int, 8> skills{};
+    bool operator==(const Member&) const = default;
+};
+// One row of the native camp Skill list. cost_known is false only when the game would pick
+// between duplicate copies by battle effect (0x73b20) and their displayed costs differ.
+struct Skill { int id{}, type{}, cost{}; bool cost_known{true}; std::string name; };
+struct Persona {
+    int id{}, level{}, slot{}; bool selected{};
+    std::array<int, 8> skills{};
+    bool operator==(const Persona&) const = default;
+};
+struct Link { int id{}, rank{}; bool operator==(const Link&) const = default; };
+struct Snapshot {
+    int day{}, time{}, money{}, stock_capacity{}; bool dark{}, female{};
+    std::vector<Member> members;
+    std::vector<Persona> personas;
+    std::vector<Link> links;
+    bool operator==(const Snapshot&) const = default;
+};
+struct Pin { u64 offset; size_t size; u64 hash; };
+#include "p3p_pins.inc"
+
+inline int Maximum(int base, const std::set<int>& skills, const std::map<int,int>& effects, bool sp) {
+    int total = base, start = sp ? 0x21c : 0x219;
+    for (int i = 0; i < 3; ++i) if (skills.contains(start + i)) total += base * (i + 1) / 10;
+    if (skills.contains(sp ? 0x26d : 0x26c)) total += base / 2;
+    if (skills.contains(0x237)) total += sp ? -(base / 2) : base;
+    if (skills.contains(0x238)) total += sp ? base : -(base / 2);
+    for (auto [effect, count] : effects) {
+        int first = sp ? 0x1f : 0x1a;
+        if (effect >= first && effect < first + 5) total += count * (effect - first + 1) * 10;
+        if (effect == (sp ? 0x8f : 0x8e)) total += count * 100;
+    }
+    return std::min(999, total);
+}
+
+// Mirrors the skill cost function 0x74a10 for party units (unit byte 0 bit 2 clear).
+// entry is the 0x28-byte SKILL.TBL section-1 record: +0 flags, +3 type (1 HP, 2 SP),
+// +4 u16 cost, +6 u16 extra. Arms Master (0x236) / Spell Master (0x235) halve, minimum 1.
+inline int SkillCost(const Bytes& entry, bool cost_free, int max_hp, int max_sp, const std::set<int>& skills) {
+    if (cost_free) return 0;
+    u32 base = At<u16>(entry, 4), extra = At<u16>(entry, 6), cost;
+    bool half;
+    if (entry.at(3) == 1) {
+        cost = u32(u16(max_hp)) * base / 100 + extra;
+        half = skills.contains(0x236);
+    } else if (entry.at(3) == 2) {
+        cost = (entry.at(0) & 0x10) ? u32(u16(max_sp)) * base / 100 + extra : base + extra;
+        if (!cost) return 0;
+        half = skills.contains(0x235);
+    } else return 0;
+    cost >>= half ? 1 : 0;
+    return cost ? int(cost) : 1;
+}
+
+// Persona stock size from S+0x490c, as 0x1dab90/0x1d6c60 derive it.
+inline int StockCapacity(u32 flags) {
+    if (flags & 4) return 12;
+    if (flags & 2) return 10;
+    if (flags & 1) return 9;
+    if (flags & 0x2000) return 8;
+    return flags & 0x1000 ? 6 : 4;
+}
+
+// Builds the native camp Skill list (0x108770) from snapshot data. record(id) returns the
+// 0x28-byte SKILL.TBL record. Allies list their Persona's slots; the protagonist lists every
+// stock Persona's slots, each costed with that Persona selected, then merges duplicates.
+template<class Record>
+std::vector<Skill> SkillList(const Snapshot& v, const Member& m, Record record) {
+    struct Entry { int persona; Skill skill; };
+    auto has = [](const std::array<int, 8>& slots, int id) { return std::find(slots.begin(), slots.end(), id) != slots.end(); };
+    auto cost = [&](Skill& s, const std::array<int, 8>& slots) {
+        if (s.id > 0x1cf) return; // 0x225290 stores no cost for passives
+        std::set<int> owned(slots.begin(), slots.end());
+        owned.insert(m.accessory_skill);
+        int max_hp = Maximum(m.base_hp, owned, m.effects, false), max_sp = Maximum(m.base_sp, owned, m.effects, true);
+        auto entry = record(s.id);
+        s.type = entry.at(3);
+        s.cost = SkillCost(entry, m.cost_free, max_hp, max_sp, owned);
+    };
+    std::vector<Entry> list;
+    std::map<int, const Persona*> stock;
+    if (m.id == 1) {
+        for (const auto& p : v.personas) if (p.slot < v.stock_capacity) stock[p.slot] = &p;
+        int present = int(stock.size());
+        for (int i = 0; i < present; ++i) {
+            if (!stock.contains(i)) continue; // 0x1d6c60 returns null; the loop still counts it
+            for (int id : stock[i]->skills) {
+                if (!id) continue;
+                Entry e{i, {id}};
+                cost(e.skill, stock[i]->skills);
+                list.push_back(e);
+            }
+        }
+        // Duplicates: keep a Spell Master Persona's copy; otherwise the game keeps the copy
+        // with the larger battle effect (0x1e0eb0 -> 0x73b20), which is not reproduced.
+        for (size_t i = 0; i < list.size(); ++i) {
+            for (size_t j = i + 1; j < list.size();) {
+                if (list[j].skill.id != list[i].skill.id) { ++j; continue; }
+                if (list[i].skill.id <= 0x1cf && !has(stock.at(list[i].persona)->skills, 0x235)) {
+                    if (has(stock.at(list[j].persona)->skills, 0x235)) list[i] = list[j];
+                    else if (list[i].skill.type != list[j].skill.type || list[i].skill.cost != list[j].skill.cost ||
+                             !list[j].skill.cost_known)
+                        list[i].skill.cost_known = false;
+                }
+                list[j] = list.back(); list.pop_back();
+            }
+        }
+    } else {
+        for (int id : m.skills) {
+            if (!id) continue;
+            Entry e{-1, {id}};
+            cost(e.skill, m.skills);
+            list.push_back(e);
+        }
+    }
+    if (list.size() > 0x60) throw std::runtime_error("skill list too long");
+    auto key = [](int id) { return std::pair{(id & 0xffc0) != 0xc0, id}; };
+    std::sort(list.begin(), list.end(), [&](const Entry& a, const Entry& b) { return key(a.skill.id) < key(b.skill.id); });
+    std::vector<Skill> out;
+    for (auto& e : list) out.push_back(std::move(e.skill));
+    return out;
+}
+
+class Reader {
+public:
+    explicit Reader(const EdenDsmodHostApi& h) : host(h) {}
+    void UpdateHost(const EdenDsmodHostApi& h) { if (h.main_base != host.main_base) pins_ok = false; host = h; }
+    Bytes Read(u64 at, size_t n) const {
+        if (!at || n > 32768 || at + n < at || !host.is_mapped || !host.read_memory ||
+            !host.is_mapped(host.userdata, at, n)) throw std::runtime_error("memory unavailable");
+        Bytes b(n);
+        if (!host.read_memory(host.userdata, at, b.data(), n)) throw std::runtime_error("memory read failed");
+        return b;
+    }
+    template<class T> T Get(u64 at) const { return At<T>(Read(at, sizeof(T)), 0); }
+    u64 Pointer(u64 at) const {
+        u64 p = Get<u64>(at);
+        if (!p || p % 4) throw std::runtime_error("pointer unavailable");
+        return p;
+    }
+    bool Sample(Snapshot& out, std::string& why) {
+        try {
+            if (!pins_ok) {
+                for (auto pin : Pins) {
+                    u64 hash = UINT64_C(14695981039346656037);
+                    for (u8 byte : Read(host.main_base + pin.offset, pin.size)) hash = (hash ^ byte) * UINT64_C(1099511628211);
+                    if (hash != pin.hash) throw std::runtime_error("executable verification failed");
+                }
+                pins_ok = true;
+            }
+            Context before = Scene();
+            u64 state = Pointer(host.main_base + 0x70e800), allies = Pointer(host.main_base + 0x70e808);
+            Bytes s = Read(state, 0x5d20), a = Read(allies, 0xa00);
+            Snapshot first = Values(s, a);
+            Bytes s2 = Read(state, 0x5d20), a2 = Read(allies, 0xa00);
+            Snapshot second = Values(s2, a2);
+            if (!(before == Scene()) || state != Pointer(host.main_base + 0x70e800) ||
+                allies != Pointer(host.main_base + 0x70e808) || !(first == second))
+                throw std::runtime_error("context changed");
+            out = std::move(second); why = "Ready"; return true;
+        } catch (const std::exception& e) { out = {}; why = e.what(); return false; }
+    }
+    // The native camp Skill list for one member (cmpSkill.c builder 0x108770), in its order.
+    // Tables are the game's loaded copies: names via getter 0x77570, records via the 0x70df70
+    // GOT slot that the cost function 0x74a10 reads.
+    std::vector<Skill> Skills(const Snapshot& v, const Member& m) const {
+        u64 lang_at = Pointer(host.main_base + 0x70df20);
+        u32 lang = Get<u32>(lang_at);
+        bool wide = lang == 3 || (lang >= 5 && lang <= 8);
+        u64 names = Pointer(Pointer(host.main_base + (wide ? 0x70e0e0 : 0x70e0e8)));
+        u64 table = Pointer(Pointer(host.main_base + 0x70df70));
+        size_t width = wide ? 0x1d : 0x13;
+        auto record = [&](int id) { return Read(table + id * 0x28, 0x28); };
+        auto rows = SkillList(v, m, record);
+        std::vector<Skill> out;
+        for (auto& s : rows) {
+            auto raw = Read(names + s.id * width, width);
+            auto end = std::find(raw.begin(), raw.end(), u8{});
+            if (end == raw.end()) throw std::runtime_error("unterminated skill name");
+            s.name.assign(raw.begin(), end);
+            for (unsigned char c : s.name) if (c < 32 || c > 126) { s.name = "Skill " + std::to_string(s.id); break; }
+            out.push_back(std::move(s));
+        }
+        if (Get<u32>(lang_at) != lang) throw std::runtime_error("context changed");
+        return out;
+    }
+private:
+    EdenDsmodHostApi host;
+    bool pins_ok{};
+    struct Context {
+        u64 observer{}, data{}, field{}, field_data{}, resource{}, menu{};
+        int state{}, area{}, subarea{};
+        bool operator==(const Context&) const = default;
+    };
+    static std::string Name(const Bytes& b) {
+        auto end = std::find(b.begin(), b.begin() + 24, u8{});
+        if (end == b.begin() + 24) throw std::runtime_error("invalid task name");
+        return {b.begin(), end};
+    }
+    void Callbacks(const Bytes& b, u64 fn, u64 end) const {
+        if (At<u64>(b, 0x38) != host.main_base + fn || At<u64>(b, 0x40) != host.main_base + end)
+            throw std::runtime_error("task verification failed");
+    }
+    Context Scene() const {
+        Context c;
+        c.observer = Pointer(host.main_base + 0x86fae0);
+        auto observer = Read(c.observer, 0x60);
+        if (Name(observer) != "sequence observer") throw std::runtime_error("observer unavailable");
+        Callbacks(observer, 0x1e7ba0, 0x1e7c80);
+        c.data = Pointer(c.observer + 0x48);
+        auto seq = Read(c.data, 0x20);
+        if (At<u32>(seq, 0) || !std::isfinite(At<float>(seq, 12)) || At<float>(seq, 12) > 0 || At<u64>(seq, 24))
+            throw std::runtime_error("Loading");
+        if (At<int32_t>(seq, 4) != 8) throw std::runtime_error("Waiting for supported gameplay");
+        auto heads = Read(host.main_base + 0x8e51c98, 24);
+        std::map<u64, Bytes> tasks;
+        for (int i = 0; i < 3; ++i) {
+            std::set<u64> visited;
+            for (u64 node = At<u64>(heads, i * 8); node;) {
+                if (node % 8 || !visited.insert(node).second || tasks.size() >= 256)
+                    throw std::runtime_error("task list changed");
+                auto raw = Read(node, 0x60); auto name = Name(raw);
+                if (name == "mcProc") throw std::runtime_error("Loading or saving");
+                if (name == "fld2DProcess") {
+                    if (c.field) throw std::runtime_error("ambiguous field");
+                    Callbacks(raw, 0x16a040, 0x16a840); c.field = node; c.field_data = At<u64>(raw, 0x48);
+                }
+                u64 next = At<u64>(raw, 0x50); tasks.emplace(node, std::move(raw)); node = next;
+            }
+        }
+        if (!tasks.contains(c.observer) || !c.field_data) throw std::runtime_error("field unavailable");
+        auto field = Read(c.field_data, 0x68);
+        c.state = At<u32>(field, 0); c.area = At<u32>(field, 4); c.subarea = At<u32>(field, 8);
+        c.resource = At<u64>(field, 0x20); c.menu = At<u64>(field, 0x28);
+        if (!c.resource || (c.state != 14 && c.state != 16)) throw std::runtime_error("Field transition");
+        if (c.state == 16) {
+            if (!tasks.contains(c.menu)) throw std::runtime_error("menu unavailable");
+            Callbacks(tasks.at(c.menu), 0xf5900, 0xf5fa0);
+        }
+        if (heads != Read(host.main_base + 0x8e51c98, 24) || field != Read(c.field_data, 0x68) || seq != Read(c.data, 0x20))
+            throw std::runtime_error("context changed");
+        return c;
+    }
+    static bool Flag(const Bytes& s, int flag) { return (At<u32>(s, 0x46cc + flag / 32 * 4) >> (flag % 32)) & 1; }
+    Snapshot Values(const Bytes& s, const Bytes& a) const {
+        Snapshot v; v.day = At<u16>(s, 0xc4c); v.time = s.at(0xc4e); v.money = At<u32>(s, 0x4b8c);
+        v.dark = At<u32>(s, 0x4950) & 0x200; v.female = s.at(0x48cc) & 0x80;
+        int selected = At<int16_t>(s, 0x1058);
+        if (selected < 0 || selected >= 12) throw std::runtime_error("Persona selection unavailable");
+        for (int i = 0; i < 12; ++i) {
+            size_t at = 0x105c + i * 0x34;
+            if (!(s.at(at) & 1)) continue;
+            Persona p{At<u16>(s, at + 2), s.at(at + 4), i, i == selected};
+            for (int k = 0; k < 8; ++k) p.skills[k] = At<u16>(s, at + 12 + k * 2);
+            v.personas.push_back(p);
+        }
+        v.stock_capacity = StockCapacity(At<u32>(s, 0x490c));
+        if (!(s.at(0x105c + selected * 0x34) & 1)) throw std::runtime_error("Persona selection absent");
+        for (int i = 0; i < 28; ++i) {
+            size_t at = 0x78 + 16 * i;
+            int id = At<u16>(s, at + 4), rank = At<u16>(s, at + 6);
+            if (id) { if (id >= 32 || rank > 10) throw std::runtime_error("invalid Social Link"); v.links.push_back({id, rank}); }
+        }
+        constexpr int order[]{1,2,5,4,7,6,3,10,8,9};
+        u64 levels = Pointer(host.main_base + 0x70e810), items = Pointer(Pointer(host.main_base + 0x70e7f8));
+        auto custom = Read(Pointer(host.main_base + 0x70e4e8), 12);
+        int count = At<int32_t>(custom, 8);
+        if (count < 0 || count > 30) throw std::runtime_error("invalid equipment index");
+        Bytes custom_ids = count ? Read(At<u64>(custom, 0), count * 2) : Bytes{};
+        auto item = [&](int id) { if (id < 0 || id >= 0x1000) throw std::runtime_error("unsupported equipment"); return Read(items + id * 0x38, 0x38); };
+        for (int id : order) {
+            bool joined = id == 1 || Flag(s, 0x14e + id);
+            if (id == 4) joined = joined && Flag(s, 0x52);
+            if (id == 9) joined = joined && !Flag(s, 0xa8);
+            if (!joined) continue;
+            const Bytes& units = id == 1 ? s : a;
+            size_t unit = id == 1 ? 0x24 : id * 0x118 - 0x22c;
+            if (At<u16>(units, unit + 2) != id || (id != 1 && (units.at(unit) & 4)))
+                throw std::runtime_error("invalid member record");
+            size_t persona = id == 1 ? 0x105c + selected * 0x34 : unit + 0x88;
+            Member m; m.id = id; m.level = id == 1 ? s.at(unit + 6) : a.at(persona + 4);
+            m.persona = At<u16>(units, persona + 2); m.cost_free = units.at(unit + 0xd) & 2;
+            m.hp = At<u16>(units, unit + 8); m.sp = At<u16>(units, unit + 10);
+            if (m.level < 1 || m.level > 99) throw std::runtime_error("invalid level");
+            std::set<int> skills;
+            for (int i = 0; i < 8; ++i) skills.insert(m.skills[i] = At<u16>(units, persona + 12 + i * 2));
+            size_t equip = id == 1 ? 0x4b4 : unit + 0x50;
+            m.accessory_skill = At<u32>(item(At<u16>(units, equip + 6)), 0x24);
+            skills.insert(m.accessory_skill);
+            auto& effects = m.effects;
+            for (int i = 0; i < 3; ++i) {
+                int eid = At<u16>(units, equip + 2 * i), effect = -1;
+                for (int j = 0; j < count; ++j) if (At<u16>(custom_ids, 2 * j) == eid) { effect = At<u16>(s, 0x4bac + 8 * j); break; }
+                if (effect < 0) effect = At<u16>(item(eid), 0x28);
+                ++effects[effect];
+            }
+            auto bases = Read(levels + (m.level - 1) * 0x2c + id * 4, 4);
+            m.base_hp = At<u16>(bases, 0); m.base_sp = At<u16>(bases, 2);
+            m.max_hp = Maximum(m.base_hp, skills, effects, false);
+            m.max_sp = Maximum(m.base_sp, skills, effects, true);
+            if (m.max_hp < 1 || m.max_sp < 1 || m.hp > m.max_hp || m.sp > m.max_sp)
+                throw std::runtime_error("invalid HP/SP");
+            v.members.push_back(m);
+        }
+        return v;
+    }
+};
+} // namespace p3p
