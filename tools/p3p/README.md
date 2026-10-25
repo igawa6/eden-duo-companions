@@ -5,7 +5,9 @@ Scripts for the read-only Persona 3 Portable companion (`0100DCD01525A000`). The
 `663052C2C7E8C357BA6EAD36641EE2792397EB1F000000000000000000000000` and refuses any other.
 
 The package is asset-free. Names and skill data are read at runtime from the player's own game
-(the loaded tables in memory and `data_EN/umd0.cpk`), never shipped.
+(the loaded tables in memory and `data_EN/umd0.cpk`), never shipped. Text is drawn in the game's
+own font: `p3p_font.h` reads `font/font0.fnt` from `init.bin` in `data_EN/umd0.cpk` and decodes it
+with the shared Atlus FNT decoder (`p5r_font.h`); `p3p_font.txt` in the package is only a marker.
 
 | Script | What it does |
 |---|---|

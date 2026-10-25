@@ -96,8 +96,9 @@ endfunction()
 # Persona 3 Portable: experimental read-only base-build field/camp companion.
 dsmod_add_module(dsmod-p3p EXCLUDE_FROM_ALL
     TITLE 0100DCD01525A000
-    SOURCES 0100DCD01525A000.cpp p3p_reader.h p3p_pins.inc
-    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions
+    SOURCES 0100DCD01525A000.cpp p3p_reader.h p3p_pins.inc p3p_font.h p5r_font.h
+        p5r_romfs_assets.cpp p5r_romfs_assets.h
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
     INCLUDE_DIRECTORIES "${EDEN_FMT_INCLUDE_DIR}" "${EDEN_NLOHMANN_JSON_INCLUDE_DIR}"
     COMPILE_DEFINITIONS FMT_HEADER_ONLY=1)
 option(EDEN_P3P_STANDALONE "Configure only the P3P development module" OFF)

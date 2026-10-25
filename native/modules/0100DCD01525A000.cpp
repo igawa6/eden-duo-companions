@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Experimental read-only Persona 3 Portable companion. No guest input/writes.
 #include "p3p_reader.h"
+#include "p3p_font.h"
 #include "core/mods/dsmod_module_extensions.h"
 #include <cstdio>
 #include <memory>
@@ -13,6 +14,7 @@ constexpr char Build[] = "663052C2C7E8C357BA6EAD36641EE2792397EB1F00000000000000
 constexpr u64 Title = UINT64_C(0x0100DCD01525A000);
 struct Module {
     EdenDsmodHostApi host;
+    const EdenDsmodHostApi font_host; // the create-time copy decode_font reads romfs through
     Reader reader;
     unsigned ticks{};
     // Companion page (manifest ui_open: 1 status, 2 personas, 3 links, 4 skills, 5 equip,
@@ -20,7 +22,7 @@ struct Module {
     int page{1}, member{}, item_tab{}, persona_pick{}; // item_tab: native Use / Equip / Key
     int cal_offset{}; // calendar month shown, relative to the current month
     // Page 9 (battle) is entered automatically while a battle runs; Status is restored after.
-    explicit Module(const EdenDsmodHostApi& h) : host(h), reader(h) {}
+    explicit Module(const EdenDsmodHostApi& h) : host(h), font_host(h), reader(h) {}
     void I(const std::string& key, int64_t v) { host.publish_i64(host.userdata,key.c_str(),v); }
     void T(const std::string& key, const std::string& v) { host.publish_text(host.userdata,key.c_str(),v.c_str()); }
     std::string MemberName(const Snapshot&, const Member& m) const {
@@ -224,8 +226,32 @@ void Tick(void*,const EdenDsmodHostApi*){}
 void Configure(void*,const EdenDsmodHostExtensions*){}
 // Serialized with sample; page/member selection only, never guest input or writes.
 EdenDsmodBool OnAction(void* p,const char* action,int64_t arg){try{return p&&action&&static_cast<Module*>(p)->Action(action,arg)?EDEN_DSMOD_TRUE:EDEN_DSMOD_FALSE;}catch(...){return EDEN_DSMOD_FALSE;}}
-const EdenDsmodModuleApi Api{EDEN_DSMOD_MODULE_ABI_VERSION,sizeof(EdenDsmodModuleApi),0,EDEN_DSMOD_MODULE_ABI_HASH,Title,"Persona 3 Portable (read-only preview)",EDEN_DSMOD_CAP_NO_TICK_WHEN_HIDDEN|EDEN_DSMOD_CAP_EXTENSIONS,&Supports,&Create,&Destroy,&Sample,&Tick};
-const EdenDsmodModuleExtensions Extensions{EDEN_DSMOD_EXT_VERSION,sizeof(EdenDsmodModuleExtensions),EDEN_DSMOD_EXT_HASH,&Configure,&OnAction,nullptr};
+// The game's font (p3p_font.h): "module:p3p_font" is the atlas, and the package's `font` file
+// (magic "P3PFONT") stands for the metrics of the same romfs file.
+EdenDsmodBool LoadImage(void*,const EdenDsmodHostApi* h,const char* key,void* receiver,EdenDsmodImageSink sink) {
+    try {
+        if(!h||!key||!sink||!h->read_romfs||std::string_view{key}!="module:p3p_font")return EDEN_DSMOD_FALSE;
+        p5r_font::Atlas atlas;
+        if(!p3p_font::BuildAtlas(*h,atlas))return EDEN_DSMOD_FALSE;
+        sink(receiver,atlas.width,atlas.height,atlas.rgba.data(),atlas.rgba.size());
+        return EDEN_DSMOD_TRUE;
+    } catch(...) {return EDEN_DSMOD_FALSE;}
+}
+EdenDsmodBool DecodeFont(void* p,const uint8_t* bytes,size_t size,void* receiver,EdenDsmodFontSink sink) {
+    try {
+        p5r_font::Atlas atlas;
+        if(!p||!sink||!bytes||size<7||std::memcmp(bytes,"P3PFONT",7)||!static_cast<Module*>(p)->font_host.read_romfs||
+           !p3p_font::BuildAtlas(static_cast<Module*>(p)->font_host,atlas))return EDEN_DSMOD_FALSE;
+        std::vector<EdenDsmodFontGlyph> glyphs(atlas.glyphs.size());
+        for(size_t i=0;i<glyphs.size();++i){const auto& g=atlas.glyphs[i];glyphs[i]={g.x,g.y,g.w,g.h,g.bearing_x,g.bearing_y,g.advance};}
+        sink(receiver,atlas.line_height,p5r_font::FirstCodepoint,glyphs.data(),uint32_t(glyphs.size()));
+        return EDEN_DSMOD_TRUE;
+    } catch(...) {return EDEN_DSMOD_FALSE;}
+}
+const EdenDsmodModuleApi Api{EDEN_DSMOD_MODULE_ABI_VERSION,sizeof(EdenDsmodModuleApi),0,EDEN_DSMOD_MODULE_ABI_HASH,Title,"Persona 3 Portable (read-only preview)",EDEN_DSMOD_CAP_NO_TICK_WHEN_HIDDEN|EDEN_DSMOD_CAP_EXTENSIONS|EDEN_DSMOD_CAP_ROMFS_READ,&Supports,&Create,&Destroy,&Sample,&Tick};
+const EdenDsmodModuleExtensions Extensions{EDEN_DSMOD_EXT_VERSION,sizeof(EdenDsmodModuleExtensions),EDEN_DSMOD_EXT_HASH,&Configure,&OnAction,&LoadImage};
+const EdenDsmodFontExtensions FontExtensions{EDEN_DSMOD_FONT_EXT_VERSION,sizeof(EdenDsmodFontExtensions),EDEN_DSMOD_FONT_EXT_HASH,&DecodeFont};
 }
 extern "C" __attribute__((visibility("default"))) const EdenDsmodModuleApi* eden_dsmod_get_module(uint32_t version,uint64_t hash){return version==EDEN_DSMOD_MODULE_ABI_VERSION&&hash==EDEN_DSMOD_MODULE_ABI_HASH?&Api:nullptr;}
 extern "C" __attribute__((visibility("default"))) const EdenDsmodModuleExtensions* eden_dsmod_get_extensions(uint32_t version,uint64_t hash){return version==EDEN_DSMOD_EXT_VERSION&&hash==EDEN_DSMOD_EXT_HASH?&Extensions:nullptr;}
+extern "C" __attribute__((visibility("default"))) const EdenDsmodFontExtensions* eden_dsmod_get_font_extensions(uint32_t version,uint64_t hash){return version==EDEN_DSMOD_FONT_EXT_VERSION&&hash==EDEN_DSMOD_FONT_EXT_HASH?&FontExtensions:nullptr;}

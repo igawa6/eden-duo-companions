@@ -2,6 +2,7 @@
 #include "core/mods/dsmod_module_abi.h"
 #include "core/mods/dsmod_module_extensions.h"
 #include "p3p_reader.h"
+#include "p3p_font.h"
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
@@ -146,7 +147,20 @@ int main() {
         Require(p3p::MoonPhase(moon, 2) == 3 && p3p::MoonPhase(moon, 38) == 14, "phase index clamps below day 5");
         Require(p3p::DaysToFullMoon(moon, 26) == 12 && p3p::DaysToFullMoon(moon, 38) == 0, "days to full moon");
         Require(p3p::Weekday(4) == 0 && p3p::Weekday(0) == 3 && p3p::MonthStart(1) == 30, "weekday and month start");
-        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item, Persona-detail and calendar regressions passed");
+        // Game font: ASCII only (font0.fnt continues with kana past '~'); without romfs, fail closed.
+        Require(p3p_font::GlyphIndex(' ') == 0 && p3p_font::GlyphIndex('A') == 33 && p3p_font::GlyphIndex('~') == 94 &&
+                p3p_font::GlyphIndex(0x7F) < 0 && p3p_font::GlyphIndex(0xE9) < 0, "font ASCII mapping");
+        Require(api->capabilities & EDEN_DSMOD_CAP_ROMFS_READ, "romfs capability for the font");
+        auto font = eden_dsmod_get_font_extensions(EDEN_DSMOD_FONT_EXT_VERSION, EDEN_DSMOD_FONT_EXT_HASH);
+        Require(font && font->decode_font && ext->load_image, "font extensions");
+        const char marker[] = "P3PFONT";
+        Require(!font->decode_font(instance, reinterpret_cast<const uint8_t*>(marker), 7, nullptr,
+                                   [](void*, uint32_t, uint32_t, const EdenDsmodFontGlyph*, uint32_t) {}),
+                "font fails closed without romfs");
+        Require(!ext->load_image(instance, &host, "module:p3p_font", nullptr,
+                                 [](void*, uint32_t, uint32_t, const uint8_t*, size_t) {}),
+                "atlas fails closed without romfs");
+        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item, Persona-detail, calendar and font regressions passed");
         return 0;
     } catch(const std::exception& e) {std::fprintf(stderr,"%s\n",e.what());return 1;}
 }
