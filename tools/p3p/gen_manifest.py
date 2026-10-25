@@ -129,6 +129,40 @@ def links_widgets(outputs, scrolls):
                  color='#FFFF71AA', bg='#FF403349', **need),
             dict(row, **label([880, 263, 290, 24], bind='link.{i}.status', scale=2), **need) | {'color': COLORS['accent']}]
 
+def battle_page(outputs):
+    """Shown automatically during battles: party HP/SP and the encounter's enemies, with
+    affinities only once analyzed (as the native Analyze panel)."""
+    outputs += ['battle.active', 'en.count']
+    widgets = [label([40, 28, 900, 42], 'PERSONA 3 PORTABLE / BATTLE', scale=4),
+               label([40, 90, 400, 30], 'PARTY', scale=3) | {'color': COLORS['accent']}]
+    for i in range(4):
+        p = f'member.{i}'; y = 135 + i * 78
+        need = {'need_bind': p + '.present'}
+        widgets += [label([50, y, 560, 26], bind=p + '.name') | need,
+                    label([620, y, 580, 26], bind=p + '.stats', scale=2) | need,
+                    {'type': 'bar', 'rect': [50, y + 36, 540, 12], 'bind': p + '.hp', 'max_bind': p + '.max_hp',
+                     'color': '#FFFF71AA', 'bg': '#FF403349'} | need,
+                    {'type': 'bar', 'rect': [620, y + 36, 540, 12], 'bind': p + '.sp', 'max_bind': p + '.max_sp',
+                     'color': '#FF78C9FF', 'bg': '#FF403349'} | need]
+    widgets.append(label([40, 460, 400, 30], 'ENEMIES', scale=3) | {'color': COLORS['accent']})
+    for i in range(5):
+        p = f'en.{i}'; y = 505 + i * 100
+        outputs += [p + '.' + k for k in ('present', 'name', 'info', 'hp_text', 'hp', 'max_hp', 'analyzed')]
+        need = {'need_bind': p + '.present'}
+        widgets += [{'type': 'rect', 'rect': [40, y, 1160, 92], 'bg': COLORS['panel'], 'frame': 0} | need,
+                    label([56, y + 10, 420, 30], bind=p + '.name') | need,
+                    label([56, y + 46, 420, 24], bind=p + '.info', scale=2) | need | {'color': COLORS['muted']},
+                    label([480, y + 10, 260, 24], bind=p + '.hp_text', scale=2) | need,
+                    {'type': 'bar', 'rect': [480, y + 44, 240, 14], 'bind': p + '.hp', 'max_bind': p + '.max_hp',
+                     'color': '#FFFF71AA', 'bg': '#FF403349'} | need]
+        for k, name in enumerate(('SL', 'ST', 'PI', 'FI', 'IC', 'EL', 'WI', 'LI', 'DK')):
+            outputs.append(f'{p}.aff.{k}')
+            x = 760 + k * 48
+            widgets += [label([x, y + 12, 44, 20], name, scale=2) | need | {'color': COLORS['muted']},
+                        label([x, y + 48, 44, 24], bind=f'{p}.aff.{k}', scale=2) | need | {'color': COLORS['accent']}]
+    widgets.append(label([40, 1020, 1160, 24], bind='status', scale=2))
+    return {'id': 'battle', 'title': 'BATTLE', 'widgets': widgets}
+
 def calendar_widgets(outputs):
     """Month grid with today, holidays and full moons; previous/next month buttons."""
     outputs += ['cal.ready', 'cal.title', 'cal.next']
@@ -213,6 +247,8 @@ def main():
     actions['calendar.next'] = {'kind': 'module', 'action': 'calendar_shift', 'argument': 1}
     page_binds = [{'point': 'ui.page', 'equals': n, 'when_equal': {'page': page_id}}
                   for n, (page_id, _, _) in enumerate(tabs, 1)]
+    # The module switches to the battle page (ui.page 9) while a battle runs.
+    page_binds.append({'point': 'ui.page', 'equals': 9, 'when_equal': {'page': 'battle'}})
     pages = []
     for page_id, title, _ in tabs:
         widgets = [label([40, 28, 900, 42], 'PERSONA 3 PORTABLE / ' + title, scale=4)]
@@ -222,10 +258,11 @@ def main():
                             'bg': '#FF8C315B' if page_id == target else COLORS['panel']})
         widgets += [label([40, 165, 850, 30], bind='live.date', ready=True),
                     label([925, 165, 280, 30], bind='live.money', ready=True),
-                    {'type': 'label', 'rect': [60, 440, 1120, 80], 'text': 'Waiting for supported gameplay',
-                     'text_scale': 4, 'color': COLORS['muted'], 'hide_bind': 'live.ready', 'hide_eq': 1},
+                    # The reader's reason while values are unavailable (e.g. loading, unsupported scene).
+                    {'type': 'label', 'rect': [60, 440, 1120, 60], 'text': '', 'bind_text': 'status',
+                     'text_scale': 3, 'color': COLORS['muted'], 'hide_bind': 'live.ready', 'hide_eq': 1},
                     label([40, 1020, 1160, 24], bind='status', scale=2),
-                    label([40, 1050, 1160, 20], 'Read-only preview | 2D field/camp support | Battle and dungeon exploration pending', scale=2),
+                    label([40, 1050, 1160, 20], 'Read-only preview | Field, camp, Tartarus and battle support', scale=2),
                     dict(label([40, 700, 1160, 36], bind='module_error_message', scale=3), need_bind='module_error')]
         if page_id == 'calendar':
             widgets += calendar_widgets(outputs)
@@ -274,6 +311,7 @@ def main():
             for w in row: w['need_bind'] = p + '.present'
             widgets += row
         pages.append({'id': page_id, 'title': title, 'widgets': widgets})
+    pages.append(battle_page(outputs))
     result = {'format': 1, 'title_id': '0100DCD01525A000', 'name': 'Persona 3 Portable - Read-only Preview',
               'min_runtime': 19, 'requires_module': True, 'poll_hz': 60,
               'canvas_w': 1240, 'canvas_h': 1080, 'background': '#FF17131E',

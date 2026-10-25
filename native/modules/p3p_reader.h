@@ -46,6 +46,14 @@ struct Stats {
     std::vector<Social> social;       // protagonist only: Academics, Charm, Courage
 };
 struct Item { int id{}, count{}; std::string name; };
+// One enemy of the current encounter. Affinities only once analyzed (bit at S+0x4d14,
+// getter 0x1e05c0), as the native Analyze panel shows them; "-" otherwise (the pixel font has no "?").
+struct Enemy {
+    int id{}, level{}, hp{}, sp{}, max_hp{}, max_sp{};
+    bool analyzed{};
+    std::string name, arcana;
+    std::array<std::string, 9> affinity;
+};
 // One row of the native S.LINK list (cmpCommu.c 0xdcaf0). status: 0 normal, 1 max (rank 10),
 // 2 reversed (record bit 0; card drawn upside down), 3 broken (bit 1; checked first).
 struct SocialLink { int id{}, arcana{}, rank{}, status{}; std::string arcana_name, name, partner; };
@@ -65,6 +73,7 @@ struct Persona {
 struct Link { int id{}, rank{}; bool operator==(const Link&) const = default; };
 struct Snapshot {
     int day{}, time{}, money{}, stock_capacity{}; bool dark{}, female{}, holiday{};
+    bool battle{}; // a verified battle task is running (btlMain.c)
     std::vector<Member> members;
     std::vector<Persona> personas;
     std::vector<Link> links;
@@ -340,7 +349,7 @@ public:
             if (!(before == Scene()) || state != Pointer(host.main_base + 0x70e800) ||
                 allies != Pointer(host.main_base + 0x70e808) || !(first == second))
                 throw std::runtime_error("context changed");
-            out = std::move(second); why = "Ready"; return true;
+            out = std::move(second); out.battle = before.battle != 0; why = "Ready"; return true;
         } catch (const std::exception& e) { out = {}; why = e.what(); return false; }
     }
     // The native camp Skill list for one member (cmpSkill.c builder 0x108770), in its order.
@@ -544,6 +553,55 @@ public:
         return moon;
     }
     const std::vector<std::pair<int, int>>& Holidays() const { return HolidayTable(); }
+    // Enemies of the current encounter: E = [B + 0x1168] (B behind GOT 0x70df08); +2 u16 count,
+    // +8 pointer to 0x3c-byte enemy units (byte 0 bit 2 set, +4 id, +6 level, +8 HP, +0xa SP).
+    std::vector<Enemy> Enemies() const {
+        u64 state = Pointer(host.main_base + 0x70e800);
+        u64 encounter = Pointer(Pointer(Pointer(host.main_base + 0x70df08)) + 0x1168);
+        auto head = Read(encounter, 0x10);
+        int count = At<u16>(head, 2);
+        if (count > 8) throw std::runtime_error("unsupported encounter");
+        u64 units_at = At<u64>(head, 8);
+        Bytes units = count ? Read(units_at, count * 0x3c) : Bytes{};
+        u64 stats = Pointer(Pointer(host.main_base + 0x70dff8)), affinity = Pointer(Pointer(host.main_base + 0x70e0d0));
+        u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+        bool wide = lang == 3 || (lang >= 5 && lang <= 8); // name getter 0x6b990, kind 1
+        u64 names = Pointer(Pointer(host.main_base + (wide ? 0x70dfe8 : 0x70dff0)));
+        u64 arcana_names = Pointer(Pointer(host.main_base + 0x70e0f0));
+        auto text = [&](u64 at, size_t width) {
+            auto raw = Read(at, width);
+            auto end = std::find(raw.begin(), raw.end(), u8{});
+            std::string s(raw.begin(), end);
+            for (unsigned char c : s) if (c < 32 || c > 126) return std::string();
+            return s;
+        };
+        std::vector<Enemy> out;
+        for (int i = 0; i < count; ++i) {
+            size_t at = i * 0x3c;
+            if (!(units.at(at) & 4)) throw std::runtime_error("invalid enemy record");
+            Enemy e; e.id = At<u16>(units, at + 4);
+            if (e.id >= 0x150) throw std::runtime_error("invalid enemy");
+            e.level = units.at(at + 6); e.hp = At<u16>(units, at + 8); e.sp = At<u16>(units, at + 10);
+            auto record = Read(stats + e.id * 0x3e, 0x3e);
+            // 0x6e880 / 0x6ecf0 for enemies: table +4 / +6, then the same HP/SP Up passives.
+            std::set<int> skills;
+            for (int k = 0; k < 8; ++k) skills.insert(At<u16>(record, 0xe + k * 2));
+            e.max_hp = Maximum(At<u16>(record, 4), skills, {}, false);
+            e.max_sp = Maximum(At<u16>(record, 6), skills, {}, true);
+            if (record.at(2) < 0x20) e.arcana = text(arcana_names + record.at(2) * 0x15, 0x15);
+            e.name = text(names + e.id * (wide ? 0x1f : 0x13), wide ? 0x1f : 0x13);
+            // Analyzed bit (0x1e05c0); the panel skips enemies with stats-table +0x1e bit 5.
+            u32 word = Get<u32>(state + 0x4d14 + ((e.id >> 3) & 0x1ffc));
+            e.analyzed = ((word >> (e.id & 31)) & 1) && !(record.at(0x1e) & 0x20);
+            auto aff = Read(affinity + e.id * 0x22, 0x22);
+            static constexpr int element[9]{0, 1, 2, 3, 4, 5, 6, 8, 9};
+            for (int k = 0; k < 9; ++k) e.affinity[k] = e.analyzed ? AffinityLabel(At<u16>(aff, element[k] * 2)) : "-";
+            out.push_back(std::move(e));
+        }
+        if (head != Read(encounter, 0x10) || (count && units != Read(units_at, count * 0x3c)))
+            throw std::runtime_error("context changed");
+        return out;
+    }
     // Persona name getter 0x1d6a60 (wide table for languages 3 and 5-8).
     std::string PersonaName(int id) const {
         if (id < 0 || id >= 0x100) return {};
@@ -625,7 +683,7 @@ private:
     mutable int item_table_age{};
     mutable std::vector<u32> item_type, item_category;
     struct Context {
-        u64 observer{}, data{}, field{}, field_data{}, resource{}, menu{};
+        u64 observer{}, data{}, field{}, field_data{}, resource{}, menu{}, battle{}, dungeon{};
         int state{}, area{}, subarea{};
         bool operator==(const Context&) const = default;
     };
@@ -648,7 +706,10 @@ private:
         auto seq = Read(c.data, 0x20);
         if (At<u32>(seq, 0) || !std::isfinite(At<float>(seq, 12)) || At<float>(seq, 12) > 0 || At<u64>(seq, 24))
             throw std::runtime_error("Loading");
-        if (At<int32_t>(seq, 4) != 8) throw std::runtime_error("Waiting for supported gameplay");
+        int sequence = At<int32_t>(seq, 4);
+        // Sequence table (GOT 0x70e368): 6 BATTLE, 8 filed2d, 9 field, 10 dungeon.
+        if (sequence != 6 && (sequence < 8 || sequence > 10))
+            throw std::runtime_error("Waiting for supported gameplay, sequence " + std::to_string(sequence));
         auto heads = Read(host.main_base + 0x8e51c98, 24);
         std::map<u64, Bytes> tasks;
         for (int i = 0; i < 3; ++i) {
@@ -658,6 +719,14 @@ private:
                     throw std::runtime_error("task list changed");
                 auto raw = Read(node, 0x60); auto name = Name(raw);
                 if (name == "mcProc") throw std::runtime_error("Loading or saving");
+                if (name == "battle") {
+                    if (c.battle) throw std::runtime_error("ambiguous battle");
+                    Callbacks(raw, 0x56610, 0x566b0); c.battle = node;
+                }
+                if (name == "automatic dungeon ") {
+                    if (c.dungeon) throw std::runtime_error("ambiguous dungeon");
+                    Callbacks(raw, 0x182100, 0x1825c0); c.dungeon = node;
+                }
                 if (name == "fld2DProcess") {
                     if (c.field) throw std::runtime_error("ambiguous field");
                     Callbacks(raw, 0x16a040, 0x16a840); c.field = node; c.field_data = At<u64>(raw, 0x48);
@@ -665,7 +734,27 @@ private:
                 u64 next = At<u64>(raw, 0x50); tasks.emplace(node, std::move(raw)); node = next;
             }
         }
-        if (!tasks.contains(c.observer) || !c.field_data) throw std::runtime_error("field unavailable");
+        if (!tasks.contains(c.observer)) throw std::runtime_error("observer unavailable");
+        if (c.battle) {
+            // The battle task (created by 0x558b0) runs inside the field/dungeon sequence, or as
+            // sequence 6 for battles started outside them (its start callback 0x1e8050 calls 0x558b0).
+            u64 work = Pointer(Pointer(host.main_base + 0x70df08));
+            if (!Pointer(work + 0x1168)) throw std::runtime_error("Battle starting");
+            if (heads != Read(host.main_base + 0x8e51c98, 24) || seq != Read(c.data, 0x20))
+                throw std::runtime_error("context changed");
+            return c;
+        }
+        if (sequence == 6) throw std::runtime_error("Battle starting");
+        if (sequence == 10) {
+            // Tartarus: the dungeon sequence's task (created by 0x181fb0, kept in GOT 0x70e5b0).
+            if (!c.dungeon || c.dungeon != Pointer(Pointer(host.main_base + 0x70e5b0)))
+                throw std::runtime_error("Dungeon unavailable");
+            if (heads != Read(host.main_base + 0x8e51c98, 24) || seq != Read(c.data, 0x20))
+                throw std::runtime_error("context changed");
+            return c;
+        }
+        if (sequence != 8) throw std::runtime_error("Waiting for supported gameplay, sequence " + std::to_string(sequence));
+        if (!c.field_data) throw std::runtime_error("field unavailable");
         auto field = Read(c.field_data, 0x68);
         c.state = At<u32>(field, 0); c.area = At<u32>(field, 4); c.subarea = At<u32>(field, 8);
         c.resource = At<u64>(field, 0x20); c.menu = At<u64>(field, 0x28);

@@ -1673,7 +1673,89 @@
     "cal.41.text",
     "cal.41.today",
     "cal.41.holiday",
-    "cal.41.full"
+    "cal.41.full",
+    "battle.active",
+    "en.count",
+    "en.0.present",
+    "en.0.name",
+    "en.0.info",
+    "en.0.hp_text",
+    "en.0.hp",
+    "en.0.max_hp",
+    "en.0.analyzed",
+    "en.0.aff.0",
+    "en.0.aff.1",
+    "en.0.aff.2",
+    "en.0.aff.3",
+    "en.0.aff.4",
+    "en.0.aff.5",
+    "en.0.aff.6",
+    "en.0.aff.7",
+    "en.0.aff.8",
+    "en.1.present",
+    "en.1.name",
+    "en.1.info",
+    "en.1.hp_text",
+    "en.1.hp",
+    "en.1.max_hp",
+    "en.1.analyzed",
+    "en.1.aff.0",
+    "en.1.aff.1",
+    "en.1.aff.2",
+    "en.1.aff.3",
+    "en.1.aff.4",
+    "en.1.aff.5",
+    "en.1.aff.6",
+    "en.1.aff.7",
+    "en.1.aff.8",
+    "en.2.present",
+    "en.2.name",
+    "en.2.info",
+    "en.2.hp_text",
+    "en.2.hp",
+    "en.2.max_hp",
+    "en.2.analyzed",
+    "en.2.aff.0",
+    "en.2.aff.1",
+    "en.2.aff.2",
+    "en.2.aff.3",
+    "en.2.aff.4",
+    "en.2.aff.5",
+    "en.2.aff.6",
+    "en.2.aff.7",
+    "en.2.aff.8",
+    "en.3.present",
+    "en.3.name",
+    "en.3.info",
+    "en.3.hp_text",
+    "en.3.hp",
+    "en.3.max_hp",
+    "en.3.analyzed",
+    "en.3.aff.0",
+    "en.3.aff.1",
+    "en.3.aff.2",
+    "en.3.aff.3",
+    "en.3.aff.4",
+    "en.3.aff.5",
+    "en.3.aff.6",
+    "en.3.aff.7",
+    "en.3.aff.8",
+    "en.4.present",
+    "en.4.name",
+    "en.4.info",
+    "en.4.hp_text",
+    "en.4.hp",
+    "en.4.max_hp",
+    "en.4.analyzed",
+    "en.4.aff.0",
+    "en.4.aff.1",
+    "en.4.aff.2",
+    "en.4.aff.3",
+    "en.4.aff.4",
+    "en.4.aff.5",
+    "en.4.aff.6",
+    "en.4.aff.7",
+    "en.4.aff.8"
   ],
   "module": {
     "abi": 1,
@@ -1915,6 +1997,13 @@
       "when_equal": {
         "page": "calendar"
       }
+    },
+    {
+      "point": "ui.page",
+      "equals": 9,
+      "when_equal": {
+        "page": "battle"
+      }
     }
   ],
   "pages": [
@@ -2080,10 +2169,11 @@
             60,
             440,
             1120,
-            80
+            60
           ],
-          "text": "Waiting for supported gameplay",
-          "text_scale": 4,
+          "text": "",
+          "bind_text": "status",
+          "text_scale": 3,
           "color": "#FFC0B2C4",
           "hide_bind": "live.ready",
           "hide_eq": 1
@@ -2109,7 +2199,7 @@
             1160,
             20
           ],
-          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "text": "Read-only preview | Field, camp, Tartarus and battle support",
           "color": "#FFF8EDF3",
           "text_scale": 2
         },
@@ -2851,10 +2941,11 @@
             60,
             440,
             1120,
-            80
+            60
           ],
-          "text": "Waiting for supported gameplay",
-          "text_scale": 4,
+          "text": "",
+          "bind_text": "status",
+          "text_scale": 3,
           "color": "#FFC0B2C4",
           "hide_bind": "live.ready",
           "hide_eq": 1
@@ -2880,7 +2971,7 @@
             1160,
             20
           ],
-          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "text": "Read-only preview | Field, camp, Tartarus and battle support",
           "color": "#FFF8EDF3",
           "text_scale": 2
         },
@@ -4323,10 +4414,11 @@
             60,
             440,
             1120,
-            80
+            60
           ],
-          "text": "Waiting for supported gameplay",
-          "text_scale": 4,
+          "text": "",
+          "bind_text": "status",
+          "text_scale": 3,
           "color": "#FFC0B2C4",
           "hide_bind": "live.ready",
           "hide_eq": 1
@@ -4352,7 +4444,7 @@
             1160,
             20
           ],
-          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "text": "Read-only preview | Field, camp, Tartarus and battle support",
           "color": "#FFF8EDF3",
           "text_scale": 2
         },
@@ -4668,10 +4760,11 @@
             60,
             440,
             1120,
-            80
+            60
           ],
-          "text": "Waiting for supported gameplay",
-          "text_scale": 4,
+          "text": "",
+          "bind_text": "status",
+          "text_scale": 3,
           "color": "#FFC0B2C4",
           "hide_bind": "live.ready",
           "hide_eq": 1
@@ -4697,7 +4790,7 @@
             1160,
             20
           ],
-          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "text": "Read-only preview | Field, camp, Tartarus and battle support",
           "color": "#FFF8EDF3",
           "text_scale": 2
         },
@@ -5400,10 +5493,11 @@
             60,
             440,
             1120,
-            80
+            60
           ],
-          "text": "Waiting for supported gameplay",
-          "text_scale": 4,
+          "text": "",
+          "bind_text": "status",
+          "text_scale": 3,
           "color": "#FFC0B2C4",
           "hide_bind": "live.ready",
           "hide_eq": 1
@@ -5429,7 +5523,7 @@
             1160,
             20
           ],
-          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "text": "Read-only preview | Field, camp, Tartarus and battle support",
           "color": "#FFF8EDF3",
           "text_scale": 2
         },
@@ -6277,10 +6371,11 @@
             60,
             440,
             1120,
-            80
+            60
           ],
-          "text": "Waiting for supported gameplay",
-          "text_scale": 4,
+          "text": "",
+          "bind_text": "status",
+          "text_scale": 3,
           "color": "#FFC0B2C4",
           "hide_bind": "live.ready",
           "hide_eq": 1
@@ -6306,7 +6401,7 @@
             1160,
             20
           ],
-          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "text": "Read-only preview | Field, camp, Tartarus and battle support",
           "color": "#FFF8EDF3",
           "text_scale": 2
         },
@@ -7349,10 +7444,11 @@
             60,
             440,
             1120,
-            80
+            60
           ],
-          "text": "Waiting for supported gameplay",
-          "text_scale": 4,
+          "text": "",
+          "bind_text": "status",
+          "text_scale": 3,
           "color": "#FFC0B2C4",
           "hide_bind": "live.ready",
           "hide_eq": 1
@@ -7378,7 +7474,7 @@
             1160,
             20
           ],
-          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "text": "Read-only preview | Field, camp, Tartarus and battle support",
           "color": "#FFF8EDF3",
           "text_scale": 2
         },
@@ -7746,10 +7842,11 @@
             60,
             440,
             1120,
-            80
+            60
           ],
-          "text": "Waiting for supported gameplay",
-          "text_scale": 4,
+          "text": "",
+          "bind_text": "status",
+          "text_scale": 3,
           "color": "#FFC0B2C4",
           "hide_bind": "live.ready",
           "hide_eq": 1
@@ -7775,7 +7872,7 @@
             1160,
             20
           ],
-          "text": "Read-only preview | 2D field/camp support | Battle and dungeon exploration pending",
+          "text": "Read-only preview | Field, camp, Tartarus and battle support",
           "color": "#FFF8EDF3",
           "text_scale": 2
         },
@@ -10671,6 +10768,1840 @@
           "text_scale": 3,
           "bind_text": "cal.next",
           "need_bind": "cal.ready"
+        }
+      ]
+    },
+    {
+      "id": "battle",
+      "title": "BATTLE",
+      "widgets": [
+        {
+          "type": "label",
+          "rect": [
+            40,
+            28,
+            900,
+            42
+          ],
+          "text": "PERSONA 3 PORTABLE / BATTLE",
+          "color": "#FFF8EDF3",
+          "text_scale": 4
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            90,
+            400,
+            30
+          ],
+          "text": "PARTY",
+          "color": "#FFFF71AA",
+          "text_scale": 3
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            135,
+            560,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.0.name",
+          "need_bind": "member.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            135,
+            580,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.0.stats",
+          "need_bind": "member.0.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            171,
+            540,
+            12
+          ],
+          "bind": "member.0.hp",
+          "max_bind": "member.0.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.0.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            620,
+            171,
+            540,
+            12
+          ],
+          "bind": "member.0.sp",
+          "max_bind": "member.0.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            213,
+            560,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.1.name",
+          "need_bind": "member.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            213,
+            580,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.1.stats",
+          "need_bind": "member.1.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            249,
+            540,
+            12
+          ],
+          "bind": "member.1.hp",
+          "max_bind": "member.1.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.1.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            620,
+            249,
+            540,
+            12
+          ],
+          "bind": "member.1.sp",
+          "max_bind": "member.1.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            291,
+            560,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.2.name",
+          "need_bind": "member.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            291,
+            580,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.2.stats",
+          "need_bind": "member.2.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            327,
+            540,
+            12
+          ],
+          "bind": "member.2.hp",
+          "max_bind": "member.2.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.2.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            620,
+            327,
+            540,
+            12
+          ],
+          "bind": "member.2.sp",
+          "max_bind": "member.2.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            50,
+            369,
+            560,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "member.3.name",
+          "need_bind": "member.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            369,
+            580,
+            26
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "member.3.stats",
+          "need_bind": "member.3.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            50,
+            405,
+            540,
+            12
+          ],
+          "bind": "member.3.hp",
+          "max_bind": "member.3.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "member.3.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            620,
+            405,
+            540,
+            12
+          ],
+          "bind": "member.3.sp",
+          "max_bind": "member.3.max_sp",
+          "color": "#FF78C9FF",
+          "bg": "#FF403349",
+          "need_bind": "member.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            460,
+            400,
+            30
+          ],
+          "text": "ENEMIES",
+          "color": "#FFFF71AA",
+          "text_scale": 3
+        },
+        {
+          "type": "rect",
+          "rect": [
+            40,
+            505,
+            1160,
+            92
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            56,
+            515,
+            420,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "en.0.name",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            56,
+            551,
+            420,
+            24
+          ],
+          "text": "",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "bind_text": "en.0.info",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            480,
+            515,
+            260,
+            24
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "en.0.hp_text",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            480,
+            549,
+            240,
+            14
+          ],
+          "bind": "en.0.hp",
+          "max_bind": "en.0.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            760,
+            517,
+            44,
+            20
+          ],
+          "text": "SL",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            760,
+            553,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.0.aff.0",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            808,
+            517,
+            44,
+            20
+          ],
+          "text": "ST",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            808,
+            553,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.0.aff.1",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            856,
+            517,
+            44,
+            20
+          ],
+          "text": "PI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            856,
+            553,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.0.aff.2",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            904,
+            517,
+            44,
+            20
+          ],
+          "text": "FI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            904,
+            553,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.0.aff.3",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            952,
+            517,
+            44,
+            20
+          ],
+          "text": "IC",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            952,
+            553,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.0.aff.4",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1000,
+            517,
+            44,
+            20
+          ],
+          "text": "EL",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1000,
+            553,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.0.aff.5",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1048,
+            517,
+            44,
+            20
+          ],
+          "text": "WI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1048,
+            553,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.0.aff.6",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1096,
+            517,
+            44,
+            20
+          ],
+          "text": "LI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1096,
+            553,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.0.aff.7",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1144,
+            517,
+            44,
+            20
+          ],
+          "text": "DK",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1144,
+            553,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.0.aff.8",
+          "need_bind": "en.0.present"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            40,
+            605,
+            1160,
+            92
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            56,
+            615,
+            420,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "en.1.name",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            56,
+            651,
+            420,
+            24
+          ],
+          "text": "",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "bind_text": "en.1.info",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            480,
+            615,
+            260,
+            24
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "en.1.hp_text",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            480,
+            649,
+            240,
+            14
+          ],
+          "bind": "en.1.hp",
+          "max_bind": "en.1.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            760,
+            617,
+            44,
+            20
+          ],
+          "text": "SL",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            760,
+            653,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.1.aff.0",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            808,
+            617,
+            44,
+            20
+          ],
+          "text": "ST",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            808,
+            653,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.1.aff.1",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            856,
+            617,
+            44,
+            20
+          ],
+          "text": "PI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            856,
+            653,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.1.aff.2",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            904,
+            617,
+            44,
+            20
+          ],
+          "text": "FI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            904,
+            653,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.1.aff.3",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            952,
+            617,
+            44,
+            20
+          ],
+          "text": "IC",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            952,
+            653,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.1.aff.4",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1000,
+            617,
+            44,
+            20
+          ],
+          "text": "EL",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1000,
+            653,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.1.aff.5",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1048,
+            617,
+            44,
+            20
+          ],
+          "text": "WI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1048,
+            653,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.1.aff.6",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1096,
+            617,
+            44,
+            20
+          ],
+          "text": "LI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1096,
+            653,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.1.aff.7",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1144,
+            617,
+            44,
+            20
+          ],
+          "text": "DK",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1144,
+            653,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.1.aff.8",
+          "need_bind": "en.1.present"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            40,
+            705,
+            1160,
+            92
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            56,
+            715,
+            420,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "en.2.name",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            56,
+            751,
+            420,
+            24
+          ],
+          "text": "",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "bind_text": "en.2.info",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            480,
+            715,
+            260,
+            24
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "en.2.hp_text",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            480,
+            749,
+            240,
+            14
+          ],
+          "bind": "en.2.hp",
+          "max_bind": "en.2.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            760,
+            717,
+            44,
+            20
+          ],
+          "text": "SL",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            760,
+            753,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.2.aff.0",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            808,
+            717,
+            44,
+            20
+          ],
+          "text": "ST",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            808,
+            753,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.2.aff.1",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            856,
+            717,
+            44,
+            20
+          ],
+          "text": "PI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            856,
+            753,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.2.aff.2",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            904,
+            717,
+            44,
+            20
+          ],
+          "text": "FI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            904,
+            753,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.2.aff.3",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            952,
+            717,
+            44,
+            20
+          ],
+          "text": "IC",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            952,
+            753,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.2.aff.4",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1000,
+            717,
+            44,
+            20
+          ],
+          "text": "EL",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1000,
+            753,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.2.aff.5",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1048,
+            717,
+            44,
+            20
+          ],
+          "text": "WI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1048,
+            753,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.2.aff.6",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1096,
+            717,
+            44,
+            20
+          ],
+          "text": "LI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1096,
+            753,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.2.aff.7",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1144,
+            717,
+            44,
+            20
+          ],
+          "text": "DK",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1144,
+            753,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.2.aff.8",
+          "need_bind": "en.2.present"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            40,
+            805,
+            1160,
+            92
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            56,
+            815,
+            420,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "en.3.name",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            56,
+            851,
+            420,
+            24
+          ],
+          "text": "",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "bind_text": "en.3.info",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            480,
+            815,
+            260,
+            24
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "en.3.hp_text",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            480,
+            849,
+            240,
+            14
+          ],
+          "bind": "en.3.hp",
+          "max_bind": "en.3.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            760,
+            817,
+            44,
+            20
+          ],
+          "text": "SL",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            760,
+            853,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.3.aff.0",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            808,
+            817,
+            44,
+            20
+          ],
+          "text": "ST",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            808,
+            853,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.3.aff.1",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            856,
+            817,
+            44,
+            20
+          ],
+          "text": "PI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            856,
+            853,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.3.aff.2",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            904,
+            817,
+            44,
+            20
+          ],
+          "text": "FI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            904,
+            853,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.3.aff.3",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            952,
+            817,
+            44,
+            20
+          ],
+          "text": "IC",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            952,
+            853,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.3.aff.4",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1000,
+            817,
+            44,
+            20
+          ],
+          "text": "EL",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1000,
+            853,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.3.aff.5",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1048,
+            817,
+            44,
+            20
+          ],
+          "text": "WI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1048,
+            853,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.3.aff.6",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1096,
+            817,
+            44,
+            20
+          ],
+          "text": "LI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1096,
+            853,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.3.aff.7",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1144,
+            817,
+            44,
+            20
+          ],
+          "text": "DK",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1144,
+            853,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.3.aff.8",
+          "need_bind": "en.3.present"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            40,
+            905,
+            1160,
+            92
+          ],
+          "bg": "#FF282032",
+          "frame": 0,
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            56,
+            915,
+            420,
+            30
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 3,
+          "bind_text": "en.4.name",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            56,
+            951,
+            420,
+            24
+          ],
+          "text": "",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "bind_text": "en.4.info",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            480,
+            915,
+            260,
+            24
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "en.4.hp_text",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "bar",
+          "rect": [
+            480,
+            949,
+            240,
+            14
+          ],
+          "bind": "en.4.hp",
+          "max_bind": "en.4.max_hp",
+          "color": "#FFFF71AA",
+          "bg": "#FF403349",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            760,
+            917,
+            44,
+            20
+          ],
+          "text": "SL",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            760,
+            953,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.4.aff.0",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            808,
+            917,
+            44,
+            20
+          ],
+          "text": "ST",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            808,
+            953,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.4.aff.1",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            856,
+            917,
+            44,
+            20
+          ],
+          "text": "PI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            856,
+            953,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.4.aff.2",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            904,
+            917,
+            44,
+            20
+          ],
+          "text": "FI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            904,
+            953,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.4.aff.3",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            952,
+            917,
+            44,
+            20
+          ],
+          "text": "IC",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            952,
+            953,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.4.aff.4",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1000,
+            917,
+            44,
+            20
+          ],
+          "text": "EL",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1000,
+            953,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.4.aff.5",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1048,
+            917,
+            44,
+            20
+          ],
+          "text": "WI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1048,
+            953,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.4.aff.6",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1096,
+            917,
+            44,
+            20
+          ],
+          "text": "LI",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1096,
+            953,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.4.aff.7",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1144,
+            917,
+            44,
+            20
+          ],
+          "text": "DK",
+          "color": "#FFC0B2C4",
+          "text_scale": 2,
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            1144,
+            953,
+            44,
+            24
+          ],
+          "text": "",
+          "color": "#FFFF71AA",
+          "text_scale": 2,
+          "bind_text": "en.4.aff.8",
+          "need_bind": "en.4.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            40,
+            1020,
+            1160,
+            24
+          ],
+          "text": "",
+          "color": "#FFF8EDF3",
+          "text_scale": 2,
+          "bind_text": "status"
         }
       ]
     }

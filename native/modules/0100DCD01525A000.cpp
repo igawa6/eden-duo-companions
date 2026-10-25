@@ -19,6 +19,7 @@ struct Module {
     // 6 stats, 7 items, 8 calendar) and per-page selections, read only while open.
     int page{1}, member{}, item_tab{}, persona_pick{}; // item_tab: native Use / Equip / Key
     int cal_offset{}; // calendar month shown, relative to the current month
+    // Page 9 (battle) is entered automatically while a battle runs; Status is restored after.
     explicit Module(const EdenDsmodHostApi& h) : host(h), reader(h) {}
     void I(const std::string& key, int64_t v) { host.publish_i64(host.userdata,key.c_str(),v); }
     void T(const std::string& key, const std::string& v) { host.publish_text(host.userdata,key.c_str(),v.c_str()); }
@@ -52,6 +53,7 @@ struct Module {
         I("stat.ready",0);I("social.ready",0);T("stat.header","");T("stat.next","");
         I("item.ready",0);I("item.count",0);T("item.header","");I("item.tab",item_tab);
         I("pd.ready",0);I("ui.persona",persona_pick);I("cal.ready",0);
+        I("battle.active",0);I("en.count",0);
         for(int i=0;i<12;++i){auto p="persona."+std::to_string(i);I(p+".present",0);T(p+".line","");}
         I("link.ready",0);I("link.count",0);
     }
@@ -60,6 +62,9 @@ struct Module {
         Clear();
         Snapshot v; std::string why;
         if(!reader.Sample(v,why)){T("status",why);return;}
+        // Follow battles: show the battle page while one runs, return to Status afterwards.
+        if(v.battle) page=9; else if(page==9) page=1;
+        I("ui.page",page);I("battle.active",v.battle);
         auto [month,date]=MonthDay(v.day);
         const char* time=TimeLabel(v.time,v.dark,v.holiday);
         T("live.date",std::to_string(month)+" / "+std::to_string(date)+"   "+(time?time:"Time "+std::to_string(v.time)));
@@ -105,6 +110,22 @@ struct Module {
                 T("pd.nextskill","Next skill  --");
                 I("pd.ready",1);
             } catch(const std::exception& e) {T("status",std::string("Persona details unavailable: ")+e.what());}
+        }
+        if(page==9) {
+            // Encounter enemies (party values are the member.* outputs above).
+            try {
+                auto enemies=reader.Enemies();
+                for(size_t i=0;i<enemies.size();++i){
+                    const auto& e=enemies[i];auto p="en."+std::to_string(i);
+                    T(p+".name",e.name.empty()?"Enemy "+std::to_string(e.id):e.name);
+                    T(p+".info","Lv "+std::to_string(e.level)+"   "+e.arcana);
+                    T(p+".hp_text","HP "+std::to_string(e.hp)+" / "+std::to_string(e.max_hp));
+                    I(p+".hp",e.hp);I(p+".max_hp",e.max_hp);I(p+".analyzed",e.analyzed);
+                    for(int k=0;k<9;++k)T(p+".aff."+std::to_string(k),e.affinity[k]);
+                    I(p+".present",1);
+                }
+                I("en.count",int64_t(enemies.size()));
+            } catch(const std::exception& e) {T("status",std::string("Enemies unavailable: ")+e.what());}
         }
         if(page==8) {
             // Month grid (Sunday first) with today, holidays (0x1d2e30) and full moons (phase 14).

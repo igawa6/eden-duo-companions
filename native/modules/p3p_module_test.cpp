@@ -44,7 +44,7 @@ int main() {
         Require(ext->on_action(instance, "persona_select", 11) && !ext->on_action(instance, "persona_select", 12), "persona pick range");
         Require(ext->on_action(instance, "item_tab", 2) && !ext->on_action(instance, "item_tab", 3), "item tab range");
         output.clear(); api->sample(instance, &host);
-        Require(output.at("ui.page") == 8 && output.at("cal.ready") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
+        Require(output.at("ui.page") == 8 && output.at("battle.active") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
         api->destroy(instance);
         Require(p3p::Maximum(101,{0x237},{},false)==202,"HP gain");
         Require(p3p::Maximum(101,{0x237},{},true)==51,"SP loss rounds down before subtract");
