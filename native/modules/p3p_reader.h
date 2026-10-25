@@ -37,7 +37,7 @@ struct Member {
 struct Equip { int id{}, at{}, hit{}, df{}, ev{}; std::string name; };
 // One row of the native camp Skill list. cost_known is false only when the game would pick
 // between duplicate copies by battle effect (0x73b20) and their displayed costs differ.
-struct Skill { int id{}, type{}, cost{}; bool cost_known{true}; std::string name; };
+struct Skill { int id{}, type{}, cost{}, element{-1}; bool cost_known{true}; std::string name; };
 // Stats page values. stats/bonus follow 0x1d7e70 / 0x1d7f30 in St, Ma, En, Ag, Lu order.
 struct Social { int points{}, rank{}; std::string name; };
 struct Stats {
@@ -364,8 +364,12 @@ public:
         size_t width = wide ? 0x1d : 0x13;
         auto record = [&](int id) { return Read(table + id * 0x28, 0x28); };
         auto rows = SkillList(v, m, record);
+        // SKILL.TBL section 0 (GOT 0x70df48): 624 x 2 bytes, byte 0 the element/category
+        // (0-9 Slash..Dark, 10-15 ailments, 17 recovery, 18 support, 19 special, 0xff passive).
+        auto elements = Read(Pointer(Pointer(host.main_base + 0x70df48)), 624 * 2);
         std::vector<Skill> out;
         for (auto& s : rows) {
+            if (s.id >= 0 && s.id < 624) s.element = elements[s.id * 2];
             auto raw = Read(names + s.id * width, width);
             auto end = std::find(raw.begin(), raw.end(), u8{});
             if (end == raw.end()) throw std::runtime_error("unterminated skill name");

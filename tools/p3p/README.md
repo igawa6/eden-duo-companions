@@ -8,6 +8,11 @@ The package is asset-free. Names and skill data are read at runtime from the pla
 (the loaded tables in memory and `data_EN/umd0.cpk`), never shipped. Text is drawn in the game's
 own font: `p3p_font.h` reads `font/font0.fnt` from `init.bin` in `data_EN/umd0.cpk` and decodes it
 with the shared Atlus FNT decoder (`p5r_font.h`); `p3p_font.txt` in the package is only a marker.
+The look follows the native camp menu: `p3p_art.h` decodes the game's TMX textures and SPR0 sprite
+sheets from the same archives (the camp menu lettering and icons in `init_free.bin`, Persona artwork
+and camp portraits in `data/umd0.cpk`) and serves them as `module:p3p:` images, resampled to the
+size the manifest draws them at. As in the native menu, the backdrop (`module:p3p:bg/<route>`, drawn
+by the module) and the accents are blue or pink to match the protagonist's route.
 
 | Script | What it does |
 |---|---|

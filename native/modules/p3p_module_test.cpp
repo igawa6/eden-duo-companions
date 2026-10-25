@@ -3,6 +3,7 @@
 #include "core/mods/dsmod_module_extensions.h"
 #include "p3p_reader.h"
 #include "p3p_font.h"
+#include "p3p_art.h"
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
@@ -46,7 +47,6 @@ int main() {
         Require(ext->on_action(instance, "item_tab", 2) && !ext->on_action(instance, "item_tab", 3), "item tab range");
         output.clear(); api->sample(instance, &host);
         Require(output.at("ui.page") == 8 && output.at("battle.active") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
-        api->destroy(instance);
         Require(p3p::Maximum(101,{0x237},{},false)==202,"HP gain");
         Require(p3p::Maximum(101,{0x237},{},true)==51,"SP loss rounds down before subtract");
         Require(p3p::Maximum(101,{0x238},{},false)==51,"HP loss");
@@ -160,7 +160,38 @@ int main() {
         Require(!ext->load_image(instance, &host, "module:p3p_font", nullptr,
                                  [](void*, uint32_t, uint32_t, const uint8_t*, size_t) {}),
                 "atlas fails closed without romfs");
-        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item, Persona-detail, calendar and font regressions passed");
+        // Camp art (p3p_art.h): only module:p3p: keys, fails closed without romfs.
+        Require(!ext->load_image(instance, &host, "module:p3p:spr/9", nullptr,
+                                 [](void*, uint32_t, uint32_t, const uint8_t*, size_t) {}) &&
+                !ext->load_image(instance, &host, "module:p3p:persona/1", nullptr,
+                                 [](void*, uint32_t, uint32_t, const uint8_t*, size_t) {}),
+                "art fails closed without romfs");
+        api->destroy(instance);
+        {
+            // TMX: header at +0x10, data at +0x40; PS2 alpha doubles; CSM1 swaps index bits 3/4.
+            auto tmx = [](uint8_t format, uint16_t w, uint16_t h) {
+                p3p::Bytes t(0x40); std::memcpy(&t[8], "TMX0", 4);
+                t[0x10] = 1; t[0x12] = w & 255; t[0x13] = w >> 8; t[0x14] = h & 255; t[0x15] = h >> 8; t[0x16] = format; return t; };
+            auto t = tmx(0x00, 1, 1); t.insert(t.end(), {10, 20, 30, 0x40});
+            p3p_art::Image img;
+            Require(p3p_art::DecodeTmx(t, 0, img) && img.w == 1 && img.rgba == std::vector<uint8_t>{10, 20, 30, 0x80}, "TMX RGBA32");
+            t = tmx(0x13, 1, 1); t.resize(0x40 + 1024 + 1); t[0x40 + 16 * 4] = 7; t[0x40 + 1024] = 8; // index 8 reads entry 16
+            Require(p3p_art::DecodeTmx(t, 0, img) && img.rgba[0] == 7, "TMX 8-bit CSM1 palette");
+            t = tmx(0x14, 2, 1); t.resize(0x40 + 64 + 1); t[0x40 + 4] = 5; t[0x40 + 8] = 9; t[0x40 + 64] = 0x21;
+            Require(p3p_art::DecodeTmx(t, 0, img) && img.rgba[0] == 5 && img.rgba[4] == 9, "TMX 4-bit low nibble first");
+            Require(!p3p_art::DecodeTmx(tmx(0x00, 4, 4), 0, img), "short TMX refused");
+            // SPR0: one 8x8 texture, sprite (1,0)-(2,1) in PSP texels = 4x4 at x 4.
+            p3p::Bytes s(0x30 + 0x80); std::memcpy(&s[8], "SPR0", 4);
+            s[0x14] = 1; s[0x16] = 1; s[0x18] = 0x20; s[0x1c] = 0x28; s[0x24] = s.size() & 255; s[0x24 + 1] = s.size() >> 8;
+            s[0x2c] = 0x30; s[0x30 + 0x54] = 1; s[0x30 + 0x5c] = 2; s[0x30 + 0x60] = 1;
+            auto tex = tmx(0x00, 8, 8); tex.resize(0x40 + 256);
+            for (int i = 0; i < 64; ++i) tex[0x40 + i * 4] = uint8_t(i);
+            s.insert(s.end(), tex.begin(), tex.end());
+            Require(p3p_art::SpriteImage(s, 0, img) && img.w == 4 && img.h == 4 && img.rgba[0] == 4 && img.rgba[4 * 4] == 12,
+                    "SPR0 sprite crop at 4x");
+            Require(!p3p_art::SpriteImage(s, 1, img), "missing sprite refused");
+        }
+        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item, Persona-detail, calendar, font and art regressions passed");
         return 0;
     } catch(const std::exception& e) {std::fprintf(stderr,"%s\n",e.what());return 1;}
 }

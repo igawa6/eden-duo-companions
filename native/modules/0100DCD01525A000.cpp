@@ -2,6 +2,7 @@
 // Experimental read-only Persona 3 Portable companion. No guest input/writes.
 #include "p3p_reader.h"
 #include "p3p_font.h"
+#include "p3p_art.h"
 #include "core/mods/dsmod_module_extensions.h"
 #include <cstdio>
 #include <memory>
@@ -12,9 +13,17 @@ namespace {
 using namespace p3p;
 constexpr char Build[] = "663052C2C7E8C357BA6EAD36641EE2792397EB1F000000000000000000000000";
 constexpr u64 Title = UINT64_C(0x0100DCD01525A000);
+// Camp skill-list icon (c_main_01.spr) for a SKILL.TBL element byte, as the native Skill menu
+// draws it: 124-130 Slash..Wind, 131 Almighty, 132 Light, 133 Dark, 134 recovery. Categories
+// whose icon is not confirmed against the native menu get none (0).
+int SkillIcon(int element) {
+    if(element>=0&&element<=6)return 124+element;
+    switch(element){case 7:return 131;case 8:return 132;case 9:return 133;case 17:return 134;default:return 0;}
+}
 struct Module {
     EdenDsmodHostApi host;
     const EdenDsmodHostApi font_host; // the create-time copy decode_font reads romfs through
+    p3p_art::Library art;             // camp-menu art for load_image (p3p_art.h)
     Reader reader;
     unsigned ticks{};
     // Companion page (manifest ui_open: 1 status, 2 personas, 3 links, 4 skills, 5 equip,
@@ -44,7 +53,8 @@ struct Module {
         return false;
     }
     void Clear() {
-        I("live.ready",0); T("live.date",""); T("live.money","");
+        I("live.ready",0); T("live.date",""); T("live.money",""); I("ui.route",0); I("pd.id",0);
+        I("live.lead",0); I("live.moon_spr",0); I("cal.month_spr",0);
         I("ui.page",page); I("ui.member",member);
         for (int i=0;i<10;++i) {
             auto p="member."+std::to_string(i);I(p+".present",0);I(p+".selected",0);T(p+".name","");T(p+".tab","");T(p+".stats","");
@@ -67,6 +77,14 @@ struct Module {
         // Follow battles: show the battle page while one runs, return to Status afterwards.
         if(v.battle) page=9; else if(page==9) page=1;
         I("ui.page",page);I("battle.active",v.battle);
+        I("ui.route",v.female); // camp menu theme: 0 male lead (blue), 1 female lead (pink)
+        // Camp art ids for the manifest's module:p3p: keys (p3p_art.h): the lead's camp portrait
+        // (c_cha01a male, c_cha99a female) and tonight's moon (sprites 541.. = phases 0..28, 555 full).
+        I("live.lead",v.female?99:1);
+        try {
+            int phase=MoonPhase(reader.MoonTable(),v.day);
+            if(phase>=0&&phase<29)I("live.moon_spr",541+phase);
+        } catch(...) {}
         auto [month,date]=MonthDay(v.day);
         const char* time=TimeLabel(v.time,v.dark,v.holiday);
         T("live.date",std::to_string(month)+" / "+std::to_string(date)+"   "+(time?time:"Time "+std::to_string(v.time)));
@@ -102,7 +120,7 @@ struct Module {
             try {
                 auto d=reader.Details(v,v.members.front(),v.personas.at(std::min<size_t>(persona_pick,v.personas.size()-1)).slot);
                 T("pd.name",(d.name.empty()?PersonaName(d.id):d.name)+"   Lv "+std::to_string(d.level));
-                T("pd.arcana",d.arcana);
+                T("pd.arcana",d.arcana);I("pd.id",d.id);
                 static constexpr const char* stat[5]{"St","Ma","En","Ag","Lu"};
                 for(int s=0;s<5;++s){I("pd.stat."+std::to_string(s),d.stats[s]);(void)stat;}
                 for(int e=0;e<9;++e)T("pd.aff."+std::to_string(e),d.affinity[e]);
@@ -140,6 +158,7 @@ struct Module {
                 static constexpr int lengths[]{30,31,30,31,31,30,31,30,31,31,28,31};
                 int start=MonthStart(index)+(v.day/365)*365, lead=Weekday(start);
                 T("cal.title",names[index]);
+                I("cal.month_spr",584+(index+3)%12); // camp month lettering, 584 = January
                 for(int c=0;c<42;++c){
                     auto p="cal."+std::to_string(c);int d=c-lead;
                     if(d<0||d>=lengths[index])continue;
@@ -164,7 +183,7 @@ struct Module {
                 // Rows the module does not publish are absent (the host clears every sample).
                 for(size_t i=0;i<skills.size();++i){
                     const auto& s=skills[i];auto p="skill."+std::to_string(i);
-                    T(p+".name",s.name);I(p+".present",1);
+                    T(p+".name",s.name);I(p+".present",1);I(p+".icon",SkillIcon(s.element));
                     if(s.type==1||s.type==2)T(p+".cost",(s.cost_known?std::to_string(s.cost):"?")+(s.type==1?" HP":" SP"));
                 }
                 I("skill.count",int64_t(skills.size()));I("skill.ready",1);
@@ -227,10 +246,19 @@ void Configure(void*,const EdenDsmodHostExtensions*){}
 // Serialized with sample; page/member selection only, never guest input or writes.
 EdenDsmodBool OnAction(void* p,const char* action,int64_t arg){try{return p&&action&&static_cast<Module*>(p)->Action(action,arg)?EDEN_DSMOD_TRUE:EDEN_DSMOD_FALSE;}catch(...){return EDEN_DSMOD_FALSE;}}
 // The game's font (p3p_font.h): "module:p3p_font" is the atlas, and the package's `font` file
-// (magic "P3PFONT") stands for the metrics of the same romfs file.
-EdenDsmodBool LoadImage(void*,const EdenDsmodHostApi* h,const char* key,void* receiver,EdenDsmodImageSink sink) {
+// (magic "P3PFONT") stands for the metrics of the same romfs file. "module:p3p:..." keys are the
+// camp-menu art (p3p_art.h).
+EdenDsmodBool LoadImage(void* p,const EdenDsmodHostApi* h,const char* key,void* receiver,EdenDsmodImageSink sink) {
     try {
-        if(!h||!key||!sink||!h->read_romfs||std::string_view{key}!="module:p3p_font")return EDEN_DSMOD_FALSE;
+        if(!h||!key||!sink||!h->read_romfs)return EDEN_DSMOD_FALSE;
+        const std::string_view k{key};
+        if(p&&k.starts_with("module:p3p:")) {
+            p3p_art::Image image;
+            if(!static_cast<Module*>(p)->art.Load(*h,k,image))return EDEN_DSMOD_FALSE;
+            sink(receiver,image.w,image.h,image.rgba.data(),image.rgba.size());
+            return EDEN_DSMOD_TRUE;
+        }
+        if(k!="module:p3p_font")return EDEN_DSMOD_FALSE;
         p5r_font::Atlas atlas;
         if(!p3p_font::BuildAtlas(*h,atlas))return EDEN_DSMOD_FALSE;
         sink(receiver,atlas.width,atlas.height,atlas.rgba.data(),atlas.rgba.size());
