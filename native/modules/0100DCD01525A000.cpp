@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Experimental read-only Persona 3 Portable companion. No guest input/writes.
 #include "p3p_reader.h"
-#include "p5r_romfs_assets.h"
 #include "core/mods/dsmod_module_extensions.h"
 #include <cstdio>
 #include <memory>
@@ -12,82 +11,33 @@ namespace {
 using namespace p3p;
 constexpr char Build[] = "663052C2C7E8C357BA6EAD36641EE2792397EB1F000000000000000000000000";
 constexpr u64 Title = UINT64_C(0x0100DCD01525A000);
-std::vector<std::string> Strings(std::span<const u8> b, size_t width) {
-    if (!width || b.size() % width) throw std::runtime_error("invalid names table");
-    std::vector<std::string> out;
-    for (size_t at = 0; at < b.size(); at += width) {
-        size_t n = 0; while (n < width && b[at+n]) ++n;
-        if (n == width) throw std::runtime_error("unterminated name");
-        std::string name(reinterpret_cast<const char*>(b.data()+at), n);
-        // Initial release uses the English archive and built-in Latin font.
-        for (unsigned char c : name) if (c < 32 || c > 126) throw std::runtime_error("unsupported name encoding");
-        out.push_back(std::move(name));
-    }
-    return out;
-}
 struct Module {
     EdenDsmodHostApi host;
     Reader reader;
     unsigned ticks{};
-    bool names_ready{};
     // Companion page (manifest ui_open: 1 status, 2 personas, 3 links, 4 skills, 5 equip,
-    // 6 stats, 7 items) and the member selected on the per-member pages, read only while open.
+    // 6 stats, 7 items, 8 calendar) and per-page selections, read only while open.
     int page{1}, member{}, item_tab{}, persona_pick{}; // item_tab: native Use / Equip / Key
-    std::vector<std::string> personas, links;
+    int cal_offset{}; // calendar month shown, relative to the current month
     explicit Module(const EdenDsmodHostApi& h) : host(h), reader(h) {}
     void I(const std::string& key, int64_t v) { host.publish_i64(host.userdata,key.c_str(),v); }
     void T(const std::string& key, const std::string& v) { host.publish_text(host.userdata,key.c_str(),v.c_str()); }
-    static std::span<const u8> Find(std::span<const u8> b, const char* name) {
-        std::vector<p5r_assets::PakEntry> entries;
-        if (!p5r_assets::ParsePak(b,entries)) throw std::runtime_error("startup package unreadable");
-        auto result = p5r_assets::PakFind(entries,name);
-        if (result.empty()) throw std::runtime_error("startup member missing");
-        return result;
-    }
-    void Names() {
-        p5r_assets::Cpk cpk;
-        if (!cpk.Open(p5r_assets::HostReader(host), "romfs:data_EN/umd0.cpk")) return;
-        auto read = [&](const char* path) {
-            p5r_assets::Cpk::Entry entry; Bytes b;
-            if (!cpk.Find(path,entry) || entry.extract > 96*1024*1024 || !cpk.ReadEntry(entry,b))
-                throw std::runtime_error("localized startup archive unreadable");
-            return b;
-        };
-        auto startup = read("init_free.bin");
-        auto msg = Find(startup,"battle/MSG.TBL");
-        constexpr size_t sizes[]{672,11856,6384,4352};
-        size_t at=0;
-        for (int i=0;i<4;++i) {
-            if (at+4>msg.size()) throw std::runtime_error("truncated MSG table");
-            u32 n; std::memcpy(&n,msg.data()+at,4);
-            if (n!=sizes[i] || n>msg.size()-at-4) throw std::runtime_error("unsupported MSG table");
-            if (i==3) personas=Strings(msg.subspan(at+4,n),17);
-            at=(at+4+n+15)&~size_t(15);
-        }
-        auto social = read("init_2F.bin");
-        auto cmm=Find(social,"init/cmmF.bin");
-        auto decode = [&](const char* name) {
-            auto table=Find(cmm,name);
-            if (table.size()!=2080) throw std::runtime_error("unsupported social table");
-            u32 size,count; std::memcpy(&size,table.data(),4);std::memcpy(&count,table.data()+4,4);
-            if(size!=2048||count!=32) throw std::runtime_error("unsupported social names");
-            return Strings(table.subspan(8,2048),64);
-        };
-        links=decode("cmmNameF.dat");
-        names_ready=personas.size()==256 && links.size()==32;
-    }
     std::string MemberName(const Snapshot&, const Member& m) const {
         if(!m.name.empty())return m.name;
         return m.id==1 ? "Protagonist" : "Member "+std::to_string(m.id);
     }
+    // Names come from the game's loaded tables, so they follow the language and protagonist.
     std::string PersonaName(int id) const {
-        return names_ready&&id>=0&&size_t(id)<personas.size()?personas[id]:"Persona "+std::to_string(id);
+        std::string name;
+        try { name=reader.PersonaName(id); } catch(...) {}
+        return name.empty() ? "Persona "+std::to_string(id) : name;
     }
     bool Action(std::string_view action, int64_t arg) {
-        if(action=="ui_open"&&arg>=1&&arg<=7){page=int(arg);return true;}
+        if(action=="ui_open"&&arg>=1&&arg<=8){page=int(arg);if(page==8)cal_offset=0;return true;}
         if(action=="member_select"&&arg>=0&&arg<10){member=int(arg);return true;}
         if(action=="item_tab"&&arg>=0&&arg<3){item_tab=int(arg);return true;}
         if(action=="persona_select"&&arg>=0&&arg<12){persona_pick=int(arg);return true;}
+        if(action=="calendar_shift"&&(arg==0||arg==1)){cal_offset+=arg?1:-1;return true;}
         return false;
     }
     void Clear() {
@@ -101,22 +51,18 @@ struct Module {
         I("equip.ready",0);T("equip.header","");
         I("stat.ready",0);I("social.ready",0);T("stat.header","");T("stat.next","");
         I("item.ready",0);I("item.count",0);T("item.header","");I("item.tab",item_tab);
-        I("pd.ready",0);I("ui.persona",persona_pick);
+        I("pd.ready",0);I("ui.persona",persona_pick);I("cal.ready",0);
         for(int i=0;i<12;++i){auto p="persona."+std::to_string(i);I(p+".present",0);T(p+".line","");}
-        for(int i=0;i<28;++i){auto p="link."+std::to_string(i);I(p+".present",0);T(p+".line","");}
+        I("link.ready",0);I("link.count",0);
     }
     void Sample() {
         ++ticks; // The host clears published values every sample; always republish.
         Clear();
         Snapshot v; std::string why;
         if(!reader.Sample(v,why)){T("status",why);return;}
-        if(!names_ready && ticks%60==1) { try {Names();} catch(...) {} }
-        int day=v.day%365, month=4;
-        constexpr int months[]{4,5,6,7,8,9,10,11,12,1,2,3};
-        constexpr int days[]{30,31,30,31,31,30,31,30,31,31,28,31};
-        for(int i=0;i<12;++i){month=months[i];if(day<days[i])break;day-=days[i];}
-        std::string time=v.time==5 ? (v.dark?"Dark Hour":"Evening") : "Time "+std::to_string(v.time);
-        T("live.date",std::to_string(month)+" / "+std::to_string(day+1)+"   "+time);
+        auto [month,date]=MonthDay(v.day);
+        const char* time=TimeLabel(v.time,v.dark,v.holiday);
+        T("live.date",std::to_string(month)+" / "+std::to_string(date)+"   "+(time?time:"Time "+std::to_string(v.time)));
         T("live.money",std::to_string(v.money)+" yen");
         for(size_t i=0;i<v.members.size();++i) {
             const auto& m=v.members[i];auto p="member."+std::to_string(i);
@@ -129,12 +75,21 @@ struct Module {
             auto m=v.personas[i];auto p="persona."+std::to_string(i);I(p+".picked",int(i)==persona_pick);
             T(p+".line",(m.selected?"* ":"  ")+PersonaName(m.id)+"   Lv "+std::to_string(m.level));I(p+".present",1);
         }
-        for(size_t i=0;i<v.links.size();++i) {
-            auto m=v.links[i];auto p="link."+std::to_string(i);
-            std::string name=names_ready&&v.female&&m.id>=0&&size_t(m.id)<links.size()?links[m.id]:"Social Link "+std::to_string(m.id);
-            T(p+".line",name+"   Rank "+std::to_string(m.rank));I(p+".present",1);
+        T("status","Read-only companion");I("live.ready",1);
+        if(page==3) {
+            // Native S.LINK list (fails closed on its own).
+            try {
+                auto links=reader.Links();
+                static constexpr const char* status[]{"","MAX","Reversed","Broken"};
+                for(size_t i=0;i<links.size();++i){
+                    const auto& l=links[i];auto p="link."+std::to_string(i);
+                    T(p+".arcana",l.arcana_name);T(p+".name",l.name.empty()?"Social Link "+std::to_string(l.id):l.name);
+                    T(p+".partner",l.partner);I(p+".rank",l.rank);T(p+".status",status[l.status]);
+                    T(p+".rank_text","Rank "+std::to_string(l.rank));I(p+".present",1);
+                }
+                I("link.count",int64_t(links.size()));I("link.ready",1);
+            } catch(const std::exception& e) {T("status",std::string("Social Links unavailable: ")+e.what());}
         }
-        T("status",names_ready?"Read-only companion":"Read-only companion - names unavailable");I("live.ready",1);
         if(page==2&&!v.personas.empty()&&!v.members.empty()) {
             // PERSONA -> Details for the picked stock Persona; fails closed on its own.
             try {
@@ -150,6 +105,31 @@ struct Module {
                 T("pd.nextskill","Next skill  --");
                 I("pd.ready",1);
             } catch(const std::exception& e) {T("status",std::string("Persona details unavailable: ")+e.what());}
+        }
+        if(page==8) {
+            // Month grid (Sunday first) with today, holidays (0x1d2e30) and full moons (phase 14).
+            try {
+                const auto& moon=reader.MoonTable();
+                auto [month,date]=MonthDay(v.day);
+                int index=(month+8)%12;                       // April = 0
+                index=std::clamp(index+cal_offset,0,11); cal_offset=index-(month+8)%12;
+                static constexpr const char* names[]{"April","May","June","July","August","September","October","November","December","January","February","March"};
+                static constexpr int lengths[]{30,31,30,31,31,30,31,30,31,31,28,31};
+                int start=MonthStart(index)+(v.day/365)*365, lead=Weekday(start);
+                T("cal.title",names[index]);
+                for(int c=0;c<42;++c){
+                    auto p="cal."+std::to_string(c);int d=c-lead;
+                    if(d<0||d>=lengths[index])continue;
+                    int day=start+d;
+                    T(p+".text",std::to_string(d+1));I(p+".present",1);
+                    I(p+".today",day==v.day);I(p+".holiday",Holiday(day,reader.Holidays()));
+                    I(p+".full",MoonPhase(moon,day)==14);
+                }
+                int next=DaysToFullMoon(moon,v.day);
+                auto [nm,nd]=MonthDay(v.day+next);
+                T("cal.next",next?"Next full moon in "+std::to_string(next)+(next==1?" day  (":" days  (")+std::to_string(nm)+" / "+std::to_string(nd)+")":"Full moon tonight");
+                I("cal.ready",1);
+            } catch(const std::exception& e) {T("status",std::string("Calendar unavailable: ")+e.what());}
         }
         if(page==4&&!v.members.empty()) {
             // A failed skill read hides only the skill list (fail closed per domain).

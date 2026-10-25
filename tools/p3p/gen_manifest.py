@@ -104,9 +104,53 @@ def personas_widgets(outputs):
     widgets.append(dict(label([x, 610, 700, 28], bind='pd.next', scale=2), **ready))
     for k in range(8):
         outputs.append(f'pd.skill.{k}')
-        widgets.append(dict(label([x + (k % 2) * 360, 660 + (k // 2) * 46, 340, 28], bind=f'pd.skill.{k}', scale=2), **ready))
+        # Native Details order: slots 0-3 down the left column, 4-7 down the right.
+        widgets.append(dict(label([x + (k // 4) * 360, 660 + (k % 4) * 46, 340, 28], bind=f'pd.skill.{k}', scale=2), **ready))
     widgets += [dict(label([x, 870, 710, 28], bind='pd.card', scale=2), **ready),
                 dict(label([x, 910, 710, 28], bind='pd.nextskill', scale=2), **ready) | {'color': COLORS['muted']}]
+    return widgets
+
+def links_widgets(outputs, scrolls):
+    """The native S.LINK list: rank, arcana, link name, partner, rank pips and status."""
+    rows = 28  # one link per arcana at most (0x1d4310 walks arcana 0..27)
+    outputs += ['link.ready', 'link.count']
+    scrolls.append({'id': 'links', 'rect': [40, 215, 1170, 780], 'count_bind': 'link.count', 'row_h': 96,
+                    'bar': COLORS['accent'], 'bar_track': '#33FFFFFF', 'bar_w': 6, 'show_bind': 'link.ready'})
+    row = {'repeat': rows, 'repeat_dy': 96, 'scroll': 'links'}
+    need = {'need_bind': 'link.{i}.present'}
+    outputs += [f'link.{i}.{k}' for i in range(rows)
+                for k in ('present', 'arcana', 'name', 'partner', 'rank', 'rank_text', 'status')]
+    return [dict(row, type='rect', rect=[40, 215, 1150, 86], bg=COLORS['panel'], frame=0, **need),
+            dict(row, **label([60, 227, 220, 26], bind='link.{i}.rank_text', scale=2), **need),
+            dict(row, **label([60, 259, 220, 30], bind='link.{i}.arcana', scale=3), **need) | {'color': COLORS['accent']},
+            dict(row, **label([300, 227, 560, 30], bind='link.{i}.name', scale=3), **need),
+            dict(row, **label([300, 265, 560, 24], bind='link.{i}.partner', scale=2), **need) | {'color': COLORS['muted']},
+            dict(row, type='pips', rect=[880, 233, 290, 18], bind='link.{i}.rank', max=10,
+                 color='#FFFF71AA', bg='#FF403349', **need),
+            dict(row, **label([880, 263, 290, 24], bind='link.{i}.status', scale=2), **need) | {'color': COLORS['accent']}]
+
+def calendar_widgets(outputs):
+    """Month grid with today, holidays and full moons; previous/next month buttons."""
+    outputs += ['cal.ready', 'cal.title', 'cal.next']
+    ready = {'need_bind': 'cal.ready'}
+    widgets = [dict({'type': 'button', 'rect': [40, 215, 160, 50], 'text': 'PREV', 'on_tap': 'calendar.prev',
+                     'text_scale': 2, 'color': COLORS['ink'], 'bg': COLORS['panel']}, **ready),
+               dict(label([240, 225, 760, 36], bind='cal.title', scale=4), **ready),
+               dict({'type': 'button', 'rect': [1040, 215, 160, 50], 'text': 'NEXT', 'on_tap': 'calendar.next',
+                     'text_scale': 2, 'color': COLORS['ink'], 'bg': COLORS['panel']}, **ready)]
+    for i, name in enumerate(('SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT')):
+        widgets.append(dict(label([40 + i * 166 + 12, 285, 150, 24], name, scale=2), **ready)
+                       | {'color': COLORS['accent'] if i == 0 else COLORS['muted']})
+    for c in range(42):
+        p = f'cal.{c}'; outputs += [p + '.' + k for k in ('present', 'text', 'today', 'holiday', 'full')]
+        x, y = 40 + (c % 7) * 166, 320 + (c // 7) * 100
+        need = {'need_bind': p + '.present'}
+        widgets += [dict({'type': 'rect', 'rect': [x, y, 156, 90], 'bg': COLORS['panel'], 'frame': 0}, **need),
+                    dict({'type': 'rect', 'rect': [x, y, 156, 90], 'bg': '#FF8C315B', 'frame': 0, 'need_bind': p + '.today'}),
+                    dict(label([x + 12, y + 10, 130, 30], bind=p + '.text', scale=3), **need) | {'color': COLORS['ink']},
+                    dict(label([x + 12, y + 10, 130, 30], bind=p + '.text', scale=3), need_bind=p + '.holiday') | {'color': COLORS['accent']},
+                    dict(label([x + 12, y + 54, 140, 24], 'FULL MOON', scale=1), need_bind=p + '.full') | {'color': '#FFFFE08A'}]
+    widgets.append(dict(label([40, 925, 1160, 30], bind='cal.next', scale=3), **ready))
     return widgets
 
 def stats_widgets(outputs):
@@ -156,21 +200,24 @@ def main():
     # Tabs tell the module which page is open (ui_open); page_binds follow its ui.page, so
     # heavy lists are read only while their page shows.
     tabs = (('home', 'STATUS', 'Status'), ('personas', 'PERSONAS', 'Personas'),
-            ('links', 'SOCIAL LINKS', 'Social Links'), ('skills', 'SKILLS', 'Skills'),
-            ('equip', 'EQUIP', 'Equip'), ('stats', 'STATS', 'Stats'), ('items', 'ITEMS', 'Items'))
+            ('links', 'SOCIAL LINKS', 'S.Link'), ('skills', 'SKILLS', 'Skills'),
+            ('equip', 'EQUIP', 'Equip'), ('stats', 'STATS', 'Stats'), ('items', 'ITEMS', 'Items'),
+            ('calendar', 'CALENDAR', 'Calendar'))
     actions = {f'ui.open.{n}': {'kind': 'module', 'action': 'ui_open', 'argument': n}
                for n in range(1, len(tabs) + 1)}
     actions.update({f'member.select.{i}': {'kind': 'module', 'action': 'member_select', 'argument': i}
                     for i in range(10)})
     actions.update({f'item.tab.{i}': {'kind': 'module', 'action': 'item_tab', 'argument': i} for i in range(3)})
     actions.update({f'persona.select.{i}': {'kind': 'module', 'action': 'persona_select', 'argument': i} for i in range(12)})
+    actions['calendar.prev'] = {'kind': 'module', 'action': 'calendar_shift', 'argument': 0}
+    actions['calendar.next'] = {'kind': 'module', 'action': 'calendar_shift', 'argument': 1}
     page_binds = [{'point': 'ui.page', 'equals': n, 'when_equal': {'page': page_id}}
                   for n, (page_id, _, _) in enumerate(tabs, 1)]
     pages = []
     for page_id, title, _ in tabs:
         widgets = [label([40, 28, 900, 42], 'PERSONA 3 PORTABLE / ' + title, scale=4)]
         for i, (target, _, caption) in enumerate(tabs):
-            widgets.append({'type': 'button', 'rect': [40 + i * 167, 90, 157, 55], 'text': caption,
+            widgets.append({'type': 'button', 'rect': [40 + i * 146, 90, 136, 55], 'text': caption,
                             'on_tap': f'ui.open.{i + 1}', 'text_scale': 2, 'color': COLORS['ink'],
                             'bg': '#FF8C315B' if page_id == target else COLORS['panel']})
         widgets += [label([40, 165, 850, 30], bind='live.date', ready=True),
@@ -180,6 +227,15 @@ def main():
                     label([40, 1020, 1160, 24], bind='status', scale=2),
                     label([40, 1050, 1160, 20], 'Read-only preview | 2D field/camp support | Battle and dungeon exploration pending', scale=2),
                     dict(label([40, 700, 1160, 36], bind='module_error_message', scale=3), need_bind='module_error')]
+        if page_id == 'calendar':
+            widgets += calendar_widgets(outputs)
+            pages.append({'id': page_id, 'title': title, 'widgets': widgets})
+            continue
+        if page_id == 'links':
+            scrolls = []
+            widgets += links_widgets(outputs, scrolls)
+            pages.append({'id': page_id, 'title': title, 'widgets': widgets, 'scrolls': scrolls})
+            continue
         if page_id == 'personas':
             widgets += personas_widgets(outputs)
             pages.append({'id': page_id, 'title': title, 'widgets': widgets})
@@ -202,8 +258,8 @@ def main():
             widgets += skills_widgets(outputs, scrolls)
             pages.append({'id': page_id, 'title': title, 'widgets': widgets, 'scrolls': scrolls})
             continue
-        count = {'home': 10, 'personas': 12, 'links': 28}[page_id]
-        prefix = {'home': 'member', 'personas': 'persona', 'links': 'link'}[page_id]
+        count = {'home': 10}[page_id]
+        prefix = {'home': 'member'}[page_id]
         for i in range(count):
             p = f'{prefix}.{i}'; outputs.append(p + '.present')
             y = 220 + i * {'home': 78, 'personas': 60, 'links': 28}[page_id]

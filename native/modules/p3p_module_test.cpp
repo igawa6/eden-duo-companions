@@ -38,13 +38,13 @@ int main() {
         }
         auto ext = eden_dsmod_get_extensions(EDEN_DSMOD_EXT_VERSION, EDEN_DSMOD_EXT_HASH);
         Require(ext && ext->on_action && (api->capabilities & EDEN_DSMOD_CAP_EXTENSIONS), "action extension");
-        Require(ext->on_action(instance, "ui_open", 7) && !ext->on_action(instance, "ui_open", 8), "page range");
+        Require(ext->on_action(instance, "ui_open", 8) && !ext->on_action(instance, "ui_open", 9), "page range");
         Require(ext->on_action(instance, "member_select", 9) && !ext->on_action(instance, "member_select", 10), "member range");
         Require(!ext->on_action(instance, "press", 0), "unknown actions refused");
         Require(ext->on_action(instance, "persona_select", 11) && !ext->on_action(instance, "persona_select", 12), "persona pick range");
         Require(ext->on_action(instance, "item_tab", 2) && !ext->on_action(instance, "item_tab", 3), "item tab range");
         output.clear(); api->sample(instance, &host);
-        Require(output.at("ui.page") == 7 && output.at("item.ready") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
+        Require(output.at("ui.page") == 8 && output.at("cal.ready") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
         api->destroy(instance);
         Require(p3p::Maximum(101,{0x237},{},false)==202,"HP gain");
         Require(p3p::Maximum(101,{0x237},{},true)==51,"SP loss rounds down before subtract");
@@ -134,7 +134,19 @@ int main() {
         Require(p3p::AffinityLabel(0x100) == "Nul" && p3p::AffinityLabel(0x200) == "Rpl" && p3p::AffinityLabel(0x400) == "Abs", "null, repel, absorb");
         p3p::Bytes plain(0x34); plain[0x1c] = 98; plain[0x26] = 5;
         Require(p3p::PersonaStatPlain(plain, 0) == 99, "plain stat cap");
-        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item and Persona-detail regressions passed");
+        // Time labels (0xd27c0) and holidays (0x1d2e30).
+        Require(std::string(p3p::TimeLabel(5, false, false)) == "Evening" && std::string(p3p::TimeLabel(5, true, false)) == "Dark Hour", "evening and dark hour");
+        Require(std::string(p3p::TimeLabel(3, false, true)) == "Daytime" && std::string(p3p::TimeLabel(3, false, false)) == "Afternoon", "holiday afternoon");
+        Require(std::string(p3p::TimeLabel(3, true, true)) == "Daytime" && !p3p::TimeLabel(7, false, false), "holiday precedence and range");
+        Require(p3p::MonthDay(0) == std::pair{4, 1} && p3p::MonthDay(30) == std::pair{5, 1} && p3p::MonthDay(364) == std::pair{3, 31}, "calendar");
+        Require(p3p::Holiday(4, {}) && p3p::Holiday(11, {}) && !p3p::Holiday(5, {}), "Sundays (April 5)");
+        Require(p3p::Holiday(28, {{4, 29}}) && !p3p::Holiday(27, {{4, 29}}), "holiday table");
+        // Moon phase (0xd5dc0 / 0xd5de0) and weekday.
+        p3p::Bytes moon(0x200, 0); moon[38 - 4] = 14; moon[0] = 3;
+        Require(p3p::MoonPhase(moon, 2) == 3 && p3p::MoonPhase(moon, 38) == 14, "phase index clamps below day 5");
+        Require(p3p::DaysToFullMoon(moon, 26) == 12 && p3p::DaysToFullMoon(moon, 38) == 0, "days to full moon");
+        Require(p3p::Weekday(4) == 0 && p3p::Weekday(0) == 3 && p3p::MonthStart(1) == 30, "weekday and month start");
+        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item, Persona-detail and calendar regressions passed");
         return 0;
     } catch(const std::exception& e) {std::fprintf(stderr,"%s\n",e.what());return 1;}
 }

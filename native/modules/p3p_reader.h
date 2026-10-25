@@ -46,6 +46,9 @@ struct Stats {
     std::vector<Social> social;       // protagonist only: Academics, Charm, Courage
 };
 struct Item { int id{}, count{}; std::string name; };
+// One row of the native S.LINK list (cmpCommu.c 0xdcaf0). status: 0 normal, 1 max (rank 10),
+// 2 reversed (record bit 0; card drawn upside down), 3 broken (bit 1; checked first).
+struct SocialLink { int id{}, arcana{}, rank{}, status{}; std::string arcana_name, name, partner; };
 // One stock Persona as the native PERSONA -> Details screen shows it.
 struct PersonaDetail {
     int id{}, level{}, next_exp{}, card_level{-1};
@@ -61,7 +64,7 @@ struct Persona {
 };
 struct Link { int id{}, rank{}; bool operator==(const Link&) const = default; };
 struct Snapshot {
-    int day{}, time{}, money{}, stock_capacity{}; bool dark{}, female{};
+    int day{}, time{}, money{}, stock_capacity{}; bool dark{}, female{}, holiday{};
     std::vector<Member> members;
     std::vector<Persona> personas;
     std::vector<Link> links;
@@ -144,6 +147,48 @@ inline std::string AffinityLabel(u16 raw) {
     if (raw & 0x1000) return "Str";
     if (raw & 0x800) return "Wk";
     return "";
+}
+
+// Time-of-day label (camp clock 0xd27c0 / save list strings at main+0x6248d0): codes 0-6, then
+// "Daytime" for code 3 on a holiday and "Dark Hour" when S+0x4950 bit 9 is set.
+inline const char* TimeLabel(int code, bool dark, bool holiday) {
+    static constexpr const char* labels[]{"Early Morning", "Morning", "Lunchtime", "Afternoon", "After School", "Evening", "Late Night"};
+    if (code == 3 && holiday) return "Daytime";
+    if (dark) return "Dark Hour";
+    return code >= 0 && code < 7 ? labels[code] : nullptr;
+}
+// Calendar month/day for a day counter (0 = April 1), as 0x1e1e40 and 0x1d2e30 compute it.
+inline std::pair<int, int> MonthDay(int day) {
+    static constexpr int months[]{4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3};
+    static constexpr int lengths[]{30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28, 31};
+    int d = day % 365;
+    for (int i = 0; i < 12; ++i) { if (d < lengths[i]) return {months[i], d + 1}; d -= lengths[i]; }
+    return {3, 31};
+}
+// Holiday test 0x1d2e30: Sundays ((day % 365) % 7 == 4), or a {month, day} entry of the table
+// behind GOT 0x70e250 (s16 pairs, ended by month -1, at most 0x164 entries).
+inline bool Holiday(int day, const std::vector<std::pair<int, int>>& table) {
+    if ((day % 365) % 7 == 4) return true;
+    auto md = MonthDay(day);
+    for (auto e : table) if (e == md) return true;
+    return false;
+}
+
+// Moon phase 0xd5dc0: table[day > 4 ? day - 4 : 0]; 14 is a full moon. Days until the next one
+// (0xd5de0): the first j in 0..99 whose phase is 14, else 0.
+inline int MoonPhase(const Bytes& table, int day) { return table.at(day > 4 ? day - 4 : 0); }
+inline int DaysToFullMoon(const Bytes& table, int day) {
+    for (int j = 0; j < 100; ++j) if (MoonPhase(table, day + j) == 14) return j;
+    return 0;
+}
+// Weekday with Sunday = 0: day 0 is Wednesday April 1 and day 4 a Sunday (0x1d2e30's test).
+inline int Weekday(int day) { return (day % 365 + 3) % 7; }
+// First day counter of calendar month index 0..11 (April..March).
+inline int MonthStart(int index) {
+    static constexpr int lengths[]{30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28, 31};
+    int d = 0;
+    for (int i = 0; i < index; ++i) d += lengths[i];
+    return d;
 }
 
 // Social stat rank (0x1ddb30/bb0/c30): the first k in 1..6 whose cumulative threshold the
@@ -260,7 +305,7 @@ class Reader {
 public:
     explicit Reader(const EdenDsmodHostApi& h) : host(h) {}
     void UpdateHost(const EdenDsmodHostApi& h) {
-        if (h.main_base != host.main_base) { pins_ok = false; item_table = 0; }
+        if (h.main_base != host.main_base) { pins_ok = false; item_table = 0; holidays_loaded = false; moon.clear(); }
         host = h;
     }
     Bytes Read(u64 at, size_t n) const {
@@ -447,6 +492,69 @@ public:
         }
         return d;
     }
+    // The native S.LINK list: for arcana 0..27, the first link 1..30 whose static info has that
+    // arcana and that has a record (0x1d4310). Static info [main+0x813f78] (0x74-byte rows from
+    // +8, s16 arcana at +0); names [main+0x813f80] / partners [main+0x814028] (64-byte rows from
+    // +8), loaded for the current protagonist.
+    std::vector<SocialLink> Links() const {
+        u64 state = Pointer(host.main_base + 0x70e800);
+        auto records = Read(state + 0x78, 28 * 0x10);
+        u64 info = Pointer(host.main_base + 0x813f78), names = Pointer(host.main_base + 0x813f80),
+            partners = Pointer(host.main_base + 0x814028);
+        if (Get<u32>(info + 4) < 31 || Get<u32>(names + 4) < 31 || Get<u32>(partners + 4) < 31)
+            throw std::runtime_error("Social Link tables unavailable");
+        auto info_rows = Read(info + 8, 31 * 0x74);
+        auto text = [&](u64 at) {
+            auto raw = Read(at, 64);
+            auto end = std::find(raw.begin(), raw.end(), u8{});
+            std::string s(raw.begin(), end);
+            for (unsigned char c : s) if (c < 32 || c > 126) return std::string();
+            return s;
+        };
+        auto record = [&](int id) -> int {
+            for (int i = 0; i < 28; ++i) if (At<u16>(records, i * 0x10 + 4) == id) return i;
+            return -1;
+        };
+        u64 arcana_names = Pointer(Pointer(host.main_base + 0x70e0f0));
+        std::vector<SocialLink> out;
+        for (int a = 0; a < 0x1c; ++a) {
+            for (int id = 1; id < 0x1f; ++id) {
+                int r = record(id);
+                if (At<int16_t>(info_rows, id * 0x74) != a || r < 0) continue;
+                SocialLink l; l.id = id; l.arcana = a;
+                u32 flags = At<u32>(records, r * 0x10);
+                l.rank = At<u16>(records, r * 0x10 + 6);
+                l.status = l.rank == 10 ? 1 : (flags & 2) ? 3 : (flags & 1) ? 2 : 0;
+                l.arcana_name = text(arcana_names + a * 0x15);
+                l.name = text(names + 8 + id * 64); l.partner = text(partners + 8 + id * 64);
+                out.push_back(std::move(l));
+                break;
+            }
+        }
+        if (records != Read(state + 0x78, 28 * 0x10)) throw std::runtime_error("context changed");
+        return out;
+    }
+    // Moon phase table behind GOT 0x70e258 (static; read once per main base, 0x200 days).
+    const Bytes& MoonTable() const {
+        if (moon.empty()) {
+            u64 at = Get<u64>(host.main_base + 0x70e258); // a byte table: no alignment required
+            if (!at) throw std::runtime_error("moon table unavailable");
+            moon = Read(at, 0x200);
+        }
+        return moon;
+    }
+    const std::vector<std::pair<int, int>>& Holidays() const { return HolidayTable(); }
+    // Persona name getter 0x1d6a60 (wide table for languages 3 and 5-8).
+    std::string PersonaName(int id) const {
+        if (id < 0 || id >= 0x100) return {};
+        u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+        bool wide = lang == 3 || (lang >= 5 && lang <= 8);
+        auto raw = Read(Pointer(Pointer(host.main_base + (wide ? 0x70e470 : 0x70e478))) + id * (wide ? 0x15 : 0x11), wide ? 0x15 : 0x11);
+        auto end = std::find(raw.begin(), raw.end(), u8{});
+        std::string s(raw.begin(), end);
+        for (unsigned char c : s) if (c < 32 || c > 126) return {};
+        return s;
+    }
     // Stats page values for one member (cmpStatus / Persona status 0x21b390 paths).
     Stats MemberStats(const Snapshot& v, const Member& m) const {
         u64 state = Pointer(host.main_base + 0x70e800), allies = Pointer(host.main_base + 0x70e808);
@@ -495,8 +603,24 @@ public:
         return out;
     }
 private:
+    // Holiday table behind GOT 0x70e250 (static game data; read once per main base).
+    const std::vector<std::pair<int, int>>& HolidayTable() const {
+        if (holidays_loaded) return holidays;
+        auto raw = Read(Pointer(host.main_base + 0x70e250), 0x164 * 4);
+        holidays.clear();
+        for (int i = 0; i < 0x164; ++i) {
+            int month = At<int16_t>(raw, i * 4);
+            if (month == -1) break;
+            holidays.emplace_back(month, At<int16_t>(raw, i * 4 + 2));
+        }
+        holidays_loaded = true;
+        return holidays;
+    }
     EdenDsmodHostApi host;
     bool pins_ok{};
+    mutable bool holidays_loaded{};
+    mutable Bytes moon;
+    mutable std::vector<std::pair<int, int>> holidays;
     mutable u64 item_table{};
     mutable int item_table_age{};
     mutable std::vector<u32> item_type, item_category;
@@ -586,6 +710,7 @@ private:
     static bool Flag(const Bytes& s, int flag) { return (At<u32>(s, 0x46cc + flag / 32 * 4) >> (flag % 32)) & 1; }
     Snapshot Values(const Bytes& s, const Bytes& a) const {
         Snapshot v; v.day = At<u16>(s, 0xc4c); v.time = s.at(0xc4e); v.money = At<u32>(s, 0x4b8c);
+        v.holiday = Holiday(v.day, HolidayTable());
         v.dark = At<u32>(s, 0x4950) & 0x200; v.female = s.at(0x48cc) & 0x80;
         int selected = At<int16_t>(s, 0x1058);
         if (selected < 0 || selected >= 12) throw std::runtime_error("Persona selection unavailable");
