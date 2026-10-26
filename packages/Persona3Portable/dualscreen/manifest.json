@@ -107,6 +107,38 @@
     "member.9.sp",
     "member.9.max_hp",
     "member.9.max_sp",
+    "party.0.present",
+    "party.0.name",
+    "party.0.stats",
+    "party.0.hp",
+    "party.0.sp",
+    "party.0.max_hp",
+    "party.0.max_sp",
+    "party.0.ailment",
+    "party.1.present",
+    "party.1.name",
+    "party.1.stats",
+    "party.1.hp",
+    "party.1.sp",
+    "party.1.max_hp",
+    "party.1.max_sp",
+    "party.1.ailment",
+    "party.2.present",
+    "party.2.name",
+    "party.2.stats",
+    "party.2.hp",
+    "party.2.sp",
+    "party.2.max_hp",
+    "party.2.max_sp",
+    "party.2.ailment",
+    "party.3.present",
+    "party.3.name",
+    "party.3.stats",
+    "party.3.hp",
+    "party.3.sp",
+    "party.3.max_hp",
+    "party.3.max_sp",
+    "party.3.ailment",
     "ui.route",
     "live.lead",
     "live.moon_spr",
@@ -1786,6 +1818,7 @@
     "en.0.hp",
     "en.0.max_hp",
     "en.0.analyzed",
+    "en.0.ailment",
     "en.0.aff.0",
     "en.0.aff.1",
     "en.0.aff.2",
@@ -1802,6 +1835,7 @@
     "en.1.hp",
     "en.1.max_hp",
     "en.1.analyzed",
+    "en.1.ailment",
     "en.1.aff.0",
     "en.1.aff.1",
     "en.1.aff.2",
@@ -1818,6 +1852,7 @@
     "en.2.hp",
     "en.2.max_hp",
     "en.2.analyzed",
+    "en.2.ailment",
     "en.2.aff.0",
     "en.2.aff.1",
     "en.2.aff.2",
@@ -1834,6 +1869,7 @@
     "en.3.hp",
     "en.3.max_hp",
     "en.3.analyzed",
+    "en.3.ailment",
     "en.3.aff.0",
     "en.3.aff.1",
     "en.3.aff.2",
@@ -1850,6 +1886,7 @@
     "en.4.hp",
     "en.4.max_hp",
     "en.4.analyzed",
+    "en.4.ailment",
     "en.4.aff.0",
     "en.4.aff.1",
     "en.4.aff.2",
@@ -1858,7 +1895,191 @@
     "en.4.aff.5",
     "en.4.aff.6",
     "en.4.aff.7",
-    "en.4.aff.8"
+    "en.4.aff.8",
+    "map.ready",
+    "map.key",
+    "map.why",
+    "map.px",
+    "map.py",
+    "map.rot",
+    "map.floor",
+    "map.stairs.on",
+    "map.stairs.x",
+    "map.stairs.y",
+    "map.tele.on",
+    "map.tele.x",
+    "map.tele.y",
+    "map.wander.on",
+    "map.wander.x",
+    "map.wander.y",
+    "map.chest.0.on",
+    "map.chest.0.x",
+    "map.chest.0.y",
+    "map.chest.1.on",
+    "map.chest.1.x",
+    "map.chest.1.y",
+    "map.chest.2.on",
+    "map.chest.2.x",
+    "map.chest.2.y",
+    "map.chest.3.on",
+    "map.chest.3.x",
+    "map.chest.3.y",
+    "map.chest.4.on",
+    "map.chest.4.x",
+    "map.chest.4.y",
+    "map.chest.5.on",
+    "map.chest.5.x",
+    "map.chest.5.y",
+    "map.chest.6.on",
+    "map.chest.6.x",
+    "map.chest.6.y",
+    "map.chest.7.on",
+    "map.chest.7.x",
+    "map.chest.7.y",
+    "map.chest.8.on",
+    "map.chest.8.x",
+    "map.chest.8.y",
+    "map.chest.9.on",
+    "map.chest.9.x",
+    "map.chest.9.y",
+    "map.chest.10.on",
+    "map.chest.10.x",
+    "map.chest.10.y",
+    "map.chest.11.on",
+    "map.chest.11.x",
+    "map.chest.11.y",
+    "map.chest.12.on",
+    "map.chest.12.x",
+    "map.chest.12.y",
+    "map.chest.13.on",
+    "map.chest.13.x",
+    "map.chest.13.y",
+    "map.chest.14.on",
+    "map.chest.14.x",
+    "map.chest.14.y",
+    "map.chest.15.on",
+    "map.chest.15.x",
+    "map.chest.15.y",
+    "map.chest.16.on",
+    "map.chest.16.x",
+    "map.chest.16.y",
+    "map.chest.17.on",
+    "map.chest.17.x",
+    "map.chest.17.y",
+    "map.chest.18.on",
+    "map.chest.18.x",
+    "map.chest.18.y",
+    "map.chest.19.on",
+    "map.chest.19.x",
+    "map.chest.19.y",
+    "map.chest.20.on",
+    "map.chest.20.x",
+    "map.chest.20.y",
+    "map.chest.21.on",
+    "map.chest.21.x",
+    "map.chest.21.y",
+    "map.chest.22.on",
+    "map.chest.22.x",
+    "map.chest.22.y",
+    "map.chest.23.on",
+    "map.chest.23.x",
+    "map.chest.23.y",
+    "map.chest.24.on",
+    "map.chest.24.x",
+    "map.chest.24.y",
+    "map.chest.25.on",
+    "map.chest.25.x",
+    "map.chest.25.y",
+    "map.chest.26.on",
+    "map.chest.26.x",
+    "map.chest.26.y",
+    "map.chest.27.on",
+    "map.chest.27.x",
+    "map.chest.27.y",
+    "map.chest.28.on",
+    "map.chest.28.x",
+    "map.chest.28.y",
+    "map.chest.29.on",
+    "map.chest.29.x",
+    "map.chest.29.y",
+    "map.chest.30.on",
+    "map.chest.30.x",
+    "map.chest.30.y",
+    "map.chest.31.on",
+    "map.chest.31.x",
+    "map.chest.31.y",
+    "map.shadow.0.on",
+    "map.shadow.0.x",
+    "map.shadow.0.y",
+    "map.shadow.1.on",
+    "map.shadow.1.x",
+    "map.shadow.1.y",
+    "map.shadow.2.on",
+    "map.shadow.2.x",
+    "map.shadow.2.y",
+    "map.shadow.3.on",
+    "map.shadow.3.x",
+    "map.shadow.3.y",
+    "map.shadow.4.on",
+    "map.shadow.4.x",
+    "map.shadow.4.y",
+    "map.shadow.5.on",
+    "map.shadow.5.x",
+    "map.shadow.5.y",
+    "map.shadow.6.on",
+    "map.shadow.6.x",
+    "map.shadow.6.y",
+    "map.shadow.7.on",
+    "map.shadow.7.x",
+    "map.shadow.7.y",
+    "map.shadow.8.on",
+    "map.shadow.8.x",
+    "map.shadow.8.y",
+    "map.shadow.9.on",
+    "map.shadow.9.x",
+    "map.shadow.9.y",
+    "map.shadow.10.on",
+    "map.shadow.10.x",
+    "map.shadow.10.y",
+    "map.shadow.11.on",
+    "map.shadow.11.x",
+    "map.shadow.11.y",
+    "map.shadow.12.on",
+    "map.shadow.12.x",
+    "map.shadow.12.y",
+    "map.shadow.13.on",
+    "map.shadow.13.x",
+    "map.shadow.13.y",
+    "map.shadow.14.on",
+    "map.shadow.14.x",
+    "map.shadow.14.y",
+    "map.shadow.15.on",
+    "map.shadow.15.x",
+    "map.shadow.15.y",
+    "map.shadow.16.on",
+    "map.shadow.16.x",
+    "map.shadow.16.y",
+    "map.shadow.17.on",
+    "map.shadow.17.x",
+    "map.shadow.17.y",
+    "map.shadow.18.on",
+    "map.shadow.18.x",
+    "map.shadow.18.y",
+    "map.shadow.19.on",
+    "map.shadow.19.x",
+    "map.shadow.19.y",
+    "map.shadow.20.on",
+    "map.shadow.20.x",
+    "map.shadow.20.y",
+    "map.shadow.21.on",
+    "map.shadow.21.x",
+    "map.shadow.21.y",
+    "map.shadow.22.on",
+    "map.shadow.22.x",
+    "map.shadow.22.y",
+    "map.shadow.23.on",
+    "map.shadow.23.x",
+    "map.shadow.23.y"
   ],
   "module": {
     "abi": 1,
@@ -1907,6 +2128,11 @@
       "kind": "module",
       "action": "ui_open",
       "argument": 8
+    },
+    "ui.open.10": {
+      "kind": "module",
+      "action": "ui_open",
+      "argument": 10
     },
     "member.select.0": {
       "kind": "module",
@@ -2103,6 +2329,13 @@
     },
     {
       "point": "ui.page",
+      "equals": 10,
+      "when_equal": {
+        "page": "map"
+      }
+    },
+    {
+      "point": "ui.page",
       "equals": 9,
       "when_equal": {
         "page": "battle"
@@ -2158,7 +2391,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 3,
-          "bind_text": "status"
+          "bind_text": "status",
+          "need_bind": "live.ready"
         },
         {
           "type": "label",
@@ -2260,7 +2494,7 @@
             "#D9FFFFFF",
             "#D9FFFFFF"
           ],
-          "need_bind": "member.0.present"
+          "need_bind": "party.0.present"
         },
         {
           "type": "label",
@@ -2273,8 +2507,42 @@
           "text": "",
           "color": "#FF2B1530",
           "text_scale": 5,
-          "bind_text": "member.0.name",
-          "need_bind": "member.0.present"
+          "bind_text": "party.0.name",
+          "need_bind": "party.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            676,
+            120,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "party.0.ailment",
+          "need_bind": "party.0.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            676,
+            120,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "party.0.ailment",
+          "need_bind": "party.0.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
         },
         {
           "type": "label",
@@ -2287,8 +2555,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 4,
-          "bind_text": "member.0.stats",
-          "need_bind": "member.0.present"
+          "bind_text": "party.0.stats",
+          "need_bind": "party.0.present"
         },
         {
           "type": "bar",
@@ -2298,12 +2566,12 @@
             302,
             14
           ],
-          "bind": "member.0.hp",
-          "max_bind": "member.0.max_hp",
+          "bind": "party.0.hp",
+          "max_bind": "party.0.max_hp",
           "color": "#FFF29A1C",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.0.present"
+          "need_bind": "party.0.present"
         },
         {
           "type": "bar",
@@ -2313,12 +2581,12 @@
             302,
             14
           ],
-          "bind": "member.0.sp",
-          "max_bind": "member.0.max_sp",
+          "bind": "party.0.sp",
+          "max_bind": "party.0.max_sp",
           "color": "#FF8C5CF0",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.0.present"
+          "need_bind": "party.0.present"
         },
         {
           "type": "image",
@@ -2335,7 +2603,7 @@
             "#D9FFFFFF",
             "#D9FFFFFF"
           ],
-          "need_bind": "member.1.present"
+          "need_bind": "party.1.present"
         },
         {
           "type": "label",
@@ -2348,8 +2616,42 @@
           "text": "",
           "color": "#FF2B1530",
           "text_scale": 5,
-          "bind_text": "member.1.name",
-          "need_bind": "member.1.present"
+          "bind_text": "party.1.name",
+          "need_bind": "party.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            676,
+            242,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "party.1.ailment",
+          "need_bind": "party.1.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            676,
+            242,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "party.1.ailment",
+          "need_bind": "party.1.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
         },
         {
           "type": "label",
@@ -2362,8 +2664,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 4,
-          "bind_text": "member.1.stats",
-          "need_bind": "member.1.present"
+          "bind_text": "party.1.stats",
+          "need_bind": "party.1.present"
         },
         {
           "type": "bar",
@@ -2373,12 +2675,12 @@
             302,
             14
           ],
-          "bind": "member.1.hp",
-          "max_bind": "member.1.max_hp",
+          "bind": "party.1.hp",
+          "max_bind": "party.1.max_hp",
           "color": "#FFF29A1C",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.1.present"
+          "need_bind": "party.1.present"
         },
         {
           "type": "bar",
@@ -2388,12 +2690,12 @@
             302,
             14
           ],
-          "bind": "member.1.sp",
-          "max_bind": "member.1.max_sp",
+          "bind": "party.1.sp",
+          "max_bind": "party.1.max_sp",
           "color": "#FF8C5CF0",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.1.present"
+          "need_bind": "party.1.present"
         },
         {
           "type": "image",
@@ -2410,7 +2712,7 @@
             "#D9FFFFFF",
             "#D9FFFFFF"
           ],
-          "need_bind": "member.2.present"
+          "need_bind": "party.2.present"
         },
         {
           "type": "label",
@@ -2423,8 +2725,42 @@
           "text": "",
           "color": "#FF2B1530",
           "text_scale": 5,
-          "bind_text": "member.2.name",
-          "need_bind": "member.2.present"
+          "bind_text": "party.2.name",
+          "need_bind": "party.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            676,
+            364,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "party.2.ailment",
+          "need_bind": "party.2.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            676,
+            364,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "party.2.ailment",
+          "need_bind": "party.2.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
         },
         {
           "type": "label",
@@ -2437,8 +2773,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 4,
-          "bind_text": "member.2.stats",
-          "need_bind": "member.2.present"
+          "bind_text": "party.2.stats",
+          "need_bind": "party.2.present"
         },
         {
           "type": "bar",
@@ -2448,12 +2784,12 @@
             302,
             14
           ],
-          "bind": "member.2.hp",
-          "max_bind": "member.2.max_hp",
+          "bind": "party.2.hp",
+          "max_bind": "party.2.max_hp",
           "color": "#FFF29A1C",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.2.present"
+          "need_bind": "party.2.present"
         },
         {
           "type": "bar",
@@ -2463,12 +2799,12 @@
             302,
             14
           ],
-          "bind": "member.2.sp",
-          "max_bind": "member.2.max_sp",
+          "bind": "party.2.sp",
+          "max_bind": "party.2.max_sp",
           "color": "#FF8C5CF0",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.2.present"
+          "need_bind": "party.2.present"
         },
         {
           "type": "image",
@@ -2485,7 +2821,7 @@
             "#D9FFFFFF",
             "#D9FFFFFF"
           ],
-          "need_bind": "member.3.present"
+          "need_bind": "party.3.present"
         },
         {
           "type": "label",
@@ -2498,8 +2834,42 @@
           "text": "",
           "color": "#FF2B1530",
           "text_scale": 5,
-          "bind_text": "member.3.name",
-          "need_bind": "member.3.present"
+          "bind_text": "party.3.name",
+          "need_bind": "party.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            676,
+            486,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "party.3.ailment",
+          "need_bind": "party.3.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            676,
+            486,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "party.3.ailment",
+          "need_bind": "party.3.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
         },
         {
           "type": "label",
@@ -2512,8 +2882,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 4,
-          "bind_text": "member.3.stats",
-          "need_bind": "member.3.present"
+          "bind_text": "party.3.stats",
+          "need_bind": "party.3.present"
         },
         {
           "type": "bar",
@@ -2523,12 +2893,12 @@
             302,
             14
           ],
-          "bind": "member.3.hp",
-          "max_bind": "member.3.max_hp",
+          "bind": "party.3.hp",
+          "max_bind": "party.3.max_hp",
           "color": "#FFF29A1C",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.3.present"
+          "need_bind": "party.3.present"
         },
         {
           "type": "bar",
@@ -2538,12 +2908,12 @@
             302,
             14
           ],
-          "bind": "member.3.sp",
-          "max_bind": "member.3.max_sp",
+          "bind": "party.3.sp",
+          "max_bind": "party.3.max_sp",
           "color": "#FF8C5CF0",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.3.present"
+          "need_bind": "party.3.present"
         },
         {
           "type": "image",
@@ -2562,17 +2932,6 @@
           ]
         },
         {
-          "type": "image",
-          "rect": [
-            229,
-            636,
-            202,
-            44
-          ],
-          "src": "module:p3p:spr/0@44",
-          "tint": "#FF2B1530"
-        },
-        {
           "type": "button",
           "rect": [
             36,
@@ -2580,7 +2939,7 @@
             588,
             84
           ],
-          "text": "",
+          "text": "SKILL",
           "on_tap": "ui.open.4",
           "text_scale": 6,
           "align": "center",
@@ -2606,17 +2965,6 @@
           ]
         },
         {
-          "type": "image",
-          "rect": [
-            836,
-            636,
-            189,
-            44
-          ],
-          "src": "module:p3p:spr/1@44",
-          "tint": "#FF2B1530"
-        },
-        {
           "type": "button",
           "rect": [
             636,
@@ -2624,7 +2972,7 @@
             588,
             84
           ],
-          "text": "",
+          "text": "ITEM",
           "on_tap": "ui.open.7",
           "text_scale": 6,
           "align": "center",
@@ -2650,17 +2998,6 @@
           ]
         },
         {
-          "type": "image",
-          "rect": [
-            148,
-            728,
-            365,
-            44
-          ],
-          "src": "module:p3p:spr/2@44",
-          "tint": "#FF2B1530"
-        },
-        {
           "type": "button",
           "rect": [
             36,
@@ -2668,7 +3005,7 @@
             588,
             84
           ],
-          "text": "",
+          "text": "PERSONA",
           "on_tap": "ui.open.2",
           "text_scale": 6,
           "align": "center",
@@ -2694,17 +3031,6 @@
           ]
         },
         {
-          "type": "image",
-          "rect": [
-            816,
-            728,
-            229,
-            44
-          ],
-          "src": "module:p3p:spr/3@44",
-          "tint": "#FF2B1530"
-        },
-        {
           "type": "button",
           "rect": [
             636,
@@ -2712,7 +3038,7 @@
             588,
             84
           ],
-          "text": "",
+          "text": "EQUIP",
           "on_tap": "ui.open.5",
           "text_scale": 6,
           "align": "center",
@@ -2738,17 +3064,6 @@
           ]
         },
         {
-          "type": "image",
-          "rect": [
-            213,
-            820,
-            235,
-            44
-          ],
-          "src": "module:p3p:spr/4@44",
-          "tint": "#FF2B1530"
-        },
-        {
           "type": "button",
           "rect": [
             36,
@@ -2756,7 +3071,7 @@
             588,
             84
           ],
-          "text": "",
+          "text": "STATUS",
           "on_tap": "ui.open.6",
           "text_scale": 6,
           "align": "center",
@@ -2782,17 +3097,6 @@
           ]
         },
         {
-          "type": "image",
-          "rect": [
-            785,
-            820,
-            290,
-            44
-          ],
-          "src": "module:p3p:spr/10@44",
-          "tint": "#FF2B1530"
-        },
-        {
           "type": "button",
           "rect": [
             636,
@@ -2800,7 +3104,7 @@
             588,
             84
           ],
-          "text": "",
+          "text": "S.LINK",
           "on_tap": "ui.open.3",
           "text_scale": 6,
           "align": "center",
@@ -2814,7 +3118,7 @@
           "rect": [
             36,
             892,
-            1188,
+            588,
             84
           ],
           "src": "module:p3p:fill",
@@ -2826,26 +3130,48 @@
           ]
         },
         {
-          "type": "image",
-          "rect": [
-            413,
-            912,
-            434,
-            44
-          ],
-          "src": "module:p3p:spr/406@44",
-          "tint": "#FF2B1530"
-        },
-        {
           "type": "button",
           "rect": [
             36,
             892,
-            1188,
+            588,
             84
           ],
-          "text": "",
+          "text": "CALENDAR",
           "on_tap": "ui.open.8",
+          "text_scale": 6,
+          "align": "center",
+          "text_center_h": 84,
+          "color": "#FF2B1530",
+          "bg": "#00000000",
+          "border": 0
+        },
+        {
+          "type": "image",
+          "rect": [
+            636,
+            892,
+            588,
+            84
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#D9FFFFFF",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#D9FFFFFF",
+            "#D9FFFFFF"
+          ]
+        },
+        {
+          "type": "button",
+          "rect": [
+            636,
+            892,
+            588,
+            84
+          ],
+          "text": "MAP",
+          "on_tap": "ui.open.10",
           "text_scale": 6,
           "align": "center",
           "text_center_h": 84,
@@ -2951,7 +3277,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 3,
-          "bind_text": "status"
+          "bind_text": "status",
+          "need_bind": "live.ready"
         },
         {
           "type": "label",
@@ -5236,7 +5563,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 3,
-          "bind_text": "status"
+          "bind_text": "status",
+          "need_bind": "live.ready"
         },
         {
           "type": "label",
@@ -5572,7 +5900,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 3,
-          "bind_text": "status"
+          "bind_text": "status",
+          "need_bind": "live.ready"
         },
         {
           "type": "label",
@@ -6751,7 +7080,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 3,
-          "bind_text": "status"
+          "bind_text": "status",
+          "need_bind": "live.ready"
         },
         {
           "type": "label",
@@ -8086,7 +8416,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 3,
-          "bind_text": "status"
+          "bind_text": "status",
+          "need_bind": "live.ready"
         },
         {
           "type": "label",
@@ -9934,7 +10265,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 3,
-          "bind_text": "status"
+          "bind_text": "status",
+          "need_bind": "live.ready"
         },
         {
           "type": "label",
@@ -10404,7 +10736,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 3,
-          "bind_text": "status"
+          "bind_text": "status",
+          "need_bind": "live.ready"
         },
         {
           "type": "label",
@@ -14760,7 +15093,7 @@
             "#D9FFFFFF",
             "#D9FFFFFF"
           ],
-          "need_bind": "member.0.present"
+          "need_bind": "party.0.present"
         },
         {
           "type": "label",
@@ -14773,8 +15106,40 @@
           "text": "",
           "color": "#FF2B1530",
           "text_scale": 4,
-          "bind_text": "member.0.name",
-          "need_bind": "member.0.present"
+          "bind_text": "party.0.name",
+          "need_bind": "party.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            420,
+            108,
+            360,
+            36
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "party.0.ailment",
+          "need_bind": "party.0.present",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            420,
+            108,
+            360,
+            36
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "party.0.ailment",
+          "need_bind": "party.0.present",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
         },
         {
           "type": "label",
@@ -14787,8 +15152,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 4,
-          "bind_text": "member.0.stats",
-          "need_bind": "member.0.present",
+          "bind_text": "party.0.stats",
+          "need_bind": "party.0.present",
           "align": "right"
         },
         {
@@ -14799,12 +15164,12 @@
             562,
             14
           ],
-          "bind": "member.0.hp",
-          "max_bind": "member.0.max_hp",
+          "bind": "party.0.hp",
+          "max_bind": "party.0.max_hp",
           "color": "#FFF29A1C",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.0.present"
+          "need_bind": "party.0.present"
         },
         {
           "type": "bar",
@@ -14814,12 +15179,12 @@
             562,
             14
           ],
-          "bind": "member.0.sp",
-          "max_bind": "member.0.max_sp",
+          "bind": "party.0.sp",
+          "max_bind": "party.0.max_sp",
           "color": "#FF8C5CF0",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.0.present"
+          "need_bind": "party.0.present"
         },
         {
           "type": "image",
@@ -14836,7 +15201,7 @@
             "#D9FFFFFF",
             "#D9FFFFFF"
           ],
-          "need_bind": "member.1.present"
+          "need_bind": "party.1.present"
         },
         {
           "type": "label",
@@ -14849,8 +15214,40 @@
           "text": "",
           "color": "#FF2B1530",
           "text_scale": 4,
-          "bind_text": "member.1.name",
-          "need_bind": "member.1.present"
+          "bind_text": "party.1.name",
+          "need_bind": "party.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            420,
+            188,
+            360,
+            36
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "party.1.ailment",
+          "need_bind": "party.1.present",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            420,
+            188,
+            360,
+            36
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "party.1.ailment",
+          "need_bind": "party.1.present",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
         },
         {
           "type": "label",
@@ -14863,8 +15260,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 4,
-          "bind_text": "member.1.stats",
-          "need_bind": "member.1.present",
+          "bind_text": "party.1.stats",
+          "need_bind": "party.1.present",
           "align": "right"
         },
         {
@@ -14875,12 +15272,12 @@
             562,
             14
           ],
-          "bind": "member.1.hp",
-          "max_bind": "member.1.max_hp",
+          "bind": "party.1.hp",
+          "max_bind": "party.1.max_hp",
           "color": "#FFF29A1C",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.1.present"
+          "need_bind": "party.1.present"
         },
         {
           "type": "bar",
@@ -14890,12 +15287,12 @@
             562,
             14
           ],
-          "bind": "member.1.sp",
-          "max_bind": "member.1.max_sp",
+          "bind": "party.1.sp",
+          "max_bind": "party.1.max_sp",
           "color": "#FF8C5CF0",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.1.present"
+          "need_bind": "party.1.present"
         },
         {
           "type": "image",
@@ -14912,7 +15309,7 @@
             "#D9FFFFFF",
             "#D9FFFFFF"
           ],
-          "need_bind": "member.2.present"
+          "need_bind": "party.2.present"
         },
         {
           "type": "label",
@@ -14925,8 +15322,40 @@
           "text": "",
           "color": "#FF2B1530",
           "text_scale": 4,
-          "bind_text": "member.2.name",
-          "need_bind": "member.2.present"
+          "bind_text": "party.2.name",
+          "need_bind": "party.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            420,
+            268,
+            360,
+            36
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "party.2.ailment",
+          "need_bind": "party.2.present",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            420,
+            268,
+            360,
+            36
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "party.2.ailment",
+          "need_bind": "party.2.present",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
         },
         {
           "type": "label",
@@ -14939,8 +15368,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 4,
-          "bind_text": "member.2.stats",
-          "need_bind": "member.2.present",
+          "bind_text": "party.2.stats",
+          "need_bind": "party.2.present",
           "align": "right"
         },
         {
@@ -14951,12 +15380,12 @@
             562,
             14
           ],
-          "bind": "member.2.hp",
-          "max_bind": "member.2.max_hp",
+          "bind": "party.2.hp",
+          "max_bind": "party.2.max_hp",
           "color": "#FFF29A1C",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.2.present"
+          "need_bind": "party.2.present"
         },
         {
           "type": "bar",
@@ -14966,12 +15395,12 @@
             562,
             14
           ],
-          "bind": "member.2.sp",
-          "max_bind": "member.2.max_sp",
+          "bind": "party.2.sp",
+          "max_bind": "party.2.max_sp",
           "color": "#FF8C5CF0",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.2.present"
+          "need_bind": "party.2.present"
         },
         {
           "type": "image",
@@ -14988,7 +15417,7 @@
             "#D9FFFFFF",
             "#D9FFFFFF"
           ],
-          "need_bind": "member.3.present"
+          "need_bind": "party.3.present"
         },
         {
           "type": "label",
@@ -15001,8 +15430,40 @@
           "text": "",
           "color": "#FF2B1530",
           "text_scale": 4,
-          "bind_text": "member.3.name",
-          "need_bind": "member.3.present"
+          "bind_text": "party.3.name",
+          "need_bind": "party.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            420,
+            348,
+            360,
+            36
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "party.3.ailment",
+          "need_bind": "party.3.present",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            420,
+            348,
+            360,
+            36
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "party.3.ailment",
+          "need_bind": "party.3.present",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
         },
         {
           "type": "label",
@@ -15015,8 +15476,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 4,
-          "bind_text": "member.3.stats",
-          "need_bind": "member.3.present",
+          "bind_text": "party.3.stats",
+          "need_bind": "party.3.present",
           "align": "right"
         },
         {
@@ -15027,12 +15488,12 @@
             562,
             14
           ],
-          "bind": "member.3.hp",
-          "max_bind": "member.3.max_hp",
+          "bind": "party.3.hp",
+          "max_bind": "party.3.max_hp",
           "color": "#FFF29A1C",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.3.present"
+          "need_bind": "party.3.present"
         },
         {
           "type": "bar",
@@ -15042,12 +15503,12 @@
             562,
             14
           ],
-          "bind": "member.3.sp",
-          "max_bind": "member.3.max_sp",
+          "bind": "party.3.sp",
+          "max_bind": "party.3.max_sp",
           "color": "#FF8C5CF0",
           "bg": "#40000000",
           "frame": 0,
-          "need_bind": "member.3.present"
+          "need_bind": "party.3.present"
         },
         {
           "type": "label",
@@ -15232,6 +15693,40 @@
           "text_scale": 4,
           "bind_text": "en.0.info",
           "need_bind": "en.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            466,
+            528,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "en.0.ailment",
+          "need_bind": "en.0.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            466,
+            528,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "en.0.ailment",
+          "need_bind": "en.0.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
         },
         {
           "type": "label",
@@ -15619,6 +16114,40 @@
         {
           "type": "label",
           "rect": [
+            466,
+            628,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "en.1.ailment",
+          "need_bind": "en.1.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            466,
+            628,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "en.1.ailment",
+          "need_bind": "en.1.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
             476,
             582,
             250,
@@ -15998,6 +16527,40 @@
           "text_scale": 4,
           "bind_text": "en.2.info",
           "need_bind": "en.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            466,
+            728,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "en.2.ailment",
+          "need_bind": "en.2.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            466,
+            728,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "en.2.ailment",
+          "need_bind": "en.2.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
         },
         {
           "type": "label",
@@ -16385,6 +16948,40 @@
         {
           "type": "label",
           "rect": [
+            466,
+            828,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "en.3.ailment",
+          "need_bind": "en.3.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            466,
+            828,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "en.3.ailment",
+          "need_bind": "en.3.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
             476,
             782,
             250,
@@ -16768,6 +17365,40 @@
         {
           "type": "label",
           "rect": [
+            466,
+            928,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FF1F4FB5",
+          "text_scale": 4,
+          "bind_text": "en.4.ailment",
+          "need_bind": "en.4.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            466,
+            928,
+            0,
+            32
+          ],
+          "text": "",
+          "color": "#FFB3154C",
+          "text_scale": 4,
+          "bind_text": "en.4.ailment",
+          "need_bind": "en.4.present",
+          "align": "right",
+          "hide_bind": "ui.route",
+          "hide_eq": 0
+        },
+        {
+          "type": "label",
+          "rect": [
             476,
             882,
             250,
@@ -17112,6 +17743,1175 @@
           "color": "#FF6E5A78",
           "text_scale": 3,
           "bind_text": "status"
+        }
+      ]
+    },
+    {
+      "id": "map",
+      "title": "MAP",
+      "widgets": [
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "bind": "ui.route",
+          "src_format": "module:p3p:bg/%d"
+        },
+        {
+          "type": "label",
+          "rect": [
+            44,
+            20,
+            760,
+            48
+          ],
+          "text": "MAP",
+          "color": "#FFFFC43C",
+          "text_scale": 6
+        },
+        {
+          "type": "label",
+          "rect": [
+            1216,
+            26,
+            0,
+            40
+          ],
+          "text": "",
+          "color": "#FFFFFFFF",
+          "text_scale": 4,
+          "bind_text": "live.date",
+          "need_bind": "live.ready",
+          "align": "right"
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            982,
+            280,
+            84
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#D9FFFFFF",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#D9FFFFFF",
+            "#D9FFFFFF"
+          ]
+        },
+        {
+          "type": "button",
+          "rect": [
+            36,
+            982,
+            280,
+            84
+          ],
+          "text": "Back",
+          "on_tap": "ui.open.1",
+          "text_scale": 6,
+          "align": "center",
+          "text_center_h": 84,
+          "color": "#FF2B1530",
+          "bg": "#00000000",
+          "border": 0
+        },
+        {
+          "type": "label",
+          "rect": [
+            336,
+            1012,
+            880,
+            32
+          ],
+          "text": "",
+          "color": "#FF6E5A78",
+          "text_scale": 3,
+          "bind_text": "status",
+          "need_bind": "live.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            470,
+            0,
+            60
+          ],
+          "text": "",
+          "bind_text": "status",
+          "align": "center",
+          "wrap_width": 1100,
+          "text_scale": 5,
+          "color": "#FF6E5A78",
+          "hide_bind": "live.ready",
+          "hide_eq": 1
+        },
+        {
+          "type": "label",
+          "rect": [
+            44,
+            700,
+            1192,
+            40
+          ],
+          "text": "",
+          "color": "#FF2B1530",
+          "text_scale": 4,
+          "bind_text": "module_error_message",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            170,
+            20,
+            300,
+            48
+          ],
+          "text": "",
+          "color": "#FFFFFFFF",
+          "text_scale": 6,
+          "bind_text": "map.floor",
+          "need_bind": "map.ready"
+        },
+        {
+          "type": "image",
+          "rect": [
+            180,
+            96,
+            880,
+            880
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#FF0E2460",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF0E2460",
+            "#FF6A0A1E"
+          ],
+          "need_bind": "map.ready"
+        },
+        {
+          "type": "image",
+          "rect": [
+            188,
+            104,
+            864,
+            864
+          ],
+          "src_bind": "map.key",
+          "need_bind": "map.ready"
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/4@64",
+          "x_bind": "map.stairs.x",
+          "y_bind": "map.stairs.y",
+          "need_bind": "map.stairs.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/5@64",
+          "x_bind": "map.tele.x",
+          "y_bind": "map.tele.y",
+          "need_bind": "map.tele.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/12@80",
+          "x_bind": "map.wander.x",
+          "y_bind": "map.wander.y",
+          "need_bind": "map.wander.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.0.x",
+          "y_bind": "map.chest.0.y",
+          "need_bind": "map.chest.0.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.1.x",
+          "y_bind": "map.chest.1.y",
+          "need_bind": "map.chest.1.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.2.x",
+          "y_bind": "map.chest.2.y",
+          "need_bind": "map.chest.2.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.3.x",
+          "y_bind": "map.chest.3.y",
+          "need_bind": "map.chest.3.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.4.x",
+          "y_bind": "map.chest.4.y",
+          "need_bind": "map.chest.4.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.5.x",
+          "y_bind": "map.chest.5.y",
+          "need_bind": "map.chest.5.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.6.x",
+          "y_bind": "map.chest.6.y",
+          "need_bind": "map.chest.6.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.7.x",
+          "y_bind": "map.chest.7.y",
+          "need_bind": "map.chest.7.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.8.x",
+          "y_bind": "map.chest.8.y",
+          "need_bind": "map.chest.8.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.9.x",
+          "y_bind": "map.chest.9.y",
+          "need_bind": "map.chest.9.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.10.x",
+          "y_bind": "map.chest.10.y",
+          "need_bind": "map.chest.10.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.11.x",
+          "y_bind": "map.chest.11.y",
+          "need_bind": "map.chest.11.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.12.x",
+          "y_bind": "map.chest.12.y",
+          "need_bind": "map.chest.12.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.13.x",
+          "y_bind": "map.chest.13.y",
+          "need_bind": "map.chest.13.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.14.x",
+          "y_bind": "map.chest.14.y",
+          "need_bind": "map.chest.14.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.15.x",
+          "y_bind": "map.chest.15.y",
+          "need_bind": "map.chest.15.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.16.x",
+          "y_bind": "map.chest.16.y",
+          "need_bind": "map.chest.16.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.17.x",
+          "y_bind": "map.chest.17.y",
+          "need_bind": "map.chest.17.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.18.x",
+          "y_bind": "map.chest.18.y",
+          "need_bind": "map.chest.18.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.19.x",
+          "y_bind": "map.chest.19.y",
+          "need_bind": "map.chest.19.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.20.x",
+          "y_bind": "map.chest.20.y",
+          "need_bind": "map.chest.20.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.21.x",
+          "y_bind": "map.chest.21.y",
+          "need_bind": "map.chest.21.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.22.x",
+          "y_bind": "map.chest.22.y",
+          "need_bind": "map.chest.22.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.23.x",
+          "y_bind": "map.chest.23.y",
+          "need_bind": "map.chest.23.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.24.x",
+          "y_bind": "map.chest.24.y",
+          "need_bind": "map.chest.24.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.25.x",
+          "y_bind": "map.chest.25.y",
+          "need_bind": "map.chest.25.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.26.x",
+          "y_bind": "map.chest.26.y",
+          "need_bind": "map.chest.26.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.27.x",
+          "y_bind": "map.chest.27.y",
+          "need_bind": "map.chest.27.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.28.x",
+          "y_bind": "map.chest.28.y",
+          "need_bind": "map.chest.28.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.29.x",
+          "y_bind": "map.chest.29.y",
+          "need_bind": "map.chest.29.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.30.x",
+          "y_bind": "map.chest.30.y",
+          "need_bind": "map.chest.30.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            156,
+            72,
+            64,
+            64
+          ],
+          "src": "module:p3p:mm/10@64",
+          "x_bind": "map.chest.31.x",
+          "y_bind": "map.chest.31.y",
+          "need_bind": "map.chest.31.on",
+          "tint": "#FF1F4FB5",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF1F4FB5",
+            "#FFB3154C"
+          ]
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.0.x",
+          "y_bind": "map.shadow.0.y",
+          "need_bind": "map.shadow.0.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.1.x",
+          "y_bind": "map.shadow.1.y",
+          "need_bind": "map.shadow.1.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.2.x",
+          "y_bind": "map.shadow.2.y",
+          "need_bind": "map.shadow.2.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.3.x",
+          "y_bind": "map.shadow.3.y",
+          "need_bind": "map.shadow.3.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.4.x",
+          "y_bind": "map.shadow.4.y",
+          "need_bind": "map.shadow.4.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.5.x",
+          "y_bind": "map.shadow.5.y",
+          "need_bind": "map.shadow.5.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.6.x",
+          "y_bind": "map.shadow.6.y",
+          "need_bind": "map.shadow.6.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.7.x",
+          "y_bind": "map.shadow.7.y",
+          "need_bind": "map.shadow.7.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.8.x",
+          "y_bind": "map.shadow.8.y",
+          "need_bind": "map.shadow.8.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.9.x",
+          "y_bind": "map.shadow.9.y",
+          "need_bind": "map.shadow.9.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.10.x",
+          "y_bind": "map.shadow.10.y",
+          "need_bind": "map.shadow.10.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.11.x",
+          "y_bind": "map.shadow.11.y",
+          "need_bind": "map.shadow.11.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.12.x",
+          "y_bind": "map.shadow.12.y",
+          "need_bind": "map.shadow.12.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.13.x",
+          "y_bind": "map.shadow.13.y",
+          "need_bind": "map.shadow.13.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.14.x",
+          "y_bind": "map.shadow.14.y",
+          "need_bind": "map.shadow.14.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.15.x",
+          "y_bind": "map.shadow.15.y",
+          "need_bind": "map.shadow.15.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.16.x",
+          "y_bind": "map.shadow.16.y",
+          "need_bind": "map.shadow.16.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.17.x",
+          "y_bind": "map.shadow.17.y",
+          "need_bind": "map.shadow.17.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.18.x",
+          "y_bind": "map.shadow.18.y",
+          "need_bind": "map.shadow.18.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.19.x",
+          "y_bind": "map.shadow.19.y",
+          "need_bind": "map.shadow.19.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.20.x",
+          "y_bind": "map.shadow.20.y",
+          "need_bind": "map.shadow.20.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.21.x",
+          "y_bind": "map.shadow.21.y",
+          "need_bind": "map.shadow.21.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.22.x",
+          "y_bind": "map.shadow.22.y",
+          "need_bind": "map.shadow.22.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            148,
+            64,
+            80,
+            80
+          ],
+          "src": "module:p3p:mm/9@80",
+          "x_bind": "map.shadow.23.x",
+          "y_bind": "map.shadow.23.y",
+          "need_bind": "map.shadow.23.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            166,
+            82,
+            44,
+            44
+          ],
+          "src": "module:p3p:spr/107@44",
+          "x_bind": "map.px",
+          "y_bind": "map.py",
+          "rotate": -90,
+          "rotate_bind": "map.rot",
+          "tint": "#FFFFC43C",
+          "need_bind": "map.ready"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            470,
+            0,
+            60
+          ],
+          "text": "",
+          "bind_text": "map.why",
+          "align": "center",
+          "wrap_width": 1100,
+          "text_scale": 5,
+          "color": "#FF6E5A78",
+          "need_bind": "live.ready",
+          "hide_bind": "map.ready",
+          "hide_eq": 1
         }
       ]
     }

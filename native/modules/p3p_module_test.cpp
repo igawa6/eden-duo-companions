@@ -4,6 +4,7 @@
 #include "p3p_reader.h"
 #include "p3p_font.h"
 #include "p3p_art.h"
+#include "p3p_map.h"
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
@@ -41,6 +42,8 @@ int main() {
         auto ext = eden_dsmod_get_extensions(EDEN_DSMOD_EXT_VERSION, EDEN_DSMOD_EXT_HASH);
         Require(ext && ext->on_action && (api->capabilities & EDEN_DSMOD_CAP_EXTENSIONS), "action extension");
         Require(ext->on_action(instance, "ui_open", 8) && !ext->on_action(instance, "ui_open", 9), "page range");
+        Require(ext->on_action(instance, "ui_open", 10) && !ext->on_action(instance, "ui_open", 11), "map page");
+        Require(ext->on_action(instance, "ui_open", 8), "back to calendar");
         Require(ext->on_action(instance, "member_select", 9) && !ext->on_action(instance, "member_select", 10), "member range");
         Require(!ext->on_action(instance, "press", 0), "unknown actions refused");
         Require(ext->on_action(instance, "persona_select", 11) && !ext->on_action(instance, "persona_select", 12), "persona pick range");
@@ -53,6 +56,7 @@ int main() {
         Require(p3p::Maximum(101,{0x238},{},true)==202,"SP gain");
         Require(p3p::Maximum(101,{0x219,0x21a,0x21b},{},false)==161,"independent percentage rounding");
         Require(p3p::Maximum(900,{0x219},{{0x1e,2}},false)==999,"cap after equipment");
+        Require(p3p::Maximum(5000,{},{},false,true)==5000,"enemies are not capped at 999");
         // 0x74a10 cost rules. Record: flags, ?, ?, type, u16 cost, u16 extra.
         auto rec = [](unsigned flags, unsigned type, unsigned cost, unsigned extra) {
             p3p::Bytes e(0x28); e[0] = flags; e[3] = type; e[4] = cost & 255; e[5] = cost >> 8; e[6] = extra & 255; e[7] = extra >> 8; return e; };
@@ -147,6 +151,38 @@ int main() {
         Require(p3p::MoonPhase(moon, 2) == 3 && p3p::MoonPhase(moon, 38) == 14, "phase index clamps below day 5");
         Require(p3p::DaysToFullMoon(moon, 26) == 12 && p3p::DaysToFullMoon(moon, 38) == 0, "days to full moon");
         Require(p3p::Weekday(4) == 0 && p3p::Weekday(0) == 3 && p3p::MonthStart(1) == 30, "weekday and month start");
+        {
+            // Map: only seen floor cells are drawn; walls on closed sides; exit diamond once seen.
+            p3p::FloorMap m;
+            m.kind[4 * 16 + 10] = m.kind[4 * 16 + 11] = m.kind[5 * 16 + 2] = 1;
+            m.sides[4 * 16 + 10] = 8; m.sides[4 * 16 + 11] = 2; // a corridor open between the two
+            m.seen[4 * 16 + 10] = m.seen[4 * 16 + 11] = 0xff;
+            m.exit_x = 2; m.exit_y = 5;
+            auto px = [&](const p3p_art::Image& img, int x, int y) { return img.rgba[(size_t(y) * img.w + x) * 4 + 3]; };
+            auto img = p3p_map::Render(m, true);
+            // Footprint columns 2..11, rows 4..5: 10 wide -> 86 px cells, centred vertically.
+            auto f = p3p_map::Fit(m);
+            const int c = f.cell;
+            Require(c == 86 && f.ox == -2 * c + 2 && f.oy == (864 - 2 * c) / 2 - 4 * c, "footprint fit");
+            auto at = [&](int cx, int cy) { return std::pair{f.ox + cx * c + c / 2, f.oy + cy * c + c / 2}; };
+            auto [ax, ay] = at(10, 4); auto [bx, by] = at(11, 4); auto [ex, ey] = at(2, 5);
+            Require(img.w == 864 && px(img, ax, ay) && px(img, bx, by), "seen cells drawn");
+            Require(!px(img, ex, ey), "unseen cell stays hidden");
+            Require(p3p_map::Centre(m, 2, 5).x == ex && p3p_map::Centre(m, 2, 5).y == ey, "cell centre");
+            Require(img.rgba[((size_t(f.oy + 4 * c) * img.w) + ax) * 4] == 106, "closed north side is a wall");
+            Require(img.rgba[((size_t(ay) * img.w) + f.ox + 11 * c) * 4] == 255, "open side between cells has no wall");
+            m.x = 8500; m.z = 3200; m.forward_x = 1; m.forward_z = 0;
+            auto k = p3p_map::Leader(m);
+            Require(k.x == f.ox + 957 && k.y == f.oy + 387 && k.degrees == 90, "leader marker east (cell 11.1, 4.5)");
+            m.forward_x = 0; m.forward_z = 1;
+            Require(p3p_map::Leader(m).degrees == 180, "leader marker south (+z)");
+            p3p::FloorMap n = m; n.x = 0;
+            Require(p3p_map::SamePicture(m, n) && !p3p_map::SamePicture(m, p3p::FloorMap{}), "position does not redraw");
+        }
+        // Ailment bits (unit +0xc), named only where SKILL.TBL inflict/cure masks pin them down.
+        Require(p3p::Ailments(0).empty() && p3p::Ailments(0x100) == "Poison" && p3p::Ailments(0x80002) == "KO  Charm",
+                "ailment names");
+        Require(p3p::Ailments(0x100001).empty() && p3p::Ailments(0x200).empty(), "unconfirmed status bits stay unnamed");
         // Game font: ASCII only (font0.fnt continues with kana past '~'); without romfs, fail closed.
         Require(p3p_font::GlyphIndex(' ') == 0 && p3p_font::GlyphIndex('A') == 33 && p3p_font::GlyphIndex('~') == 94 &&
                 p3p_font::GlyphIndex(0x7F) < 0 && p3p_font::GlyphIndex(0xE9) < 0, "font ASCII mapping");
@@ -191,7 +227,7 @@ int main() {
                     "SPR0 sprite crop at 4x");
             Require(!p3p_art::SpriteImage(s, 1, img), "missing sprite refused");
         }
-        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item, Persona-detail, calendar, font and art regressions passed");
+        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item, Persona-detail, calendar, ailment, map, font and art regressions passed");
         return 0;
     } catch(const std::exception& e) {std::fprintf(stderr,"%s\n",e.what());return 1;}
 }

@@ -28,8 +28,6 @@ HP, SP, BAR_BG = '#FFF29A1C', '#FF8C5CF0', '#40000000'
 SPRITES = {'MAIN': (9, 916, 176), 'PERSONA': (204, 836, 96), 'SKILL': (297, 816, 152),
            'ITEM': (275, 988, 192), 'EQUIP': (146, 892, 172), 'STATUS': (302, 700, 104),
            'CALENDAR': (406, 828, 84), 'S.LINK': (10, 264, 40),
-           'skill': (0, 184, 40), 'item': (1, 172, 40), 'persona': (2, 332, 40), 'equip': (3, 208, 40),
-           'status': (4, 256, 48), 'calendar': (406, 828, 84),
            'weapon': (172, 196, 56), 'body': (173, 140, 64), 'feet': (174, 120, 56), 'accessory': (175, 252, 60)}
 ELEMENTS = range(223, 232)          # Sl St Pi Fi Ic El Wi Li Dk, 80x64 each
 WEEKDAYS = (612, 613, 614, 615, 616, 617, 618)  # SUN .. SAT, 136x40
@@ -71,14 +69,10 @@ def label(rect, text='', bind=None, scale=SIZE['body'], ready=False):
     return w
 
 def button(rect, caption, action, scale=SIZE['button'], kind='panel', **extra):
-    """A tap target: a route-coloured panel with the caption (text, or a sprite name in
-    SPRITES) centred on it. Returns a widget list; `extra` (gates) applies to every part."""
+    """A tap target: a route-coloured panel with its game-font caption centred on it. Returns a
+    widget list; `extra` (gates) applies to every part."""
     parts = [fill(rect, kind)]
     ink = COLORS['light'] if kind == 'select' else COLORS['ink']
-    if caption in SPRITES:
-        h = min(44, rect[3] - 28)
-        parts.append(sprite(caption, rect[0] + rect[2] // 2, rect[1] + (rect[3] - h) // 2, h, 'center', tint=ink))
-        caption = ''
     parts.append({'type': 'button', 'rect': rect, 'text': caption, 'on_tap': action, 'text_scale': scale,
                   'align': 'center', 'text_center_h': rect[3], 'color': ink, 'bg': '#00000000',
                   'border': 0})
@@ -93,18 +87,22 @@ def chrome(title, home=False):
     """Shared frame, as the native camp menu: the route's wash, a title band with the page's big
     italic lettering, a faint copy of it as a watermark; at the bottom a Back button to the hub
     and the reader's status line. The hub has no Back button."""
-    n, sw, sh = SPRITES[title]
-    mark_w = min(round(sw * 260 / sh), 1200); mark_h = round(mark_w * sh / sw)
-    widgets = [{'type': 'image', 'rect': [0, 0, 1240, 1080], 'bind': 'ui.route', 'src_format': 'module:p3p:bg/%d'},
-               {'type': 'image', 'rect': [1240 - mark_w, 990 - mark_h, mark_w, mark_h],
-                'src': f'module:p3p:spr/{n}@{mark_h}', 'tint': '#30FFFFFF'},
-               sprite(title, 44, 12, 62, tint=COLORS['title'])]
+    widgets = [{'type': 'image', 'rect': [0, 0, 1240, 1080], 'bind': 'ui.route', 'src_format': 'module:p3p:bg/%d'}]
+    if title in SPRITES:
+        n, sw, sh = SPRITES[title]
+        mark_w = min(round(sw * 260 / sh), 1200); mark_h = round(mark_w * sh / sw)
+        widgets += [{'type': 'image', 'rect': [1240 - mark_w, 990 - mark_h, mark_w, mark_h],
+                     'src': f'module:p3p:spr/{n}@{mark_h}', 'tint': '#30FFFFFF'},
+                    sprite(title, 44, 12, 62, tint=COLORS['title'])]
+    else:  # no camp lettering for this page: the game font
+        widgets.append(label([44, 20, 760, 48], title, scale=SIZE['title']) | {'color': COLORS['title']})
     if not home:
         widgets.append(label([1216, 26, 0, 40], bind='live.date', scale=SIZE['body'], ready=True)
                        | {'align': 'right', 'color': COLORS['light']})
         widgets += button([36, 982, 280, 84], 'Back', 'ui.open.1')
     x = 44 if home else 336
-    widgets += [label([x, 1012, 1216 - x, 32], bind='status', scale=SIZE['small']) | {'color': COLORS['muted']},
+    # The status line only once values are live; until then the centred label says why.
+    widgets += [label([x, 1012, 1216 - x, 32], bind='status', scale=SIZE['small'], ready=True) | {'color': COLORS['muted']},
                 # The reader's reason while values are unavailable (e.g. loading, unsupported scene).
                 {'type': 'label', 'rect': [620, 470, 0, 60], 'text': '', 'bind_text': 'status', 'align': 'center',
                  'wrap_width': 1100, 'text_scale': SIZE['value'], 'color': COLORS['muted'],
@@ -113,9 +111,9 @@ def chrome(title, home=False):
     return widgets
 
 # Hub buttons in the native camp menu's order (SKILL, ITEM, PERSONA, EQUIP, STATUS, S.LINK),
-# then the calendar, captioned with the camp menu's own lettering; the number is the module's
-# ui_open page.
-MENU = (('skill', 4), ('item', 7), ('persona', 2), ('equip', 5), ('status', 6), ('S.LINK', 3), ('calendar', 8))
+# then the calendar and map, all in the game font; the number is the module's ui_open page.
+MENU = (('SKILL', 4), ('ITEM', 7), ('PERSONA', 2), ('EQUIP', 5), ('STATUS', 6), ('S.LINK', 3), ('CALENDAR', 8),
+        ('MAP', 10))
 
 def bars(p, x, y, w, need):
     """A member's HP and SP bars side by side."""
@@ -134,11 +132,12 @@ def home_widgets(outputs):
                label([1150, 50, 0, 32], bind='live.money', scale=SIZE['body'], ready=True) | {'align': 'right', 'color': COLORS['title']},
                {'type': 'image', 'rect': [1164, 18, 56, 56], 'bind': 'live.moon_spr',
                 'src_format': 'module:p3p:spr/%d@56', 'need_bind': 'live.moon_spr'}]
-    for i in range(4):  # the first four of the roster (the active battle party is not traced yet)
-        p = f'member.{i}'; y = 108 + i * 122
+    for i in range(4):  # the active party (S+0x4b90), in slot order
+        p = f'party.{i}'; y = 108 + i * 122
         need = {'need_bind': p + '.present'}
         widgets += [fill([36, y, 660, 112], 'panel', **need),
                     label([56, y + 8, 620, 40], bind=p + '.name', scale=SIZE['value']) | need,
+                    label([676, y + 12, 0, 32], bind=p + '.ailment') | need | {'align': 'right', 'color': COLORS['accent']},
                     label([56, y + 52, 620, 32], bind=p + '.stats', scale=SIZE['body']) | need | {'color': COLORS['muted']}]
         widgets += bars(p, 56, y + 90, 620, need)
     for i, (caption, page) in enumerate(MENU):
@@ -285,10 +284,11 @@ def battle_page(outputs):
                label([44, 20, 760, 48], 'BATTLE', scale=SIZE['title']) | {'color': COLORS['title']},
                label([1216, 26, 0, 40], bind='live.date') | {'align': 'right', 'color': COLORS['light']}]
     for i in range(4):
-        p = f'member.{i}'; y = 102 + i * 80
+        p = f'party.{i}'; y = 102 + i * 80
         need = {'need_bind': p + '.present'}
         widgets += [fill([36, y, 1188, 72], 'panel', **need),
                     label([56, y + 6, 560, 36], bind=p + '.name') | need,
+                    label([420, y + 6, 360, 36], bind=p + '.ailment') | need | {'color': COLORS['accent']},
                     label([1200, y + 6, 0, 36], bind=p + '.stats') | need | {'align': 'right', 'color': COLORS['muted']}]
         widgets += bars(p, 56, y + 50, 1140, need)
     widgets.append(label([44, 430, 400, 36], 'Enemies') | {'color': COLORS['accent']})
@@ -297,12 +297,13 @@ def battle_page(outputs):
                         'tint': COLORS['ink'], 'need_bind': 'en.0.present'})
     for i in range(5):
         p = f'en.{i}'; y = 474 + i * 100
-        outputs += [p + '.' + k for k in ('present', 'name', 'info', 'hp_text', 'hp', 'max_hp', 'analyzed')]
+        outputs += [p + '.' + k for k in ('present', 'name', 'info', 'hp_text', 'hp', 'max_hp', 'analyzed', 'ailment')]
         need = {'need_bind': p + '.present'}
         widgets += [fill([36, y, 1188, 92], 'panel', **need),
                     label([56, y + 8, 420, 40], bind=p + '.name', scale=SIZE['value']) | need
                     | {'fit_text': True, 'wrap_width': 420, 'text_min_scale': SIZE['body']},
                     label([56, y + 54, 420, 32], bind=p + '.info') | need | {'color': COLORS['muted']},
+                    label([466, y + 54, 0, 32], bind=p + '.ailment') | need | {'color': COLORS['accent'], 'align': 'right'},
                     label([476, y + 8, 250, 32], bind=p + '.hp_text') | need,
                     {'type': 'bar', 'rect': [476, y + 56, 240, 16], 'bind': p + '.hp', 'max_bind': p + '.max_hp',
                      'color': HP, 'bg': BAR_BG, 'frame': 0} | need]
@@ -390,10 +391,45 @@ def skills_widgets(outputs, scrolls):
                         need_bind='skill.{i}.present') | {'color': COLORS['muted'], 'align': 'right', 'text_center_h': 74})
     return widgets
 
+MAP_X, MAP_Y, MAP_SIZE = 188, 104, 864  # p3p_map.h Size
+
+def map_widgets(outputs):
+    """The current Tartarus floor as the game's minimap has revealed it (module picture), with
+    the leader's arrow moved and turned by the module (map.px / map.py / map.rot)."""
+    outputs += ['map.ready', 'map.key', 'map.why', 'map.px', 'map.py', 'map.rot', 'map.floor']
+    ready = {'need_bind': 'map.ready'}
+    size = MAP_SIZE
+
+    def icon(p, sprite, h, tint=None):
+        """A minimap-sheet icon (p3p_art mm/<n>) centred on the module's map position p.x/p.y."""
+        outputs.extend([p + '.on', p + '.x', p + '.y'])
+        w = {'type': 'image', 'rect': [MAP_X - h // 2, MAP_Y - h // 2, h, h], 'src': f'module:p3p:mm/{sprite}@{h}',
+             'x_bind': p + '.x', 'y_bind': p + '.y', 'need_bind': p + '.on'}
+        return w | ({'tint': tint} if tint else {})
+    # The game's minimap icons: the stairs, chests and teleporter in the route's dark colour (they
+    # are white on the game's dark minimap), Shadows (orange) and the wandering marker (green).
+    icons = [icon('map.stairs', 4, 64, ACCENT), icon('map.tele', 5, 64, ACCENT), icon('map.wander', 12, 80)]
+    icons += [icon(f'map.chest.{i}', 10, 64, ACCENT) for i in range(32)]
+    icons += [icon(f'map.shadow.{i}', 9, 80) for i in range(24)]
+    return [label([170, 20, 300, 48], bind='map.floor', scale=SIZE['title']) | ready | {'color': COLORS['light']},
+            fill([MAP_X - 8, MAP_Y - 8, size + 16, size + 16], 'select', **ready),
+            {'type': 'image', 'rect': [MAP_X, MAP_Y, size, size], 'src_bind': 'map.key'} | ready,
+            *icons,  # each gated on its own .on, published only with map.ready
+            # Sprite 107 is a right-pointing triangle; -90 turns it to north for heading 0.
+            {'type': 'image', 'rect': [MAP_X - 22, MAP_Y - 22, 44, 44], 'src': 'module:p3p:spr/107@44',
+             'x_bind': 'map.px', 'y_bind': 'map.py', 'rotate': -90, 'rotate_bind': 'map.rot',
+             'tint': COLORS['title']} | ready,
+            # Outside Tartarus: why there is no map (once the game itself is readable).
+            {'type': 'label', 'rect': [620, 470, 0, 60], 'text': '', 'bind_text': 'map.why', 'align': 'center',
+             'wrap_width': 1100, 'text_scale': SIZE['value'], 'color': COLORS['muted'],
+             'need_bind': 'live.ready', 'hide_bind': 'map.ready', 'hide_eq': 1}]
+
 def main():
     outputs = ['live.ready', 'live.date', 'live.money', 'status', 'ui.page', 'ui.member']
     outputs += [f'member.{i}.{k}' for i in range(10)
                 for k in ('present', 'name', 'tab', 'selected', 'stats', 'hp', 'sp', 'max_hp', 'max_sp')]
+    outputs += [f'party.{i}.{k}' for i in range(4)
+                for k in ('present', 'name', 'stats', 'hp', 'sp', 'max_hp', 'max_sp', 'ailment')]
     # Tabs tell the module which page is open (ui_open); page_binds follow its ui.page, so
     # heavy lists are read only while their page shows.
     # Titles name the camp menu's lettering for each page (SPRITES).
@@ -401,16 +437,16 @@ def main():
             ('links', 'S.LINK', 'S.Link'), ('skills', 'SKILL', 'Skills'),
             ('equip', 'EQUIP', 'Equip'), ('stats', 'STATUS', 'Stats'), ('items', 'ITEM', 'Items'),
             ('calendar', 'CALENDAR', 'Calendar'))
-    actions = {f'ui.open.{n}': {'kind': 'module', 'action': 'ui_open', 'argument': n}
-               for n in range(1, len(tabs) + 1)}
+    # Module page numbers: tabs are 1-8 in order, 9 is the battle page, 10 the map.
+    numbered = [(n, page_id) for n, (page_id, _, _) in enumerate(tabs, 1)] + [(10, 'map')]
+    actions = {f'ui.open.{n}': {'kind': 'module', 'action': 'ui_open', 'argument': n} for n, _ in numbered}
     actions.update({f'member.select.{i}': {'kind': 'module', 'action': 'member_select', 'argument': i}
                     for i in range(10)})
     actions.update({f'item.tab.{i}': {'kind': 'module', 'action': 'item_tab', 'argument': i} for i in range(3)})
     actions.update({f'persona.select.{i}': {'kind': 'module', 'action': 'persona_select', 'argument': i} for i in range(12)})
     actions['calendar.prev'] = {'kind': 'module', 'action': 'calendar_shift', 'argument': 0}
     actions['calendar.next'] = {'kind': 'module', 'action': 'calendar_shift', 'argument': 1}
-    page_binds = [{'point': 'ui.page', 'equals': n, 'when_equal': {'page': page_id}}
-                  for n, (page_id, _, _) in enumerate(tabs, 1)]
+    page_binds = [{'point': 'ui.page', 'equals': n, 'when_equal': {'page': page_id}} for n, page_id in numbered]
     # The module switches to the battle page (ui.page 9) while a battle runs.
     page_binds.append({'point': 'ui.page', 'equals': 9, 'when_equal': {'page': 'battle'}})
     pages = []
@@ -452,6 +488,7 @@ def main():
             pages.append({'id': page_id, 'title': title, 'widgets': widgets, 'scrolls': scrolls})
             continue
     pages.append(battle_page(outputs))
+    pages.append({'id': 'map', 'title': 'MAP', 'widgets': chrome('MAP') + map_widgets(outputs)})
     for page in pages:
         page['widgets'] = split_route(page['widgets'])
     result = {'format': 1, 'title_id': '0100DCD01525A000', 'name': 'Persona 3 Portable - Read-only Preview',

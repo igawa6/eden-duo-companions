@@ -7,6 +7,8 @@
 //   bg/<route>         1240x1080 page background in the camp menu's style (0 male/blue, 1 female/pink)
 //   spr/<n>            sprite n of the camp menu sheet (data_EN/umd0.cpk -> init_free.bin ->
 //                      init/camp.bin -> c_main_01.spr); white with alpha, tinted at runtime
+//   mm/<n>             sprite n of the Tartarus minimap sheet (init_free.bin -> smap/i_mini_map01.spr):
+//                      4 stairs, 5 teleporter, 9 Shadow, 10 chest, 12 wandering marker
 //   persona/<id>       Persona artwork, 1024x1024 (data/umd0.cpk camp/persona/pst_<ID>.tmx)
 //   bust/<n>           camp portrait (camp/bustup/c_cha<NN>a.tmx; 01 male lead, 99 female lead)
 // Any key may end in "@<h>": the picture is resampled to h pixels high (aspect kept), because the
@@ -239,6 +241,8 @@ private:
         std::scoped_lock guard{lock_};
         if (key.starts_with("spr/") && Number(key.substr(4), 10, 0xffff, n))
             return Camp(host) && SpriteImage(camp_, n, out);
+        if (key.starts_with("mm/") && Number(key.substr(3), 10, 0xffff, n))
+            return Camp(host) && SpriteImage(minimap_, n, out);
         if (key.starts_with("persona/") && Number(key.substr(8), 10, 0xfff, n) && n) {
             char path[40];
             std::snprintf(path, sizeof path, "camp/persona/pst_%03X.tmx", n);
@@ -263,7 +267,8 @@ private:
         return Open(host, shared_, shared_tried_, "data/umd0.cpk") && shared_.Find(path, entry) &&
                entry.extract <= (size_t(16) << 20) && shared_.ReadEntry(entry, bytes) && DecodeTmx(bytes, 0, out);
     }
-    // c_main_01.spr (29 MB) is kept once read; the 58 MB startup archive around it is not.
+    // c_main_01.spr (29 MB) and i_mini_map01.spr (0.5 MB) are kept once read; the 58 MB startup
+    // archive around them is not.
     bool Camp(const EdenDsmodHostApi& host) {
         if (!camp_.empty()) return true;
         if (camp_tried_) return false;
@@ -279,6 +284,8 @@ private:
         camp_tried_ = true;
         const auto bin = p5r_assets::PakFind(members, "init/camp.bin");
         if (bin.empty() || !p5r_assets::ParsePak(bin, camp)) return false;
+        const auto minimap = p5r_assets::PakFind(members, "smap/i_mini_map01.spr");
+        minimap_.assign(minimap.begin(), minimap.end());
         const auto sheet = p5r_assets::PakFind(camp, "c_main_01.spr");
         camp_.assign(sheet.begin(), sheet.end());
         return !camp_.empty();
@@ -286,7 +293,7 @@ private:
     std::mutex lock_;
     p5r_assets::Cpk english_, shared_;
     bool english_tried_{}, shared_tried_{}, camp_tried_{};
-    std::vector<uint8_t> camp_;
+    std::vector<uint8_t> camp_, minimap_;
 };
 
 } // namespace p3p_art

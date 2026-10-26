@@ -3,9 +3,11 @@
 #include "p3p_reader.h"
 #include "p3p_font.h"
 #include "p3p_art.h"
+#include "p3p_map.h"
 #include "core/mods/dsmod_module_extensions.h"
 #include <cstdio>
 #include <memory>
+#include <mutex>
 #include <span>
 #include <string_view>
 
@@ -24,12 +26,20 @@ struct Module {
     EdenDsmodHostApi host;
     const EdenDsmodHostApi font_host; // the create-time copy decode_font reads romfs through
     p3p_art::Library art;             // camp-menu art for load_image (p3p_art.h)
+    // Map page: the last floor drawn; load_image renders "module:p3p:map/<map_gen>" from it.
+    std::mutex map_lock;
+    FloorMap map_floor;
+    bool map_female{};
+    unsigned map_gen{};
     Reader reader;
     unsigned ticks{};
     // Companion page (manifest ui_open: 1 status, 2 personas, 3 links, 4 skills, 5 equip,
-    // 6 stats, 7 items, 8 calendar) and per-page selections, read only while open.
+    // 6 stats, 7 items, 8 calendar, 10 map) and per-page selections, read only while open.
     int page{1}, member{}, item_tab{}, persona_pick{}; // item_tab: native Use / Equip / Key
     int cal_offset{}; // calendar month shown, relative to the current month
+    int before_battle{1}; // the page to return to when a battle ends
+    int route{};          // last known ui.route (0 male, 1 female)
+    int lead{};           // last known live.lead (camp portrait), kept through loading too
     // Page 9 (battle) is entered automatically while a battle runs; Status is restored after.
     explicit Module(const EdenDsmodHostApi& h) : host(h), font_host(h), reader(h) {}
     void I(const std::string& key, int64_t v) { host.publish_i64(host.userdata,key.c_str(),v); }
@@ -45,7 +55,7 @@ struct Module {
         return name.empty() ? "Persona "+std::to_string(id) : name;
     }
     bool Action(std::string_view action, int64_t arg) {
-        if(action=="ui_open"&&arg>=1&&arg<=8){page=int(arg);if(page==8)cal_offset=0;return true;}
+        if(action=="ui_open"&&((arg>=1&&arg<=8)||arg==10)){page=int(arg);if(page==8)cal_offset=0;return true;}
         if(action=="member_select"&&arg>=0&&arg<10){member=int(arg);return true;}
         if(action=="item_tab"&&arg>=0&&arg<3){item_tab=int(arg);return true;}
         if(action=="persona_select"&&arg>=0&&arg<12){persona_pick=int(arg);return true;}
@@ -53,11 +63,17 @@ struct Module {
         return false;
     }
     void Clear() {
-        I("live.ready",0); T("live.date",""); T("live.money",""); I("ui.route",0); I("pd.id",0);
-        I("live.lead",0); I("live.moon_spr",0); I("cal.month_spr",0);
+        // The route keeps its last known value while the game is unreadable (loading, scene
+        // changes), so the theme does not flash to the male colours.
+        I("live.ready",0); T("live.date",""); T("live.money",""); I("ui.route",route); I("pd.id",0);
+        I("live.lead",lead); I("live.moon_spr",0); I("cal.month_spr",0); // lead: last known, like route
         I("ui.page",page); I("ui.member",member);
         for (int i=0;i<10;++i) {
-            auto p="member."+std::to_string(i);I(p+".present",0);I(p+".selected",0);T(p+".name","");T(p+".tab","");T(p+".stats","");
+            auto p="member."+std::to_string(i);I(p+".present",0);I(p+".selected",0);T(p+".name","");T(p+".ailment","");T(p+".tab","");T(p+".stats","");
+            for(auto k:{"hp","sp","max_hp","max_sp"}) I(p+"."+k,0);
+        }
+        for (int i=0;i<4;++i) {
+            auto p="party."+std::to_string(i);I(p+".present",0);T(p+".name","");T(p+".stats","");T(p+".ailment","");
             for(auto k:{"hp","sp","max_hp","max_sp"}) I(p+"."+k,0);
         }
         I("skill.ready",0);I("skill.count",0);T("skill.header","");
@@ -68,19 +84,23 @@ struct Module {
         I("battle.active",0);I("en.count",0);
         for(int i=0;i<12;++i){auto p="persona."+std::to_string(i);I(p+".present",0);T(p+".line","");}
         I("link.ready",0);I("link.count",0);
+        I("map.ready",0);T("map.key","");T("map.floor","");T("map.why","");I("map.px",0);I("map.py",0);I("map.rot",0);
+        for(auto k:{"stairs","tele","wander"}){auto p=std::string("map.")+k;I(p+".on",0);I(p+".x",0);I(p+".y",0);}
+        for(int i=0;i<32;++i){auto p="map.chest."+std::to_string(i);I(p+".on",0);I(p+".x",0);I(p+".y",0);}
+        for(int i=0;i<24;++i){auto p="map.shadow."+std::to_string(i);I(p+".on",0);I(p+".x",0);I(p+".y",0);}
     }
     void Sample() {
         ++ticks; // The host clears published values every sample; always republish.
         Clear();
         Snapshot v; std::string why;
         if(!reader.Sample(v,why)){T("status",why);return;}
-        // Follow battles: show the battle page while one runs, return to Status afterwards.
-        if(v.battle) page=9; else if(page==9) page=1;
+        // Follow battles: show the battle page while one runs, then return to the page before it.
+        if(v.battle){if(page!=9)before_battle=page;page=9;} else if(page==9) page=before_battle;
         I("ui.page",page);I("battle.active",v.battle);
-        I("ui.route",v.female); // camp menu theme: 0 male lead (blue), 1 female lead (pink)
+        route=v.female; I("ui.route",route); // camp menu theme: 0 male lead (blue), 1 female lead (pink)
         // Camp art ids for the manifest's module:p3p: keys (p3p_art.h): the lead's camp portrait
         // (c_cha01a male, c_cha99a female) and tonight's moon (sprites 541.. = phases 0..28, 555 full).
-        I("live.lead",v.female?99:1);
+        lead=v.female?99:1; I("live.lead",lead);
         try {
             int phase=MoonPhase(reader.MoonTable(),v.day);
             if(phase>=0&&phase<29)I("live.moon_spr",541+phase);
@@ -89,13 +109,18 @@ struct Module {
         const char* time=TimeLabel(v.time,v.dark,v.holiday);
         T("live.date",std::to_string(month)+" / "+std::to_string(date)+"   "+(time?time:"Time "+std::to_string(v.time)));
         T("live.money",std::to_string(v.money)+" yen");
-        for(size_t i=0;i<v.members.size();++i) {
-            const auto& m=v.members[i];auto p="member."+std::to_string(i);
-            std::string name=MemberName(v,m);
-            T(p+".name",name+"   Lv "+std::to_string(m.level));T(p+".tab",name);I(p+".selected",int(i)==member);
+        // member.* is the camp roster (member tabs); party.* the active party (hub, battle).
+        auto vitals=[&](const std::string& p,const Member& m){
+            T(p+".name",MemberName(v,m)+"   Lv "+std::to_string(m.level));
             T(p+".stats","HP "+std::to_string(m.hp)+" / "+std::to_string(m.max_hp)+"     SP "+std::to_string(m.sp)+" / "+std::to_string(m.max_sp));
             I(p+".hp",m.hp);I(p+".sp",m.sp);I(p+".max_hp",m.max_hp);I(p+".max_sp",m.max_sp);I(p+".present",1);
+            T(p+".ailment",Ailments(m.status));
+        };
+        for(size_t i=0;i<v.members.size();++i) {
+            const auto& m=v.members[i];auto p="member."+std::to_string(i);
+            vitals(p,m);T(p+".tab",MemberName(v,m));I(p+".selected",int(i)==member);
         }
+        for(size_t k=0;k<std::min<size_t>(v.party.size(),4);++k)vitals("party."+std::to_string(k),v.members.at(v.party[k]));
         for(size_t i=0;i<v.personas.size();++i) {
             auto m=v.personas[i];auto p="persona."+std::to_string(i);I(p+".picked",int(i)==persona_pick);
             T(p+".line",(m.selected?"* ":"  ")+PersonaName(m.id)+"   Lv "+std::to_string(m.level));I(p+".present",1);
@@ -131,6 +156,28 @@ struct Module {
                 I("pd.ready",1);
             } catch(const std::exception& e) {T("status",std::string("Persona details unavailable: ")+e.what());}
         }
+        if(page==10) {
+            // Tartarus floor (FloorMap): the picture changes only when the floor or what the
+            // minimap has revealed changes; the leader's arrow moves through map.px/py/rot.
+            try {
+                auto m=reader.Map();
+                {
+                    std::scoped_lock guard{map_lock};
+                    if(!map_gen||!p3p_map::SamePicture(m,map_floor)||map_female!=v.female)++map_gen;
+                    map_floor=m;map_female=v.female;
+                }
+                auto k=p3p_map::Leader(m);
+                T("map.key","module:p3p:map/"+std::to_string(map_gen));
+                I("map.px",k.x);I("map.py",k.y);I("map.rot",k.degrees);I("map.ready",1);
+                T("map.floor",std::to_string(m.floor)+"F");
+                auto at=[&](const std::string& p,p3p_map::Point q){I(p+".on",1);I(p+".x",q.x);I(p+".y",q.y);};
+                if(m.seen[m.exit_y*16+m.exit_x])at("map.stairs",p3p_map::Centre(m,m.exit_x,m.exit_y));
+                if(m.teleporter)at("map.tele",p3p_map::Place(m,m.teleporter->x,m.teleporter->z));
+                if(m.wanderer)at("map.wander",p3p_map::Place(m,m.wanderer->x,m.wanderer->z));
+                for(size_t i=0;i<m.chests.size()&&i<32;++i)at("map.chest."+std::to_string(i),p3p_map::Place(m,m.chests[i].x,m.chests[i].z));
+                for(size_t i=0;i<m.shadows.size()&&i<24;++i)at("map.shadow."+std::to_string(i),p3p_map::Place(m,m.shadows[i].x,m.shadows[i].z));
+            } catch(const std::exception& e) {T("map.why",e.what());}
+        }
         if(page==9) {
             // Encounter enemies (party values are the member.* outputs above).
             try {
@@ -140,7 +187,7 @@ struct Module {
                     T(p+".name",e.name.empty()?"Enemy "+std::to_string(e.id):e.name);
                     T(p+".info","Lv "+std::to_string(e.level)+"   "+e.arcana);
                     T(p+".hp_text","HP "+std::to_string(e.hp)+" / "+std::to_string(e.max_hp));
-                    I(p+".hp",e.hp);I(p+".max_hp",e.max_hp);I(p+".analyzed",e.analyzed);
+                    I(p+".hp",e.hp);I(p+".max_hp",e.max_hp);I(p+".analyzed",e.analyzed);T(p+".ailment",Ailments(e.status));
                     for(int k=0;k<9;++k)T(p+".aff."+std::to_string(k),e.affinity[k]);
                     I(p+".present",1);
                 }
@@ -252,6 +299,17 @@ EdenDsmodBool LoadImage(void* p,const EdenDsmodHostApi* h,const char* key,void* 
     try {
         if(!h||!key||!sink||!h->read_romfs)return EDEN_DSMOD_FALSE;
         const std::string_view k{key};
+        if(p&&k.starts_with("module:p3p:map/")) {
+            auto* m=static_cast<Module*>(p);
+            p3p_art::Image image;
+            {
+                std::scoped_lock guard{m->map_lock};
+                if(!m->map_gen||k!="module:p3p:map/"+std::to_string(m->map_gen))return EDEN_DSMOD_FALSE;
+                image=p3p_map::Render(m->map_floor,m->map_female);
+            }
+            sink(receiver,image.w,image.h,image.rgba.data(),image.rgba.size());
+            return EDEN_DSMOD_TRUE;
+        }
         if(p&&k.starts_with("module:p3p:")) {
             p3p_art::Image image;
             if(!static_cast<Module*>(p)->art.Load(*h,k,image))return EDEN_DSMOD_FALSE;

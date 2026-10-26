@@ -7,6 +7,7 @@
 #include <array>
 #include <cctype>
 #include <cmath>
+#include <optional>
 #include <cstdint>
 #include <cstring>
 #include <map>
@@ -25,6 +26,7 @@ template<class T> T At(const Bytes& b, size_t at) {
 struct Member {
     int id{}, level{}, hp{}, sp{}, max_hp{}, max_sp{}, persona{}, accessory_skill{};
     int base_hp{}, base_sp{};      // level table values before Maximum()
+    u32 status{};                  // unit +0xc ailment bits (Ailments())
     std::map<int, int> effects;    // equipment effect id -> count, for Maximum()
     bool cost_free{}; // unit +0xd bit 1: 0x74a10 charges nothing
     std::array<int, 8> skills{};
@@ -42,7 +44,7 @@ struct Skill { int id{}, type{}, cost{}, element{-1}; bool cost_known{true}; std
 struct Social { int points{}, rank{}; std::string name; };
 struct Stats {
     std::array<int, 5> stats{}, bonus{};
-    int next_exp{-1};                 // -1: not available (protagonist's curve not traced yet)
+    int next_exp{-1};                 // -1: not available
     std::vector<Social> social;       // protagonist only: Academics, Charm, Courage
 };
 struct Item { int id{}, count{}; std::string name; };
@@ -50,6 +52,7 @@ struct Item { int id{}, count{}; std::string name; };
 // getter 0x1e05c0), as the native Analyze panel shows them; "-" otherwise (the pixel font has no "?").
 struct Enemy {
     int id{}, level{}, hp{}, sp{}, max_hp{}, max_sp{};
+    u32 status{}; // unit +0xc ailment bits (Ailments())
     bool analyzed{};
     std::string name, arcana;
     std::array<std::string, 9> affinity;
@@ -75,14 +78,50 @@ struct Snapshot {
     int day{}, time{}, money{}, stock_capacity{}; bool dark{}, female{}, holiday{};
     bool battle{}; // a verified battle task is running (btlMain.c)
     std::vector<Member> members;
+    std::vector<int> party;           // indexes into members, party slot order (0x1d2ab0)
     std::vector<Persona> personas;
     std::vector<Link> links;
     bool operator==(const Snapshot&) const = default;
 };
+// Ailments in a unit's +0xc status word (tested by 0x6f090). Each bit is the mask that
+// SKILL.TBL records (+0x18 kind, +0x1c mask) inflict (kind 1) and cure (kind 2): Marin Karin /
+// Charmdi 0x2, Bewilder 0x4, Pulinpa 0x8, Evil Touch 0x10, Provoke / Enradi 0x20, Bufu 0x40,
+// Zio 0x80, Poisma / Posumudi 0x100, Mudo / Hama / Recarm 0x80000. Bits 0x1 and 0x100000 (cured
+// together by Re Patra) are not named until a native screen tells them apart.
+inline std::string Ailments(u32 status) {
+    static constexpr std::pair<u32, const char*> names[]{
+        {0x80000, "KO"}, {0x2, "Charm"}, {0x4, "Distress"}, {0x8, "Panic"}, {0x10, "Fear"},
+        {0x20, "Rage"}, {0x40, "Freeze"}, {0x80, "Shock"}, {0x100, "Poison"}};
+    std::string out;
+    for (auto [bit, name] : names) if (status & bit) out += (out.empty() ? "" : "  ") + std::string(name);
+    return out;
+}
+// One Tartarus floor as the dungeon generator lays it out and the minimap has revealed it.
+// Dungeon work main+0x816838 (getter 0x185130): 16x16 cells of 16 bytes at +0x80, rows 0x100
+// apart; cell +0 kind (0 none, 1 floor, 2 wall), +0xb open sides (bits: 1 north/-z, 2 west/-x,
+// 4 south/+z, 8 east/+x), +4 the block's origin cell (y * 16 + x). +0x70..+0x73: start cell x,
+// y, exit cell x, y (the stairs). Explored blocks: main+0x82a109 (0x1a94a0), by origin cell.
+// Cells are 800 world units; cell = (position + 400) / 800 (0x22b470).
+struct FloorMap {
+    std::array<u8, 256> kind{}, sides{}, seen{};
+    int start_x{}, start_y{}, exit_x{}, exit_y{};
+    int floor{}; // Tartarus floor (dungeon task data +4, the 0x181fb0 argument; 1 is the lobby)
+    float x{}, z{}, forward_x{}, forward_z{}; // leader position and facing (world units)
+    // Minimap icons, each shown only where the game's minimap (y_smap.c 0x22b590) shows it:
+    // chests (GOT 0x70e628, 32 x 0x190: +0 active, +4 opened, position +0x170/+0x178), the
+    // teleporter (GOT 0x70e5c0) and the wandering marker (GOT 0x70e638; +0 active, position
+    // +0x168/+0x170) once their block is explored; Shadows (GOT 0x70e530, 24 x 0x790 field
+    // units, model +0x58 position +0x40/+0x48) within 2000 units of the leader (0x18c610).
+    struct Icon { float x{}, z{}; bool operator==(const Icon&) const = default; };
+    std::vector<Icon> chests, shadows;
+    std::optional<Icon> teleporter, wanderer;
+    bool operator==(const FloorMap&) const = default;
+};
 struct Pin { u64 offset; size_t size; u64 hash; };
 #include "p3p_pins.inc"
 
-inline int Maximum(int base, const std::set<int>& skills, const std::map<int,int>& effects, bool sp) {
+// The 999 cap applies to party units only (0x6eb0c / 0x6ef7c test unit flag bit 2 = enemy).
+inline int Maximum(int base, const std::set<int>& skills, const std::map<int,int>& effects, bool sp, bool enemy = false) {
     int total = base, start = sp ? 0x21c : 0x219;
     for (int i = 0; i < 3; ++i) if (skills.contains(start + i)) total += base * (i + 1) / 10;
     if (skills.contains(sp ? 0x26d : 0x26c)) total += base / 2;
@@ -93,7 +132,7 @@ inline int Maximum(int base, const std::set<int>& skills, const std::map<int,int
         if (effect >= first && effect < first + 5) total += count * (effect - first + 1) * 10;
         if (effect == (sp ? 0x8f : 0x8e)) total += count * 100;
     }
-    return std::min(999, total);
+    return enemy ? total : std::min(999, total);
 }
 
 // Mirrors the skill cost function 0x74a10 for party units (unit byte 0 bit 2 clear).
@@ -352,6 +391,83 @@ public:
             out = std::move(second); out.battle = before.battle != 0; why = "Ready"; return true;
         } catch (const std::exception& e) { out = {}; why = e.what(); return false; }
     }
+    // The current Tartarus floor (throws outside the dungeon or during a battle). Read twice;
+    // a floor change or move between the reads fails closed.
+    FloorMap Map() const {
+        Context c = Scene();
+        if (!c.dungeon || c.battle) throw std::runtime_error("Not exploring Tartarus");
+        auto once = [&] {
+            FloorMap m;
+            auto work = Read(host.main_base + 0x816838, 0x80 + 16 * 0x100);
+            for (int i = 0; i < 256; ++i) {
+                size_t at = 0x80 + (i >> 4) * 0x100 + (i & 15) * 16;
+                m.kind[i] = work.at(at); m.sides[i] = work.at(at + 0xb) & 15;
+                if (m.kind[i] > 2) throw std::runtime_error("invalid floor cell");
+            }
+            m.start_x = work.at(0x70); m.start_y = work.at(0x71); m.exit_x = work.at(0x72); m.exit_y = work.at(0x73);
+            m.floor = Get<int32_t>(Pointer(c.dungeon + 0x48) + 4);
+            if (m.floor < 2 || m.floor > 999) throw std::runtime_error("invalid floor");
+            if (m.start_x > 15 || m.start_y > 15 || m.exit_x > 15 || m.exit_y > 15) throw std::runtime_error("invalid floor");
+            // Explored blocks: main+0x82a109[y * 16 + x] (getter 0x1a94a0), set for a block's origin
+            // cell; the minimap (0x22bdd0) draws a whole block when its origin is explored. A cell
+            // is seen when the origin recorded in its +4 byte (y * 16 + x) is.
+            auto explored = Read(host.main_base + 0x82a109, 256);
+            for (int i = 0; i < 256; ++i)
+                m.seen[i] = m.kind[i] == 1 && explored.at(work.at(0x80 + (i >> 4) * 0x100 + (i & 15) * 16 + 4)) ? 1 : 0;
+            // Leader: field unit 0 (GOT 0x70e2b8 -> main+0x817cb0) +0x60; its model +0x190 holds the
+            // world matrix (forward row at +0x30, position at +0x40); its task data +0x48/+0x4c the
+            // cell 0x192a90 / 0x192aa0 report, which must agree with the position.
+            u64 unit = Pointer(host.main_base + 0x817cb0 + 0x60);
+            auto model = Read(Pointer(unit + 0x190), 0x50);
+            m.forward_x = At<float>(model, 0x30); m.forward_z = At<float>(model, 0x38);
+            m.x = At<float>(model, 0x40); m.z = At<float>(model, 0x48);
+            auto cell = Read(Pointer(Pointer(unit + 0x250) + 0x48) + 0x48, 8);
+            if (!std::isfinite(m.x) || !std::isfinite(m.z) || !std::isfinite(m.forward_x) || !std::isfinite(m.forward_z))
+                throw std::runtime_error("invalid position");
+            int cx = int(std::floor((m.x + 400) / 800)), cz = int(std::floor((m.z + 400) / 800));
+            if (std::abs(cx - At<int32_t>(cell, 0)) > 1 || std::abs(cz - At<int32_t>(cell, 4)) > 1)
+                throw std::runtime_error("leader position unavailable");
+            // A position's block is explored when the origin recorded in its cell is (0x1761c0 /
+            // 0x1a94c0); positions outside the grid are never shown.
+            auto seen_at = [&](float x, float z) {
+                int ix = int(std::floor((x + 400) / 800)), iz = int(std::floor((z + 400) / 800));
+                return ix >= 0 && ix < 16 && iz >= 0 && iz < 16 && m.seen[iz * 16 + ix];
+            };
+            auto finite = [](float a, float b) { return std::isfinite(a) && std::isfinite(b); };
+            auto chests = Read(Pointer(host.main_base + 0x70e628), 32 * 0x190);
+            for (int i = 0; i < 32; ++i) {
+                size_t at = i * 0x190;
+                if (At<int32_t>(chests, at) != 1 || At<int32_t>(chests, at + 4) == 1) continue;
+                FloorMap::Icon k{At<float>(chests, at + 0x170), At<float>(chests, at + 0x178)};
+                if (finite(k.x, k.z) && seen_at(k.x, k.z)) m.chests.push_back(k);
+            }
+            auto single = [&](u64 got) -> std::optional<FloorMap::Icon> {
+                auto obj = Read(Pointer(host.main_base + got), 0x178);
+                if (At<int32_t>(obj, 0) != 1) return std::nullopt;
+                FloorMap::Icon k{At<float>(obj, 0x168), At<float>(obj, 0x170)};
+                if (!finite(k.x, k.z) || !seen_at(k.x, k.z)) return std::nullopt;
+                return k;
+            };
+            m.teleporter = single(0x70e5c0); m.wanderer = single(0x70e638);
+            u64 shadows = Pointer(host.main_base + 0x70e530);
+            for (int i = 0; i < 24; ++i) {
+                auto unit = Read(shadows + i * 0x790, 0x68);
+                if (!At<u64>(unit, 0x48) || !At<u64>(unit, 0x60) || !At<u64>(unit, 0x58)) continue;
+                auto pos = Read(At<u64>(unit, 0x58) + 0x40, 12);
+                FloorMap::Icon k{At<float>(pos, 0), At<float>(pos, 8)};
+                float dy = At<float>(pos, 4) - At<float>(model, 0x44);
+                if (!finite(k.x, k.z) || !std::isfinite(dy)) continue;
+                if (std::sqrt((k.x - m.x) * (k.x - m.x) + dy * dy + (k.z - m.z) * (k.z - m.z)) < 2000)
+                    m.shadows.push_back(k);
+            }
+            return m;
+        };
+        FloorMap first = once(), second = once();
+        if (!(first.kind == second.kind && first.sides == second.sides && first.exit_x == second.exit_x &&
+              first.exit_y == second.exit_y) || !(c == Scene()))
+            throw std::runtime_error("context changed");
+        return second;
+    }
     // The native camp Skill list for one member (cmpSkill.c builder 0x108770), in its order.
     // Tables are the game's loaded copies: names via getter 0x77570, records via the 0x70df70
     // GOT slot that the cost function 0x74a10 reads.
@@ -586,12 +702,13 @@ public:
             Enemy e; e.id = At<u16>(units, at + 4);
             if (e.id >= 0x150) throw std::runtime_error("invalid enemy");
             e.level = units.at(at + 6); e.hp = At<u16>(units, at + 8); e.sp = At<u16>(units, at + 10);
+            e.status = At<u32>(units, at + 0xc);
             auto record = Read(stats + e.id * 0x3e, 0x3e);
             // 0x6e880 / 0x6ecf0 for enemies: table +4 / +6, then the same HP/SP Up passives.
             std::set<int> skills;
             for (int k = 0; k < 8; ++k) skills.insert(At<u16>(record, 0xe + k * 2));
-            e.max_hp = Maximum(At<u16>(record, 4), skills, {}, false);
-            e.max_sp = Maximum(At<u16>(record, 6), skills, {}, true);
+            e.max_hp = Maximum(At<u16>(record, 4), skills, {}, false, true);
+            e.max_sp = Maximum(At<u16>(record, 6), skills, {}, true, true);
             if (record.at(2) < 0x20) e.arcana = text(arcana_names + record.at(2) * 0x15, 0x15);
             e.name = text(names + e.id * (wide ? 0x1f : 0x13), wide ? 0x1f : 0x13);
             // Analyzed bit (0x1e05c0); the panel skips enemies with stats-table +0x1e bit 5.
@@ -644,6 +761,12 @@ public:
             u32 need = Get<u32>(Pointer(Pointer(host.main_base + 0x70e838)) + owner * 0x188 + level * 4 - 0x318);
             out.next_exp = int(std::max<int64_t>(0, int64_t(need) - At<u32>(persona, 8)));
         } else {
+            // Protagonist EXP u32 S+0x68 (0x1d10c0) against the 99 u32 level thresholds at
+            // [GOT 0x70e818]: level = thresholds <= EXP (0x1d1990), next = t[level] (0x1d1a00).
+            if (m.level < 99) {
+                u32 need = Get<u32>(Pointer(host.main_base + 0x70e818) + m.level * 4);
+                out.next_exp = int(std::max<int64_t>(0, int64_t(need) - Get<u32>(state + 0x68)));
+            } else out.next_exp = 0;
             // Points S+0x60/+0x62/+0x64 (0x1d1000/1040/1080); thresholds 0x11a3c0; names 0x11a2f0.
             auto points = Read(state + 0x60, 6);
             auto table = Read(Pointer(host.main_base + 0x813fd0), 0x28);
@@ -841,7 +964,7 @@ private:
             Member m; m.id = id; m.level = id == 1 ? s.at(unit + 6) : a.at(persona + 4);
             m.persona = At<u16>(units, persona + 2); m.cost_free = units.at(unit + 0xd) & 2;
             m.name = MemberName(id);
-            m.hp = At<u16>(units, unit + 8); m.sp = At<u16>(units, unit + 10);
+            m.hp = At<u16>(units, unit + 8); m.sp = At<u16>(units, unit + 10); m.status = At<u32>(units, unit + 0xc);
             if (m.level < 1 || m.level > 99) throw std::runtime_error("invalid level");
             std::set<int> skills;
             for (int i = 0; i < 8; ++i) skills.insert(m.skills[i] = At<u16>(units, persona + 12 + i * 2));
@@ -863,6 +986,18 @@ private:
             if (m.max_hp < 1 || m.max_sp < 1 || m.hp > m.max_hp || m.sp > m.max_sp)
                 throw std::runtime_error("invalid HP/SP");
             v.members.push_back(m);
+        }
+        // Active party: the protagonist (always the leader, members[0]), then the allies in the
+        // u16 slots at S+0x4b90 (getter 0x1d2ab0; 0 = empty), the list the dungeon hands to battle
+        // (0x61810, 0x558b0 -> B+0x1148..0x1160). Same order as the native camp party panel
+        // (slot 4/22: slots 2, 5 -> Kotone, Yukari, Junpei).
+        v.party.push_back(0);
+        for (int slot = 0; slot < 4; ++slot) {
+            int id = At<u16>(s, 0x4b90 + 2 * slot);
+            if (!id) continue;
+            auto it = std::find_if(v.members.begin(), v.members.end(), [&](const Member& m) { return m.id == id; });
+            if (id == 1 || it == v.members.end()) throw std::runtime_error("party member not in roster");
+            v.party.push_back(int(it - v.members.begin()));
         }
         return v;
     }
