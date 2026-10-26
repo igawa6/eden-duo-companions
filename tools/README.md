@@ -4,8 +4,9 @@
 |------|--------------|
 | `build_dualscreen_package.py` | Packs a `packages/<Game>/` directory plus optional native modules into a reproducible `<TITLEID>.dsmod.zip`. It validates the package first: `file:` references, module sha256 pins, build IDs and JSON. |
 | `compact_zip.py` | Rewrites `dualscreen/manifest.json` inside an archive without whitespace. The Android installer caps that file at 4 MiB. |
-| `build_release.sh` | Builds all thirteen release archives with their release names, `<TITLEID>-<Name>DS-<version>.dsmod.zip`. `GAMES` picks a subset. |
+| `build_release.sh` | Builds all fourteen release archives with their release names, `<TITLEID>-<Name>DS-<version>.dsmod.zip`. `GAMES` picks a subset. |
 | `p5r/` | Persona 5 Royal page generators: manifest, art recipe table and package directory. See [`p5r/README.md`](p5r/README.md). |
+| `p3p/` | Persona 3 Portable manifest and code-fingerprint generators, plus bounded NSO, save and archive readers. See [`p3p/README.md`](p3p/README.md). |
 | `dread/` | Metroid Dread page generator, the asset-free conversion and the Python reference for the module's map generator. See [`dread/README.md`](dread/README.md). |
 | `links-awakening/` | Notes on the Link's Awakening package, which is maintained by hand. |
 | `mk8d/` | Mario Kart 8 Deluxe page generator: manifest and per-build data files. See [`mk8d/README.md`](mk8d/README.md). |
@@ -23,7 +24,7 @@
 - `llvm-strip`, for `p5r/build_pkg_af.sh`.
 - `sha256sum`, `mktemp` and bash, for the shell scripts.
 
-`build_dualscreen_package.py`, `compact_zip.py`, `build_release.sh`, `mk8d/gen_manifest.py` and `wonder/gen_manifest.py` need only the Python standard library.
+`build_dualscreen_package.py`, `compact_zip.py`, `build_release.sh`, `mk8d/gen_manifest.py`, `wonder/gen_manifest.py` and `p3p/gen_manifest.py` need only the Python standard library.
 
 ## Building the release archives
 
@@ -45,7 +46,7 @@ llvm-strip --strip-all -o isaac-linux.so build-mods/010021C000B6A000.so
 The module tree is a standalone CMake project. It takes fmt and nlohmann_json headers from Eden
 Duo's CPM cache (`.cache/cpm`), so configure Eden Duo once first. Build the `android-arm64-v8a`
 variants the same way with the Android NDK toolchain file (`-DANDROID_ABI=arm64-v8a
--DANDROID_STL=c++_static`). See [native/README.md](../native/README.md) for all seven targets, SDK compatibility,
+-DANDROID_STL=c++_static`). See [native/README.md](../native/README.md) for the complete target list, SDK compatibility,
 tests and Android commands. Then, from this repository:
 
 ```sh
@@ -56,6 +57,7 @@ WONDER_LINUX_SO=wonder-linux.so WONDER_ANDROID_SO=wonder-android.so \
 ACNH_LINUX_SO=acnh-linux.so ACNH_ANDROID_SO=acnh-android.so \
 FE3H_LINUX_SO=fe3h-linux.so FE3H_ANDROID_SO=fe3h-android.so \
 ISAAC_LINUX_SO=isaac-linux.so ISAAC_ANDROID_SO=isaac-android.so \
+GAMES="p5r dread la mk8d wonder acnh fe3h isaac" \
 tools/build_release.sh dist
 ```
 
@@ -92,3 +94,18 @@ Build `dsmod-lp`, `dsmod-lp-pearl`, `dsmod-ctr`, `dsmod-dq3` and `dsmod-ce`, str
 library, and pass `LP_*_SO`, `LP_PEARL_*_SO`, `CTR_*_SO`, `DQ3_*_SO` and `CE_*_SO` to
 `tools/build_release.sh` (`GAMES="lp lp-pearl ctr dq3 ce"`). The two Pokémon packages pin their
 module hashes in the manifest and need Eden Duo 1.2.0 (runtime 19); the other three need runtime 18.
+
+## Persona 3 Portable
+
+Build `dsmod-p3p` for Linux and Android arm64, strip each platform's library, and package only
+P3P with:
+
+```sh
+GAMES="p3p" P3P_LINUX_SO=p3p-linux.so P3P_ANDROID_SO=p3p-android.so \
+  tools/build_release.sh dist
+```
+
+`P3P_VERSION` overrides the companion version (default `1.0.0`). The package declares runtime 19
+and supports only the base-game build listed in its manifest. All features were tested on an
+AYN Thor with Eden Duo 1.3.2.2; full multilingual support is not claimed. See
+[`p3p/README.md`](p3p/README.md) for the generator, standalone tests and English-resource limitations.

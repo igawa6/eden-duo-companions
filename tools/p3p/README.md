@@ -4,6 +4,18 @@ Scripts for the Persona 3 Portable companion (`0100DCD01525A000`). The module is
 `native/modules/0100DCD01525A000.cpp` with `p3p_reader.h`; it supports only the base game build
 `663052C2C7E8C357BA6EAD36641EE2792397EB1F000000000000000000000000` and refuses any other.
 
+## Compatibility and validation
+
+- Game version: **1.0.0 (base game)**, title ID `0100DCD01525A000`, exact build above only.
+- All companion features were manually tested on an **AYN Thor running Eden Duo 1.3.2.2**.
+- The package declares **runtime 19** as its minimum. Compatibility with older Eden Duo
+  versions has not been validated.
+- The UI font and help text use **English game resources**. Some names follow the loaded
+  language tables, but full multilingual support is not claimed. Dialogue text that cannot
+  be decoded exactly is omitted.
+
+## Runtime resources and interaction
+
 The package is asset-free. Names and skill data are read at runtime from the player's own game
 (the loaded tables in memory and `data_EN/umd0.cpk`), never shipped. Text is drawn in the game's
 own font: `p3p_font.h` reads `font/font0.fnt` from `init.bin` in `data_EN/umd0.cpk` and decodes it
@@ -44,10 +56,14 @@ Game files, saves, keys and anything derived from them stay outside the reposito
 ```sh
 python3 tools/p3p/gen_manifest.py
 cmake -S native/modules -B build-mods -G Ninja -DCMAKE_BUILD_TYPE=Release \
-  -DEDEN_SOURCE_ROOT="/absolute/path/to/eden-duo" -DEDEN_P3P_STANDALONE=ON
-ninja -C build-mods dsmod-p3p p3p-module-test
-build-mods/p3p-module-test
+  -DEDEN_SOURCE_ROOT="/absolute/path/to/eden-duo" -DEDEN_P3P_STANDALONE=ON \
+  -DBUILD_TESTING=ON
+cmake --build build-mods --parallel 4
+ctest --test-dir build-mods -R '^dsmod-p3p$' --output-on-failure
 ```
 
 `EDEN_P3P_STANDALONE` configures only the P3P targets. Package the stripped module with
 `tools/build_dualscreen_package.py --package packages/Persona3Portable` as for the other games.
+With `BUILD_TESTING=ON`, the default build includes `p3p-module-test`, registered with CTest
+as `dsmod-p3p` in both standalone and full configurations. With testing off, the executable
+remains available as an explicit build target.

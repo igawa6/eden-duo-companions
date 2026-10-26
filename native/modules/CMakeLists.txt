@@ -93,6 +93,9 @@ function(dsmod_add_module target)
     endif()
 endfunction()
 
+option(BUILD_TESTING "Build companion test executables" OFF)
+include(CTest)
+
 # Persona 3 Portable (base game build): camp menu, battle, Tartarus map, dialogue and native-menu drives.
 dsmod_add_module(dsmod-p3p EXCLUDE_FROM_ALL
     TITLE 0100DCD01525A000
@@ -103,7 +106,12 @@ dsmod_add_module(dsmod-p3p EXCLUDE_FROM_ALL
     COMPILE_DEFINITIONS FMT_HEADER_ONLY=1)
 option(EDEN_P3P_STANDALONE "Configure only the P3P development module" OFF)
 if(NOT ANDROID)
-    add_executable(p3p-module-test EXCLUDE_FROM_ALL p3p_module_test.cpp)
+    if(BUILD_TESTING)
+        add_executable(p3p-module-test p3p_module_test.cpp)
+        add_test(NAME dsmod-p3p COMMAND p3p-module-test)
+    else()
+        add_executable(p3p-module-test EXCLUDE_FROM_ALL p3p_module_test.cpp)
+    endif()
     target_compile_features(p3p-module-test PRIVATE cxx_std_20)
     target_include_directories(p3p-module-test PRIVATE "${EDEN_SOURCE_ROOT}/src")
     target_link_libraries(p3p-module-test PRIVATE dsmod-p3p)
@@ -315,9 +323,6 @@ function(dsmod_add_test name)
     endif()
     add_test(NAME ${name} COMMAND ${name}-test)
 endfunction()
-
-option(BUILD_TESTING "Build companion test executables" OFF)
-include(CTest)
 
 # Echoes of Wisdom 1.1.0: native resources and read-only companion state.
 set(ECHOES_TEXTURE_SOURCES acnh_tex.cpp

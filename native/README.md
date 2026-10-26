@@ -32,7 +32,7 @@ cmake -S native/modules -B build-native-linux -G Ninja \
   -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
 cmake --build build-native-linux --parallel 4 --target \
   dsmod-p5r dsmod-dread dsmod-mk8d dsmod-wonder dsmod-acnh dsmod-fe3h dsmod-isaac \
-  dsmod-lp dsmod-lp-pearl dsmod-ctr dsmod-dq3 dsmod-ce
+  dsmod-lp dsmod-lp-pearl dsmod-ctr dsmod-dq3 dsmod-ce dsmod-p3p
 ```
 
 To run the existing synthetic tests, configure another build with `-DBUILD_TESTING=ON`, build
@@ -42,6 +42,10 @@ its fixtures are configured (`ISAAC_ABP_IMAGE`, `ISAAC_REP_IMAGE`, `ISAAC_ROMFS`
 the configure environment or `-D`), or `-DISAAC_FIXTURES_OPTIONAL=ON` reports it as skipped.
 Test executables, fixtures and development tools stay in the source/build tree and are not
 passed to the release package script.
+
+Persona 3 Portable can also be configured on its own with `-DEDEN_P3P_STANDALONE=ON`.
+With `-DBUILD_TESTING=ON`, the default build includes `p3p-module-test` and CTest registers it
+as `dsmod-p3p`. See [the P3P tools](../tools/p3p/README.md) for standalone commands and compatibility.
 
 ## Android arm64
 
@@ -53,7 +57,7 @@ cmake -S native/modules -B build-native-android -G Ninja \
   -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DEDEN_ACNH_BUILD_DIAGNOSTICS=OFF
 cmake --build build-native-android --parallel 4 --target \
   dsmod-p5r dsmod-dread dsmod-mk8d dsmod-wonder dsmod-acnh dsmod-fe3h dsmod-isaac \
-  dsmod-lp dsmod-lp-pearl dsmod-ctr dsmod-dq3 dsmod-ce
+  dsmod-lp dsmod-lp-pearl dsmod-ctr dsmod-dq3 dsmod-ce dsmod-p3p
 ```
 
 Keep this build outside Gradle's `.cxx` directories. Use `c++_static` so the installed module does
@@ -62,6 +66,7 @@ not require a separately distributed `libc++_shared.so`. ACNH diagnostics defaul
 | Target | Library |
 |---|---|
 | `dsmod-p5r` | `01005CA01580E000.so` |
+| `dsmod-p3p` | `0100DCD01525A000.so` |
 | `dsmod-dread` | `010093801237C000.so` |
 | `dsmod-mk8d` | `0100152000022000.so` |
 | `dsmod-wonder` | `010015100B514000.so` |
