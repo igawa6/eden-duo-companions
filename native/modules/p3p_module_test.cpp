@@ -264,7 +264,7 @@ int main() {
                     else if (b == B::B) c.sub = 3;
                 }
             };
-            auto run = [](Menu& menu, p3p_drive::ItemUse& use, int limit) {
+            auto run = [](Menu& menu, p3p_drive::Drive& use, int limit) {
                 std::string presses;
                 for (int i = 0; i < limit && use.active(); ++i) {
                     p3p_drive::Seen s{true, false, false, menu.open ? std::optional{menu.c} : std::nullopt};
@@ -273,26 +273,107 @@ int main() {
                 }
                 return presses;
             };
-            Menu menu; p3p_drive::ItemUse use;
-            Require(use.Start(0x504, 5, "Snuff Soul", "Junpei", {true, false, false, std::nullopt}), "drive starts");
+            Menu menu; p3p_drive::Drive use;
+            using K = p3p_drive::Request::Kind;
+            Require(use.Start({K::Use, 0x504, 5, 0, "Snuff Soul", "Junpei"}, {true, false, false, std::nullopt}), "drive starts");
             std::string presses = run(menu, use, 2000);
             Require(!use.active() && use.succeeded() && use.status() == "Used Snuff Soul on Junpei" && !menu.open &&
                     menu.c.use_list.empty() && presses == "XdALddAddABBB", "drive uses an item and backs out: " + presses);
-            Menu full; full.sp_full = 1; p3p_drive::ItemUse again;
-            again.Start(0x504, 1, "Snuff Soul", "Kotone", {true, false, false, std::nullopt});
+            Menu full; full.sp_full = 1; p3p_drive::Drive again;
+            again.Start({K::Use, 0x504, 1, 0, "Snuff Soul", "Kotone"}, {true, false, false, std::nullopt});
             presses = run(full, again, 2000);
             Require(!again.succeeded() && again.status() == "Snuff Soul had no effect on Kotone" && !full.open,
                     "drive reports no effect: " + presses);
             Require(presses == "XdALddAAAABBB", "no effect retries A twice before backing out: " + presses);
             Menu open; open.open = true; open.c.state = 2; open.c.commands = {0, 1};
-            p3p_drive::ItemUse refused;
-            Require(!refused.Start(0x504, 1, "Snuff Soul", "Kotone", {true, false, false, open.c}) &&
+            p3p_drive::Drive refused;
+            Require(!refused.Start({K::Use, 0x504, 1, 0, "Snuff Soul", "Kotone"}, {true, false, false, open.c}) &&
                     refused.status() == "Close the game's menu first", "drive refuses an open menu");
-            Menu stop; p3p_drive::ItemUse halted;
-            halted.Start(0x504, 1, "Snuff Soul", "Kotone", {true, false, false, std::nullopt});
+            Menu stop; p3p_drive::Drive halted;
+            halted.Start({K::Use, 0x504, 1, 0, "Snuff Soul", "Kotone"}, {true, false, false, std::nullopt});
             run(stop, halted, 40);
             Require(halted.Step({true, true, false, std::nullopt}) == p3p_drive::Button::None && !halted.active(),
                     "drive stops for a battle or message");
+            // Equipment: EQUIP (command 3), Yukari (second member), body (slot 1), the second choice.
+            struct Equip {
+                bool open{}; p3p::CampMenu c; int worn{0x200};
+                void Press(p3p_drive::Button b) {
+                    using B = p3p_drive::Button;
+                    auto top = [&] { c = {}; c.state = 2; c.input = 1; c.cursor = 3; c.commands = {0, 1, 2, 3, 4, 5, 6}; };
+                    if (!open) { if (b == B::X) { open = true; top(); c.cursor = 0; } return; }
+                    if (c.state == 2) {
+                        if (b == B::Down) ++c.cursor; else if (b == B::Up) --c.cursor;
+                        else if (b == B::A && c.commands[c.cursor] == 3) { c.state = 6; c.sub = 5; c.members = {1, 2, 5}; }
+                        else if (b == B::B) open = false;
+                        return;
+                    }
+                    int& cursor = c.sub == 5 ? c.member : c.sub == 7 ? c.slot : c.equip_row;
+                    if (b == B::Down) ++cursor; else if (b == B::Up) --cursor;
+                    else if (b == B::B) { if (c.sub == 5) top(); else c.sub = c.sub == 10 ? 7 : 5; }
+                    else if (b == B::A && c.sub == 5) c.sub = 7;
+                    else if (b == B::A && c.sub == 7) { c.sub = 10; c.equip_row = 0; c.equip_list = {{0x200, 1}, {0x204, 2}, {0x210, 1}}; }
+                    else if (b == B::A && c.sub == 10) worn = c.equip_list[c.equip_row].first;
+                }
+            };
+            Equip eq; p3p_drive::Drive change; presses.clear();
+            Require(change.Start({K::Equip, 0x204, 2, 1, "Wool Sweater", "Yukari"}, {true, false, false, std::nullopt, 0x200}),
+                    "equip drive starts");
+            for (int i = 0; i < 3000 && change.active(); ++i) {
+                p3p_drive::Seen s{true, false, false, eq.open ? std::optional{eq.c} : std::nullopt, eq.worn};
+                auto b = change.Step(s);
+                if (b != p3p_drive::Button::None) { presses += "ABXLud"[int(b)]; eq.Press(b); }
+            }
+            Require(change.succeeded() && eq.worn == 0x204 && !eq.open && presses == "XdddAdAdAdABBBB",
+                    "equip drive changes the slot and backs out: " + presses);
+            p3p_drive::Drive same;
+            Require(!same.Start({K::Equip, 0x204, 2, 1, "Wool Sweater", "Yukari"}, {true, false, false, std::nullopt, 0x204}) &&
+                    same.status() == "Yukari already has Wool Sweater", "equip drive refuses what is already worn");
+            // Persona: PERSONA (command 2), the third stock row (Persona ID 4); X is never pressed inside.
+            struct Stock {
+                bool open{}; p3p::CampMenu c; int selected{0}; std::vector<int> slots{0, 1, 4};
+                void Press(p3p_drive::Button b) {
+                    using B = p3p_drive::Button;
+                    auto top = [&] { c = {}; c.state = 2; c.input = 1; c.cursor = 2; c.commands = {0, 1, 2, 3, 4, 5, 6}; };
+                    if (!open) { if (b == B::X) { open = true; top(); c.cursor = 0; } return; }
+                    if (c.state == 2) {
+                        if (b == B::Down) ++c.cursor; else if (b == B::Up) --c.cursor;
+                        else if (b == B::A && c.commands[c.cursor] == 2) { c.state = 7; c.sub = 6; c.personas = 3; }
+                        else if (b == B::B) open = false;
+                        return;
+                    }
+                    if (b == B::X) slots.clear(); // Discard: must never happen
+                    else if (b == B::Down) ++c.persona_row; else if (b == B::Up) --c.persona_row;
+                    else if (b == B::A) selected = slots[size_t(c.persona_row)];
+                    else if (b == B::B) top();
+                }
+            };
+            Stock st; p3p_drive::Drive swap; presses.clear();
+            Require(swap.Start({K::Persona, 4, 3, 2, "Pixie", ""}, {true, false, false, std::nullopt, -1, 0}), "persona drive starts");
+            for (int i = 0; i < 3000 && swap.active(); ++i) {
+                p3p_drive::Seen s{true, false, false, st.open ? std::optional{st.c} : std::nullopt, -1, st.selected};
+                auto b = swap.Step(s);
+                if (b != p3p_drive::Button::None) { presses += "ABXLud"[int(b)]; st.Press(b); }
+            }
+            Require(swap.succeeded() && st.selected == 4 && st.slots.size() == 3 && !st.open && presses == "XddAddABB",
+                    "persona drive switches and backs out: " + presses);
+            Stock other; p3p_drive::Drive mismatch;
+            mismatch.Start({K::Persona, 4, 2, 1, "Pixie", ""}, {true, false, false, std::nullopt, -1, 0});
+            for (int i = 0; i < 3000 && mismatch.active(); ++i) {
+                p3p_drive::Seen s{true, false, false, other.open ? std::optional{other.c} : std::nullopt, -1, other.selected};
+                auto b = mismatch.Step(s);
+                if (b != p3p_drive::Button::None) other.Press(b);
+            }
+            Require(!mismatch.succeeded() && mismatch.status() == "The Persona list changed" && other.selected == 0 && !other.open,
+                    "persona drive refuses a stock that differs from the companion's");
+            // The native Equip list (0xe71b0): equipped first by ID order, owned wearables of the slot.
+            p3p::Bytes counts(0x790), flags(0x100);
+            counts[0x120] = 1; counts[0x130] = 1; counts[0x1] = 3; counts[0x30a] = 1;
+            std::vector<p3p::u32> type(0x790), wear(0x790);
+            wear[0x120] = wear[0x122] = wear[0x130] = 0x8000; wear[0x1] = 1 << 5; wear[0x30a] = 0x8000;
+            auto list = p3p::EquipChoices(1, 0, 0x122, true, counts, flags, type, wear);
+            Require(list == std::vector<std::pair<int, int>>{{0x120, 1}, {0x122, 1}, {0x130, 1}}, "equip choices (female lead, weapon)");
+            Require(p3p::EquipChoices(1, 0, 0x122, false, counts, flags, type, wear) == std::vector<std::pair<int, int>>{{0x1, 3}, {0x122, 1}},
+                    "equip choices (male lead)");
         }
         // Ailment bits (unit +0xc), named only where SKILL.TBL inflict/cure masks pin them down.
         Require(p3p::Ailments(0).empty() && p3p::Ailments(0x100) == "Poison" && p3p::Ailments(0x80002) == "KO  Charm",

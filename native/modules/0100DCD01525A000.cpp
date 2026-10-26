@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Experimental Persona 3 Portable companion. The module itself never writes to the game: choice
-// taps press the D-pad and A as the player would (gated by controls.choice), and item use walks
-// the game's own camp menu one press at a time (p3p_drive.h, pressed through pdrv.* and the
-// manifest's enforce rules).
+// taps press the D-pad and A as the player would (gated by controls.choice), and item use and
+// equipment changes walk the game's own camp menu one press at a time (p3p_drive.h, pressed
+// through pdrv.* and the manifest's enforce rules).
 #include "p3p_reader.h"
 #include "p3p_font.h"
 #include "p3p_art.h"
@@ -66,11 +66,20 @@ struct Module {
     int before_talk{1};   // the page to return to when a choice closes
     int talk_idle{};      // samples since the last open choice, while the talk page shows
     // Item use (Items page, Use tab): the picked row, then a party member starts the drive.
-    p3p_drive::ItemUse use;
+    p3p_drive::Drive use;
     p3p_drive::Seen seen;            // the drive's view at the last sample (for Start)
     int pick_row{-1};
     std::vector<Item> use_items;     // the Use tab as last published
     std::vector<std::pair<int,std::string>> party_ids; // active party: unit ID, name
+    // Equipment (Equip page): a slot of the selected member, then one of the game's choices.
+    int equip_slot{-1};
+    std::vector<Item> equip_choices; // as last published for equip_slot
+    int equip_unit{};                // the selected member's unit ID
+    std::string equip_unit_name;
+    // Persona (Personas page): the stock as last published (Persona ID, name) and the selected
+    // Persona's ID. IDs, not slots: the game moves the selected Persona to the top of its stock
+    // once the camp menu closes.
+    std::vector<std::pair<int,std::string>> stock; int selected_id{-1};
     std::string use_note; int use_note_left{}; // the last use's outcome, shown for a while
     // Page 9 (battle) is entered automatically while a battle runs; Status is restored after.
     // Page 12 (talk) likewise while the game shows a choice list.
@@ -153,9 +162,28 @@ struct Module {
         if(action=="item_pick"&&page==7&&item_tab==0&&!use.active()&&arg>=0&&size_t(arg)<use_items.size()){
             pick_row=pick_row==int(arg)?-1:int(arg);return true;}
         if(action=="item_cancel"){pick_row=-1;use.Cancel();return true;}
+        if(action=="equip_pick"&&page==5&&!use.active()&&arg>=0&&arg<4){equip_slot=equip_slot==int(arg)?-1:int(arg);equip_choices.clear();return true;}
+        if(action=="equip_cancel"){equip_slot=-1;use.Cancel();return true;}
+        if(action=="persona_use"&&page==2&&persona_pick>=0&&size_t(persona_pick)<stock.size()){
+            arg=persona_pick; // the picked row (ui.persona)
+            p3p_drive::Request r{p3p_drive::Request::Kind::Persona,stock[size_t(arg)].first,int(stock.size()),int(arg),stock[size_t(arg)].second,{}};
+            seen.selected=selected_id;
+            bool ok=use.Start(r,seen);
+            if(!ok){use_note=use.status();use_note_left=360;}
+            return ok;
+        }
+        if(action=="equip_choose"&&equip_slot>=0&&arg>=0&&size_t(arg)<equip_choices.size()){
+            const auto& it=equip_choices[size_t(arg)];
+            p3p_drive::Request r{p3p_drive::Request::Kind::Equip,it.id,equip_unit,equip_slot,it.name,equip_unit_name};
+            seen.equipped=EquippedNow(equip_unit,equip_slot);
+            bool ok=use.Start(r,seen);
+            if(!ok){use_note=use.status();use_note_left=360;}
+            equip_slot=-1;return ok;
+        }
         if(action=="item_use"&&pick_row>=0&&size_t(pick_row)<use_items.size()&&arg>=0&&size_t(arg)<party_ids.size()){
             const auto& it=use_items[size_t(pick_row)];const auto& who=party_ids[size_t(arg)];
-            bool ok=use.Start(it.id,who.first,it.name,who.second,seen);
+            p3p_drive::Request r{p3p_drive::Request::Kind::Use,it.id,who.first,0,it.name,who.second};
+            bool ok=use.Start(r,seen);
             if(!ok){use_note=use.status();use_note_left=360;}
             pick_row=-1;return ok;
         }
@@ -193,12 +221,22 @@ struct Module {
         for(int i=0;i<8;++i){auto p="choice."+std::to_string(i);T(p+".text","");I(p+".present",0);I(p+".selected",0);}
         for(auto k:{"a","b","x","l","up","down","pending"})I(std::string("pdrv.")+k,0);
         I("drive.busy",0);I("drive.show",0);T("drive.text","");I("item.picked",-1);I("item.pick.on",0);T("item.pick.name","");
-        I("item.can_pick",0);
+        I("item.can_pick",0);I("persona.can_use",0);
         for(int i=0;i<4;++i){auto p="use."+std::to_string(i);I(p+".present",0);T(p+".name","");}
+        I("eqc.on",0);I("eqc.count",0);T("eqc.title","");I("equip.can_pick",0);I("equip.picked",-1);
+        for(int i=0;i<64;++i){auto p="eqc."+std::to_string(i);I(p+".present",0);T(p+".name","");T(p+".count","");I(p+".worn",0);}
+    }
+    // What a member wears in a slot now, from the last snapshot (-1 if unknown).
+    std::vector<std::pair<int,std::array<int,4>>> worn; // unit ID, equipment
+    int EquippedNow(int unit,int slot) const {
+        for(const auto& [id,eq]:worn) if(id==unit&&slot>=0&&slot<4) return eq[size_t(slot)];
+        return -1;
     }
     // One drive step per sample; the button gate is raised for this sample only.
     void Drive(bool ready,bool blocked) {
         seen=p3p_drive::Seen{ready,blocked,false,std::nullopt};
+        if(use.active()&&use.request().kind==p3p_drive::Request::Kind::Equip)seen.equipped=EquippedNow(use.request().member,use.request().slot);
+        seen.selected=selected_id;
         try { seen.camp=reader.Camp(); } catch(...) { seen.camp_error=true; }
         bool was=use.active();
         auto b=use.Step(seen);
@@ -407,6 +445,10 @@ struct Module {
         }
         recording=false;
         bool talking=Talk(v.battle);
+        worn.clear();
+        for(const auto& m:v.members) worn.push_back({m.id,m.equip});
+        stock.clear();selected_id=-1;
+        for(const auto& p:v.personas){stock.push_back({p.id,PersonaName(p.id)});if(p.selected)selected_id=p.id;}
         party_ids.clear();
         for(size_t k=0;k<std::min<size_t>(v.party.size(),4);++k){
             const auto& m=v.members.at(v.party[k]);party_ids.push_back({m.id,MemberName(v,m)});
@@ -419,6 +461,26 @@ struct Module {
         if(pick_row>=0){
             I("item.picked",pick_row);I("item.pick.on",1);T("item.pick.name","Use "+use_items[size_t(pick_row)].name+" on");
             for(size_t k=0;k<party_ids.size();++k){auto p="use."+std::to_string(k);I(p+".present",1);T(p+".name",party_ids[k].second);}
+        }
+        // The Personas page: switch to the picked stock Persona.
+        I("persona.can_use",page==2&&!use.active()&&persona_pick>=0&&size_t(persona_pick)<stock.size()&&stock[size_t(persona_pick)].first!=selected_id);
+        // The Equip page's picker: the game's own choices for the selected member and slot.
+        const bool can_equip=page==5&&!use.active()&&!v.members.empty();
+        I("equip.can_pick",can_equip);
+        if(!can_equip)equip_slot=-1;
+        if(equip_slot>=0){
+            static constexpr const char* slots[]{"weapon","body armor","footwear","accessory"};
+            const auto& m=v.members.at(std::min<size_t>(member,v.members.size()-1));
+            equip_unit=m.id;equip_unit_name=MemberName(v,m);
+            try { equip_choices=reader.EquipList(v,m,equip_slot); } catch(const std::exception& e) { equip_choices.clear(); T("status",std::string("Equipment choices unavailable: ")+e.what()); }
+            I("equip.picked",equip_slot);I("eqc.on",1);T("eqc.title",std::string("Change ")+slots[equip_slot]+" for "+equip_unit_name);
+            size_t shown=std::min<size_t>(equip_choices.size(),64);
+            for(size_t i=0;i<shown;++i){
+                auto p="eqc."+std::to_string(i);const auto& it=equip_choices[i];
+                T(p+".name",it.name);I(p+".present",1);I(p+".worn",it.id==m.equip[size_t(equip_slot)]);
+                T(p+".count",it.id==m.equip[size_t(equip_slot)]?"Equipped":"x "+std::to_string(it.count));
+            }
+            I("eqc.count",int64_t(shown));
         }
     }
 };

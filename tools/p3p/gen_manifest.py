@@ -170,8 +170,18 @@ def header(bind, ready):
     """The selected member line under the member buttons."""
     return label([44, 258, 1192, 36], bind=bind) | {'need_bind': ready, 'color': COLORS['accent']}
 
-def equip_widgets(outputs):
-    """The selected member's four slots with the native Status panel's figures."""
+def drive_bar(outputs):
+    """While the game's menu is being driven (item use, equipment), and for a few seconds after:
+    what happened."""
+    outputs += ['drive.busy', 'drive.show', 'drive.text']
+    show = {'need_bind': 'drive.show'}
+    return [fill([36, 860, 1188, 108], 'select', **show),
+            label([620, 860, 0, 108], bind='drive.text', scale=SIZE['value'])
+            | show | {'align': 'center', 'text_center_h': 108, 'color': COLORS['light']}]
+
+def equip_widgets(outputs, scrolls):
+    """The selected member's four slots with the native Status panel's figures. Tapping a slot
+    lists what the game's Equip screen would offer; tapping one equips it through that screen."""
     widgets = member_buttons()
     outputs += ['equip.ready', 'equip.header']
     ready = {'need_bind': 'equip.ready'}
@@ -183,7 +193,27 @@ def equip_widgets(outputs):
                     sprite(slot, 40, y + 14, 36, tint=COLORS['accent']) | ready,
                     label([56, y + 56, 1160, 44], bind=p + '.name', scale=SIZE['value']) | ready,
                     label([56, y + 108, 1160, 32], bind=p + '.help', scale=SIZE['small']) | ready | {'color': COLORS['muted']},
-                    label([1200, y + 14, 0, 32], bind=p + '.stats') | ready | {'color': COLORS['muted'], 'align': 'right'}]
+                    label([1200, y + 14, 0, 32], bind=p + '.stats') | ready | {'color': COLORS['muted'], 'align': 'right'},
+                    {'type': 'image', 'rect': [36, y, 1188, 154], 'src': 'module:p3p:fill', 'tint': '#00000000',
+                     'on_tap': 'equip.pick', 'payload': str(i), 'need_bind': 'equip.can_pick'}]
+    # The choices, over the slots (the game's own list for that member and slot).
+    outputs += ['equip.can_pick', 'equip.picked', 'eqc.on', 'eqc.count', 'eqc.title']
+    outputs += [f'eqc.{i}.{k}' for i in range(64) for k in ('present', 'name', 'count', 'worn')]
+    on = {'need_bind': 'eqc.on'}
+    widgets += [fill([36, 296, 1188, 676], 'select', **on),
+                label([60, 312, 1140, 44], bind='eqc.title', scale=SIZE['value']) | on | {'color': COLORS['light']}]
+    scrolls.append({'id': 'eqc', 'rect': [56, 372, 1148, 480], 'count_bind': 'eqc.count', 'row_h': 96,
+                    'bar': '#FFFFFFFF', 'bar_track': '#33FFFFFF', 'bar_w': 8, 'show_bind': 'eqc.on', 'reset_bind': 'equip.picked'})
+    row = {'repeat': 64, 'repeat_dy': 96, 'scroll': 'eqc'}
+    need = {'need_bind': 'eqc.{i}.present'}
+    widgets += [dict(row, **fill([56, 372, 1124, 86], 'panel'), **need),
+                dict(row, **label([80, 372, 800, 86], bind='eqc.{i}.name', scale=SIZE['value']), **need) | {'text_center_h': 86},
+                dict(row, **label([1160, 372, 0, 86], bind='eqc.{i}.count', scale=SIZE['body']), **need)
+                | {'text_center_h': 86, 'align': 'right', 'color': COLORS['muted']},
+                dict(row, type='image', rect=[56, 372, 1124, 86], src='module:p3p:fill', tint='#00000000',
+                     on_tap='equip.choose', payload='{i}', **need)]
+    widgets += button([924, 872, 276, 84], 'Cancel', 'equip.cancel', SIZE['value'], **on)
+    widgets += drive_bar(outputs)
     return widgets
 
 ITEM_ROWS = 256  # the module publishes at most this many rows
@@ -210,7 +240,7 @@ def items_widgets(outputs, scrolls):
                 dict(row, **label([1176, 202, 0, 44], bind='item.{i}.count', scale=SIZE['value']), **need)
                 | {'color': COLORS['muted'], 'align': 'right'}]
     # Use tab: tap an item, then who to use it on; the module walks the game's camp menu to do it.
-    outputs += ['item.can_pick', 'item.picked', 'item.pick.on', 'item.pick.name', 'drive.busy', 'drive.show', 'drive.text']
+    outputs += ['item.can_pick', 'item.picked', 'item.pick.on', 'item.pick.name']
     outputs += [f'use.{k}.{f}' for k in range(4) for f in ('present', 'name')]
     widgets += [dict(row, **fill([36, 196, 14, 96], 'select'), need_bind='item.pick.on', hide_bind='item.picked',
                      keep_min='{i}', keep_max='{i}'),
@@ -225,11 +255,7 @@ def items_widgets(outputs, scrolls):
                        | {'need_bind': f'use.{k}.present', 'align': 'center', 'text_center_h': 100, 'fit_text': True,
                           'wrap_width': 200, 'text_min_scale': SIZE['body']})
     widgets += button([996, 848, 204, 100], 'Cancel', 'item.cancel', SIZE['value'], **panel)
-    # While the game's menu is being driven, and for a few seconds after: what happened.
-    show = {'need_bind': 'drive.show'}
-    widgets += [fill([36, 860, 1188, 108], 'select', **show),
-                label([620, 860, 0, 108], bind='drive.text', scale=SIZE['value'])
-                | show | {'align': 'center', 'text_center_h': 108, 'color': COLORS['light']}]
+    widgets += drive_bar(outputs)
     return widgets
 
 def personas_widgets(outputs):
@@ -277,8 +303,12 @@ def personas_widgets(outputs):
         outputs.append(f'pd.skill.{k}')
         # Native Details order: slots 0-3 down the left column, 4-7 down the right.
         widgets.append(label([x + (k // 4) * 390, 684 + (k % 4) * 46, 378, 32], bind=f'pd.skill.{k}') | ready)
-    widgets += [label([x, 874, w, 32], bind='pd.card') | ready,
-                label([x, 916, w, 32], bind='pd.nextskill') | ready | {'color': COLORS['muted']}]
+    widgets += [label([x, 874, w - 360, 32], bind='pd.card') | ready | {'fit_text': True, 'wrap_width': w - 360, 'text_min_scale': SIZE['small']},
+                label([x, 916, w - 360, 32], bind='pd.nextskill') | ready | {'color': COLORS['muted']}]
+    # Switch to the picked Persona through the game's own PERSONA screen (p3p_drive.h).
+    outputs.append('persona.can_use')
+    widgets += button([x + w - 340, 868, 340, 88], 'Use this Persona', 'persona.use', SIZE['value'], need_bind='persona.can_use')
+    widgets += drive_bar(outputs)
     return widgets
 
 def links_widgets(outputs, scrolls):
@@ -536,6 +566,11 @@ def main():
     # the enforce rules below make the press while its gate is up (one sample).
     actions['item.pick'] = {'kind': 'module', 'action': 'item_pick', 'argument': '$payload', 'enabled_bind': 'item.can_pick'}
     actions['item.cancel'] = {'kind': 'module', 'action': 'item_cancel', 'argument': 0}
+    actions['equip.pick'] = {'kind': 'module', 'action': 'equip_pick', 'argument': '$payload', 'enabled_bind': 'equip.can_pick'}
+    actions['equip.choose'] = {'kind': 'module', 'action': 'equip_choose', 'argument': '$payload', 'haptic': 'confirm'}
+    actions['equip.cancel'] = {'kind': 'module', 'action': 'equip_cancel', 'argument': 0}
+    actions['persona.use'] = {'kind': 'module', 'action': 'persona_use', 'argument': 0, 'enabled_bind': 'persona.can_use',
+                              'haptic': 'confirm'}
     for k in range(4):
         actions[f'item.use.{k}'] = {'kind': 'module', 'action': 'item_use', 'argument': k, 'enabled_bind': f'use.{k}.present',
                                     'haptic': 'confirm'}
@@ -581,8 +616,9 @@ def main():
             pages.append({'id': page_id, 'title': title, 'widgets': widgets})
             continue
         if page_id == 'equip':
-            widgets += equip_widgets(outputs)
-            pages.append({'id': page_id, 'title': title, 'widgets': widgets})
+            scrolls = []
+            widgets += equip_widgets(outputs, scrolls)
+            pages.append({'id': page_id, 'title': title, 'widgets': widgets, 'scrolls': scrolls})
             continue
         if page_id == 'skills':
             scrolls = []

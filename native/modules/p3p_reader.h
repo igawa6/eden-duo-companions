@@ -127,13 +127,26 @@ struct FloorMap {
 // (3 list, 4 choosing a target), object +0x30 row and +0x34 scroll (the item used is entry
 // row + scroll, 0xf48b4), +0x38 target cursor into the member IDs at +0x44 (u16, 0xf4df0),
 // +0x50 the Use list {u32 id, u32 count} (builder 0xebeb0), +0x3cd0 its length, +0x3cf8 the
-// tab (0 Use, 1 Equip, 2 Key; 0xf42c0).
+// tab (0 Use, 1 Equip, 2 Key; 0xf42c0). The EQUIP screen (cmpEquip.c, top state 6) keeps its
+// object at data +0x6200 and its stage in data +0x4 (5 member, 7 slot, 10 item list): object
+// +0x3c member cursor into the unit IDs at +0x52 (u16, 0xe7458), +0x3e slot (0 weapon .. 3
+// accessory), +0x40 scroll, +0x42 row (the entry is scroll + row, 0xe9298), +0x66 the list
+// {u16 id, u16 count} (builder 0xe71b0, EquipChoices), +0x1462 its length. A on the list
+// equips at once and stays there. The PERSONA screen (top state 7, data +0x4 = 6 on its list):
+// data +0x9020 the list length, +0x9024 the cursor; rows are the stock's records in slot order
+// (live: Apsaras slot 0, Pixie slot 1), A assigns the row at once (S+0x1058, setter 0x1dadc0)
+// and stays on the list; once the menu closes, the game moves the selected Persona to the top
+// of the stock. X there is Discard: the drive never presses X inside the menu.
 struct CampMenu {
     int state{}, sub{}, cursor{}, input{};
     std::vector<int> commands;
     int row{}, scroll{}, target{}, tab{};
     std::vector<int> targets;                    // member unit IDs in target order
     std::vector<std::pair<int, int>> use_list;   // {item id, count}, native order
+    int member{}, slot{}, equip_row{}, equip_scroll{};
+    std::vector<int> members;                    // EQUIP: unit IDs in cursor order
+    std::vector<std::pair<int, int>> equip_list; // EQUIP: {item id, count}, native order
+    int personas{}, persona_row{};               // PERSONA: list length, cursor
     bool operator==(const CampMenu&) const = default;
 };
 struct Pin { u64 offset; size_t size; u64 hash; };
@@ -297,6 +310,24 @@ inline std::vector<std::pair<int, int>> ItemList(int tab, const Bytes& counts, c
     }
     static constexpr size_t limit[]{0x200, 0x500, 0x90}; // the builders' asserts
     if (out.size() > limit[tab]) throw std::runtime_error("item list too long");
+    return out;
+}
+// The native Equip screen's choices for one member and slot (cmpEquip.c builder 0xe71b0), in
+// its order: IDs 0..0x4fe ascending; the equipped item (0x1d0c50) with its owned count + 1
+// (at most 99), else owned items the member can wear (0x1d0bb0: item +0x30 word & mask, the mask
+// 0x8000 for a female protagonist, else 1 << (unit + 4)) whose slot (0x1d0ca0: < 0x200 weapon,
+// < 0x300 body, < 0x400 feet, else accessory) is this one.
+inline int EquipSlot(int id) { return id < 0x200 ? 0 : id < 0x300 ? 1 : id < 0x400 ? 2 : 3; }
+inline std::vector<std::pair<int, int>> EquipChoices(int unit, int slot, int equipped, bool female, const Bytes& counts,
+                                                     const Bytes& flags, const std::vector<u32>& type,
+                                                     const std::vector<u32>& wear) {
+    std::vector<std::pair<int, int>> out;
+    const u32 mask = unit == 1 && female ? 0x8000u : 1u << (unit + 4);
+    for (int id = 0; id < 0x4ff; ++id) {
+        const int owned = ItemCount(counts, flags, id, type.at(id));
+        if (id == equipped) out.emplace_back(id, std::min(owned + 1, 99));
+        else if (owned && (wear.at(id) & mask) && EquipSlot(id) == slot) out.emplace_back(id, owned);
+    }
     return out;
 }
 
@@ -556,24 +587,44 @@ public:
     // words for every ID and the inventory twice to reject torn reads.
     std::vector<Item> Items(int tab) const {
         if (tab < 0 || tab > 2) throw std::runtime_error("invalid item tab");
+        LoadItemTable();
         u64 state = Pointer(host.main_base + 0x70e800);
+        auto counts = Read(state + 0x4bc, ItemIds), flags = Read(state + 0x4640, 0x100);
+        auto list = ItemList(tab, counts, flags, item_type, item_category);
+        if (counts != Read(state + 0x4bc, ItemIds) || flags != Read(state + 0x4640, 0x100))
+            throw std::runtime_error("context changed");
+        return Named(list);
+    }
+    // What the native Equip screen offers member `m` for `slot` (EquipChoices), named.
+    std::vector<Item> EquipList(const Snapshot& v, const Member& m, int slot) const {
+        if (slot < 0 || slot > 3) throw std::runtime_error("invalid equipment slot");
+        LoadItemTable();
+        u64 state = Pointer(host.main_base + 0x70e800);
+        auto counts = Read(state + 0x4bc, ItemIds), flags = Read(state + 0x4640, 0x100);
+        auto list = EquipChoices(m.id, slot, m.equip[slot], v.female, counts, flags, item_type, item_wear);
+        if (counts != Read(state + 0x4bc, ItemIds) || flags != Read(state + 0x4640, 0x100))
+            throw std::runtime_error("context changed");
+        return Named(list);
+    }
+    void LoadItemTable() const {
         u64 items = Pointer(Pointer(host.main_base + 0x70e7f8));
-        // The item table is static data loaded at boot; its +0/+4 words are cached per table
+        // The item table is static data loaded at boot; its +0/+4/+0x30 words are cached per table
         // address and refreshed periodically rather than re-read (108 KB) every sample.
         if (items != item_table || ++item_table_age >= 120) {
-            std::vector<u32> type(ItemIds), category(ItemIds);
+            std::vector<u32> type(ItemIds), category(ItemIds), wear(ItemIds);
             for (int first = 0; first < ItemIds; first += 0x200) {
                 int n = std::min(0x200, ItemIds - first);
                 auto block = Read(items + first * 0x38, n * 0x38);
-                for (int i = 0; i < n; ++i) { type[first + i] = At<u32>(block, i * 0x38); category[first + i] = At<u32>(block, i * 0x38 + 4); }
+                for (int i = 0; i < n; ++i) {
+                    type[first + i] = At<u32>(block, i * 0x38); category[first + i] = At<u32>(block, i * 0x38 + 4);
+                    wear[first + i] = At<u32>(block, i * 0x38 + 0x30);
+                }
             }
-            item_type = std::move(type); item_category = std::move(category); item_table = items; item_table_age = 0;
+            item_type = std::move(type); item_category = std::move(category); item_wear = std::move(wear);
+            item_table = items; item_table_age = 0;
         }
-        const auto& type = item_type; const auto& category = item_category;
-        auto counts = Read(state + 0x4bc, ItemIds), flags = Read(state + 0x4640, 0x100);
-        auto list = ItemList(tab, counts, flags, type, category);
-        if (counts != Read(state + 0x4bc, ItemIds) || flags != Read(state + 0x4640, 0x100))
-            throw std::runtime_error("context changed");
+    }
+    std::vector<Item> Named(const std::vector<std::pair<int, int>>& list) const {
         u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
         if (lang > 15) throw std::runtime_error("unsupported language");
         u64 names = Pointer(Pointer(host.main_base + 0x70e828) + lang * 8);
@@ -779,6 +830,20 @@ public:
                 for (int k = 0; k < len; ++k) c.use_list.push_back({At<int32_t>(item, 0x50 + 8 * k), At<int32_t>(item, 0x54 + 8 * k)});
                 for (int k = 0; k < 4; ++k) { int id = At<u16>(item, 0x44 + 2 * k); if (id >= 1 && id <= 10) c.targets.push_back(id); else break; }
             }
+            if (c.state == 6 && c.cursor >= 0 && c.cursor < n && c.commands[c.cursor] == 3) {
+                auto eq = Read(data + 0x6200, 0x1468);
+                c.member = At<int16_t>(eq, 0x3c); c.slot = At<int16_t>(eq, 0x3e);
+                c.equip_scroll = At<int16_t>(eq, 0x40); c.equip_row = At<int16_t>(eq, 0x42);
+                for (int k = 0; k < 10; ++k) { int id = At<u16>(eq, 0x52 + 2 * k); if (id >= 1 && id <= 10) c.members.push_back(id); else break; }
+                int len = At<int16_t>(eq, 0x1462);
+                if (len < 0 || len > 0x500) throw std::runtime_error("bad equipment list");
+                for (int k = 0; k < len; ++k) c.equip_list.push_back({At<u16>(eq, 0x66 + 4 * k), At<u16>(eq, 0x68 + 4 * k)});
+            }
+            if (c.state == 7 && c.cursor >= 0 && c.cursor < n && c.commands[c.cursor] == 2) {
+                auto pl = Read(data + 0x9020, 8);
+                c.personas = At<int32_t>(pl, 0); c.persona_row = At<int32_t>(pl, 4);
+                if (c.personas < 0 || c.personas > 12) throw std::runtime_error("bad Persona list");
+            }
             return c;
         };
         auto first = once(), second = once();
@@ -945,7 +1010,7 @@ private:
     mutable Bytes talk_file; // the open window's message file (Talk())
     mutable u64 item_table{};
     mutable int item_table_age{};
-    mutable std::vector<u32> item_type, item_category;
+    mutable std::vector<u32> item_type, item_category, item_wear;
     struct Context {
         u64 observer{}, data{}, field{}, field_data{}, resource{}, menu{}, battle{}, dungeon{};
         int state{}, area{}, subarea{};
