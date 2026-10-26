@@ -1951,6 +1951,21 @@
     "item.255.name",
     "item.255.count",
     "item.255.help",
+    "item.can_pick",
+    "item.picked",
+    "item.pick.on",
+    "item.pick.name",
+    "drive.busy",
+    "drive.show",
+    "drive.text",
+    "use.0.present",
+    "use.0.name",
+    "use.1.present",
+    "use.1.name",
+    "use.2.present",
+    "use.2.name",
+    "use.3.present",
+    "use.3.name",
     "cal.ready",
     "cal.title",
     "cal.next",
@@ -2462,7 +2477,14 @@
     "choice.4.text",
     "choice.4.selected",
     "live.paused",
-    "live.pause"
+    "live.pause",
+    "pdrv.a",
+    "pdrv.b",
+    "pdrv.x",
+    "pdrv.l",
+    "pdrv.up",
+    "pdrv.down",
+    "pdrv.pending"
   ],
   "module": {
     "abi": 1,
@@ -2651,6 +2673,81 @@
       "kind": "module",
       "action": "calendar_shift",
       "argument": 1
+    },
+    "item.pick": {
+      "kind": "module",
+      "action": "item_pick",
+      "argument": "$payload",
+      "enabled_bind": "item.can_pick"
+    },
+    "item.cancel": {
+      "kind": "module",
+      "action": "item_cancel",
+      "argument": 0
+    },
+    "item.use.0": {
+      "kind": "module",
+      "action": "item_use",
+      "argument": 0,
+      "enabled_bind": "use.0.present",
+      "haptic": "confirm"
+    },
+    "item.use.1": {
+      "kind": "module",
+      "action": "item_use",
+      "argument": 1,
+      "enabled_bind": "use.1.present",
+      "haptic": "confirm"
+    },
+    "item.use.2": {
+      "kind": "module",
+      "action": "item_use",
+      "argument": 2,
+      "enabled_bind": "use.2.present",
+      "haptic": "confirm"
+    },
+    "item.use.3": {
+      "kind": "module",
+      "action": "item_use",
+      "argument": 3,
+      "enabled_bind": "use.3.present",
+      "haptic": "confirm"
+    },
+    "pdrv.press.a": {
+      "kind": "button",
+      "button": "A",
+      "frames": 8,
+      "enabled_bind": "pdrv.a"
+    },
+    "pdrv.press.b": {
+      "kind": "button",
+      "button": "B",
+      "frames": 8,
+      "enabled_bind": "pdrv.b"
+    },
+    "pdrv.press.x": {
+      "kind": "button",
+      "button": "X",
+      "frames": 8,
+      "enabled_bind": "pdrv.x"
+    },
+    "pdrv.press.l": {
+      "kind": "button",
+      "button": "L",
+      "frames": 8,
+      "enabled_bind": "pdrv.l"
+    },
+    "pdrv.press.up": {
+      "kind": "button",
+      "button": "DUp",
+      "frames": 8,
+      "enabled_bind": "pdrv.up"
+    },
+    "pdrv.press.down": {
+      "kind": "button",
+      "button": "DDown",
+      "frames": 8,
+      "enabled_bind": "pdrv.down"
     },
     "choice.confirm": {
       "kind": "button",
@@ -11514,6 +11611,361 @@
           "bind_text": "item.{i}.count",
           "need_bind": "item.{i}.present",
           "align": "right"
+        },
+        {
+          "repeat": 256,
+          "repeat_dy": 104,
+          "scroll": "items",
+          "type": "image",
+          "rect": [
+            36,
+            196,
+            14,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#FF0E2460",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF0E2460",
+            "#FF6A0A1E"
+          ],
+          "need_bind": "item.pick.on",
+          "hide_bind": "item.picked",
+          "keep_min": "{i}",
+          "keep_max": "{i}"
+        },
+        {
+          "repeat": 256,
+          "repeat_dy": 104,
+          "scroll": "items",
+          "type": "image",
+          "rect": [
+            36,
+            196,
+            1164,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "item.pick",
+          "payload": "{i}",
+          "need_bind": "item.can_pick"
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            776,
+            1188,
+            192
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#FF0E2460",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF0E2460",
+            "#FF6A0A1E"
+          ],
+          "need_bind": "item.pick.on"
+        },
+        {
+          "type": "label",
+          "rect": [
+            60,
+            790,
+            1140,
+            44
+          ],
+          "text": "",
+          "color": "#FFFFFFFF",
+          "text_scale": 5,
+          "bind_text": "item.pick.name",
+          "need_bind": "item.pick.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            60,
+            848,
+            220,
+            100
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#D9FFFFFF",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#D9FFFFFF",
+            "#D9FFFFFF"
+          ],
+          "need_bind": "use.0.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            60,
+            848,
+            220,
+            100
+          ],
+          "text": "",
+          "on_tap": "item.use.0",
+          "text_scale": 5,
+          "align": "center",
+          "text_center_h": 100,
+          "color": "#FF2B1530",
+          "bg": "#00000000",
+          "border": 0,
+          "need_bind": "use.0.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            170,
+            848,
+            0,
+            100
+          ],
+          "text": "",
+          "color": "#FF2B1530",
+          "text_scale": 5,
+          "bind_text": "use.0.name",
+          "need_bind": "use.0.present",
+          "align": "center",
+          "text_center_h": 100,
+          "fit_text": true,
+          "wrap_width": 200,
+          "text_min_scale": 4
+        },
+        {
+          "type": "image",
+          "rect": [
+            292,
+            848,
+            220,
+            100
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#D9FFFFFF",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#D9FFFFFF",
+            "#D9FFFFFF"
+          ],
+          "need_bind": "use.1.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            292,
+            848,
+            220,
+            100
+          ],
+          "text": "",
+          "on_tap": "item.use.1",
+          "text_scale": 5,
+          "align": "center",
+          "text_center_h": 100,
+          "color": "#FF2B1530",
+          "bg": "#00000000",
+          "border": 0,
+          "need_bind": "use.1.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            402,
+            848,
+            0,
+            100
+          ],
+          "text": "",
+          "color": "#FF2B1530",
+          "text_scale": 5,
+          "bind_text": "use.1.name",
+          "need_bind": "use.1.present",
+          "align": "center",
+          "text_center_h": 100,
+          "fit_text": true,
+          "wrap_width": 200,
+          "text_min_scale": 4
+        },
+        {
+          "type": "image",
+          "rect": [
+            524,
+            848,
+            220,
+            100
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#D9FFFFFF",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#D9FFFFFF",
+            "#D9FFFFFF"
+          ],
+          "need_bind": "use.2.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            524,
+            848,
+            220,
+            100
+          ],
+          "text": "",
+          "on_tap": "item.use.2",
+          "text_scale": 5,
+          "align": "center",
+          "text_center_h": 100,
+          "color": "#FF2B1530",
+          "bg": "#00000000",
+          "border": 0,
+          "need_bind": "use.2.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            634,
+            848,
+            0,
+            100
+          ],
+          "text": "",
+          "color": "#FF2B1530",
+          "text_scale": 5,
+          "bind_text": "use.2.name",
+          "need_bind": "use.2.present",
+          "align": "center",
+          "text_center_h": 100,
+          "fit_text": true,
+          "wrap_width": 200,
+          "text_min_scale": 4
+        },
+        {
+          "type": "image",
+          "rect": [
+            756,
+            848,
+            220,
+            100
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#D9FFFFFF",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#D9FFFFFF",
+            "#D9FFFFFF"
+          ],
+          "need_bind": "use.3.present"
+        },
+        {
+          "type": "button",
+          "rect": [
+            756,
+            848,
+            220,
+            100
+          ],
+          "text": "",
+          "on_tap": "item.use.3",
+          "text_scale": 5,
+          "align": "center",
+          "text_center_h": 100,
+          "color": "#FF2B1530",
+          "bg": "#00000000",
+          "border": 0,
+          "need_bind": "use.3.present"
+        },
+        {
+          "type": "label",
+          "rect": [
+            866,
+            848,
+            0,
+            100
+          ],
+          "text": "",
+          "color": "#FF2B1530",
+          "text_scale": 5,
+          "bind_text": "use.3.name",
+          "need_bind": "use.3.present",
+          "align": "center",
+          "text_center_h": 100,
+          "fit_text": true,
+          "wrap_width": 200,
+          "text_min_scale": 4
+        },
+        {
+          "type": "image",
+          "rect": [
+            996,
+            848,
+            204,
+            100
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#D9FFFFFF",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#D9FFFFFF",
+            "#D9FFFFFF"
+          ],
+          "need_bind": "item.pick.on"
+        },
+        {
+          "type": "button",
+          "rect": [
+            996,
+            848,
+            204,
+            100
+          ],
+          "text": "Cancel",
+          "on_tap": "item.cancel",
+          "text_scale": 5,
+          "align": "center",
+          "text_center_h": 100,
+          "color": "#FF2B1530",
+          "bg": "#00000000",
+          "border": 0,
+          "need_bind": "item.pick.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            860,
+            1188,
+            108
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#FF0E2460",
+          "tint_bind": "ui.route",
+          "tint_colors": [
+            "#FF0E2460",
+            "#FF6A0A1E"
+          ],
+          "need_bind": "drive.show"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            860,
+            0,
+            108
+          ],
+          "text": "",
+          "color": "#FFFFFFFF",
+          "text_scale": 5,
+          "bind_text": "drive.text",
+          "need_bind": "drive.show",
+          "align": "center",
+          "text_center_h": 108
         },
         {
           "type": "image",
@@ -20958,5 +21410,35 @@
         }
       ]
     }
-  ]
+  ],
+  "enforce": [
+    {
+      "action": "pdrv.press.a",
+      "every_ms": 1
+    },
+    {
+      "action": "pdrv.press.b",
+      "every_ms": 1
+    },
+    {
+      "action": "pdrv.press.x",
+      "every_ms": 1
+    },
+    {
+      "action": "pdrv.press.l",
+      "every_ms": 1
+    },
+    {
+      "action": "pdrv.press.up",
+      "every_ms": 1
+    },
+    {
+      "action": "pdrv.press.down",
+      "every_ms": 1
+    }
+  ],
+  "enforce_gate": {
+    "point": "pdrv.pending",
+    "max": 1
+  }
 }

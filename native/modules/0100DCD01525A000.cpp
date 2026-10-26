@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Experimental Persona 3 Portable companion. The module itself never writes to the game; the
-// manifest's choice taps press the D-pad and A as the player would, gated by controls.choice.
+// Experimental Persona 3 Portable companion. The module itself never writes to the game: choice
+// taps press the D-pad and A as the player would (gated by controls.choice), and item use walks
+// the game's own camp menu one press at a time (p3p_drive.h, pressed through pdrv.* and the
+// manifest's enforce rules).
 #include "p3p_reader.h"
 #include "p3p_font.h"
 #include "p3p_art.h"
 #include "p3p_map.h"
 #include "p3p_help.h"
+#include "p3p_drive.h"
 #include "core/mods/dsmod_module_extensions.h"
 #include <cstdio>
 #include <memory>
@@ -62,6 +65,13 @@ struct Module {
     int lead{};           // last known live.lead (camp portrait), kept through loading too
     int before_talk{1};   // the page to return to when a choice closes
     int talk_idle{};      // samples since the last open choice, while the talk page shows
+    // Item use (Items page, Use tab): the picked row, then a party member starts the drive.
+    p3p_drive::ItemUse use;
+    p3p_drive::Seen seen;            // the drive's view at the last sample (for Start)
+    int pick_row{-1};
+    std::vector<Item> use_items;     // the Use tab as last published
+    std::vector<std::pair<int,std::string>> party_ids; // active party: unit ID, name
+    std::string use_note; int use_note_left{}; // the last use's outcome, shown for a while
     // Page 9 (battle) is entered automatically while a battle runs; Status is restored after.
     // Page 12 (talk) likewise while the game shows a choice list.
     explicit Module(const EdenDsmodHostApi& h) : host(h), font_host(h), reader(h) {}
@@ -99,12 +109,12 @@ struct Module {
         // The selections may have changed while paused.
         I("ui.page",page);I("ui.member",member);I("item.tab",item_tab);I("ui.persona",persona_pick);
         I("live.paused",1);T("live.pause",PauseTag(why,sequence));T("status",why);
-        Talk(false);
+        Drive(false,Talk(false));
     }
     // The game's open message window and choice list (p3p_talk.h). Never recorded for the pause
     // replay: a closed window must not come back. While a choice is open the talk page shows;
     // half a second after it closes the previous page returns (choices often follow each other).
-    void Talk(bool battle) {
+    bool Talk(bool battle) {
         std::optional<p3p_talk::Talk> t;
         try { t=reader.Talk(); } catch(const std::exception& e) { T("talk.why",e.what()); }
         if(t&&t->choosing&&!battle){
@@ -112,7 +122,7 @@ struct Module {
             page=12;talk_idle=0;
         } else if(page==12&&++talk_idle>30) page=before_talk;
         I("ui.page",page);
-        if(!t)return;
+        if(!t)return false;
         I("talk.ready",1);I("talk.text_ok",t->text_ok);T("talk.text",t->text);
         I("talk.has_speaker",!t->speaker.empty());T("talk.speaker",t->speaker);
         I("talk.choosing",t->choosing);I("talk.choices_ok",t->choices_ok);I("talk.selected",t->selected);
@@ -122,6 +132,7 @@ struct Module {
             auto p="choice."+std::to_string(i);
             T(p+".text",t->choices[i]);I(p+".present",1);I(p+".selected",int(i)==t->selected);
         }
+        return true;
     }
     std::string MemberName(const Snapshot&, const Member& m) const {
         if(!m.name.empty())return m.name;
@@ -139,6 +150,15 @@ struct Module {
         if(action=="item_tab"&&arg>=0&&arg<3){item_tab=int(arg);return true;}
         if(action=="persona_select"&&arg>=0&&arg<12){persona_pick=int(arg);return true;}
         if(action=="calendar_shift"&&(arg==0||arg==1)){cal_offset+=arg?1:-1;return true;}
+        if(action=="item_pick"&&page==7&&item_tab==0&&!use.active()&&arg>=0&&size_t(arg)<use_items.size()){
+            pick_row=pick_row==int(arg)?-1:int(arg);return true;}
+        if(action=="item_cancel"){pick_row=-1;use.Cancel();return true;}
+        if(action=="item_use"&&pick_row>=0&&size_t(pick_row)<use_items.size()&&arg>=0&&size_t(arg)<party_ids.size()){
+            const auto& it=use_items[size_t(pick_row)];const auto& who=party_ids[size_t(arg)];
+            bool ok=use.Start(it.id,who.first,it.name,who.second,seen);
+            if(!ok){use_note=use.status();use_note_left=360;}
+            pick_row=-1;return ok;
+        }
         return false;
     }
     void Clear() {
@@ -171,6 +191,23 @@ struct Module {
         I("talk.ready",0);I("talk.text_ok",0);T("talk.text","");I("talk.has_speaker",0);T("talk.speaker","");
         I("talk.choosing",0);I("talk.choices_ok",0);T("talk.why","");I("talk.selected",-1);I("controls.choice",0);
         for(int i=0;i<8;++i){auto p="choice."+std::to_string(i);T(p+".text","");I(p+".present",0);I(p+".selected",0);}
+        for(auto k:{"a","b","x","l","up","down","pending"})I(std::string("pdrv.")+k,0);
+        I("drive.busy",0);I("drive.show",0);T("drive.text","");I("item.picked",-1);I("item.pick.on",0);T("item.pick.name","");
+        I("item.can_pick",0);
+        for(int i=0;i<4;++i){auto p="use."+std::to_string(i);I(p+".present",0);T(p+".name","");}
+    }
+    // One drive step per sample; the button gate is raised for this sample only.
+    void Drive(bool ready,bool blocked) {
+        seen=p3p_drive::Seen{ready,blocked,false,std::nullopt};
+        try { seen.camp=reader.Camp(); } catch(...) { seen.camp_error=true; }
+        bool was=use.active();
+        auto b=use.Step(seen);
+        if(was&&!use.active()){use_note=use.status();use_note_left=360;}
+        static constexpr const char* keys[]{"pdrv.a","pdrv.b","pdrv.x","pdrv.l","pdrv.up","pdrv.down"};
+        if(b!=p3p_drive::Button::None){I(keys[int(b)],1);I("pdrv.pending",1);}
+        I("drive.busy",use.active());
+        if(use.active()){I("drive.show",1);T("drive.text",use.status());}
+        else if(use_note_left>0){--use_note_left;I("drive.show",1);T("drive.text",use_note);}
     }
     void Sample() {
         ++ticks; // The host clears published values every sample; always republish.
@@ -356,6 +393,7 @@ struct Module {
         if(page==7) {
             try {
                 auto items=reader.Items(item_tab);
+                if(item_tab==0)use_items=items;
                 constexpr size_t rows=256; // manifest rows; the native list allows 0x500
                 size_t shown=std::min(items.size(),rows);
                 for(size_t i=0;i<shown;++i){
@@ -368,7 +406,20 @@ struct Module {
             } catch(const std::exception& e) {T("status",std::string("Items unavailable: ")+e.what());}
         }
         recording=false;
-        Talk(v.battle);
+        bool talking=Talk(v.battle);
+        party_ids.clear();
+        for(size_t k=0;k<std::min<size_t>(v.party.size(),4);++k){
+            const auto& m=v.members.at(v.party[k]);party_ids.push_back({m.id,MemberName(v,m)});
+        }
+        Drive(true,v.battle||talking);
+        // The Use tab's item picker: a row, then who to use it on.
+        const bool can=page==7&&item_tab==0&&!use.active();
+        I("item.can_pick",can);
+        if(!can||pick_row>=int(use_items.size()))pick_row=-1;
+        if(pick_row>=0){
+            I("item.picked",pick_row);I("item.pick.on",1);T("item.pick.name","Use "+use_items[size_t(pick_row)].name+" on");
+            for(size_t k=0;k<party_ids.size();++k){auto p="use."+std::to_string(k);I(p+".present",1);T(p+".name",party_ids[k].second);}
+        }
     }
 };
 EdenDsmodBool Supports(const char* s){return s&&std::strcmp(s,Build)==0?EDEN_DSMOD_TRUE:EDEN_DSMOD_FALSE;}

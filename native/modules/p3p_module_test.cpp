@@ -6,6 +6,7 @@
 #include "p3p_art.h"
 #include "p3p_map.h"
 #include "p3p_help.h"
+#include "p3p_drive.h"
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
@@ -14,6 +15,7 @@
 #include <string>
 
 static void Require(bool value, const char* why) { if (!value) throw std::runtime_error(why); }
+static void Require(bool value, const std::string& why) { if (!value) throw std::runtime_error(why); }
 int main() {
     try {
         auto api = eden_dsmod_get_module(EDEN_DSMOD_MODULE_ABI_VERSION, EDEN_DSMOD_MODULE_ABI_HASH);
@@ -233,6 +235,65 @@ int main() {
                     !p3p_talk::Decode(std::span<const uint8_t>(reinterpret_cast<const uint8_t*>("\xF1\x83"), 3), {}, out),
                     "talk glyphs and missing names fail closed");
         }
+        {
+            // Item drive (p3p_drive.h) against a model of the camp menu that reacts to presses.
+            struct Menu {
+                bool open{}; p3p::CampMenu c; int sp_full{};
+                void Press(p3p_drive::Button b) {
+                    using B = p3p_drive::Button;
+                    if (!open) { if (b == B::X) { open = true; c = {}; c.state = 2; c.input = 1; c.commands = {0, 1, 2, 3, 4, 5, 6}; } return; }
+                    if (c.state == 2) {
+                        if (b == B::Down) ++c.cursor; else if (b == B::Up) --c.cursor;
+                        else if (b == B::A && c.commands[c.cursor] == 1) {
+                            c.state = 4; c.sub = 3; c.tab = 1; c.targets = {1, 2, 5};
+                            c.use_list = {{0x501, 3}, {0x502, 1}, {0x504, 5}, {0x509, 1}, {0x520, 1}, {0x521, 2}};
+                        } else if (b == B::B) open = false;
+                        return;
+                    }
+                    if (c.sub == 3) {
+                        const int at = c.row + c.scroll;
+                        if (b == B::L) c.tab = std::max(0, c.tab - 1);
+                        else if (b == B::Down) { if (c.row < 4) ++c.row; else ++c.scroll; }
+                        else if (b == B::Up) { if (c.row > 0) --c.row; else --c.scroll; }
+                        else if (b == B::A && at == 2) c.sub = 4;
+                        else if (b == B::B) { c = {}; c.state = 2; c.input = 1; c.cursor = 1; c.commands = {0, 1, 2, 3, 4, 5, 6}; }
+                        return;
+                    }
+                    if (b == B::Down) ++c.target; else if (b == B::Up) --c.target;
+                    else if (b == B::A && !(sp_full >> c.target & 1)) --c.use_list[2].second;
+                    else if (b == B::B) c.sub = 3;
+                }
+            };
+            auto run = [](Menu& menu, p3p_drive::ItemUse& use, int limit) {
+                std::string presses;
+                for (int i = 0; i < limit && use.active(); ++i) {
+                    p3p_drive::Seen s{true, false, false, menu.open ? std::optional{menu.c} : std::nullopt};
+                    auto b = use.Step(s);
+                    if (b != p3p_drive::Button::None) { presses += "ABXLud"[int(b)]; menu.Press(b); }
+                }
+                return presses;
+            };
+            Menu menu; p3p_drive::ItemUse use;
+            Require(use.Start(0x504, 5, "Snuff Soul", "Junpei", {true, false, false, std::nullopt}), "drive starts");
+            std::string presses = run(menu, use, 2000);
+            Require(!use.active() && use.succeeded() && use.status() == "Used Snuff Soul on Junpei" && !menu.open &&
+                    menu.c.use_list.empty() && presses == "XdALddAddABBB", "drive uses an item and backs out: " + presses);
+            Menu full; full.sp_full = 1; p3p_drive::ItemUse again;
+            again.Start(0x504, 1, "Snuff Soul", "Kotone", {true, false, false, std::nullopt});
+            presses = run(full, again, 2000);
+            Require(!again.succeeded() && again.status() == "Snuff Soul had no effect on Kotone" && !full.open,
+                    "drive reports no effect: " + presses);
+            Require(presses == "XdALddAAAABBB", "no effect retries A twice before backing out: " + presses);
+            Menu open; open.open = true; open.c.state = 2; open.c.commands = {0, 1};
+            p3p_drive::ItemUse refused;
+            Require(!refused.Start(0x504, 1, "Snuff Soul", "Kotone", {true, false, false, open.c}) &&
+                    refused.status() == "Close the game's menu first", "drive refuses an open menu");
+            Menu stop; p3p_drive::ItemUse halted;
+            halted.Start(0x504, 1, "Snuff Soul", "Kotone", {true, false, false, std::nullopt});
+            run(stop, halted, 40);
+            Require(halted.Step({true, true, false, std::nullopt}) == p3p_drive::Button::None && !halted.active(),
+                    "drive stops for a battle or message");
+        }
         // Ailment bits (unit +0xc), named only where SKILL.TBL inflict/cure masks pin them down.
         Require(p3p::Ailments(0).empty() && p3p::Ailments(0x100) == "Poison" && p3p::Ailments(0x80002) == "KO  Charm",
                 "ailment names");
@@ -281,7 +342,7 @@ int main() {
                     "SPR0 sprite crop at 4x");
             Require(!p3p_art::SpriteImage(s, 1, img), "missing sprite refused");
         }
-        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item, Persona-detail, calendar, ailment, map, help, talk, font and art regressions passed");
+        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item, Persona-detail, calendar, ailment, map, help, talk, drive, font and art regressions passed");
         return 0;
     } catch(const std::exception& e) {std::fprintf(stderr,"%s\n",e.what());return 1;}
 }

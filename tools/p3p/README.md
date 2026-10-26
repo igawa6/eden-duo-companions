@@ -19,8 +19,11 @@ While the game shows a choice list, the talk page opens by itself with the curre
 options, following the game's cursor (`p3p_talk.h`); it reads the open message window and the
 game's own loaded message file, and leaves out any text it cannot reproduce exactly. Tapping an
 option moves the game's cursor to it and tapping it again chooses it: the manifest presses the
-D-pad and A, as the player would, only while every option is spelled out. The module itself never
-writes to the game.
+D-pad and A, as the player would, only while every option is spelled out. On the Items page's Use
+tab, tapping an item and then a party member uses it through the game's own camp menu
+(`p3p_drive.h`): the module reads the menu each sample and asks for one button press at a time,
+which the manifest's `enforce` rules make, then backs out to where the player was. The module itself
+never writes to the game.
 
 | Script | What it does |
 |---|---|

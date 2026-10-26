@@ -118,6 +118,24 @@ struct FloorMap {
     std::optional<Icon> teleporter, wanderer;
     bool operator==(const FloorMap&) const = default;
 };
+// The native camp menu (cmpMain.c task "cmpMain", callbacks 0xf5900 / 0xf5fa0; data = task
+// +0x48), as far as the item drive needs it. Top level: +0x0 state (3 opening, 2 command list,
+// 4 inside a command, 13 closing), +0x10 bit 0 set while the command list takes input
+// (0xf5a58), +0x58 cursor, +0x64 command IDs (u32 each, 0 SKILL, 1 ITEM, ...; at most 7, the
+// confirm at 0xf5e8c dispatches on [+0x64 + cursor * 4]), +0x80 command count. The ITEM screen
+// (cmpItem.c / cmpItemSeq.c) keeps its object at data +0x930: +0x4 of the data is its state
+// (3 list, 4 choosing a target), object +0x30 row and +0x34 scroll (the item used is entry
+// row + scroll, 0xf48b4), +0x38 target cursor into the member IDs at +0x44 (u16, 0xf4df0),
+// +0x50 the Use list {u32 id, u32 count} (builder 0xebeb0), +0x3cd0 its length, +0x3cf8 the
+// tab (0 Use, 1 Equip, 2 Key; 0xf42c0).
+struct CampMenu {
+    int state{}, sub{}, cursor{}, input{};
+    std::vector<int> commands;
+    int row{}, scroll{}, target{}, tab{};
+    std::vector<int> targets;                    // member unit IDs in target order
+    std::vector<std::pair<int, int>> use_list;   // {item id, count}, native order
+    bool operator==(const CampMenu&) const = default;
+};
 struct Pin { u64 offset; size_t size; u64 hash; };
 #include "p3p_pins.inc"
 
@@ -723,6 +741,49 @@ public:
         if (head != Read(encounter, 0x10) || (count && units != Read(units_at, count * 0x3c)))
             throw std::runtime_error("context changed");
         return out;
+    }
+    // The camp menu (CampMenu), or nullopt while no camp task is listed. Read twice.
+    std::optional<CampMenu> Camp() const {
+        auto once = [&]() -> std::optional<CampMenu> {
+            u64 data = 0;
+            auto heads = Read(host.main_base + 0x8e51c98, 24);
+            int seen = 0;
+            for (int i = 0; i < 3; ++i) {
+                std::set<u64> visited;
+                for (u64 node = At<u64>(heads, i * 8); node;) {
+                    if (node % 8 || !visited.insert(node).second || ++seen > 256) throw std::runtime_error("task list changed");
+                    auto raw = Read(node, 0x60);
+                    if (Name(raw) == "cmpMain") {
+                        if (data) throw std::runtime_error("ambiguous camp menu");
+                        Callbacks(raw, 0xf5900, 0xf5fa0);
+                        data = At<u64>(raw, 0x48);
+                        if (!data) throw std::runtime_error("camp menu starting");
+                    }
+                    node = At<u64>(raw, 0x50);
+                }
+            }
+            if (!data) return std::nullopt;
+            CampMenu c;
+            auto top = Read(data, 0x90);
+            c.state = At<int32_t>(top, 0); c.sub = At<int32_t>(top, 4); c.cursor = At<int32_t>(top, 0x58);
+            c.input = At<u8>(top, 0x10) & 1;
+            int n = At<int32_t>(top, 0x80);
+            if (n < 1 || n > 7) throw std::runtime_error("bad camp command list");
+            for (int k = 0; k < n; ++k) c.commands.push_back(At<int32_t>(top, 0x64 + 4 * k));
+            if (c.state == 4 && c.cursor >= 0 && c.cursor < n && c.commands[c.cursor] == 1) {
+                auto item = Read(data + 0x930, 0x3d00);
+                c.row = At<int32_t>(item, 0x30); c.scroll = At<int32_t>(item, 0x34); c.target = At<int32_t>(item, 0x38);
+                c.tab = At<int16_t>(item, 0x3cf8);
+                int len = At<int32_t>(item, 0x3cd0);
+                if (len < 0 || len > 0x200) throw std::runtime_error("bad item list");
+                for (int k = 0; k < len; ++k) c.use_list.push_back({At<int32_t>(item, 0x50 + 8 * k), At<int32_t>(item, 0x54 + 8 * k)});
+                for (int k = 0; k < 4; ++k) { int id = At<u16>(item, 0x44 + 2 * k); if (id >= 1 && id <= 10) c.targets.push_back(id); else break; }
+            }
+            return c;
+        };
+        auto first = once(), second = once();
+        if (first != second) throw std::runtime_error("camp menu changing");
+        return second;
     }
     // The protagonist's names as message functions 0x81..0x83 print them: the player-entered
     // surname (main+0x864c10, getter 0x1ddf90) and first name (+0x864c24, 0x1ddff0), and the

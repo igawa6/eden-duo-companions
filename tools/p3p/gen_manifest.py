@@ -209,6 +209,27 @@ def items_widgets(outputs, scrolls):
                 | {'color': COLORS['muted']},
                 dict(row, **label([1176, 202, 0, 44], bind='item.{i}.count', scale=SIZE['value']), **need)
                 | {'color': COLORS['muted'], 'align': 'right'}]
+    # Use tab: tap an item, then who to use it on; the module walks the game's camp menu to do it.
+    outputs += ['item.can_pick', 'item.picked', 'item.pick.on', 'item.pick.name', 'drive.busy', 'drive.show', 'drive.text']
+    outputs += [f'use.{k}.{f}' for k in range(4) for f in ('present', 'name')]
+    widgets += [dict(row, **fill([36, 196, 14, 96], 'select'), need_bind='item.pick.on', hide_bind='item.picked',
+                     keep_min='{i}', keep_max='{i}'),
+                dict(row, type='image', rect=[36, 196, 1164, 96], src='module:p3p:fill', tint='#00000000',
+                     on_tap='item.pick', payload='{i}', need_bind='item.can_pick')]
+    panel = {'need_bind': 'item.pick.on'}
+    widgets += [fill([36, 776, 1188, 192], 'select', **panel),
+                label([60, 790, 1140, 44], bind='item.pick.name', scale=SIZE['value']) | panel | {'color': COLORS['light']}]
+    for k in range(4):
+        widgets += button([60 + k * 232, 848, 220, 100], '', f'item.use.{k}', SIZE['value'], need_bind=f'use.{k}.present')
+        widgets.append(label([170 + k * 232, 848, 0, 100], bind=f'use.{k}.name', scale=SIZE['value'])
+                       | {'need_bind': f'use.{k}.present', 'align': 'center', 'text_center_h': 100, 'fit_text': True,
+                          'wrap_width': 200, 'text_min_scale': SIZE['body']})
+    widgets += button([996, 848, 204, 100], 'Cancel', 'item.cancel', SIZE['value'], **panel)
+    # While the game's menu is being driven, and for a few seconds after: what happened.
+    show = {'need_bind': 'drive.show'}
+    widgets += [fill([36, 860, 1188, 108], 'select', **show),
+                label([620, 860, 0, 108], bind='drive.text', scale=SIZE['value'])
+                | show | {'align': 'center', 'text_center_h': 108, 'color': COLORS['light']}]
     return widgets
 
 def personas_widgets(outputs):
@@ -511,6 +532,15 @@ def main():
     actions.update({f'persona.select.{i}': {'kind': 'module', 'action': 'persona_select', 'argument': i} for i in range(12)})
     actions['calendar.prev'] = {'kind': 'module', 'action': 'calendar_shift', 'argument': 0}
     actions['calendar.next'] = {'kind': 'module', 'action': 'calendar_shift', 'argument': 1}
+    # Item use: the module picks the row and member, then asks for one press at a time (pdrv.*);
+    # the enforce rules below make the press while its gate is up (one sample).
+    actions['item.pick'] = {'kind': 'module', 'action': 'item_pick', 'argument': '$payload', 'enabled_bind': 'item.can_pick'}
+    actions['item.cancel'] = {'kind': 'module', 'action': 'item_cancel', 'argument': 0}
+    for k in range(4):
+        actions[f'item.use.{k}'] = {'kind': 'module', 'action': 'item_use', 'argument': k, 'enabled_bind': f'use.{k}.present',
+                                    'haptic': 'confirm'}
+    for key, pad in (('a', 'A'), ('b', 'B'), ('x', 'X'), ('l', 'L'), ('up', 'DUp'), ('down', 'DDown')):
+        actions[f'pdrv.press.{key}'] = {'kind': 'button', 'button': pad, 'frames': 8, 'enabled_bind': f'pdrv.{key}'}
     # Choice taps (talk page): the game's own D-pad and A, as the player would press them.
     actions['choice.confirm'] = {'kind': 'button', 'button': 'A', 'frames': 6, 'enabled_bind': 'controls.choice',
                                  'haptic': 'confirm'}
@@ -569,7 +599,7 @@ def main():
     # First page = the page shown at boot (page binds only fire on a change, mod_pages.cpp).
     pages.insert(0, start_page())
     page_binds.append({'point': 'ui.page', 'equals': 11, 'when_equal': {'page': 'start'}})
-    outputs += ['live.paused', 'live.pause']
+    outputs += ['live.paused', 'live.pause'] + [f'pdrv.{k}' for k in ('a', 'b', 'x', 'l', 'up', 'down', 'pending')]
     for page in pages:
         page['widgets'] = split_route(page['widgets'])
     result = {'format': 1, 'title_id': '0100DCD01525A000', 'name': 'Persona 3 Portable - Preview',
@@ -579,7 +609,9 @@ def main():
               # p3p_font.txt is a marker holding no game data.
               'font': 'file:p3p_font.txt', 'font_atlas': 'module:p3p_font',
               'module_outputs': outputs, 'module': {'abi': 1, 'build_ids': [BUILD], 'libraries': {}},
-              'actions': actions, 'page_binds': page_binds, 'pages': pages}
+              'actions': actions, 'page_binds': page_binds, 'pages': pages,
+              'enforce': [{'action': f'pdrv.press.{k}', 'every_ms': 1} for k in ('a', 'b', 'x', 'l', 'up', 'down')],
+              'enforce_gate': {'point': 'pdrv.pending', 'max': 1}}
     dest = ROOT / 'packages/Persona3Portable/dualscreen/manifest.json'
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(json.dumps(result, indent=2) + '\n')
