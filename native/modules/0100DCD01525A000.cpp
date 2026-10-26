@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Experimental read-only Persona 3 Portable companion. No guest input/writes.
+// Experimental Persona 3 Portable companion. The module itself never writes to the game; the
+// manifest's choice taps press the D-pad and A as the player would, gated by controls.choice.
 #include "p3p_reader.h"
 #include "p3p_font.h"
 #include "p3p_art.h"
@@ -114,7 +115,9 @@ struct Module {
         if(!t)return;
         I("talk.ready",1);I("talk.text_ok",t->text_ok);T("talk.text",t->text);
         I("talk.has_speaker",!t->speaker.empty());T("talk.speaker",t->speaker);
-        I("talk.choosing",t->choosing);I("talk.choices_ok",t->choices_ok);
+        I("talk.choosing",t->choosing);I("talk.choices_ok",t->choices_ok);I("talk.selected",t->selected);
+        // Taps only while every option is spelled out and the game's cursor is known, on the page.
+        I("controls.choice",t->choosing&&t->choices_ok&&t->selected>=0&&page==12);
         for(size_t i=0;i<t->choices.size()&&i<8;++i){
             auto p="choice."+std::to_string(i);
             T(p+".text",t->choices[i]);I(p+".present",1);I(p+".selected",int(i)==t->selected);
@@ -166,7 +169,7 @@ struct Module {
         for(int i=0;i<32;++i){auto p="map.chest."+std::to_string(i);I(p+".on",0);I(p+".x",0);I(p+".y",0);}
         for(int i=0;i<24;++i){auto p="map.shadow."+std::to_string(i);I(p+".on",0);I(p+".x",0);I(p+".y",0);}
         I("talk.ready",0);I("talk.text_ok",0);T("talk.text","");I("talk.has_speaker",0);T("talk.speaker","");
-        I("talk.choosing",0);I("talk.choices_ok",0);T("talk.why","");
+        I("talk.choosing",0);I("talk.choices_ok",0);T("talk.why","");I("talk.selected",-1);I("controls.choice",0);
         for(int i=0;i<8;++i){auto p="choice."+std::to_string(i);T(p+".text","");I(p+".present",0);I(p+".selected",0);}
     }
     void Sample() {
@@ -206,7 +209,7 @@ struct Module {
             auto m=v.personas[i];auto p="persona."+std::to_string(i);I(p+".picked",int(i)==persona_pick);
             T(p+".line",(m.selected?"* ":"  ")+PersonaName(m.id)+"   Lv "+std::to_string(m.level));I(p+".present",1);
         }
-        T("status","Read-only companion");I("live.ready",1);
+        T("status","Live companion");I("live.ready",1);
         if(page==3) {
             // Native S.LINK list (fails closed on its own).
             try {
@@ -423,7 +426,7 @@ EdenDsmodBool DecodeFont(void* p,const uint8_t* bytes,size_t size,void* receiver
         return EDEN_DSMOD_TRUE;
     } catch(...) {return EDEN_DSMOD_FALSE;}
 }
-const EdenDsmodModuleApi Api{EDEN_DSMOD_MODULE_ABI_VERSION,sizeof(EdenDsmodModuleApi),0,EDEN_DSMOD_MODULE_ABI_HASH,Title,"Persona 3 Portable (read-only preview)",EDEN_DSMOD_CAP_NO_TICK_WHEN_HIDDEN|EDEN_DSMOD_CAP_EXTENSIONS|EDEN_DSMOD_CAP_ROMFS_READ,&Supports,&Create,&Destroy,&Sample,&Tick};
+const EdenDsmodModuleApi Api{EDEN_DSMOD_MODULE_ABI_VERSION,sizeof(EdenDsmodModuleApi),0,EDEN_DSMOD_MODULE_ABI_HASH,Title,"Persona 3 Portable (preview)",EDEN_DSMOD_CAP_NO_TICK_WHEN_HIDDEN|EDEN_DSMOD_CAP_EXTENSIONS|EDEN_DSMOD_CAP_ROMFS_READ,&Supports,&Create,&Destroy,&Sample,&Tick};
 const EdenDsmodModuleExtensions Extensions{EDEN_DSMOD_EXT_VERSION,sizeof(EdenDsmodModuleExtensions),EDEN_DSMOD_EXT_HASH,&Configure,&OnAction,&LoadImage};
 const EdenDsmodFontExtensions FontExtensions{EDEN_DSMOD_FONT_EXT_VERSION,sizeof(EdenDsmodFontExtensions),EDEN_DSMOD_FONT_EXT_HASH,&DecodeFont};
 }

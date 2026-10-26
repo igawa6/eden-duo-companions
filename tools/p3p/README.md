@@ -1,6 +1,6 @@
 # Persona 3 Portable tools
 
-Scripts for the read-only Persona 3 Portable companion (`0100DCD01525A000`). The module is
+Scripts for the Persona 3 Portable companion (`0100DCD01525A000`). The module is
 `native/modules/0100DCD01525A000.cpp` with `p3p_reader.h`; it supports only the base game build
 `663052C2C7E8C357BA6EAD36641EE2792397EB1F000000000000000000000000` and refuses any other.
 
@@ -17,8 +17,10 @@ Help lines (items, equipment, skills) come from the game's `init/datMsg.pak` mes
 `init.bin` (`p3p_help.h`), read once in the background.
 While the game shows a choice list, the talk page opens by itself with the current line and the
 options, following the game's cursor (`p3p_talk.h`); it reads the open message window and the
-game's own loaded message file, and leaves out any text it cannot reproduce exactly. The player
-still chooses on the main screen.
+game's own loaded message file, and leaves out any text it cannot reproduce exactly. Tapping an
+option moves the game's cursor to it and tapping it again chooses it: the manifest presses the
+D-pad and A, as the player would, only while every option is spelled out. The module itself never
+writes to the game.
 
 | Script | What it does |
 |---|---|

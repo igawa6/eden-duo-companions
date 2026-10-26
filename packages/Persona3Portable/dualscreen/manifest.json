@@ -1,7 +1,7 @@
 {
   "format": 1,
   "title_id": "0100DCD01525A000",
-  "name": "Persona 3 Portable - Read-only Preview",
+  "name": "Persona 3 Portable - Preview",
   "min_runtime": 19,
   "requires_module": true,
   "poll_hz": 60,
@@ -2444,6 +2444,8 @@
     "talk.choosing",
     "talk.choices_ok",
     "talk.why",
+    "talk.selected",
+    "controls.choice",
     "choice.0.present",
     "choice.0.text",
     "choice.0.selected",
@@ -2649,6 +2651,69 @@
       "kind": "module",
       "action": "calendar_shift",
       "argument": 1
+    },
+    "choice.confirm": {
+      "kind": "button",
+      "button": "A",
+      "frames": 6,
+      "enabled_bind": "controls.choice",
+      "haptic": "confirm"
+    },
+    "choice.move.1": {
+      "kind": "button",
+      "button": "DDown",
+      "frames": 6,
+      "repeat": 1,
+      "enabled_bind": "controls.choice"
+    },
+    "choice.move.-1": {
+      "kind": "button",
+      "button": "DUp",
+      "frames": 6,
+      "repeat": 1,
+      "enabled_bind": "controls.choice"
+    },
+    "choice.move.2": {
+      "kind": "button",
+      "button": "DDown",
+      "frames": 6,
+      "repeat": 2,
+      "enabled_bind": "controls.choice"
+    },
+    "choice.move.-2": {
+      "kind": "button",
+      "button": "DUp",
+      "frames": 6,
+      "repeat": 2,
+      "enabled_bind": "controls.choice"
+    },
+    "choice.move.3": {
+      "kind": "button",
+      "button": "DDown",
+      "frames": 6,
+      "repeat": 3,
+      "enabled_bind": "controls.choice"
+    },
+    "choice.move.-3": {
+      "kind": "button",
+      "button": "DUp",
+      "frames": 6,
+      "repeat": 3,
+      "enabled_bind": "controls.choice"
+    },
+    "choice.move.4": {
+      "kind": "button",
+      "button": "DDown",
+      "frames": 6,
+      "repeat": 4,
+      "enabled_bind": "controls.choice"
+    },
+    "choice.move.-4": {
+      "kind": "button",
+      "button": "DUp",
+      "frames": 6,
+      "repeat": 4,
+      "enabled_bind": "controls.choice"
     }
   },
   "page_binds": [
@@ -20127,6 +20192,86 @@
           "type": "image",
           "rect": [
             36,
+            430,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.confirm",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 0,
+          "keep_max": 0
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            430,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.-1",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 1,
+          "keep_max": 1
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            430,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.-2",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 2,
+          "keep_max": 2
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            430,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.-3",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 3,
+          "keep_max": 3
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            430,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.-4",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 4,
+          "keep_max": 4
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
             538,
             1188,
             96
@@ -20196,6 +20341,86 @@
           "wrap_width": 1100,
           "max_lines": 1,
           "text_min_scale": 4
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            538,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.1",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 0,
+          "keep_max": 0
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            538,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.confirm",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 1,
+          "keep_max": 1
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            538,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.-1",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 2,
+          "keep_max": 2
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            538,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.-2",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 3,
+          "keep_max": 3
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            538,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.-3",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 4,
+          "keep_max": 4
         },
         {
           "type": "image",
@@ -20275,6 +20500,86 @@
           "type": "image",
           "rect": [
             36,
+            646,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.2",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 0,
+          "keep_max": 0
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            646,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.1",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 1,
+          "keep_max": 1
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            646,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.confirm",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 2,
+          "keep_max": 2
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            646,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.-1",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 3,
+          "keep_max": 3
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            646,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.-2",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 4,
+          "keep_max": 4
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
             754,
             1188,
             96
@@ -20349,6 +20654,86 @@
           "type": "image",
           "rect": [
             36,
+            754,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.3",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 0,
+          "keep_max": 0
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            754,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.2",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 1,
+          "keep_max": 1
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            754,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.1",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 2,
+          "keep_max": 2
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            754,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.confirm",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 3,
+          "keep_max": 3
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            754,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.-1",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 4,
+          "keep_max": 4
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
             862,
             1188,
             96
@@ -20418,6 +20803,100 @@
           "wrap_width": 1100,
           "max_lines": 1,
           "text_min_scale": 4
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            862,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.4",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 0,
+          "keep_max": 0
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            862,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.3",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 1,
+          "keep_max": 1
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            862,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.2",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 2,
+          "keep_max": 2
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            862,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.move.1",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 3,
+          "keep_max": 3
+        },
+        {
+          "type": "image",
+          "rect": [
+            36,
+            862,
+            1188,
+            96
+          ],
+          "src": "module:p3p:fill",
+          "tint": "#00000000",
+          "on_tap": "choice.confirm",
+          "need_bind": "controls.choice",
+          "hide_bind": "talk.selected",
+          "keep_min": 4,
+          "keep_max": 4
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            978,
+            0,
+            28
+          ],
+          "text": "Tap an option to highlight it, tap it again to choose",
+          "color": "#FF6E5A78",
+          "text_scale": 3,
+          "align": "center",
+          "need_bind": "controls.choice"
         },
         {
           "type": "label",

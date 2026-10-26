@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the asset-free read-only P3P preview layout."""
+"""Generate the asset-free P3P preview layout."""
 import json
 from pathlib import Path
 from saves import BUILD
@@ -432,10 +432,11 @@ def map_widgets(outputs):
 
 def talk_page(outputs):
     """Shown automatically while the game shows a choice list (module ui.page 12): who is
-    speaking, the current line, and the options with the game's cursor. Read-only: the player
-    picks on the main screen. Text the module cannot reproduce exactly is left out."""
+    speaking, the current line, and the options with the game's cursor. The player
+    can tap an option to move the game's cursor to it and tap it again to choose; text the module
+    cannot reproduce exactly is left out, and then only the main screen chooses."""
     outputs += ['talk.ready', 'talk.text_ok', 'talk.text', 'talk.has_speaker', 'talk.speaker', 'talk.choosing',
-                'talk.choices_ok', 'talk.why']
+                'talk.choices_ok', 'talk.why', 'talk.selected', 'controls.choice']
     widgets = [{'type': 'image', 'rect': [0, 0, 1240, 1080], 'bind': 'ui.route', 'src_format': 'module:p3p:bg/%d'},
                label([44, 20, 760, 48], 'TALK', scale=SIZE['title']) | {'color': COLORS['title']},
                label([1216, 26, 0, 40], bind='live.date', ready=True) | {'align': 'right', 'color': COLORS['light']},
@@ -457,6 +458,14 @@ def talk_page(outputs):
                     fill([36, y, 1188, 96], 'select', need_bind=p + '.selected'),
                     text | {'hide_bind': p + '.selected', 'hide_eq': 1},
                     text | {'need_bind': p + '.selected', 'color': COLORS['light']}]
+        # Tap targets, one per position of the game's cursor (talk.selected): tapping another
+        # option moves the cursor there, tapping the highlighted one chooses it (A).
+        for c in range(5):
+            widgets.append({'type': 'image', 'rect': [36, y, 1188, 96], 'src': 'module:p3p:fill', 'tint': '#00000000',
+                            'on_tap': 'choice.confirm' if c == i else f'choice.move.{i - c}',
+                            'need_bind': 'controls.choice', 'hide_bind': 'talk.selected', 'keep_min': c, 'keep_max': c})
+    widgets.append(label([620, 978, 0, 28], 'Tap an option to highlight it, tap it again to choose', scale=SIZE['small'])
+                   | {'align': 'center', 'color': COLORS['muted'], 'need_bind': 'controls.choice'})
     widgets.append(label([44, 1012, 1192, 32], bind='status', scale=SIZE['small']) | {'color': COLORS['muted']})
     return {'id': 'talk', 'title': 'TALK', 'widgets': widgets}
 
@@ -502,6 +511,13 @@ def main():
     actions.update({f'persona.select.{i}': {'kind': 'module', 'action': 'persona_select', 'argument': i} for i in range(12)})
     actions['calendar.prev'] = {'kind': 'module', 'action': 'calendar_shift', 'argument': 0}
     actions['calendar.next'] = {'kind': 'module', 'action': 'calendar_shift', 'argument': 1}
+    # Choice taps (talk page): the game's own D-pad and A, as the player would press them.
+    actions['choice.confirm'] = {'kind': 'button', 'button': 'A', 'frames': 6, 'enabled_bind': 'controls.choice',
+                                 'haptic': 'confirm'}
+    for k in range(1, 5):
+        for sign, pad in ((1, 'DDown'), (-1, 'DUp')):
+            actions[f'choice.move.{sign * k}'] = {'kind': 'button', 'button': pad, 'frames': 6, 'repeat': k,
+                                                 'enabled_bind': 'controls.choice'}
     page_binds = [{'point': 'ui.page', 'equals': n, 'when_equal': {'page': page_id}} for n, page_id in numbered]
     # The module switches to the battle page (ui.page 9) while a battle runs.
     page_binds.append({'point': 'ui.page', 'equals': 9, 'when_equal': {'page': 'battle'}})
@@ -556,7 +572,7 @@ def main():
     outputs += ['live.paused', 'live.pause']
     for page in pages:
         page['widgets'] = split_route(page['widgets'])
-    result = {'format': 1, 'title_id': '0100DCD01525A000', 'name': 'Persona 3 Portable - Read-only Preview',
+    result = {'format': 1, 'title_id': '0100DCD01525A000', 'name': 'Persona 3 Portable - Preview',
               'min_runtime': 19, 'requires_module': True, 'poll_hz': 60,
               'canvas_w': 1240, 'canvas_h': 1080, 'background': '#FFFFB8CE',
               # The game font from the player's romfs (module decode_font/load_image, p3p_font.h);
