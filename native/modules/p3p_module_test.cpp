@@ -5,6 +5,7 @@
 #include "p3p_font.h"
 #include "p3p_art.h"
 #include "p3p_map.h"
+#include "p3p_help.h"
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
@@ -49,7 +50,7 @@ int main() {
         Require(ext->on_action(instance, "persona_select", 11) && !ext->on_action(instance, "persona_select", 12), "persona pick range");
         Require(ext->on_action(instance, "item_tab", 2) && !ext->on_action(instance, "item_tab", 3), "item tab range");
         output.clear(); api->sample(instance, &host);
-        Require(output.at("ui.page") == 8 && output.at("battle.active") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "page state published while unavailable");
+        Require(output.at("ui.page") == 11 && output.at("battle.active") == 0 && output.at("ui.member") == 9 && output.at("skill.ready") == 0, "start page before a save is loaded; state published while unavailable");
         Require(p3p::Maximum(101,{0x237},{},false)==202,"HP gain");
         Require(p3p::Maximum(101,{0x237},{},true)==51,"SP loss rounds down before subtract");
         Require(p3p::Maximum(101,{0x238},{},false)==51,"HP loss");
@@ -179,6 +180,59 @@ int main() {
             p3p::FloorMap n = m; n.x = 0;
             Require(p3p_map::SamePicture(m, n) && !p3p_map::SamePicture(m, p3p::FloorMap{}), "position does not redraw");
         }
+        {
+            // Help text (MSG1): page 0 flattened, function codes and glyph pairs dropped.
+            p3p::Bytes b(0x20 + 8 + 32 + 0x40); std::memcpy(&b[8], "MSG1", 4); b[0x18] = 1;
+            b[0x24] = 8;  // dialog at +0x28: name[24], pages 1, speaker, page offset
+            b[0x28 + 24] = 1; b[0x28 + 28] = 8 + 32;
+            const char text[] = "\xF2\x05\xFF\xFFHeals 1\nally.\x81\x40";
+            std::memcpy(&b[0x48], text, sizeof text);
+            std::vector<std::string> out;
+            Require(p3p_help::ParseMsg(b, out) && out.size() == 1 && out[0] == "Heals 1 ally.", "help text");
+            p3p_help::Tables t; t.armor = {"", "", "Wool."}; t.skill_card = {"", "Card."};
+            Require(t.Item(0x202) == "Wool." && t.Item(0x691) == "Card." && t.Item(0x203).empty(), "help item ranges");
+        }
+        {
+            // Message window (p3p_talk.h): a message with two pages and a speaker, and a selection
+            // whose second option prints a number (not reproduced) unless the mask hides it.
+            p3p::Bytes b(0x38);
+            std::memcpy(&b[8], "MSG1", 4); b[0x18] = 2;
+            auto put32 = [&](size_t at, uint32_t v) { for (int k = 0; k < 4; ++k) b[at + k] = uint8_t(v >> (8 * k)); };
+            auto append = [&](std::string_view s) { size_t at = b.size(); b.insert(b.end(), s.begin(), s.end()); b.push_back(0); return uint32_t(at - 0x20); };
+            const size_t message = b.size(); b.resize(b.size() + 40);
+            b[message + 24] = 2; // pages 2, speaker 0
+            put32(message + 28, append("\xF2\x05\xFF\xFF\xF1\x41Hi, \xF1\x82.\n\x80\x80\n\xF1\x21"));
+            put32(message + 32, append("\xF1\x25Teacher\nDone, \xF1\x83!"));
+            const size_t select = b.size(); b.resize(b.size() + 48);
+            b[select + 26] = 3;
+            put32(select + 32, append("\xF2\x05\xFF\xFF\xF1\x41Yes"));
+            put32(select + 36, append("\xF2\x44\x01\x01 yen"));
+            put32(select + 40, append("\x80\xAEo"));
+            const uint32_t name = append("Mitsuru");
+            const size_t names = b.size(); b.resize(b.size() + 4); put32(names, name);
+            put32(0x20, 0); put32(0x24, uint32_t(message - 0x20)); put32(0x28, 1); put32(0x2c, uint32_t(select - 0x20));
+            put32(0x30, uint32_t(names - 0x20)); put32(0x34, 1);
+            const p3p_talk::Names who{"Shiomi", "Kotone", "Kotone Shiomi"};
+            p3p_talk::Window w{0x1000, 0x1000 + message, 0, 2, 0, -1, 0, 0, 0};
+            auto t = p3p_talk::Parse(b, w, who);
+            Require(t.text_ok && t.text == "Hi, Kotone." && t.speaker == "Mitsuru" && !t.choosing, "talk page 0");
+            w.page = 1; t = p3p_talk::Parse(b, w, who);
+            Require(t.text == "Done, Kotone Shiomi!" && t.speaker == "Teacher", "talk inline speaker and full name");
+            w.page = 2; Require(p3p_talk::Parse(b, w, who).text == "Done, Kotone Shiomi!", "finished message keeps its last page");
+            w.state = 2; w.selection = 1; w.mask = 2; w.shown = 2; w.cursor = 1;
+            t = p3p_talk::Parse(b, w, who);
+            Require(t.choosing && t.choices_ok && t.choices == std::vector<std::string>{"Yes", "No"} && t.selected == 1,
+                    "talk choices skip hidden options");
+            w.mask = 0; w.shown = 3; t = p3p_talk::Parse(b, w, who);
+            Require(t.choosing && !t.choices_ok && t.choices.empty() && t.selected == -1, "talk number fails choices closed");
+            w.shown = 2; bool threw = false;
+            try { p3p_talk::Parse(b, w, who); } catch (const std::exception&) { threw = true; }
+            Require(threw, "talk shown count must match the file");
+            std::string out;
+            Require(!p3p_talk::Decode(std::span<const uint8_t>(reinterpret_cast<const uint8_t*>("\x81\x40"), 3), who, out) &&
+                    !p3p_talk::Decode(std::span<const uint8_t>(reinterpret_cast<const uint8_t*>("\xF1\x83"), 3), {}, out),
+                    "talk glyphs and missing names fail closed");
+        }
         // Ailment bits (unit +0xc), named only where SKILL.TBL inflict/cure masks pin them down.
         Require(p3p::Ailments(0).empty() && p3p::Ailments(0x100) == "Poison" && p3p::Ailments(0x80002) == "KO  Charm",
                 "ailment names");
@@ -227,7 +281,7 @@ int main() {
                     "SPR0 sprite crop at 4x");
             Require(!p3p_art::SpriteImage(s, 1, img), "missing sprite refused");
         }
-        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item, Persona-detail, calendar, ailment, map, font and art regressions passed");
+        std::puts("P3P ABI, cleared snapshots, stale visibility and maximum-stat, action, skill, stat, social-rank, item, Persona-detail, calendar, ailment, map, help, talk, font and art regressions passed");
         return 0;
     } catch(const std::exception& e) {std::fprintf(stderr,"%s\n",e.what());return 1;}
 }

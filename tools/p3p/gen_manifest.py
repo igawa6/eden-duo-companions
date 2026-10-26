@@ -177,11 +177,12 @@ def equip_widgets(outputs):
     ready = {'need_bind': 'equip.ready'}
     widgets.append(header('equip.header', 'equip.ready'))
     for i, slot in enumerate(('weapon', 'body', 'feet', 'accessory')):  # native Equip lettering
-        p = f'equip.{i}'; outputs += [p + '.name', p + '.stats']
+        p = f'equip.{i}'; outputs += [p + '.name', p + '.stats', p + '.help']
         y = 306 + i * 166
         widgets += [fill([36, y, 1188, 154], 'panel', **ready),
                     sprite(slot, 40, y + 14, 36, tint=COLORS['accent']) | ready,
-                    label([56, y + 66, 1160, 44], bind=p + '.name', scale=SIZE['value']) | ready,
+                    label([56, y + 56, 1160, 44], bind=p + '.name', scale=SIZE['value']) | ready,
+                    label([56, y + 108, 1160, 32], bind=p + '.help', scale=SIZE['small']) | ready | {'color': COLORS['muted']},
                     label([1200, y + 14, 0, 32], bind=p + '.stats') | ready | {'color': COLORS['muted'], 'align': 'right'}]
     return widgets
 
@@ -195,16 +196,19 @@ def items_widgets(outputs, scrolls):
         widgets += toggle([36 + i * 288, 104, 276, 76], caption, f'item.tab.{i}', 'item.tab', i, SIZE['value'])
     widgets.append(label([1216, 104, 0, 76], bind='item.header', scale=SIZE['value'])
                    | {'need_bind': 'item.ready', 'align': 'right', 'text_center_h': 76, 'color': COLORS['accent']})
-    scrolls.append({'id': 'items', 'rect': [36, 196, 1188, 772], 'count_bind': 'item.count', 'row_h': 86,
+    scrolls.append({'id': 'items', 'rect': [36, 196, 1188, 772], 'count_bind': 'item.count', 'row_h': 104,
                     'bar': THEME['line'][0], 'bar_track': '#33FFFFFF', 'bar_w': 8, 'show_bind': 'item.ready',
                     'reset_bind': 'item.tab'})
-    outputs += [f'item.{i}.{k}' for i in range(ITEM_ROWS) for k in ('present', 'name', 'count')]
-    row = {'repeat': ITEM_ROWS, 'repeat_dy': 86, 'scroll': 'items'}
+    # Each row: name and count, with the game's help line under them (native Item menu text).
+    outputs += [f'item.{i}.{k}' for i in range(ITEM_ROWS) for k in ('present', 'name', 'count', 'help')]
+    row = {'repeat': ITEM_ROWS, 'repeat_dy': 104, 'scroll': 'items'}
     need = {'need_bind': 'item.{i}.present'}
-    widgets += [dict(row, **fill([36, 196, 1164, 76], 'panel'), **need),
-                dict(row, **label([56, 196, 900, 76], bind='item.{i}.name', scale=SIZE['value']), **need) | {'text_center_h': 76},
-                dict(row, **label([1176, 196, 0, 76], bind='item.{i}.count', scale=SIZE['value']), **need)
-                | {'color': COLORS['muted'], 'align': 'right', 'text_center_h': 76}]
+    widgets += [dict(row, **fill([36, 196, 1164, 96], 'panel'), **need),
+                dict(row, **label([56, 202, 900, 44], bind='item.{i}.name', scale=SIZE['value']), **need),
+                dict(row, **label([56, 252, 1120, 32], bind='item.{i}.help', scale=SIZE['small']), **need)
+                | {'color': COLORS['muted']},
+                dict(row, **label([1176, 202, 0, 44], bind='item.{i}.count', scale=SIZE['value']), **need)
+                | {'color': COLORS['muted'], 'align': 'right'}]
     return widgets
 
 def personas_widgets(outputs):
@@ -377,18 +381,20 @@ def skills_widgets(outputs, scrolls):
     widgets = member_buttons()
     outputs += ['skill.ready', 'skill.count', 'skill.header']
     widgets.append(header('skill.header', 'skill.ready'))
-    scrolls.append({'id': 'skills', 'rect': [36, 304, 1188, 664], 'count_bind': 'skill.count', 'row_h': 83,
+    scrolls.append({'id': 'skills', 'rect': [36, 304, 1188, 664], 'count_bind': 'skill.count', 'row_h': 104,
                     'bar': THEME['line'][0], 'bar_track': '#33FFFFFF', 'bar_w': 8, 'show_bind': 'skill.ready',
                     'reset_bind': 'ui.member'})
-    outputs += [f'skill.{i}.{k}' for i in range(SKILL_ROWS) for k in ('present', 'name', 'cost', 'icon')]
-    row = {'repeat': SKILL_ROWS, 'repeat_dy': 83, 'scroll': 'skills'}
-    widgets.append(dict(row, **fill([36, 304, 1164, 74], 'panel'), need_bind='skill.{i}.present'))
-    widgets.append(dict(row, type='image', rect=[52, 317, 48, 48], bind='skill.{i}.icon',
+    outputs += [f'skill.{i}.{k}' for i in range(SKILL_ROWS) for k in ('present', 'name', 'cost', 'icon', 'help')]
+    row = {'repeat': SKILL_ROWS, 'repeat_dy': 104, 'scroll': 'skills'}
+    widgets.append(dict(row, **fill([36, 304, 1164, 96], 'panel'), need_bind='skill.{i}.present'))
+    widgets.append(dict(row, **label([116, 360, 1060, 32], bind='skill.{i}.help', scale=SIZE['small']),
+                        need_bind='skill.{i}.present') | {'color': COLORS['muted']})
+    widgets.append(dict(row, type='image', rect=[52, 310, 48, 48], bind='skill.{i}.icon',
                         src_format='module:p3p:spr/%d@48', tint=ACCENT, need_bind='skill.{i}.icon'))
-    widgets.append(dict(row, **label([116, 304, 780, 74], bind='skill.{i}.name', scale=SIZE['value']),
-                        need_bind='skill.{i}.present') | {'text_center_h': 74})
-    widgets.append(dict(row, **label([1176, 304, 0, 74], bind='skill.{i}.cost', scale=SIZE['value']),
-                        need_bind='skill.{i}.present') | {'color': COLORS['muted'], 'align': 'right', 'text_center_h': 74})
+    widgets.append(dict(row, **label([116, 310, 780, 44], bind='skill.{i}.name', scale=SIZE['value']),
+                        need_bind='skill.{i}.present'))
+    widgets.append(dict(row, **label([1176, 310, 0, 44], bind='skill.{i}.cost', scale=SIZE['value']),
+                        need_bind='skill.{i}.present') | {'color': COLORS['muted'], 'align': 'right'})
     return widgets
 
 MAP_X, MAP_Y, MAP_SIZE = 188, 104, 864  # p3p_map.h Size
@@ -423,6 +429,56 @@ def map_widgets(outputs):
             {'type': 'label', 'rect': [620, 470, 0, 60], 'text': '', 'bind_text': 'map.why', 'align': 'center',
              'wrap_width': 1100, 'text_scale': SIZE['value'], 'color': COLORS['muted'],
              'need_bind': 'live.ready', 'hide_bind': 'map.ready', 'hide_eq': 1}]
+
+def talk_page(outputs):
+    """Shown automatically while the game shows a choice list (module ui.page 12): who is
+    speaking, the current line, and the options with the game's cursor. Read-only: the player
+    picks on the main screen. Text the module cannot reproduce exactly is left out."""
+    outputs += ['talk.ready', 'talk.text_ok', 'talk.text', 'talk.has_speaker', 'talk.speaker', 'talk.choosing',
+                'talk.choices_ok', 'talk.why']
+    widgets = [{'type': 'image', 'rect': [0, 0, 1240, 1080], 'bind': 'ui.route', 'src_format': 'module:p3p:bg/%d'},
+               label([44, 20, 760, 48], 'TALK', scale=SIZE['title']) | {'color': COLORS['title']},
+               label([1216, 26, 0, 40], bind='live.date', ready=True) | {'align': 'right', 'color': COLORS['light']},
+               fill([36, 100, 1188, 300], 'panel', need_bind='talk.ready'),
+               label([72, 124, 1100, 40], bind='talk.speaker', scale=SIZE['value'])
+               | {'need_bind': 'talk.has_speaker', 'color': COLORS['accent']},
+               label([72, 184, 1100, 200], bind='talk.text', scale=SIZE['value'])
+               | {'need_bind': 'talk.text_ok', 'wrap_width': 1100, 'max_lines': 4, 'line_gap': 18},
+               # Choices the module cannot spell out (names, numbers it does not reproduce).
+               label([620, 600, 0, 48], 'Choose on the main screen', scale=SIZE['button'])
+               | {'align': 'center', 'need_bind': 'talk.choosing', 'hide_bind': 'talk.choices_ok', 'hide_eq': 1}]
+    for i in range(5):  # the game's selections have at most five options
+        p = f'choice.{i}'; y = 430 + i * 108
+        outputs += [p + '.present', p + '.text', p + '.selected']
+        need = {'need_bind': p + '.present'}
+        text = label([72, y, 1100, 96], bind=p + '.text', scale=SIZE['button']) | need | {
+            'text_center_h': 96, 'fit_text': True, 'wrap_width': 1100, 'max_lines': 1, 'text_min_scale': SIZE['body']}
+        widgets += [fill([36, y, 1188, 96], 'panel', **need),
+                    fill([36, y, 1188, 96], 'select', need_bind=p + '.selected'),
+                    text | {'hide_bind': p + '.selected', 'hide_eq': 1},
+                    text | {'need_bind': p + '.selected', 'color': COLORS['light']}]
+    widgets.append(label([44, 1012, 1192, 32], bind='status', scale=SIZE['small']) | {'color': COLORS['muted']})
+    return {'id': 'talk', 'title': 'TALK', 'widgets': widgets}
+
+def start_page():
+    """Shown on the title screen and before a save is loaded (module ui.page 11): game art and a
+    prompt, no buttons (the P5R companion's waiting page)."""
+    widgets = [{'type': 'image', 'rect': [0, 0, 1240, 1080], 'bind': 'ui.route', 'src_format': 'module:p3p:bg/%d'},
+               label([44, 20, 1150, 48], 'PERSONA 3 PORTABLE', scale=SIZE['title']) | {'color': COLORS['title']},
+               {'type': 'image', 'rect': [320, 150, 600, 600], 'src': 'module:p3p:persona/1@600'},
+               label([620, 800, 0, 60], 'Start or load a game to begin', scale=SIZE['title']) | {'align': 'center'},
+               label([44, 1012, 1172, 32], bind='status', scale=SIZE['small']) | {'color': COLORS['muted']},
+               dict(label([44, 700, 1172, 40], bind='module_error_message', scale=SIZE['body']), need_bind='module_error')]
+    return {'id': 'start', 'title': 'START', 'widgets': widgets}
+
+def paused_overlay():
+    """While the game is briefly unreadable in play (loading, scenes), the module republishes the
+    last values with live.paused: grey them out and tag the title band."""
+    paused = {'need_bind': 'live.paused'}
+    return [{'type': 'image', 'rect': [24, 90, 1216, 880], 'src': 'module:p3p:fill', 'tint': '#B3D9D9DE'} | paused,
+            fill([560, 18, 300, 52], 'select', **paused),
+            label([710, 18, 0, 52], bind='live.pause', scale=SIZE['value']) | paused
+            | {'align': 'center', 'text_center_h': 52, 'color': COLORS['title']}]
 
 def main():
     outputs = ['live.ready', 'live.date', 'live.money', 'status', 'ui.page', 'ui.member']
@@ -489,6 +545,15 @@ def main():
             continue
     pages.append(battle_page(outputs))
     pages.append({'id': 'map', 'title': 'MAP', 'widgets': chrome('MAP') + map_widgets(outputs)})
+    # ... and to the talk page (ui.page 12) while a choice list is open.
+    pages.append(talk_page(outputs))
+    page_binds.append({'point': 'ui.page', 'equals': 12, 'when_equal': {'page': 'talk'}})
+    for page in pages:
+        page['widgets'] += paused_overlay()
+    # First page = the page shown at boot (page binds only fire on a change, mod_pages.cpp).
+    pages.insert(0, start_page())
+    page_binds.append({'point': 'ui.page', 'equals': 11, 'when_equal': {'page': 'start'}})
+    outputs += ['live.paused', 'live.pause']
     for page in pages:
         page['widgets'] = split_route(page['widgets'])
     result = {'format': 1, 'title_id': '0100DCD01525A000', 'name': 'Persona 3 Portable - Read-only Preview',

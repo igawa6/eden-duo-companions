@@ -13,6 +13,12 @@ sheets from the same archives (the camp menu lettering and icons in `init_free.b
 and camp portraits in `data/umd0.cpk`) and serves them as `module:p3p:` images, resampled to the
 size the manifest draws them at. As in the native menu, the backdrop (`module:p3p:bg/<route>`, drawn
 by the module) and the accents are blue or pink to match the protagonist's route.
+Help lines (items, equipment, skills) come from the game's `init/datMsg.pak` message tables in
+`init.bin` (`p3p_help.h`), read once in the background.
+While the game shows a choice list, the talk page opens by itself with the current line and the
+options, following the game's cursor (`p3p_talk.h`); it reads the open message window and the
+game's own loaded message file, and leaves out any text it cannot reproduce exactly. The player
+still chooses on the main screen.
 
 | Script | What it does |
 |---|---|

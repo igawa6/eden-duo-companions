@@ -4,9 +4,11 @@
 #include "p3p_font.h"
 #include "p3p_art.h"
 #include "p3p_map.h"
+#include "p3p_help.h"
 #include "core/mods/dsmod_module_extensions.h"
 #include <cstdio>
 #include <memory>
+#include <future>
 #include <mutex>
 #include <span>
 #include <string_view>
@@ -26,6 +28,22 @@ struct Module {
     EdenDsmodHostApi host;
     const EdenDsmodHostApi font_host; // the create-time copy decode_font reads romfs through
     p3p_art::Library art;             // camp-menu art for load_image (p3p_art.h)
+    // Help text (p3p_help.h), read once in the background from romfs on first use.
+    std::future<std::shared_ptr<const p3p_help::Tables>> help_job;
+    std::shared_ptr<const p3p_help::Tables> help;
+    const p3p_help::Tables* Help() {
+        if(help)return help.get();
+        if(!help_job.valid()) {
+            if(!font_host.read_romfs)return nullptr;
+            help_job=std::async(std::launch::async,[h=font_host]{
+                auto t=std::make_shared<p3p_help::Tables>();
+                return p3p_help::Read(h,*t)?std::shared_ptr<const p3p_help::Tables>(t):std::shared_ptr<const p3p_help::Tables>(std::make_shared<p3p_help::Tables>());
+            });
+        }
+        if(help_job.wait_for(std::chrono::seconds(0))!=std::future_status::ready)return nullptr;
+        help=help_job.get();
+        return help.get();
+    }
     // Map page: the last floor drawn; load_image renders "module:p3p:map/<map_gen>" from it.
     std::mutex map_lock;
     FloorMap map_floor;
@@ -34,16 +52,74 @@ struct Module {
     Reader reader;
     unsigned ticks{};
     // Companion page (manifest ui_open: 1 status, 2 personas, 3 links, 4 skills, 5 equip,
-    // 6 stats, 7 items, 8 calendar, 10 map) and per-page selections, read only while open.
+    // 6 stats, 7 items, 8 calendar, 10 map; 9 battle and 12 talk open by themselves) and per-page
+    // selections, read only while open.
     int page{1}, member{}, item_tab{}, persona_pick{}; // item_tab: native Use / Equip / Key
     int cal_offset{}; // calendar month shown, relative to the current month
     int before_battle{1}; // the page to return to when a battle ends
     int route{};          // last known ui.route (0 male, 1 female)
     int lead{};           // last known live.lead (camp portrait), kept through loading too
+    int before_talk{1};   // the page to return to when a choice closes
+    int talk_idle{};      // samples since the last open choice, while the talk page shows
     // Page 9 (battle) is entered automatically while a battle runs; Status is restored after.
+    // Page 12 (talk) likewise while the game shows a choice list.
     explicit Module(const EdenDsmodHostApi& h) : host(h), font_host(h), reader(h) {}
-    void I(const std::string& key, int64_t v) { host.publish_i64(host.userdata,key.c_str(),v); }
-    void T(const std::string& key, const std::string& v) { host.publish_text(host.userdata,key.c_str(),v.c_str()); }
+    // Everything a successful sample publishes is recorded, so a later in-game pause (loading,
+    // scenes) can show the last values greyed out under a "Paused" tag instead of blanking.
+    struct Output { std::string key, text; int64_t value{}; bool is_text{}; };
+    std::vector<Output> last;    // the last successful sample's outputs
+    bool recording{}, loaded{};  // loaded: a save has been read since the title screen
+    void I(const std::string& key, int64_t v) {
+        if(recording)last.push_back({key,{},v,false});
+        host.publish_i64(host.userdata,key.c_str(),v);
+    }
+    void T(const std::string& key, const std::string& v) {
+        if(recording)last.push_back({key,v,0,true});
+        host.publish_text(host.userdata,key.c_str(),v.c_str());
+    }
+    // The reader's reason as a short tag for players (the reason itself stays in "status").
+    static std::string PauseTag(const std::string& why, int sequence) {
+        if(sequence==13||sequence==14)return "New day";
+        if(sequence==9)return "Area not supported yet";
+        for(const char* k:{"Loading","Field transition","context changed","Battle starting","Dungeon unavailable"})
+            if(why.starts_with(k))return "Loading";
+        return "Paused";
+    }
+    // Not readable: before a save is loaded (or back at the title) show the start page (ui.page
+    // 11); in game, republish the last values with live.paused set.
+    void Paused(const std::string& why) {
+        int sequence=reader.last_sequence;
+        if(sequence<=4){loaded=false;last.clear();} // boot, initread, startread, TITLE
+        if(!loaded){I("ui.page",11);T("status",why);return;}
+        for(const auto& o:last){
+            if(o.is_text)host.publish_text(host.userdata,o.key.c_str(),o.text.c_str());
+            else host.publish_i64(host.userdata,o.key.c_str(),o.value);
+        }
+        // The selections may have changed while paused.
+        I("ui.page",page);I("ui.member",member);I("item.tab",item_tab);I("ui.persona",persona_pick);
+        I("live.paused",1);T("live.pause",PauseTag(why,sequence));T("status",why);
+        Talk(false);
+    }
+    // The game's open message window and choice list (p3p_talk.h). Never recorded for the pause
+    // replay: a closed window must not come back. While a choice is open the talk page shows;
+    // half a second after it closes the previous page returns (choices often follow each other).
+    void Talk(bool battle) {
+        std::optional<p3p_talk::Talk> t;
+        try { t=reader.Talk(); } catch(const std::exception& e) { T("talk.why",e.what()); }
+        if(t&&t->choosing&&!battle){
+            if(page!=12)before_talk=page;
+            page=12;talk_idle=0;
+        } else if(page==12&&++talk_idle>30) page=before_talk;
+        I("ui.page",page);
+        if(!t)return;
+        I("talk.ready",1);I("talk.text_ok",t->text_ok);T("talk.text",t->text);
+        I("talk.has_speaker",!t->speaker.empty());T("talk.speaker",t->speaker);
+        I("talk.choosing",t->choosing);I("talk.choices_ok",t->choices_ok);
+        for(size_t i=0;i<t->choices.size()&&i<8;++i){
+            auto p="choice."+std::to_string(i);
+            T(p+".text",t->choices[i]);I(p+".present",1);I(p+".selected",int(i)==t->selected);
+        }
+    }
     std::string MemberName(const Snapshot&, const Member& m) const {
         if(!m.name.empty())return m.name;
         return m.id==1 ? "Protagonist" : "Member "+std::to_string(m.id);
@@ -84,18 +160,23 @@ struct Module {
         I("battle.active",0);I("en.count",0);
         for(int i=0;i<12;++i){auto p="persona."+std::to_string(i);I(p+".present",0);T(p+".line","");}
         I("link.ready",0);I("link.count",0);
+        I("live.paused",0);T("live.pause","");
         I("map.ready",0);T("map.key","");T("map.floor","");T("map.why","");I("map.px",0);I("map.py",0);I("map.rot",0);
         for(auto k:{"stairs","tele","wander"}){auto p=std::string("map.")+k;I(p+".on",0);I(p+".x",0);I(p+".y",0);}
         for(int i=0;i<32;++i){auto p="map.chest."+std::to_string(i);I(p+".on",0);I(p+".x",0);I(p+".y",0);}
         for(int i=0;i<24;++i){auto p="map.shadow."+std::to_string(i);I(p+".on",0);I(p+".x",0);I(p+".y",0);}
+        I("talk.ready",0);I("talk.text_ok",0);T("talk.text","");I("talk.has_speaker",0);T("talk.speaker","");
+        I("talk.choosing",0);I("talk.choices_ok",0);T("talk.why","");
+        for(int i=0;i<8;++i){auto p="choice."+std::to_string(i);T(p+".text","");I(p+".present",0);I(p+".selected",0);}
     }
     void Sample() {
         ++ticks; // The host clears published values every sample; always republish.
         Clear();
         Snapshot v; std::string why;
-        if(!reader.Sample(v,why)){T("status",why);return;}
+        if(!reader.Sample(v,why)){Paused(why);return;}
+        loaded=true;last.clear();recording=true;
         // Follow battles: show the battle page while one runs, then return to the page before it.
-        if(v.battle){if(page!=9)before_battle=page;page=9;} else if(page==9) page=before_battle;
+        if(v.battle){if(page!=9)before_battle=page==12?before_talk:page;page=9;} else if(page==9) page=before_battle;
         I("ui.page",page);I("battle.active",v.battle);
         route=v.female; I("ui.route",route); // camp menu theme: 0 male lead (blue), 1 female lead (pink)
         // Camp art ids for the manifest's module:p3p: keys (p3p_art.h): the lead's camp portrait
@@ -231,6 +312,7 @@ struct Module {
                 for(size_t i=0;i<skills.size();++i){
                     const auto& s=skills[i];auto p="skill."+std::to_string(i);
                     T(p+".name",s.name);I(p+".present",1);I(p+".icon",SkillIcon(s.element));
+                    if(auto h=Help())T(p+".help",std::string(h->Skill(s.id)));
                     if(s.type==1||s.type==2)T(p+".cost",(s.cost_known?std::to_string(s.cost):"?")+(s.type==1?" HP":" SP"));
                 }
                 I("skill.count",int64_t(skills.size()));I("skill.ready",1);
@@ -244,7 +326,11 @@ struct Module {
                 auto n=[](int x){return std::to_string(x);};
                 // The native Status panel's per-slot figures (cmpStatus.c 0x10bb80).
                 const std::string stats[4]{"At "+n(equip[0].at)+"     Hit "+n(equip[0].hit),"Df "+n(equip[1].df),"Ev "+n(equip[2].ev),""};
-                for(int i=0;i<4;++i){auto p="equip."+std::to_string(i);T(p+".name",equip[i].name);T(p+".stats",stats[i]);}
+                auto h=Help();
+                for(int i=0;i<4;++i){
+                    auto p="equip."+std::to_string(i);T(p+".name",equip[i].name);T(p+".stats",stats[i]);
+                    if(h)T(p+".help",std::string(h->Item(equip[i].id)));
+                }
                 I("equip.ready",1);
             } catch(const std::exception& e) {T("status",std::string("Equipment unavailable: ")+e.what());}
         }
@@ -272,11 +358,14 @@ struct Module {
                 for(size_t i=0;i<shown;++i){
                     auto p="item."+std::to_string(i);
                     T(p+".name",items[i].name);T(p+".count","x "+std::to_string(items[i].count));I(p+".present",1);
+                    if(auto h=Help())T(p+".help",std::string(h->Item(items[i].id)));
                 }
                 T("item.header",std::to_string(items.size())+(items.size()==1?" item":" items")+(items.size()>rows?"  (first "+std::to_string(rows)+" shown)":""));
                 I("item.count",int64_t(shown));I("item.ready",1);
             } catch(const std::exception& e) {T("status",std::string("Items unavailable: ")+e.what());}
         }
+        recording=false;
+        Talk(v.battle);
     }
 };
 EdenDsmodBool Supports(const char* s){return s&&std::strcmp(s,Build)==0?EDEN_DSMOD_TRUE:EDEN_DSMOD_FALSE;}
@@ -287,7 +376,7 @@ void* Create(const EdenDsmodHostApi* h,const char*) {
     try{return new Module(*h);}catch(...){return nullptr;}
 }
 void Destroy(void* p){delete static_cast<Module*>(p);}
-void Sample(void* p,const EdenDsmodHostApi* h){if(p&&h)try{auto m=static_cast<Module*>(p);m->host=*h;m->reader.UpdateHost(*h);m->Sample();}catch(...){auto m=static_cast<Module*>(p);m->Clear();m->T("status","Reader unavailable");}}
+void Sample(void* p,const EdenDsmodHostApi* h){if(p&&h)try{auto m=static_cast<Module*>(p);m->host=*h;m->reader.UpdateHost(*h);m->Sample();}catch(...){auto m=static_cast<Module*>(p);m->recording=false;m->Clear();m->T("status","Reader unavailable");}}
 void Tick(void*,const EdenDsmodHostApi*){}
 void Configure(void*,const EdenDsmodHostExtensions*){}
 // Serialized with sample; page/member selection only, never guest input or writes.

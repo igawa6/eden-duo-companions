@@ -3,6 +3,7 @@
 // Read-only base-build P3P reader. Every address below was traced from the base executable and
 // checked live against the native menus; the build pins in p3p_pins.inc guard the code it relies on.
 #include "core/mods/dsmod_module_abi.h"
+#include "p3p_talk.h"
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -723,6 +724,74 @@ public:
             throw std::runtime_error("context changed");
         return out;
     }
+    // The protagonist's names as message functions 0x81..0x83 print them: the player-entered
+    // surname (main+0x864c10, getter 0x1ddf90) and first name (+0x864c24, 0x1ddff0), and the
+    // full name 0x1af510 builds: first name first for languages 1 and 5-8, else surname first,
+    // joined by the language's separator glyph (GOT 0x70e748). English's 0x9b8a is a blank
+    // glyph in font0.fnt; other separators are not decoded, so the full name stays empty.
+    p3p_talk::Names TalkNames() const {
+        auto decode = [&](u64 at) {
+            auto raw = Read(host.main_base + at, 0x14);
+            std::string name;
+            for (size_t i = 0; i < raw.size() && raw[i]; ++i) {
+                if (raw[i] == ' ') { name += ' '; continue; }
+                if (raw[i] != 0x80 || i + 1 >= raw.size() || raw[i + 1] < 0x80 || raw[i + 1] > 0xDE) return std::string{};
+                name += char(raw[++i] - 0x60);
+            }
+            return name;
+        };
+        p3p_talk::Names n{decode(0x864c10), decode(0x864c24), {}};
+        u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+        if (lang > 15 || n.surname.empty() || n.first.empty()) return n;
+        u32 separator = Get<u32>(Pointer(host.main_base + 0x70e748) + lang * 4);
+        if (separator != 0x9b8a && separator != 0x8080) return n;
+        n.full = (1u << lang & 0x1e2) ? n.first + " " + n.surname : n.surname + " " + n.first;
+        return n;
+    }
+    // The open message window and choices (p3p_talk.h), or nullopt when none is open. A
+    // selection's window wins over plain text windows. Read twice; any change fails closed.
+    std::optional<p3p_talk::Talk> Talk() const {
+        auto once = [&]() -> std::optional<std::pair<p3p_talk::Window, Bytes>> {
+            auto pool = Read(host.main_base + 0x83a898, 128 * 0x40);
+            std::optional<p3p_talk::Window> best;
+            for (int i = 0; i < 128; ++i) {
+                u64 at = At<u64>(pool, i * 0x40 + 0x18);
+                if (!at) continue;
+                auto raw = Read(at, 0x270);
+                if (!At<u32>(raw, 0)) continue;
+                p3p_talk::Window w;
+                w.bmd = At<u64>(raw, 0x08); w.message = At<u64>(raw, 0x30);
+                if (!w.bmd || !w.message || At<u64>(raw, 0x260) != w.bmd + 0x20) continue;
+                w.page = At<u16>(raw, 0x48); w.pages = At<u16>(raw, 0x4a);
+                w.selection = At<int32_t>(raw, 0x58); w.mask = At<u32>(raw, 0x68);
+                w.state = At<int16_t>(raw, 0x6c); w.cursor = At<int16_t>(raw, 0x6e); w.shown = At<int16_t>(raw, 0x72);
+                if (!best || (w.state >= 1 && best->state < 1)) best = w;
+            }
+            if (!best) return std::nullopt;
+            auto head = Read(best->bmd, 0x20);
+            u32 size = At<u32>(head, 4), count = At<u32>(head, 0x18);
+            if (size < 0x28 || size > 0x100000 || count == 0 || count > 4096 || 0x20 + 8 * count > size) throw std::runtime_error("bad message file");
+            // The whole file is cached while its address, size and dialog table stay the same.
+            auto table = Read(best->bmd, 0x20 + 8 * count);
+            if (talk_file_at != best->bmd || talk_file.size() != size || !std::equal(table.begin(), table.end(), talk_file.begin())) {
+                Bytes file;
+                for (u32 off = 0; off < size; off += 0x8000) {
+                    auto part = Read(best->bmd + off, std::min<u32>(0x8000, size - off));
+                    file.insert(file.end(), part.begin(), part.end());
+                }
+                talk_file = std::move(file); talk_file_at = best->bmd;
+            }
+            return std::pair{*best, talk_file};
+        };
+        auto first = once(), second = once();
+        if (first.has_value() != second.has_value()) throw std::runtime_error("context changed");
+        if (!second) return std::nullopt;
+        const auto& [a, fa] = *first; const auto& [w, file] = *second;
+        if (a.bmd != w.bmd || a.message != w.message || a.page != w.page || a.state != w.state || a.cursor != w.cursor ||
+            a.mask != w.mask || a.selection != w.selection || fa != file)
+            throw std::runtime_error("context changed");
+        return p3p_talk::Parse(file, w, TalkNames());
+    }
     // Persona name getter 0x1d6a60 (wide table for languages 3 and 5-8).
     std::string PersonaName(int id) const {
         if (id < 0 || id >= 0x100) return {};
@@ -806,6 +875,13 @@ private:
     mutable bool holidays_loaded{};
     mutable Bytes moon;
     mutable std::vector<std::pair<int, int>> holidays;
+public:
+    // The last sequence ID Scene() saw (GOT 0x70e368 table: 2 initread, 3 startread, 4 TITLE,
+    // 6 BATTLE, 8 filed2d, 9 field, 10 dungeon, 13/14 calendar), or -1 before any read.
+    mutable int last_sequence{-1};
+private:
+    mutable u64 talk_file_at{};
+    mutable Bytes talk_file; // the open window's message file (Talk())
     mutable u64 item_table{};
     mutable int item_table_age{};
     mutable std::vector<u32> item_type, item_category;
@@ -831,9 +907,10 @@ private:
         Callbacks(observer, 0x1e7ba0, 0x1e7c80);
         c.data = Pointer(c.observer + 0x48);
         auto seq = Read(c.data, 0x20);
+        int sequence = At<int32_t>(seq, 4);
+        last_sequence = sequence;
         if (At<u32>(seq, 0) || !std::isfinite(At<float>(seq, 12)) || At<float>(seq, 12) > 0 || At<u64>(seq, 24))
             throw std::runtime_error("Loading");
-        int sequence = At<int32_t>(seq, 4);
         // Sequence table (GOT 0x70e368): 6 BATTLE, 8 filed2d, 9 field, 10 dungeon.
         if (sequence != 6 && (sequence < 8 || sequence > 10))
             throw std::runtime_error("Waiting for supported gameplay, sequence " + std::to_string(sequence));
