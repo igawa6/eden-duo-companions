@@ -1,7 +1,7 @@
 {
   "format": 1,
   "title_id": "0100DCD01525A000",
-  "name": "Persona 3 Portable - Preview",
+  "name": "Persona 3 Portable live companion",
   "min_runtime": 19,
   "requires_module": true,
   "poll_hz": 60,
@@ -3297,19 +3297,6 @@
           "color": "#FF2B1530",
           "text_scale": 6,
           "align": "center"
-        },
-        {
-          "type": "label",
-          "rect": [
-            44,
-            1012,
-            1172,
-            32
-          ],
-          "text": "",
-          "color": "#FF6E5A78",
-          "text_scale": 3,
-          "bind_text": "status"
         },
         {
           "type": "label",
@@ -19885,7 +19872,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 3,
-          "bind_text": "status"
+          "bind_text": "status",
+          "need_bind": "live.ready"
         },
         {
           "type": "image",
@@ -22067,7 +22055,8 @@
           "text": "",
           "color": "#FF6E5A78",
           "text_scale": 3,
-          "bind_text": "status"
+          "bind_text": "status",
+          "need_bind": "live.ready"
         },
         {
           "type": "image",

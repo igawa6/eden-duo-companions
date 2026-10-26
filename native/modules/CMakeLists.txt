@@ -93,7 +93,7 @@ function(dsmod_add_module target)
     endif()
 endfunction()
 
-# Persona 3 Portable: experimental read-only base-build field/camp companion.
+# Persona 3 Portable (base game build): camp menu, battle, Tartarus map, dialogue and native-menu drives.
 dsmod_add_module(dsmod-p3p EXCLUDE_FROM_ALL
     TITLE 0100DCD01525A000
     SOURCES 0100DCD01525A000.cpp p3p_reader.h p3p_pins.inc p3p_font.h p3p_art.h p3p_map.h p3p_help.h p3p_talk.h p3p_drive.h p5r_font.h

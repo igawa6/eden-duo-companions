@@ -576,7 +576,7 @@ EdenDsmodBool DecodeFont(void* p,const uint8_t* bytes,size_t size,void* receiver
         return EDEN_DSMOD_TRUE;
     } catch(...) {return EDEN_DSMOD_FALSE;}
 }
-const EdenDsmodModuleApi Api{EDEN_DSMOD_MODULE_ABI_VERSION,sizeof(EdenDsmodModuleApi),0,EDEN_DSMOD_MODULE_ABI_HASH,Title,"Persona 3 Portable (preview)",EDEN_DSMOD_CAP_NO_TICK_WHEN_HIDDEN|EDEN_DSMOD_CAP_EXTENSIONS|EDEN_DSMOD_CAP_ROMFS_READ,&Supports,&Create,&Destroy,&Sample,&Tick};
+const EdenDsmodModuleApi Api{EDEN_DSMOD_MODULE_ABI_VERSION,sizeof(EdenDsmodModuleApi),0,EDEN_DSMOD_MODULE_ABI_HASH,Title,"Persona 3 Portable live companion",EDEN_DSMOD_CAP_NO_TICK_WHEN_HIDDEN|EDEN_DSMOD_CAP_EXTENSIONS|EDEN_DSMOD_CAP_ROMFS_READ,&Supports,&Create,&Destroy,&Sample,&Tick};
 const EdenDsmodModuleExtensions Extensions{EDEN_DSMOD_EXT_VERSION,sizeof(EdenDsmodModuleExtensions),EDEN_DSMOD_EXT_HASH,&Configure,&OnAction,&LoadImage};
 const EdenDsmodFontExtensions FontExtensions{EDEN_DSMOD_FONT_EXT_VERSION,sizeof(EdenDsmodFontExtensions),EDEN_DSMOD_FONT_EXT_HASH,&DecodeFont};
 }

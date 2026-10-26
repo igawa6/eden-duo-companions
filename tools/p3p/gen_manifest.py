@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the asset-free P3P preview layout."""
+"""Generate the asset-free Persona 3 Portable companion layout."""
 import json
 from pathlib import Path
 from saves import BUILD
@@ -373,7 +373,7 @@ def battle_page(outputs):
             outputs.append(f'{p}.aff.{k}')
             widgets.append(label([760 + k * 50, y + 30, 0, 32], bind=f'{p}.aff.{k}') | need
                            | {'color': COLORS['accent'], 'align': 'center'})
-    widgets.append(label([44, 1012, 1192, 32], bind='status', scale=SIZE['small']) | {'color': COLORS['muted']})
+    widgets.append(label([44, 1012, 1192, 32], bind='status', scale=SIZE['small'], ready=True) | {'color': COLORS['muted']})
     return {'id': 'battle', 'title': 'BATTLE', 'widgets': widgets}
 
 def calendar_widgets(outputs):
@@ -524,7 +524,7 @@ def talk_page(outputs):
                             'need_bind': 'controls.choice', 'hide_bind': 'talk.selected', 'keep_min': c, 'keep_max': c})
     widgets.append(label([620, 978, 0, 28], 'Tap an option to highlight it, tap it again to choose', scale=SIZE['small'])
                    | {'align': 'center', 'color': COLORS['muted'], 'need_bind': 'controls.choice'})
-    widgets.append(label([44, 1012, 1192, 32], bind='status', scale=SIZE['small']) | {'color': COLORS['muted']})
+    widgets.append(label([44, 1012, 1192, 32], bind='status', scale=SIZE['small'], ready=True) | {'color': COLORS['muted']})
     return {'id': 'talk', 'title': 'TALK', 'widgets': widgets}
 
 def start_page():
@@ -534,7 +534,6 @@ def start_page():
                label([44, 20, 1150, 48], 'PERSONA 3 PORTABLE', scale=SIZE['title']) | {'color': COLORS['title']},
                {'type': 'image', 'rect': [320, 150, 600, 600], 'src': 'module:p3p:persona/1@600'},
                label([620, 800, 0, 60], 'Start or load a game to begin', scale=SIZE['title']) | {'align': 'center'},
-               label([44, 1012, 1172, 32], bind='status', scale=SIZE['small']) | {'color': COLORS['muted']},
                dict(label([44, 700, 1172, 40], bind='module_error_message', scale=SIZE['body']), need_bind='module_error')]
     return {'id': 'start', 'title': 'START', 'widgets': widgets}
 
@@ -645,7 +644,7 @@ def main():
     outputs += ['live.paused', 'live.pause'] + [f'pdrv.{k}' for k in ('a', 'b', 'x', 'l', 'up', 'down', 'pending')]
     for page in pages:
         page['widgets'] = split_route(page['widgets'])
-    result = {'format': 1, 'title_id': '0100DCD01525A000', 'name': 'Persona 3 Portable - Preview',
+    result = {'format': 1, 'title_id': '0100DCD01525A000', 'name': 'Persona 3 Portable live companion',
               'min_runtime': 19, 'requires_module': True, 'poll_hz': 60,
               'canvas_w': 1240, 'canvas_h': 1080, 'background': '#FFFFB8CE',
               # The game font from the player's romfs (module decode_font/load_image, p3p_font.h);

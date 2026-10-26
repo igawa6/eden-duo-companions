@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // The open message window and its choice list (itfMesManager.c), decoded from the game's own
-// loaded message file (Atlus MSG1 BMD). Read-only: the companion shows the choices, the game's
-// cursor picks.
+// loaded message file (Atlus MSG1 BMD). This file only reads; the companion picks a choice by
+// pressing the D-pad and A (manifest choice.* actions).
 //
 // Windows: a pool of 128 slots of 0x40 bytes at main+0x83a898 (init 0x1bc620); slot +0x18 is the
 // window (getters 0x1b9a90, 0x1bac60: main+0x83a868 + i * 0x40 + 0x48). Window fields, live on the
