@@ -312,16 +312,17 @@ def personas_widgets(outputs):
     return widgets
 
 def links_widgets(outputs, scrolls):
-    """The native S.LINK list: rank, arcana, link name, partner, rank pips and status."""
+    """The native S.LINK list: rank, arcana, link name, partner, rank pips, status and the
+    Details screen's line for the rank."""
     rows = 28  # one link per arcana at most (0x1d4310 walks arcana 0..27)
     outputs += ['link.ready', 'link.count']
-    scrolls.append({'id': 'links', 'rect': [36, 104, 1188, 864], 'count_bind': 'link.count', 'row_h': 110,
+    scrolls.append({'id': 'links', 'rect': [36, 104, 1188, 864], 'count_bind': 'link.count', 'row_h': 300,
                     'bar': THEME['line'][0], 'bar_track': '#33FFFFFF', 'bar_w': 8, 'show_bind': 'link.ready'})
-    row = {'repeat': rows, 'repeat_dy': 110, 'scroll': 'links'}
+    row = {'repeat': rows, 'repeat_dy': 300, 'scroll': 'links'}
     need = {'need_bind': 'link.{i}.present'}
     outputs += [f'link.{i}.{k}' for i in range(rows)
-                for k in ('present', 'arcana', 'name', 'partner', 'rank', 'rank_text', 'status')]
-    return [dict(row, **fill([36, 104, 1164, 100], 'panel'), **need),
+                for k in ('present', 'arcana', 'name', 'partner', 'rank', 'rank_text', 'status', 'help', 'people')]
+    return [dict(row, **fill([36, 104, 1164, 290], 'panel'), **need),
             dict(row, **label([56, 116, 270, 40], bind='link.{i}.arcana', scale=SIZE['value']), **need) | {'color': COLORS['accent']},
             dict(row, **label([56, 162, 270, 32], bind='link.{i}.rank_text'), **need),
             dict(row, **label([330, 116, 520, 40], bind='link.{i}.name', scale=SIZE['value']), **need)
@@ -329,7 +330,13 @@ def links_widgets(outputs, scrolls):
             dict(row, **label([330, 162, 520, 32], bind='link.{i}.partner'), **need) | {'color': COLORS['muted']},
             dict(row, type='pips', rect=[850, 128, 330, 22], bind='link.{i}.rank', max=10,
                  color=COLORS['accent'], bg=BAR_BG, **need),
-            dict(row, **label([870, 162, 310, 32], bind='link.{i}.status'), **need) | {'color': COLORS['accent']}]
+            dict(row, **label([870, 162, 310, 32], bind='link.{i}.status'), **need) | {'color': COLORS['accent']},
+            # The native Details line for the link's rank (cmmHelp[F].bmd).
+            dict(row, **label([56, 204, 1120, 28], bind='link.{i}.help', scale=SIZE['small']), **need)
+            | {'color': COLORS['muted'], 'fit_text': True, 'wrap_width': 1120, 'text_min_scale': SIZE['small']},
+            # The members' profiles (one per line, as the Details screen lists them).
+            dict(row, **label([56, 244, 1120, 144], bind='link.{i}.people', scale=SIZE['small']), **need)
+            | {'wrap_width': 1120, 'max_lines': 4, 'line_gap': 10}]
 
 def battle_page(outputs):
     """Shown automatically during battles: party HP/SP and the encounter's enemies, with

@@ -28,6 +28,7 @@ struct Member {
     int id{}, level{}, hp{}, sp{}, max_hp{}, max_sp{}, persona{}, accessory_skill{};
     int base_hp{}, base_sp{};      // level table values before Maximum()
     u32 status{};                  // unit +0xc ailment bits (Ailments())
+    std::array<u8, 3> buffs{};     // unit +0x1c..+0x1e battle stat changes (Buffs())
     std::map<int, int> effects;    // equipment effect id -> count, for Maximum()
     bool cost_free{}; // unit +0xd bit 1: 0x74a10 charges nothing
     std::array<int, 8> skills{};
@@ -54,6 +55,7 @@ struct Item { int id{}, count{}; std::string name; };
 struct Enemy {
     int id{}, level{}, hp{}, sp{}, max_hp{}, max_sp{};
     u32 status{}; // unit +0xc ailment bits (Ailments())
+    std::array<u8, 3> buffs{}; // unit +0x1c..+0x1e (Buffs())
     bool analyzed{};
     std::string name, arcana;
     std::array<std::string, 9> affinity;
@@ -65,10 +67,38 @@ struct SocialLink { int id{}, arcana{}, rank{}, status{}; std::string arcana_nam
 struct PersonaDetail {
     int id{}, level{}, next_exp{}, card_level{-1};
     std::string name, arcana, card;
+    int next_level{-1}; std::string next_skill; int next_more{}; // the Details panel's "Next Lv"
     std::array<int, 5> stats{};
     std::array<std::string, 9> affinity; // Slash Strike Pierce Fire Ice Elec Wind Light Dark
     std::array<std::string, 8> skills;
 };
+// The skills a Persona will still learn, as the Details panel lists them (0x1d7420, called by
+// 0x225418, which keeps the list at panel +0x66 / +0x1e4 / count +0x224; the panel names the first
+// and draws the rest as "?"). `learn` is PERSONA.TBL s1 + id * 0x46 + 6: 16 entries {u8 level
+// offset, u8 kind, u16 skill}, ended by kind 0. The window runs from the first entry whose offset
+// is above level - base to the last such entry reachable by level 99; within it, kind 1 entries
+// whose skill the Persona does not already know (in its first n slots, n = nonzero slots).
+// Returns {skill, level = base + offset}. Persona IDs 0xc0..0xdf use another table: not handled.
+inline std::vector<std::pair<int, int>> NextSkills(const Bytes& learn, int base, int level, const std::array<int, 8>& known) {
+    int first = 0, last = 0; bool found = false, any = false;
+    for (int i = 0; i < 16 && size_t(4 * i + 4) <= learn.size(); ++i) {
+        const int off = learn.at(4 * i), kind = learn.at(4 * i + 1);
+        if (!kind) break;
+        int cand_first = found ? first : i, cand_last = found ? last : i; bool cand_any = any;
+        if (!(99 - base < off)) { cand_last = i; cand_any = true; }
+        if (level - base < off) { first = cand_first; last = cand_last; found = true; any = cand_any; }
+    }
+    std::vector<std::pair<int, int>> out;
+    if (!any) return out;
+    const int n = int(std::count_if(known.begin(), known.end(), [](int s) { return s != 0; }));
+    for (int i = first; i <= last && out.size() < 32; ++i) {
+        if (learn.at(4 * i + 1) != 1) continue;
+        const int skill = At<u16>(learn, 4 * i + 2);
+        if (std::find(known.begin(), known.begin() + n, skill) != known.begin() + n) continue;
+        out.emplace_back(skill, base + learn.at(4 * i));
+    }
+    return out;
+}
 struct Persona {
     int id{}, level{}, slot{}; bool selected{};
     std::array<int, 8> skills{};
@@ -95,6 +125,26 @@ inline std::string Ailments(u32 status) {
         {0x20, "Rage"}, {0x40, "Freeze"}, {0x80, "Shock"}, {0x100, "Poison"}};
     std::string out;
     for (auto [bit, name] : names) if (status & bit) out += (out.empty() ? "" : "  ") + std::string(name);
+    return out;
+}
+// Battle stat changes (Tarukaja, Rakunda, ...) as the game's check 0x6f8b0 reads them: signed
+// 4-bit counters on the unit, positive raised, negative lowered (SKILL.TBL +0x20 masks: At 0x5 /
+// 0xa = both nibbles of +0x1c, Hit/Ev 0x110 / 0x220 = low nibbles of +0x1d / +0x1e, Df 0x40 / 0x80
+// = high nibble of +0x1d).
+inline std::string Buffs(const std::array<u8, 3>& b) {
+    auto nibble = [](int v) { v &= 15; return v > 7 ? v - 16 : v; };
+    auto sign = [&](std::initializer_list<int> parts) {
+        int up = 0, down = 0;
+        for (int v : parts) { up |= v > 0; down |= v < 0; }
+        return up && !down ? 1 : down && !up ? -1 : 0;
+    };
+    const std::pair<const char*, int> stats[]{{"At", sign({nibble(b[0]), nibble(b[0] >> 4)})},
+                                              {"Df", sign({nibble(b[1] >> 4)})},
+                                              {"Hit", sign({nibble(b[1])})},
+                                              {"Ev", sign({nibble(b[2])})}};
+    std::string out;
+    for (auto [name, v] : stats)
+        if (v) out += (out.empty() ? "" : "  ") + std::string(name) + (v > 0 ? " up" : " down");
     return out;
 }
 // One Tartarus floor as the dungeon generator lays it out and the minimap has revealed it.
@@ -689,6 +739,15 @@ public:
             if (u64 at = Get<u64>(names + card * 8)) d.card = text(at, 64);
             break;
         }
+        if (d.id < 0xc0 || d.id >= 0xe0) {
+            std::array<int, 8> known{};
+            for (int k = 0; k < 8; ++k) known[k] = At<u16>(persona, 0xc + k * 2);
+            auto next = NextSkills(Bytes(learn.begin() + 6, learn.end()), base_level, d.level, known);
+            if (!next.empty() && next[0].first > 0 && next[0].first < 0x270) {
+                d.next_level = next[0].second; d.next_more = int(next.size()) - 1;
+                d.next_skill = text(skill_names + next[0].first * (wide ? 0x1d : 0x13), wide ? 0x1d : 0x13);
+            }
+        }
         return d;
     }
     // The native S.LINK list: for arcana 0..27, the first link 1..30 whose static info has that
@@ -733,6 +792,54 @@ public:
         if (records != Read(state + 0x78, 28 * 0x10)) throw std::runtime_error("context changed");
         return out;
     }
+    // The player's club, as message function 0xa3 names it (0x1afda0 -> 0x1d5950 -> 0x11a500):
+    // 0x1d59d0 tries link kinds in order (female: arg 0 -> 1, 2; arg 1 -> 3, 4; male: arg 0 -> 1,
+    // 2, 3; arg 1 -> 4, 5, 6); a kind's link is the first ID 0..30 whose static info row (+4 bit 2)
+    // has that kind at +0xe and that has a record (0x11b000). The link maps to a club name index
+    // (female: links 9..12 -> 3, 4, 1, 2; male: links 11..17 -> 1, 2, 3, 0, 4, 5, 6). -1 if none.
+    int ClubIndex(int arg, bool female) const {
+        u64 state = Pointer(host.main_base + 0x70e800), info = Pointer(host.main_base + 0x813f78);
+        auto records = Read(state + 0x78, 28 * 0x10);
+        auto rows = Read(info + 8, 31 * 0x74);
+        auto has = [&](int id) { for (int i = 0; i < 28; ++i) if (At<u16>(records, i * 0x10 + 4) == id) return true; return false; };
+        auto link = [&](int kind) {
+            for (int id = 0; id < 31; ++id)
+                if ((rows.at(id * 0x74 + 4) & 4) && At<u16>(rows, id * 0x74 + 0xe) == kind && id && has(id)) return id;
+            return 0;
+        };
+        static constexpr int female_kinds[2][3]{{1, 2, 0}, {3, 4, 0}}, male_kinds[2][3]{{1, 2, 3}, {4, 5, 6}};
+        if (arg < 0 || arg > 1) return -1;
+        int id = 0;
+        for (int kind : female ? female_kinds[arg] : male_kinds[arg]) if (kind && !id) id = link(kind);
+        static constexpr int female_club[4]{3, 4, 1, 2}, male_club[7]{1, 2, 3, 0, 4, 5, 6};
+        if (female) return id >= 9 && id < 13 ? female_club[id - 9] : -1;
+        return id >= 11 && id < 18 ? male_club[id - 11] : -1;
+    }
+    // The members a link's Details screen lists (0xe01e0): its static info row's (0x11a1b0) nine
+    // {u32 flag, u32 member} pairs at +0x24, each kept when the member is set and its flag is 0 or
+    // set (0x1d0a80). Rows with byte +8 == 1 (SEES) are reordered as the game does.
+    std::vector<int> LinkMembers(int id) const {
+        if (id < 1 || id > 30) return {};
+        u64 state = Pointer(host.main_base + 0x70e800), info = Pointer(host.main_base + 0x813f78);
+        auto row = Read(info + 8 + u64(id) * 0x74, 0x74);
+        auto flags = Read(state + 0x46cc, 0x100);
+        std::vector<int> list;
+        for (int k = 0; k < 9; ++k) {
+            u32 flag = At<u32>(row, 0x24 + 8 * k), member = At<u32>(row, 0x28 + 8 * k);
+            if (!member) continue;
+            if (flag && !((At<u32>(flags, (flag / 32) * 4) >> (flag % 32)) & 1)) continue;
+            list.push_back(int(member));
+        }
+        if (row.at(8) != 1) return list;
+        // 0xe03cc: for each unit ID in this order, every collected entry equal to it is replaced by
+        // the collected entry at that order position.
+        static constexpr int order[9]{2, 5, 4, 7, 6, 3, 10, 8, 9};
+        std::vector<int> out;
+        for (int k = 0; k < 9; ++k)
+            for (int v : list)
+                if (v == order[k] && size_t(k) < list.size()) out.push_back(list[k]);
+        return out;
+    }
     // Moon phase table behind GOT 0x70e258 (static; read once per main base, 0x200 days).
     const Bytes& MoonTable() const {
         if (moon.empty()) {
@@ -773,6 +880,7 @@ public:
             if (e.id >= 0x150) throw std::runtime_error("invalid enemy");
             e.level = units.at(at + 6); e.hp = At<u16>(units, at + 8); e.sp = At<u16>(units, at + 10);
             e.status = At<u32>(units, at + 0xc);
+            for (int k = 0; k < 3; ++k) e.buffs[k] = units.at(at + 0x1c + k);
             auto record = Read(stats + e.id * 0x3e, 0x3e);
             // 0x6e880 / 0x6ecf0 for enemies: table +4 / +6, then the same HP/SP Up passives.
             std::set<int> skills;
@@ -874,6 +982,23 @@ public:
         n.full = (1u << lang & 0x1e2) ? n.first + " " + n.surname : n.surname + " " + n.first;
         return n;
     }
+    // The script's text variables for message function 0x44 (main+0x83a318 + index * 8 -> string),
+    // kept only when plain printable ASCII.
+    void TalkNumbers(p3p_talk::Names& n) const {
+        auto table = Read(host.main_base + 0x83a318, 16 * 8);
+        for (int i = 0; i < 16; ++i) {
+            std::string text;
+            if (u64 at = At<u64>(table, i * 8)) {
+                try {
+                    auto raw = Read(at & ~u64{3}, 32);
+                    auto begin = raw.begin() + (at & 3), end = std::find(begin, raw.end(), u8{});
+                    if (end != raw.end()) text.assign(begin, end);
+                    for (unsigned char c : text) if (c < 32 || c > 126) { text.clear(); break; }
+                } catch (const std::exception&) { text.clear(); }
+            }
+            n.numbers.push_back(std::move(text));
+        }
+    }
     // The open message window and choices (p3p_talk.h), or nullopt when none is open. A
     // selection's window wins over plain text windows. Read twice; any change fails closed.
     std::optional<p3p_talk::Talk> Talk() const {
@@ -916,7 +1041,9 @@ public:
         if (a.bmd != w.bmd || a.message != w.message || a.page != w.page || a.state != w.state || a.cursor != w.cursor ||
             a.mask != w.mask || a.selection != w.selection || fa != file)
             throw std::runtime_error("context changed");
-        return p3p_talk::Parse(file, w, TalkNames());
+        auto names = TalkNames();
+        TalkNumbers(names);
+        return p3p_talk::Parse(file, w, names);
     }
     // Persona name getter 0x1d6a60 (wide table for languages 3 and 5-8).
     std::string PersonaName(int id) const {
@@ -1168,6 +1295,7 @@ private:
             m.persona = At<u16>(units, persona + 2); m.cost_free = units.at(unit + 0xd) & 2;
             m.name = MemberName(id);
             m.hp = At<u16>(units, unit + 8); m.sp = At<u16>(units, unit + 10); m.status = At<u32>(units, unit + 0xc);
+            for (int k = 0; k < 3; ++k) m.buffs[k] = units.at(unit + 0x1c + k);
             if (m.level < 1 || m.level > 99) throw std::runtime_error("invalid level");
             std::set<int> skills;
             for (int i = 0; i < 8; ++i) skills.insert(m.skills[i] = At<u16>(units, persona + 12 + i * 2));

@@ -191,6 +191,25 @@ int main() {
             std::memcpy(&b[0x48], text, sizeof text);
             std::vector<std::string> out;
             Require(p3p_help::ParseMsg(b, out) && out.size() == 1 && out[0] == "Heals 1 ally.", "help text");
+            {
+                p3p::Bytes c = b; const char club[] = "\xF2\xA3\x01\x01 member.";
+                std::memcpy(&c[0x48], club, sizeof club);
+                Require(p3p_help::ParseMsg(c, out) && out.size() == 1 && out[0].empty(), "help with inserted text stays blank");
+            }
+            p3p_help::LinkHelp lh;
+            auto page = [](std::string_view t) { return std::vector<uint8_t>(t.begin(), t.end()); };
+            lh.pages = {page("a"), page("  Group of\n  users."), page("rev"), page("broken"), page("\xF2\xA3\x01\x01 member."),
+                        page("Yukari"), page("Popular.")};
+            lh.names = {"", "", "", "", "", "commu01_man01_a_name", "commu01_man01_a"};
+            lh.clubs = {"None", "Volleyball"};
+            lh.index.assign(31 * 12, 0);
+            lh.index[1 * 12 + 1] = 1; lh.index[1 * 12 + 10] = 2; lh.index[1 * 12 + 11] = 3; lh.index[2 * 12] = 4;
+            lh.members.assign(36 * 10, 0); lh.members[2 * 10 + 1] = 6;
+            Require(lh.For(1, 2, 0) == "Group of users." && lh.For(1, 4, 2) == "rev" && lh.For(1, 4, 3) == "broken" &&
+                    lh.For(1, 0, 0).empty() && lh.For(40, 2, 0).empty(), "social link details by rank / status");
+            Require(lh.For(2, 1, 0, {1, -1}) == "Volleyball member." && lh.For(2, 1, 0).empty(), "club name insert (0xa3)");
+            Require(lh.Profile(2, 2) == std::pair<std::string, std::string>{"Yukari", "Popular."} && lh.Profile(2, 1).first.empty(),
+                    "member profile by rank");
             p3p_help::Tables t; t.armor = {"", "", "Wool."}; t.skill_card = {"", "Card."};
             Require(t.Item(0x202) == "Wool." && t.Item(0x691) == "Card." && t.Item(0x203).empty(), "help item ranges");
         }
@@ -234,6 +253,11 @@ int main() {
             Require(!p3p_talk::Decode(std::span<const uint8_t>(reinterpret_cast<const uint8_t*>("\x81\x40"), 3), who, out) &&
                     !p3p_talk::Decode(std::span<const uint8_t>(reinterpret_cast<const uint8_t*>("\xF1\x83"), 3), {}, out),
                     "talk glyphs and missing names fail closed");
+            p3p_talk::Names vars = who; vars.numbers = {"10"};
+            Require(p3p_talk::Decode(std::span<const uint8_t>(reinterpret_cast<const uint8_t*>("Resume from \xF2\x44\x01\x01" "F"), 18), vars, out) &&
+                    out == "Resume from 10F" &&
+                    !p3p_talk::Decode(std::span<const uint8_t>(reinterpret_cast<const uint8_t*>("\xF2\x44\x02\x01"), 5), vars, out),
+                    "talk number variables (0x44), unset ones fail closed");
         }
         {
             // Item drive (p3p_drive.h) against a model of the camp menu that reacts to presses.
@@ -378,6 +402,22 @@ int main() {
         // Ailment bits (unit +0xc), named only where SKILL.TBL inflict/cure masks pin them down.
         Require(p3p::Ailments(0).empty() && p3p::Ailments(0x100) == "Poison" && p3p::Ailments(0x80002) == "KO  Charm",
                 "ailment names");
+        {
+            // Next skills (0x1d7420): Pixie-like table, base 2, level 2, knows Dia (skill 0x60).
+            p3p::Bytes learn(64);
+            auto put = [&](int i, int off, int kind, int skill) { learn[4*i] = off; learn[4*i+1] = kind; learn[4*i+2] = skill & 255; learn[4*i+3] = skill >> 8; };
+            put(0, 0, 1, 0x60); put(1, 1, 1, 0x8a); put(2, 2, 1, 0x7c); put(3, 2, 5, 0x6a0); put(4, 6, 1, 0x91);
+            std::array<int, 8> known{0x60};
+            auto n = p3p::NextSkills(learn, 2, 2, known);
+            Require(n == std::vector<std::pair<int, int>>{{0x8a, 3}, {0x7c, 4}, {0x91, 8}}, "next skills skip known, kinds other than 1");
+            known = {0x60, 0x8a};
+            Require(p3p::NextSkills(learn, 2, 3, known).front() == std::pair<int, int>{0x7c, 4}, "next skill after a level up");
+            Require(p3p::NextSkills(learn, 2, 8, known).empty(), "no next skill once all are learnt");
+        }
+        // Battle stat changes (0x6f8b0): signed nibbles, At = both nibbles of +0x1c.
+        Require(p3p::Buffs({0, 0, 0}).empty() && p3p::Buffs({0x33, 0, 0}) == "At up" &&
+                p3p::Buffs({0, 0xd0, 0}) == "Df down" && p3p::Buffs({0, 0x03, 0x03}) == "Hit up  Ev up" &&
+                p3p::Buffs({0xdd, 0x30, 0}) == "At down  Df up", "battle buffs");
         Require(p3p::Ailments(0x100001).empty() && p3p::Ailments(0x200).empty(), "unconfirmed status bits stay unnamed");
         // Game font: ASCII only (font0.fnt continues with kana past '~'); without romfs, fail closed.
         Require(p3p_font::GlyphIndex(' ') == 0 && p3p_font::GlyphIndex('A') == 33 && p3p_font::GlyphIndex('~') == 94 &&

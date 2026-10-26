@@ -48,6 +48,24 @@ struct Module {
         help=help_job.get();
         return help.get();
     }
+    // Social Link Details lines (p3p_help.h), per route, read in the background on first use.
+    std::future<std::shared_ptr<const p3p_help::LinkHelp>> link_job[2];
+    std::shared_ptr<const p3p_help::LinkHelp> link_help[2];
+    const p3p_help::LinkHelp* LinkHelp(bool female) {
+        auto& done=link_help[female]; auto& job=link_job[female];
+        if(done)return done.get();
+        if(!job.valid()) {
+            if(!font_host.read_romfs)return nullptr;
+            job=std::async(std::launch::async,[h=font_host,female]{
+                auto t=std::make_shared<p3p_help::LinkHelp>();
+                if(!p3p_help::ReadLinkHelp(h,female,*t))*t={};
+                return std::shared_ptr<const p3p_help::LinkHelp>(t);
+            });
+        }
+        if(job.wait_for(std::chrono::seconds(0))!=std::future_status::ready)return nullptr;
+        done=job.get();
+        return done.get();
+    }
     // Map page: the last floor drawn; load_image renders "module:p3p:map/<map_gen>" from it.
     std::mutex map_lock;
     FloorMap map_floor;
@@ -143,6 +161,7 @@ struct Module {
         }
         return true;
     }
+    static std::string Join(const std::string& a,const std::string& b){return a.empty()?b:b.empty()?a:a+"  "+b;}
     std::string MemberName(const Snapshot&, const Member& m) const {
         if(!m.name.empty())return m.name;
         return m.id==1 ? "Protagonist" : "Member "+std::to_string(m.id);
@@ -273,7 +292,8 @@ struct Module {
             T(p+".name",MemberName(v,m)+"   Lv "+std::to_string(m.level));
             T(p+".stats","HP "+std::to_string(m.hp)+" / "+std::to_string(m.max_hp)+"     SP "+std::to_string(m.sp)+" / "+std::to_string(m.max_sp));
             I(p+".hp",m.hp);I(p+".sp",m.sp);I(p+".max_hp",m.max_hp);I(p+".max_sp",m.max_sp);I(p+".present",1);
-            T(p+".ailment",Ailments(m.status));
+            // In battle the ailment line also carries stat changes ("At up  Df down").
+            T(p+".ailment",Join(Ailments(m.status),v.battle?Buffs(m.buffs):std::string()));
         };
         for(size_t i=0;i<v.members.size();++i) {
             const auto& m=v.members[i];auto p="member."+std::to_string(i);
@@ -295,6 +315,22 @@ struct Module {
                     T(p+".arcana",l.arcana_name);T(p+".name",l.name.empty()?"Social Link "+std::to_string(l.id):l.name);
                     T(p+".partner",l.partner);I(p+".rank",l.rank);T(p+".status",status[l.status]);
                     T(p+".rank_text","Rank "+std::to_string(l.rank));I(p+".present",1);
+                    if(auto h=LinkHelp(v.female)){
+                        // The Details line (0xa3 lines name the player's club) and the members'
+                        // profiles at this rank, as the native Details screen shows them.
+                        std::array<int,2> club{-1,-1};
+                        try { club={reader.ClubIndex(0,v.female),reader.ClubIndex(1,v.female)}; } catch(...) {}
+                        T(p+".help",h->For(l.id,l.rank,l.status,club));
+                        std::string people;
+                        try {
+                            for(int who:reader.LinkMembers(l.id)){
+                                auto [name,text]=h->Profile(who,std::clamp(l.rank,1,10));
+                                if(name.empty()||text.empty())continue;
+                                people+=(people.empty()?"":"\n")+name+":  "+text;
+                            }
+                        } catch(...) {people.clear();}
+                        T(p+".people",people);
+                    }
                 }
                 I("link.count",int64_t(links.size()));I("link.ready",1);
             } catch(const std::exception& e) {T("status",std::string("Social Links unavailable: ")+e.what());}
@@ -311,7 +347,8 @@ struct Module {
                 T("pd.next","NEXT EXP  "+std::to_string(d.next_exp));
                 for(int k=0;k<8;++k)T("pd.skill."+std::to_string(k),d.skills[k]);
                 T("pd.card",d.card_level>=0?"Skill card  Lv "+std::to_string(d.card_level)+"   "+d.card:"");
-                T("pd.nextskill","Next skill  --");
+                // The Details panel's "Next Lv": the first skill still to learn (0x1d7420).
+                T("pd.nextskill",d.next_level>0&&!d.next_skill.empty()?"Next Lv "+std::to_string(d.next_level)+"   "+d.next_skill:"");
                 I("pd.ready",1);
             } catch(const std::exception& e) {T("status",std::string("Persona details unavailable: ")+e.what());}
         }
@@ -346,7 +383,7 @@ struct Module {
                     T(p+".name",e.name.empty()?"Enemy "+std::to_string(e.id):e.name);
                     T(p+".info","Lv "+std::to_string(e.level)+"   "+e.arcana);
                     T(p+".hp_text","HP "+std::to_string(e.hp)+" / "+std::to_string(e.max_hp));
-                    I(p+".hp",e.hp);I(p+".max_hp",e.max_hp);I(p+".analyzed",e.analyzed);T(p+".ailment",Ailments(e.status));
+                    I(p+".hp",e.hp);I(p+".max_hp",e.max_hp);I(p+".analyzed",e.analyzed);T(p+".ailment",Join(Ailments(e.status),Buffs(e.buffs)));
                     for(int k=0;k<9;++k)T(p+".aff."+std::to_string(k),e.affinity[k]);
                     I(p+".present",1);
                 }
