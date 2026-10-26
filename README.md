@@ -39,6 +39,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 19 | [Castlevania: Belmont's Curse](#castlevania-belmonts-curse) | `0100BA4026E94000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/castlevania-belmonts-curse-1.0.0) | 🥇<br><a href="https://www.reddit.com/user/gymgooner123"><img src="https://img.shields.io/badge/gymgooner123-FF4500?style=flat-square&logo=reddit&logoColor=white" style="vertical-align: middle;" alt="gymgooner123"></a> |
 | 20 | [Super Mario Odyssey](#super-mario-odyssey) | `0100000000010000` | 1.4.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/super-mario-odyssey-1.0.0) | 🥈<br><a href="https://ko-fi.com/s/9e92af191b"><img src="https://img.shields.io/badge/Chip_In-C0C0C0?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Chip In"></a> |
 | 21 | [The Legend of Zelda: Echoes of Wisdom](#the-legend-of-zelda-echoes-of-wisdom) | `01008CF01BAAC000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/echoes-of-wisdom-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/3rd-Poll-Next-Switch-Game-on-Eden-Duo-C7J128KB48"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
+| 22 | [Persona 3 Portable](#persona-3-portable) | `0100DCD01525A000` | 1.0.0 (base game) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/persona-3-portable-1.0.0) | ⭐ |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -663,6 +664,42 @@ Requires Eden Duo 1.3.2.2 or newer.
 
 ---
 
+## Persona 3 Portable
+
+⭐
+
+<details>
+<summary>Screenshots and details</summary>
+
+`0100DCD01525A000` · game version 1.0.0 (base game) · companion 1.0.0
+
+| Menu | Battle | Tartarus |
+|:---:|:---:|:---:|
+| <img src="screenshots/persona3portable/hub.png" width="300" alt="Persona 3 Portable: Menu"> | <img src="screenshots/persona3portable/battle.png" width="300" alt="Persona 3 Portable: Battle"> | <img src="screenshots/persona3portable/map.png" width="300" alt="Persona 3 Portable: Tartarus map"> |
+
+| Dialogue | Persona | Social Links |
+|:---:|:---:|:---:|
+| <img src="screenshots/persona3portable/talk.png" width="300" alt="Persona 3 Portable: Dialogue"> | <img src="screenshots/persona3portable/persona.png" width="300" alt="Persona 3 Portable: Persona"> | <img src="screenshots/persona3portable/social_links.png" width="300" alt="Persona 3 Portable: Social Links"> |
+
+A bottom-screen version of the camp menu, in blue or pink to match the protagonist:
+
+- **Skill, Item, Persona, Equip, Status, S.Link, Calendar.** Laid out like the native camp menu, with the game's own descriptions for items, equipment and skills.
+  - Persona shows stats, affinities, skills, skill card and the next skill to learn.
+  - S.Link shows each link's rank, its Details line and the members' profiles.
+  - Calendar shows holidays, today and full moons.
+- **Use items, change equipment and change Persona from the touch screen.** The companion drives the game's own camp menu one button press at a time, then backs out; nothing is written to the game's memory.
+- **Battle.** Party HP/SP, ailments and stat changes; enemies with level, arcana, HP and affinities once analyzed. Opens by itself during battles.
+- **Tartarus map.** The floor as the game's minimap reveals it, with the party's position and facing, stairs, chests, teleporter and nearby Shadows.
+- **Dialogue.** Choice lists in large text with the speaker and current line; tap to highlight, tap again to choose.
+
+The companion ships no game art: menus, fonts, portraits and text are read from your own game files.
+
+Contributed by [jschroeder1](https://github.com/jschroeder1).
+
+</details>
+
+---
+
 ## Contribute to Another Game
 
 Anyone can write a companion for another game, without rebuilding Eden Duo. Start with [**Contribute to Another Game**](docs/CONTRIBUTE.md): what a companion is, what the runtime offers, the reverse-engineering tools, which documents to read in which order, and how to share your companion.
@@ -673,7 +710,7 @@ Anyone can write a companion for another game, without rebuilding Eden Duo. Star
 |------|----------|
 | [`native/`](native/) | Native game modules, shared companion helpers, tests and standalone CMake build. See [`native/README.md`](native/README.md). |
 | [`packages/`](packages/) | Package sources, one folder per game: `dualscreen/manifest.json`, the per-build data file `<BUILD16>.json` (one per supported build) and, for Persona 5 Royal, the art recipe table `p5r_art.rec`. |
-| [`tools/`](tools/) | `build_release.sh` packages its supported companion targets from the package sources and separately built native modules; companions maintained in separate source trees use their own packaging tools. The page generators for Persona 5 Royal ([`tools/p5r/`](tools/p5r/)), Metroid Dread ([`tools/dread/`](tools/dread/)), Mario Kart 8 Deluxe ([`tools/mk8d/`](tools/mk8d/)) and Super Mario Bros. Wonder ([`tools/wonder/`](tools/wonder/)) are here too. |
+| [`tools/`](tools/) | `build_release.sh` packages its supported companion targets from the package sources and separately built native modules; companions maintained in separate source trees use their own packaging tools. The page generators for Persona 5 Royal ([`tools/p5r/`](tools/p5r/)), Persona 3 Portable ([`tools/p3p/`](tools/p3p/)), Metroid Dread ([`tools/dread/`](tools/dread/)), Mario Kart 8 Deluxe ([`tools/mk8d/`](tools/mk8d/)) and Super Mario Bros. Wonder ([`tools/wonder/`](tools/wonder/)) are here too. |
 | [`docs/`](docs/) | How the companion runtime works, the package format, writing a native module and porting a new game. Start with [`docs/CONTRIBUTE.md`](docs/CONTRIBUTE.md). |
 | [`screenshots/`](screenshots/) | Captures of both screens for each game. |
 
