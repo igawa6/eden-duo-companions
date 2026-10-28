@@ -39,6 +39,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 19 | [Castlevania: Belmont's Curse](#castlevania-belmonts-curse) | `0100BA4026E94000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/castlevania-belmonts-curse-1.0.0) | 🥇<br><a href="https://www.reddit.com/user/gymgooner123"><img src="https://img.shields.io/badge/gymgooner123-FF4500?style=flat-square&logo=reddit&logoColor=white" style="vertical-align: middle;" alt="gymgooner123"></a> |
 | 20 | [Super Mario Odyssey](#super-mario-odyssey) | `0100000000010000` | 1.4.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/super-mario-odyssey-1.0.0) | 🥈<br><a href="https://ko-fi.com/s/9e92af191b"><img src="https://img.shields.io/badge/Chip_In-C0C0C0?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Chip In"></a> |
 | 21 | [The Legend of Zelda: Echoes of Wisdom](#the-legend-of-zelda-echoes-of-wisdom) | `01008CF01BAAC000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/echoes-of-wisdom-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/3rd-Poll-Next-Switch-Game-on-Eden-Duo-C7J128KB48"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
+| 22 | [Dave the Diver](#dave-the-diver) | `010097F018538000` | 1.0.6.1267 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/dave-the-diver-1.0.0) | ⭐<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -660,6 +661,34 @@ Zelda's map, Echoes and gear on the second screen, so you can swap, eat and plan
 The companion ships no game art: icons, the map, the font and all text are read from your own game files.
 
 Requires Eden Duo 1.3.2.2 or newer.
+
+---
+
+<a id="dave-the-diver"></a>
+
+## Dave the Diver
+
+⭐ <a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a>
+
+`010097F018538000` · game version 1.0.6.1267 · companion 1.0.0 (by jadesigns.)
+
+Dive maps, cargo, missions and the sushi bar on the second screen, so the top screen stays on the sea.
+
+- **Dive.** A map of the level as the game bounds it, with Dave's position and depth marks, and markers for chests (weapon chests in red), O₂, ammo, escape pods, mission items and fish for pinned recipes; a filter picks which markers show. Gauges for O₂, depth and depth limit, and cargo weight, read live.
+- **Loadout.** Melee weapon, Y items and A weapon with ammo, counts and levels. Tap Y or A to swap, the same as L or R in game.
+- **Hunt list and popups.** The ingredients of pinned recipes and EcoWatcher goals, plus the game's catch plate and MISSION COMPLETE.
+- **Cargo.** Every catch, like the game's Acquired list, sortable, with discard.
+- **Missions.** The three missions the top screen tracks with their tasks, then the other active missions; Pin puts a mission's items on the map.
+- **Sea People Village.** The game's village map with the buildings and Dave's pin, and your Bei and Credit.
+- **Sushi.** Recipes with price and how many you can make: pin to the dive, add, remove or swap on tonight's menu. Ingredients in storage with the recipes that use them.
+- **Apps.** The phone's Weapon Shop, iDiver, Call, Mail, Calculator and EcoWatcher.
+- **HUD tab (optional).** Hides the top screen's O₂/depth panel, weapon slots, mission list and popups while diving, and the Bei/Credit panels in the village. Off at each launch; switching it off restores them.
+
+Use **NCE**, not JIT: with JIT the game can crash on the first dive of a new save or fail to boot.
+
+The companion ships no game art: every picture and the font are read from your own game files. The dive-map idea comes from DaveDiverExpansion 2.0 by yslailo (MIT).
+
+Requires Eden Duo 1.1.0 or newer.
 
 ---
 
