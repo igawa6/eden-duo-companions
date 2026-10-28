@@ -688,7 +688,7 @@ Use **NCE**, not JIT: with JIT the game can crash on the first dive of a new sav
 
 The companion ships no game art: every picture and the font are read from your own game files. The dive-map idea comes from DaveDiverExpansion 2.0 by yslailo (MIT).
 
-Requires Eden Duo 1.3.2.2 or newer.
+Requires Eden Duo 1.1.0 or newer.
 
 ---
 
