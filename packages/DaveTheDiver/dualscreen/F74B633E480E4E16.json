@@ -1,0 +1,1140 @@
+{
+ "_game": "DAVE THE DIVER (Switch) 010097F018538000, update v1.0.6.1267",
+ "_build_id": "F74B633E480E4E161F80A7C16A467F2A",
+ "_layout": "IL2CPP v31: Il2CppClass.parent +0x58, static_fields +0xB8 (explicit; verified on device)",
+ "points": {
+  "bh": {
+   "type": "u64",
+   "ptr": [
+    "main+0x9DB0400",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0xA0",
+    "0x298"
+   ],
+   "offset": "0x0",
+   "_v": "PlayerBreathHandler* (non-zero while the diver exists)"
+  },
+  "o2": {
+   "type": "f32",
+   "ptr": [
+    "main+0x9DB0400",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0xA0",
+    "0x298",
+    "0xA0"
+   ],
+   "offset": "0x0",
+   "_v": "PlayerBreathHandler.m_HP = O2 [verified: HUD 85 -> 85.0]"
+  },
+  "depth": {
+   "type": "f32",
+   "ptr": [
+    "main+0x9DB0400",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0xA0",
+    "0x298",
+    "0x28",
+    "0x38"
+   ],
+   "offset": "0x0",
+   "_v": "CharacterDepthHandler.m_PlayerDepth [verified: 9.3 m]"
+  },
+  "weight": {
+   "type": "f32",
+   "ptr": [
+    "main+0x9DB1EA8",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0x2C"
+   ],
+   "offset": "0x0",
+   "_v": "LootBox.<weight>k__BackingField [verified: 0.0]"
+  },
+  "weight_max": {
+   "type": "f32",
+   "ptr": [
+    "main+0x9DB1EA8",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0x18"
+   ],
+   "offset": "0x0",
+   "_v": "LootBox.m_WeightMax [verified: 9.0]"
+  },
+  "o2_warn": {
+   "type": "f32",
+   "ptr": [
+    "main+0x9DB0400",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0xA0",
+    "0x298",
+    "0x74"
+   ],
+   "offset": "0x0",
+   "_v": "PlayerBreathHandler.m_WarningOxygen"
+  },
+  "o2_urgent": {
+   "type": "f32",
+   "ptr": [
+    "main+0x9DB0400",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0xA0",
+    "0x298",
+    "0x78"
+   ],
+   "offset": "0x0",
+   "_v": "PlayerBreathHandler.m_UrgentWarningOxygen"
+  },
+  "o2_maxparam": {
+   "type": "f32",
+   "ptr": [
+    "main+0x9DB0400",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0xA0",
+    "0x298",
+    "0xA4"
+   ],
+   "offset": "0x0",
+   "_v": "PlayerBreathHandler.m_MaxHPParameter"
+  },
+  "o2_custommax": {
+   "type": "f32",
+   "ptr": [
+    "main+0x9DB0400",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0xA0",
+    "0x298",
+    "0xBC"
+   ],
+   "offset": "0x0",
+   "_v": "PlayerBreathHandler.m_CustomMaxHP"
+  },
+  "depth_max": {
+   "type": "f32",
+   "ptr": [
+    "main+0x9DB0400",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0xA0",
+    "0x298",
+    "0x28",
+    "0x48"
+   ],
+   "offset": "0x0",
+   "_v": "CharacterDepthHandler.m_MaxDepth"
+  },
+  "depth_warn": {
+   "type": "f32",
+   "ptr": [
+    "main+0x9DB0400",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0xA0",
+    "0x298",
+    "0x28",
+    "0x50"
+   ],
+   "offset": "0x0",
+   "_v": "CharacterDepthHandler.m_WarnLine"
+  },
+  "depth_danger": {
+   "type": "f32",
+   "ptr": [
+    "main+0x9DB0400",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0xA0",
+    "0x298",
+    "0x28",
+    "0x54"
+   ],
+   "offset": "0x0",
+   "_v": "CharacterDepthHandler.m_DangerLine"
+  },
+  "overload": {
+   "type": "f32",
+   "ptr": [
+    "main+0x9DB1EA8",
+    "0x58",
+    "0xB8",
+    "0x0",
+    "0x40"
+   ],
+   "offset": "0x0",
+   "_v": "LootBox.<overloadedThreshold>k__BackingField"
+  },
+  "hud_cls": {
+   "type": "cstring",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x0",
+    "0x10"
+   ],
+   "offset": "0x0",
+   "_v": "class name of s_Current (expect MissionHUD)"
+  },
+  "t0": {
+   "type": "string",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0xD8"
+   ],
+   "offset": "0x0",
+   "_v": "task title text"
+  },
+  "tk0": {
+   "type": "string",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x10"
+   ],
+   "offset": "0x0",
+   "_v": "task title key"
+  },
+  "tb0": {
+   "type": "utf32",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0x6C8",
+    "0x20"
+   ],
+   "offset": "0x0",
+   "_v": "backing array (UTF-32)"
+  },
+  "tcls0": {
+   "type": "cstring",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x0",
+    "0x10"
+   ],
+   "offset": "0x0",
+   "_v": "class of _ezText (expect EzText)"
+  },
+  "tmcls0": {
+   "type": "cstring",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0x0",
+    "0x10"
+   ],
+   "offset": "0x0",
+   "_v": "expect TextMeshProUGUI"
+  },
+  "cn0": {
+   "type": "s32",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x58",
+    "0x18"
+   ],
+   "offset": "0x0",
+   "_v": "conditions List._size"
+  },
+  "c0_": {
+   "type": "string",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "condition text",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x38",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0xD8"
+   ]
+  },
+  "cd0_": {
+   "type": "u64",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "m_MissionConditionData (row in use)",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90"
+   ]
+  },
+  "clen0_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "condition text length (Il2CppString +0x10)",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x38",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0xD8",
+    "0x10"
+   ]
+  },
+  "cnow0_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "NowCount",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90",
+    "0x28"
+   ]
+  },
+  "cmax0_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "MaxCount",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90",
+    "0x2C"
+   ]
+  },
+  "ctgt0_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "Target",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90",
+    "0x20"
+   ]
+  },
+  "cflags0_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "IsShowHUD | IsShowCount<<8 | IsNewClear<<16",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90",
+    "0x30"
+   ]
+  },
+  "n0_": {
+   "type": "string",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "condition count text",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x30",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x40",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0xD8"
+   ]
+  },
+  "t1": {
+   "type": "string",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0xD8"
+   ],
+   "offset": "0x0",
+   "_v": "task title text"
+  },
+  "tk1": {
+   "type": "string",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x10"
+   ],
+   "offset": "0x0",
+   "_v": "task title key"
+  },
+  "tb1": {
+   "type": "utf32",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0x6C8",
+    "0x20"
+   ],
+   "offset": "0x0",
+   "_v": "backing array (UTF-32)"
+  },
+  "tcls1": {
+   "type": "cstring",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x0",
+    "0x10"
+   ],
+   "offset": "0x0",
+   "_v": "class of _ezText (expect EzText)"
+  },
+  "tmcls1": {
+   "type": "cstring",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0x0",
+    "0x10"
+   ],
+   "offset": "0x0",
+   "_v": "expect TextMeshProUGUI"
+  },
+  "cn1": {
+   "type": "s32",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x58",
+    "0x18"
+   ],
+   "offset": "0x0",
+   "_v": "conditions List._size"
+  },
+  "c1_": {
+   "type": "string",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "condition text",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x38",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0xD8"
+   ]
+  },
+  "cd1_": {
+   "type": "u64",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "m_MissionConditionData (row in use)",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90"
+   ]
+  },
+  "clen1_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "condition text length (Il2CppString +0x10)",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x38",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0xD8",
+    "0x10"
+   ]
+  },
+  "cnow1_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "NowCount",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90",
+    "0x28"
+   ]
+  },
+  "cmax1_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "MaxCount",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90",
+    "0x2C"
+   ]
+  },
+  "ctgt1_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "Target",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90",
+    "0x20"
+   ]
+  },
+  "cflags1_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "IsShowHUD | IsShowCount<<8 | IsNewClear<<16",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90",
+    "0x30"
+   ]
+  },
+  "n1_": {
+   "type": "string",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "condition count text",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x48",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x40",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0xD8"
+   ]
+  },
+  "t2": {
+   "type": "string",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0xD8"
+   ],
+   "offset": "0x0",
+   "_v": "task title text"
+  },
+  "tk2": {
+   "type": "string",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x10"
+   ],
+   "offset": "0x0",
+   "_v": "task title key"
+  },
+  "tb2": {
+   "type": "utf32",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0x6C8",
+    "0x20"
+   ],
+   "offset": "0x0",
+   "_v": "backing array (UTF-32)"
+  },
+  "tcls2": {
+   "type": "cstring",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x0",
+    "0x10"
+   ],
+   "offset": "0x0",
+   "_v": "class of _ezText (expect EzText)"
+  },
+  "tmcls2": {
+   "type": "cstring",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x50",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0x0",
+    "0x10"
+   ],
+   "offset": "0x0",
+   "_v": "expect TextMeshProUGUI"
+  },
+  "cn2": {
+   "type": "s32",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x58",
+    "0x18"
+   ],
+   "offset": "0x0",
+   "_v": "conditions List._size"
+  },
+  "c2_": {
+   "type": "string",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "condition text",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x38",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0xD8"
+   ]
+  },
+  "cd2_": {
+   "type": "u64",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "m_MissionConditionData (row in use)",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90"
+   ]
+  },
+  "clen2_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "condition text length (Il2CppString +0x10)",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x38",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0xD8",
+    "0x10"
+   ]
+  },
+  "cnow2_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "NowCount",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90",
+    "0x28"
+   ]
+  },
+  "cmax2_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "MaxCount",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90",
+    "0x2C"
+   ]
+  },
+  "ctgt2_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "Target",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90",
+    "0x20"
+   ]
+  },
+  "cflags2_": {
+   "type": "s32",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "IsShowHUD | IsShowCount<<8 | IsNewClear<<16",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x90",
+    "0x30"
+   ]
+  },
+  "n2_": {
+   "type": "string",
+   "count": 6,
+   "offset": "0x0",
+   "_v": "condition count text",
+   "ptr": [
+    "main+0x9DB2820",
+    "0xB8",
+    "0x0",
+    "0x80",
+    "0x18",
+    "0x60",
+    "0x58",
+    "0x10",
+    {
+     "offset": "0x20",
+     "stride": 8,
+     "index": "$i"
+    },
+    "0x40",
+    "0x48",
+    "0x10",
+    "0x20",
+    "0x18",
+    "0x30",
+    "0xD8"
+   ]
+  }
+ }
+}
