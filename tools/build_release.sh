@@ -121,7 +121,7 @@ fi
 if want mk8d; then
   # One module serves 4.0.0 and 3.0.3 (with or without CTGP-DX); build_ids lists both.
   # shellcheck disable=SC2046
-  pkg MarioKart8Deluxe MarioKart8DeluxeDS "${MK8D_VERSION:-1.0.0}" \
+  pkg MarioKart8Deluxe MarioKart8DeluxeDS "${MK8D_VERSION:-1.0.1}" \
     --module "android-arm64-v8a=$MK8D_ANDROID_SO" --module "linux-x86_64=$MK8D_LINUX_SO" \
     $(build_ids MarioKart8Deluxe)
 fi

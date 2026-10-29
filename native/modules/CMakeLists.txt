@@ -117,7 +117,7 @@ dsmod_add_module(dsmod-dread EXCLUDE_FROM_ALL
     COMPILE_DEFINITIONS FMT_HEADER_ONLY=1)
 
 # MK8D: ABI glue (0100152000022000.cpp), the reader (mk8d_reader + its generated code pins:
-# mk8d_pins.inc for 4.0.0, mk8d_pins303.inc + mk8d_pins303_ctgp.inc for 3.0.3 and CTGP-DX), the
+# mk8d_pins.inc for 4.0.0, mk8d_pins401.inc for 4.0.1, mk8d_pins303.inc + mk8d_pins303_ctgp.inc for 3.0.3 and CTGP-DX), the
 # asset side (mk8d_assets: romfs art, map cameras, message text, font advances) and the
 # id -> name rules (mk8d_ids) and the rank table's card-swap animation (mk8d_anim, used by the glue).
 set(MK8D_ASSET_SOURCES
@@ -128,6 +128,7 @@ set(MK8D_READER_SOURCES
     mk8d_reader.cpp
     mk8d_reader.h
     mk8d_pins.inc
+    mk8d_pins401.inc
     mk8d_pins303.inc
     mk8d_pins303_ctgp.inc
     mk8d_ids.cpp

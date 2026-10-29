@@ -9,8 +9,9 @@
 //                        player's romfs
 //   mk8d_ids.{h,cpp}     id -> name rules
 //   mk8d_anim.{h,cpp}    the rank table's card-swap animation (presentation only)
-// Supported builds: 4.0.0 (2C336A9BCF79C304...) and 3.0.3 (6A85262F21B90364..., also with the
-// CTGP-DX plugin), each with its own verified pins (mk8d_reader.cpp profiles).
+// Supported builds: 4.0.0 (2C336A9BCF79C304...), 4.0.1 (158C0C7399AABD7B...) and 3.0.3
+// (6A85262F21B90364..., also with the CTGP-DX plugin), each with its own verified pins
+// (mk8d_reader.cpp profiles).
 
 #include "core/mods/dsmod_module_abi.h"
 #include "core/mods/dsmod_module_extensions.h"
@@ -39,7 +40,7 @@ using namespace dsmod_sdk::int_types;
 constexpr u64 TitleId = UINT64_C(0x0100152000022000);
 
 /// Exactly the builds with a reader profile (mk8d_reader.cpp): 4.0.0 (2C336A9BCF79C304...,
-/// AArch64) and 3.0.3 (6A85262F21B90364..., AArch32, with or without CTGP-DX).
+/// AArch64), 4.0.1 (158C0C7399AABD7B..., AArch64) and 3.0.3 (6A85262F21B90364..., AArch32, with or without CTGP-DX).
 EdenDsmodBool SupportsBuild(const char* build_id) {
     return Mk8dReader::SupportsBuildHex(build_id) ? EDEN_DSMOD_TRUE : EDEN_DSMOD_FALSE;
 }

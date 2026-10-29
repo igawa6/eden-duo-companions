@@ -4,6 +4,8 @@
 
 // Mario Kart 8 Deluxe game-memory reader, build-parametric:
 //   4.0.0 (build 2C336A9BCF79C304, AArch64, 8-byte pointers): pins mk8d_pins.inc
+//   4.0.1 (build 158C0C7399AABD7B, AArch64): pins mk8d_pins401.inc (the 4.0.0 pins at their 4.0.1
+//         addresses; every layout offset is the 4.0.0 one)
 //   3.0.3 (build 6A85262F21B90364, AArch32 ARM, 4-byte pointers; also with the CTGP-DX plugin):
 //         pins mk8d_pins303.inc (+ mk8d_pins303_ctgp.inc for the plugin)
 // One Profile per build (mk8d_reader.cpp) holds the pins, the global decoders and every offset;

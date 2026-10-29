@@ -376,6 +376,7 @@ void TestRace() {
     const auto api = Api(h);
     const auto& m = Module();
     assert(m.supports_build("2C336A9BCF79C3040CE506CDD391B57800000000000000000000000000000000"));
+    assert(m.supports_build("158C0C7399AABD7BF83795C2EF3484C700000000000000000000000000000000"));
     assert(!m.supports_build("FE941ED5BA14BE5D505698DA1BBF4FE700000000000000000000000000000000"));
     void* inst = m.create(&api, "{}");
     assert(inst);

@@ -9,6 +9,7 @@ per-build data files are small constant tables:
 | File | Build |
 |------|-------|
 | `2C336A9BCF79C304.json` | 4.0.0 (AArch64), supported |
+| `158C0C7399AABD7B.json` | 4.0.1 (AArch64), supported |
 | `6A85262F21B90364.json` | 3.0.3 (AArch32), supported, with or without CTGP-DX |
 | `B5C39B5B7C62A88E.json` | 1.0.0 base game without an update: shows the wrong-version screen |
 | `data.json` | any other build: shows the wrong-version screen |
