@@ -172,13 +172,23 @@ int main() {
             Require(img.w == 864 && px(img, ax, ay) && px(img, bx, by), "seen cells drawn");
             Require(!px(img, ex, ey), "unseen cell stays hidden");
             Require(p3p_map::Centre(m, 2, 5).x == ex && p3p_map::Centre(m, 2, 5).y == ey, "cell centre");
-            Require(img.rgba[((size_t(f.oy + 4 * c) * img.w) + ax) * 4] == 106, "closed north side is a wall");
+            Require(img.rgba[((size_t(f.oy + 4 * c) * img.w) + ax) * 4] == 232, "closed north side is a wall");
             Require(img.rgba[((size_t(ay) * img.w) + f.ox + 11 * c) * 4] == 255, "open side between cells has no wall");
             m.x = 8500; m.z = 3200; m.forward_x = 1; m.forward_z = 0;
             auto k = p3p_map::Leader(m);
             Require(k.x == f.ox + 957 && k.y == f.oy + 387 && k.degrees == 90, "leader marker east (cell 11.1, 4.5)");
             m.forward_x = 0; m.forward_z = 1;
             Require(p3p_map::Leader(m).degrees == 180, "leader marker south (+z)");
+            {
+                // An open side into an unseen floor cell gets a faint stub; a closed one does not.
+                p3p::FloorMap o = m;
+                o.kind[3 * 16 + 11] = o.kind[3 * 16 + 10] = 1; o.sides[4 * 16 + 11] |= 1;
+                auto oi = p3p_map::Render(o, true); auto of = p3p_map::Fit(o);
+                const int sy = of.oy + 4 * of.cell - of.cell / 6;
+                const int alpha_open = px(oi, of.ox + 11 * of.cell + of.cell / 2, sy);
+                const int alpha_closed = px(oi, of.ox + 10 * of.cell + of.cell / 2, sy);
+                Require(alpha_open > 0 && alpha_open < 235 && alpha_closed == 0, "open side into unexplored floor shows a stub");
+            }
             p3p::FloorMap n = m; n.x = 0;
             Require(p3p_map::SamePicture(m, n) && !p3p_map::SamePicture(m, p3p::FloorMap{}), "position does not redraw");
         }

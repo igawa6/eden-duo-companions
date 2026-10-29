@@ -539,9 +539,11 @@ def start_page():
 
 def paused_overlay():
     """While the game is briefly unreadable in play (loading, scenes), the module republishes the
-    last values with live.paused: grey them out and tag the title band."""
+    last values with live.paused: grey them out, block touches on them and tag the title band."""
     paused = {'need_bind': 'live.paused'}
-    return [{'type': 'image', 'rect': [24, 90, 1216, 880], 'src': 'module:p3p:fill', 'tint': '#B3D9D9DE'} | paused,
+    # The grey wash also swallows taps and drags, so greyed-out buttons and lists cannot be used.
+    return [{'type': 'image', 'rect': [24, 90, 1216, 880], 'src': 'module:p3p:fill', 'tint': '#B3D9D9DE',
+             'input_block': True} | paused,
             fill([560, 18, 300, 52], 'select', **paused),
             label([710, 18, 0, 52], bind='live.pause', scale=SIZE['value']) | paused
             | {'align': 'center', 'text_center_h': 52, 'color': COLORS['title']}]

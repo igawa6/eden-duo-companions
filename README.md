@@ -704,7 +704,7 @@ Requires Eden Duo 1.1.0 or newer.
 <details>
 <summary>Screenshots and details</summary>
 
-`0100DCD01525A000` · game version 1.0.0 (base game) · companion 1.0.0
+`0100DCD01525A000` · game version 1.0.0 (base game) · companion 1.0.1
 
 Tested on **AYN Thor with Eden Duo 1.3.2.2**. Declares runtime 19 as its minimum;
 older Eden Duo versions have not been validated. The UI font and help text use English

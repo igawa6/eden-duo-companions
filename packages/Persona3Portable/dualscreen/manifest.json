@@ -4160,6 +4160,7 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
@@ -6562,6 +6563,7 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
@@ -6967,6 +6969,7 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
@@ -8206,6 +8209,7 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
@@ -9890,6 +9894,7 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
@@ -11802,6 +11807,7 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
@@ -12670,6 +12676,7 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
@@ -17130,6 +17137,7 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
@@ -19885,6 +19893,7 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
@@ -21099,6 +21108,7 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
@@ -22068,6 +22078,7 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
