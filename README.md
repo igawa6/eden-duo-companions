@@ -155,6 +155,8 @@ The companion ships no game art: it uses your own game files.
 
 `0100152000022000` · game version 4.0.1, 4.0.0 or 3.0.3 (CTGP-DX v1.1.1 on 3.0.3) · companion 1.0.1
 
+Game version 4.0.1 support by [AntonyKor](https://github.com/AntonyKor).
+
 | Map | Horn | Next race |
 |:---:|:---:|:---:|
 | <img src="screenshots/mario-kart-8-deluxe/map_long_light.png" width="300" alt="Mario Kart 8 Deluxe: Map"> | <img src="screenshots/mario-kart-8-deluxe/horn_short_dark.png" width="300" alt="Mario Kart 8 Deluxe: Horn"> | <img src="screenshots/mario-kart-8-deluxe/waiting.png" width="300" alt="Mario Kart 8 Deluxe: Next race"> |
