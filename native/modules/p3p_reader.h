@@ -1,0 +1,1336 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+#pragma once
+// Read-only base-build P3P reader. Every address below was traced from the base executable and
+// checked live against the native menus; the build pins in p3p_pins.inc guard the code it relies on.
+#include "core/mods/dsmod_module_abi.h"
+#include "p3p_talk.h"
+#include <algorithm>
+#include <array>
+#include <cctype>
+#include <cmath>
+#include <optional>
+#include <cstdint>
+#include <cstring>
+#include <map>
+#include <set>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+namespace p3p {
+using u8 = uint8_t; using u16 = uint16_t; using u32 = uint32_t; using u64 = uint64_t;
+using Bytes = std::vector<u8>;
+template<class T> T At(const Bytes& b, size_t at) {
+    if (at > b.size() || sizeof(T) > b.size() - at) throw std::runtime_error("truncated record");
+    T v; std::memcpy(&v, b.data() + at, sizeof(v)); return v;
+}
+struct Member {
+    int id{}, level{}, hp{}, sp{}, max_hp{}, max_sp{}, persona{}, accessory_skill{};
+    int base_hp{}, base_sp{};      // level table values before Maximum()
+    u32 status{};                  // unit +0xc ailment bits (Ailments())
+    std::array<u8, 3> buffs{};     // unit +0x1c..+0x1e battle stat changes (Buffs())
+    std::map<int, int> effects;    // equipment effect id -> count, for Maximum()
+    bool cost_free{}; // unit +0xd bit 1: 0x74a10 charges nothing
+    std::array<int, 8> skills{};
+    std::array<int, 4> equip{}; // 0x1d0c50 slots: weapon, body, feet, accessory
+    std::string name;           // native display name (0x1ddf50); empty if not printable ASCII
+    bool operator==(const Member&) const = default;
+};
+// One equipment slot as the native Status panel (cmpStatus.c 0x10bb80) shows it. Weapons show
+// At/Hit (0x1d3c20 / 0x1d3cb0), body Df (0x1d3d60), feet Ev (0x1d3d80).
+struct Equip { int id{}, at{}, hit{}, df{}, ev{}; std::string name; };
+// One row of the native camp Skill list. cost_known is false only when the game would pick
+// between duplicate copies by battle effect (0x73b20) and their displayed costs differ.
+struct Skill { int id{}, type{}, cost{}, element{-1}; bool cost_known{true}; std::string name; };
+// Stats page values. stats/bonus follow 0x1d7e70 / 0x1d7f30 in St, Ma, En, Ag, Lu order.
+struct Social { int points{}, rank{}; std::string name; };
+struct Stats {
+    std::array<int, 5> stats{}, bonus{};
+    int next_exp{-1};                 // -1: not available
+    std::vector<Social> social;       // protagonist only: Academics, Charm, Courage
+};
+struct Item { int id{}, count{}; std::string name; };
+// One enemy of the current encounter. Affinities only once analyzed (bit at S+0x4d14,
+// getter 0x1e05c0), as the native Analyze panel shows them; "-" otherwise (the pixel font has no "?").
+struct Enemy {
+    int id{}, level{}, hp{}, sp{}, max_hp{}, max_sp{};
+    u32 status{}; // unit +0xc ailment bits (Ailments())
+    std::array<u8, 3> buffs{}; // unit +0x1c..+0x1e (Buffs())
+    bool analyzed{};
+    std::string name, arcana;
+    std::array<std::string, 9> affinity;
+};
+// One row of the native S.LINK list (cmpCommu.c 0xdcaf0). status: 0 normal, 1 max (rank 10),
+// 2 reversed (record bit 0; card drawn upside down), 3 broken (bit 1; checked first).
+struct SocialLink { int id{}, arcana{}, rank{}, status{}; std::string arcana_name, name, partner; };
+// One stock Persona as the native PERSONA -> Details screen shows it.
+struct PersonaDetail {
+    int id{}, level{}, next_exp{}, card_level{-1};
+    std::string name, arcana, card;
+    int next_level{-1}; std::string next_skill; int next_more{}; // the Details panel's "Next Lv"
+    std::array<int, 5> stats{};
+    std::array<std::string, 9> affinity; // Slash Strike Pierce Fire Ice Elec Wind Light Dark
+    std::array<std::string, 8> skills;
+};
+// The skills a Persona will still learn, as the Details panel lists them (0x1d7420, called by
+// 0x225418, which keeps the list at panel +0x66 / +0x1e4 / count +0x224; the panel names the first
+// and draws the rest as "?"). `learn` is PERSONA.TBL s1 + id * 0x46 + 6: 16 entries {u8 level
+// offset, u8 kind, u16 skill}, ended by kind 0. The window runs from the first entry whose offset
+// is above level - base to the last such entry reachable by level 99; within it, kind 1 entries
+// whose skill the Persona does not already know (in its first n slots, n = nonzero slots).
+// Returns {skill, level = base + offset}. Persona IDs 0xc0..0xdf use another table: not handled.
+inline std::vector<std::pair<int, int>> NextSkills(const Bytes& learn, int base, int level, const std::array<int, 8>& known) {
+    int first = 0, last = 0; bool found = false, any = false;
+    for (int i = 0; i < 16 && size_t(4 * i + 4) <= learn.size(); ++i) {
+        const int off = learn.at(4 * i), kind = learn.at(4 * i + 1);
+        if (!kind) break;
+        int cand_first = found ? first : i, cand_last = found ? last : i; bool cand_any = any;
+        if (!(99 - base < off)) { cand_last = i; cand_any = true; }
+        if (level - base < off) { first = cand_first; last = cand_last; found = true; any = cand_any; }
+    }
+    std::vector<std::pair<int, int>> out;
+    if (!any) return out;
+    const int n = int(std::count_if(known.begin(), known.end(), [](int s) { return s != 0; }));
+    for (int i = first; i <= last && out.size() < 32; ++i) {
+        if (learn.at(4 * i + 1) != 1) continue;
+        const int skill = At<u16>(learn, 4 * i + 2);
+        if (std::find(known.begin(), known.begin() + n, skill) != known.begin() + n) continue;
+        out.emplace_back(skill, base + learn.at(4 * i));
+    }
+    return out;
+}
+struct Persona {
+    int id{}, level{}, slot{}; bool selected{};
+    std::array<int, 8> skills{};
+    bool operator==(const Persona&) const = default;
+};
+struct Link { int id{}, rank{}; bool operator==(const Link&) const = default; };
+struct Snapshot {
+    int day{}, time{}, money{}, stock_capacity{}; bool dark{}, female{}, holiday{};
+    bool battle{}; // a verified battle task is running (btlMain.c)
+    std::vector<Member> members;
+    std::vector<int> party;           // indexes into members, party slot order (0x1d2ab0)
+    std::vector<Persona> personas;
+    std::vector<Link> links;
+    bool operator==(const Snapshot&) const = default;
+};
+// Ailments in a unit's +0xc status word (tested by 0x6f090). Each bit is the mask that
+// SKILL.TBL records (+0x18 kind, +0x1c mask) inflict (kind 1) and cure (kind 2): Marin Karin /
+// Charmdi 0x2, Bewilder 0x4, Pulinpa 0x8, Evil Touch 0x10, Provoke / Enradi 0x20, Bufu 0x40,
+// Zio 0x80, Poisma / Posumudi 0x100, Mudo / Hama / Recarm 0x80000. Bits 0x1 and 0x100000 (cured
+// together by Re Patra) are not named until a native screen tells them apart.
+inline std::string Ailments(u32 status) {
+    static constexpr std::pair<u32, const char*> names[]{
+        {0x80000, "KO"}, {0x2, "Charm"}, {0x4, "Distress"}, {0x8, "Panic"}, {0x10, "Fear"},
+        {0x20, "Rage"}, {0x40, "Freeze"}, {0x80, "Shock"}, {0x100, "Poison"}};
+    std::string out;
+    for (auto [bit, name] : names) if (status & bit) out += (out.empty() ? "" : "  ") + std::string(name);
+    return out;
+}
+// Battle stat changes (Tarukaja, Rakunda, ...) as the game's check 0x6f8b0 reads them: signed
+// 4-bit counters on the unit, positive raised, negative lowered (SKILL.TBL +0x20 masks: At 0x5 /
+// 0xa = both nibbles of +0x1c, Hit/Ev 0x110 / 0x220 = low nibbles of +0x1d / +0x1e, Df 0x40 / 0x80
+// = high nibble of +0x1d).
+inline std::string Buffs(const std::array<u8, 3>& b) {
+    auto nibble = [](int v) { v &= 15; return v > 7 ? v - 16 : v; };
+    auto sign = [&](std::initializer_list<int> parts) {
+        int up = 0, down = 0;
+        for (int v : parts) { up |= v > 0; down |= v < 0; }
+        return up && !down ? 1 : down && !up ? -1 : 0;
+    };
+    const std::pair<const char*, int> stats[]{{"At", sign({nibble(b[0]), nibble(b[0] >> 4)})},
+                                              {"Df", sign({nibble(b[1] >> 4)})},
+                                              {"Hit", sign({nibble(b[1])})},
+                                              {"Ev", sign({nibble(b[2])})}};
+    std::string out;
+    for (auto [name, v] : stats)
+        if (v) out += (out.empty() ? "" : "  ") + std::string(name) + (v > 0 ? " up" : " down");
+    return out;
+}
+// One Tartarus floor as the dungeon generator lays it out and the minimap has revealed it.
+// Dungeon work main+0x816838 (getter 0x185130): 16x16 cells of 16 bytes at +0x80, rows 0x100
+// apart; cell +0 kind (0 none, 1 floor, 2 wall), +0xb open sides (bits: 1 north/-z, 2 west/-x,
+// 4 south/+z, 8 east/+x), +4 the block's origin cell (y * 16 + x). +0x70..+0x73: start cell x,
+// y, exit cell x, y (the stairs). Explored blocks: main+0x82a109 (0x1a94a0), by origin cell.
+// Cells are 800 world units; cell = (position + 400) / 800 (0x22b470).
+struct FloorMap {
+    std::array<u8, 256> kind{}, sides{}, seen{};
+    int start_x{}, start_y{}, exit_x{}, exit_y{};
+    int floor{}; // Tartarus floor (dungeon task data +4, the 0x181fb0 argument; 1 is the lobby)
+    float x{}, z{}, forward_x{}, forward_z{}; // leader position and facing (world units)
+    // Minimap icons, each shown only where the game's minimap (y_smap.c 0x22b590) shows it:
+    // chests (GOT 0x70e628, 32 x 0x190: +0 active, +4 opened, position +0x170/+0x178), the
+    // teleporter (GOT 0x70e5c0) and the wandering marker (GOT 0x70e638; +0 active, position
+    // +0x168/+0x170) once their block is explored; Shadows (GOT 0x70e530, 24 x 0x790 field
+    // units, model +0x58 position +0x40/+0x48) within 2000 units of the leader (0x18c610).
+    struct Icon { float x{}, z{}; bool operator==(const Icon&) const = default; };
+    std::vector<Icon> chests, shadows;
+    std::optional<Icon> teleporter, wanderer;
+    bool operator==(const FloorMap&) const = default;
+};
+// The native camp menu (cmpMain.c task "cmpMain", callbacks 0xf5900 / 0xf5fa0; data = task
+// +0x48), as far as the item drive needs it. Top level: +0x0 state (3 opening, 2 command list,
+// 4 inside a command, 13 closing), +0x10 bit 0 set while the command list takes input
+// (0xf5a58), +0x58 cursor, +0x64 command IDs (u32 each, 0 SKILL, 1 ITEM, ...; at most 7, the
+// confirm at 0xf5e8c dispatches on [+0x64 + cursor * 4]), +0x80 command count. The ITEM screen
+// (cmpItem.c / cmpItemSeq.c) keeps its object at data +0x930: +0x4 of the data is its state
+// (3 list, 4 choosing a target), object +0x30 row and +0x34 scroll (the item used is entry
+// row + scroll, 0xf48b4), +0x38 target cursor into the member IDs at +0x44 (u16, 0xf4df0),
+// +0x50 the Use list {u32 id, u32 count} (builder 0xebeb0), +0x3cd0 its length, +0x3cf8 the
+// tab (0 Use, 1 Equip, 2 Key; 0xf42c0). The EQUIP screen (cmpEquip.c, top state 6) keeps its
+// object at data +0x6200 and its stage in data +0x4 (5 member, 7 slot, 10 item list): object
+// +0x3c member cursor into the unit IDs at +0x52 (u16, 0xe7458), +0x3e slot (0 weapon .. 3
+// accessory), +0x40 scroll, +0x42 row (the entry is scroll + row, 0xe9298), +0x66 the list
+// {u16 id, u16 count} (builder 0xe71b0, EquipChoices), +0x1462 its length. A on the list
+// equips at once and stays there. The PERSONA screen (top state 7, data +0x4 = 6 on its list):
+// data +0x9020 the list length, +0x9024 the cursor; rows are the stock's records in slot order
+// (live: Apsaras slot 0, Pixie slot 1), A assigns the row at once (S+0x1058, setter 0x1dadc0)
+// and stays on the list; once the menu closes, the game moves the selected Persona to the top
+// of the stock. X there is Discard: the drive never presses X inside the menu.
+struct CampMenu {
+    int state{}, sub{}, cursor{}, input{};
+    std::vector<int> commands;
+    int row{}, scroll{}, target{}, tab{};
+    std::vector<int> targets;                    // member unit IDs in target order
+    std::vector<std::pair<int, int>> use_list;   // {item id, count}, native order
+    int member{}, slot{}, equip_row{}, equip_scroll{};
+    std::vector<int> members;                    // EQUIP: unit IDs in cursor order
+    std::vector<std::pair<int, int>> equip_list; // EQUIP: {item id, count}, native order
+    int personas{}, persona_row{};               // PERSONA: list length, cursor
+    bool operator==(const CampMenu&) const = default;
+};
+struct Pin { u64 offset; size_t size; u64 hash; };
+#include "p3p_pins.inc"
+
+// The 999 cap applies to party units only (0x6eb0c / 0x6ef7c test unit flag bit 2 = enemy).
+inline int Maximum(int base, const std::set<int>& skills, const std::map<int,int>& effects, bool sp, bool enemy = false) {
+    int total = base, start = sp ? 0x21c : 0x219;
+    for (int i = 0; i < 3; ++i) if (skills.contains(start + i)) total += base * (i + 1) / 10;
+    if (skills.contains(sp ? 0x26d : 0x26c)) total += base / 2;
+    if (skills.contains(0x237)) total += sp ? -(base / 2) : base;
+    if (skills.contains(0x238)) total += sp ? base : -(base / 2);
+    for (auto [effect, count] : effects) {
+        int first = sp ? 0x1f : 0x1a;
+        if (effect >= first && effect < first + 5) total += count * (effect - first + 1) * 10;
+        if (effect == (sp ? 0x8f : 0x8e)) total += count * 100;
+    }
+    return enemy ? total : std::min(999, total);
+}
+
+// Mirrors the skill cost function 0x74a10 for party units (unit byte 0 bit 2 clear).
+// entry is the 0x28-byte SKILL.TBL section-1 record: +0 flags, +3 type (1 HP, 2 SP),
+// +4 u16 cost, +6 u16 extra. Arms Master (0x236) / Spell Master (0x235) halve, minimum 1.
+inline int SkillCost(const Bytes& entry, bool cost_free, int max_hp, int max_sp, const std::set<int>& skills) {
+    if (cost_free) return 0;
+    u32 base = At<u16>(entry, 4), extra = At<u16>(entry, 6), cost;
+    bool half;
+    if (entry.at(3) == 1) {
+        cost = u32(u16(max_hp)) * base / 100 + extra;
+        half = skills.contains(0x236);
+    } else if (entry.at(3) == 2) {
+        cost = (entry.at(0) & 0x10) ? u32(u16(max_sp)) * base / 100 + extra : base + extra;
+        if (!cost) return 0;
+        half = skills.contains(0x235);
+    } else return 0;
+    cost >>= half ? 1 : 0;
+    return cost ? int(cost) : 1;
+}
+
+// Persona stock size from S+0x490c, as 0x1dab90/0x1d6c60 derive it.
+// Accessory stat bonus 0x1d7f30 for stat s: the accessory record's field plus effect counts
+// from the owner's weapon/body/feet (0x6f1e0), per-stat ranks 1-5 and x10, then all-stat.
+inline int AccessoryBonus(const Bytes& accessory, const std::map<int, int>& effects, int s) {
+    static constexpr int field[5]{0x14, 0x18, 0x16, 0x1a, 0x1c};
+    static constexpr int first[5]{0x01, 0x0b, 0x06, 0x10, 0x15};
+    auto count = [&](int e) { auto it = effects.find(e); return it == effects.end() ? 0 : it->second; };
+    int total = At<u16>(accessory, field[s]);
+    for (int k = 1; k <= 5; ++k) total += k * count(first[s] + k - 1);
+    total += 10 * count(0x83 + (s == 1 ? 2 : s == 2 ? 1 : s));
+    for (int k = 1; k <= 5; ++k) total += k * count(0x87 + k);
+    return total + 10 * count(0x8d);
+}
+// Displayed active-Persona stat 0x1d7e70: base +0x1c, signed bonuses +0x21 and +0x26, and the
+// accessory bonus truncated to a signed byte, clamped to 0..99.
+inline int PersonaStat(const Bytes& persona, int s, int accessory_bonus) {
+    int total = persona.at(0x1c + s) + int8_t(persona.at(0x21 + s)) + int8_t(persona.at(0x26 + s)) + int8_t(accessory_bonus);
+    return std::clamp(total, 0, 99);
+}
+// Non-active Persona stat 0x1d7dc0: base +0x1c plus signed +0x21/+0x26, capped at 99.
+inline int PersonaStatPlain(const Bytes& persona, int s) {
+    return std::min(99, persona.at(0x1c + s) + int8_t(persona.at(0x21 + s)) + int8_t(persona.at(0x26 + s)));
+}
+// Non-party Persona EXP for a level (0x1d71b0, float32 as the game computes it).
+inline int PersonaExpForLevel(int level, int base_level) {
+#pragma clang fp contract(off) // the game uses separate fmul/fadd; a fused multiply-add rounds differently
+    if (level < 2) return 0;
+    float l = float(std::min(level, 99));
+    float cube = l * 1.4f * l * l;
+    float scale = float(base_level) * -0.019f + 3.1f;
+    return int(cube * scale + 10.0f);
+}
+// Affinity label from a raw table value (0x1d79f0). Flag bits match the passives applied in
+// 0x73f68: Resist 0x1000, Null 0x100, Repel 0x200, Absorb 0x400; Weak is 0x800.
+inline std::string AffinityLabel(u16 raw) {
+    if (raw & 0x400) return "Abs";
+    if (raw & 0x200) return "Rpl";
+    if (raw & 0x100) return "Nul";
+    if (raw & 0x1000) return "Str";
+    if (raw & 0x800) return "Wk";
+    return "";
+}
+
+// Time-of-day label (camp clock 0xd27c0 / save list strings at main+0x6248d0): codes 0-6, then
+// "Daytime" for code 3 on a holiday and "Dark Hour" when S+0x4950 bit 9 is set.
+inline const char* TimeLabel(int code, bool dark, bool holiday) {
+    static constexpr const char* labels[]{"Early Morning", "Morning", "Lunchtime", "Afternoon", "After School", "Evening", "Late Night"};
+    if (code == 3 && holiday) return "Daytime";
+    if (dark) return "Dark Hour";
+    return code >= 0 && code < 7 ? labels[code] : nullptr;
+}
+// Calendar month/day for a day counter (0 = April 1), as 0x1e1e40 and 0x1d2e30 compute it.
+inline std::pair<int, int> MonthDay(int day) {
+    static constexpr int months[]{4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3};
+    static constexpr int lengths[]{30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28, 31};
+    int d = day % 365;
+    for (int i = 0; i < 12; ++i) { if (d < lengths[i]) return {months[i], d + 1}; d -= lengths[i]; }
+    return {3, 31};
+}
+// Holiday test 0x1d2e30: Sundays ((day % 365) % 7 == 4), or a {month, day} entry of the table
+// behind GOT 0x70e250 (s16 pairs, ended by month -1, at most 0x164 entries).
+inline bool Holiday(int day, const std::vector<std::pair<int, int>>& table) {
+    if ((day % 365) % 7 == 4) return true;
+    auto md = MonthDay(day);
+    for (auto e : table) if (e == md) return true;
+    return false;
+}
+
+// Moon phase 0xd5dc0: table[day > 4 ? day - 4 : 0]; 14 is a full moon. Days until the next one
+// (0xd5de0): the first j in 0..99 whose phase is 14, else 0.
+inline int MoonPhase(const Bytes& table, int day) { return table.at(day > 4 ? day - 4 : 0); }
+inline int DaysToFullMoon(const Bytes& table, int day) {
+    for (int j = 0; j < 100; ++j) if (MoonPhase(table, day + j) == 14) return j;
+    return 0;
+}
+// Weekday with Sunday = 0: day 0 is Wednesday April 1 and day 4 a Sunday (0x1d2e30's test).
+inline int Weekday(int day) { return (day % 365 + 3) % 7; }
+// First day counter of calendar month index 0..11 (April..March).
+inline int MonthStart(int index) {
+    static constexpr int lengths[]{30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28, 31};
+    int d = 0;
+    for (int i = 0; i < index; ++i) d += lengths[i];
+    return d;
+}
+
+// Social stat rank (0x1ddb30/bb0/c30): the first k in 1..6 whose cumulative threshold the
+// points have not reached, otherwise 6. thresholds[k-1] = 0x11a3c0(stat, k).
+inline int SocialRank(int points, const std::array<int, 6>& thresholds) {
+    int sum = 0;
+    for (int k = 1; k <= 6; ++k) { sum += thresholds[k - 1]; if (points < sum) return k; }
+    return 6;
+}
+
+// Item IDs run 0..0x78f (the table behind GOT 0x70e7f8 has 0x790 records).
+constexpr int ItemIds = 0x790;
+// Owned count 0x1d09f0. counts = S+0x4bc (one byte per ID); flags = S+0x4640, where the
+// type-5 records (+0 == 5) keep a single bit indexed from 0x400 at S+0x46cc.
+inline int ItemCount(const Bytes& counts, const Bytes& flags, int id, u32 type) {
+    if (type != 5) return counts.at(id);
+    int bit = id - 0x400, word = (bit < 0 ? bit + 31 : bit) >> 5;
+    return (At<u32>(flags, 0x46cc - 0x4640 + word * 4) >> (bit & 31)) & 1;
+}
+// The native camp Item tabs (cmpItem.c): 0 Use (0xebeb0: 0x500..0x5ff, 0x690..0x78f),
+// 1 Equip (0xebf90: category passes over 0..0x1fe by the +4 word, then 0x200..0x4ff; an item
+// matching several masks is listed again, as the game does), 2 Key (0xebd88: 0x600..0x68f).
+inline std::vector<std::pair<int, int>> ItemList(int tab, const Bytes& counts, const Bytes& flags,
+                                                 const std::vector<u32>& type, const std::vector<u32>& category) {
+    std::vector<std::pair<int, int>> out;
+    auto range = [&](int first, int end) {
+        for (int id = first; id < end; ++id)
+            if (int n = ItemCount(counts, flags, id, type.at(id))) out.emplace_back(id, n);
+    };
+    if (tab == 0) { range(0x500, 0x600); range(0x690, 0x790); }
+    else if (tab == 2) range(0x600, 0x690);
+    else {
+        static constexpr u32 passes[]{0x802, 0x100, 0x1004, 0x401, 0x8020, 0x80200, 0x10040, 0x20080, 0x2008, 0x10};
+        for (u32 mask : passes)
+            for (int id = 0; id < 0x1ff; ++id)
+                if ((category.at(id) & mask) && ItemCount(counts, flags, id, type.at(id)))
+                    out.emplace_back(id, ItemCount(counts, flags, id, type.at(id)));
+        range(0x200, 0x500);
+    }
+    static constexpr size_t limit[]{0x200, 0x500, 0x90}; // the builders' asserts
+    if (out.size() > limit[tab]) throw std::runtime_error("item list too long");
+    return out;
+}
+// The native Equip screen's choices for one member and slot (cmpEquip.c builder 0xe71b0), in
+// its order: IDs 0..0x4fe ascending; the equipped item (0x1d0c50) with its owned count + 1
+// (at most 99), else owned items the member can wear (0x1d0bb0: item +0x30 word & mask, the mask
+// 0x8000 for a female protagonist, else 1 << (unit + 4)) whose slot (0x1d0ca0: < 0x200 weapon,
+// < 0x300 body, < 0x400 feet, else accessory) is this one.
+inline int EquipSlot(int id) { return id < 0x200 ? 0 : id < 0x300 ? 1 : id < 0x400 ? 2 : 3; }
+inline std::vector<std::pair<int, int>> EquipChoices(int unit, int slot, int equipped, bool female, const Bytes& counts,
+                                                     const Bytes& flags, const std::vector<u32>& type,
+                                                     const std::vector<u32>& wear) {
+    std::vector<std::pair<int, int>> out;
+    const u32 mask = unit == 1 && female ? 0x8000u : 1u << (unit + 4);
+    for (int id = 0; id < 0x4ff; ++id) {
+        const int owned = ItemCount(counts, flags, id, type.at(id));
+        if (id == equipped) out.emplace_back(id, std::min(owned + 1, 99));
+        else if (owned && (wear.at(id) & mask) && EquipSlot(id) == slot) out.emplace_back(id, owned);
+    }
+    return out;
+}
+
+inline int StockCapacity(u32 flags) {
+    if (flags & 4) return 12;
+    if (flags & 2) return 10;
+    if (flags & 1) return 9;
+    if (flags & 0x2000) return 8;
+    return flags & 0x1000 ? 6 : 4;
+}
+
+// Builds the native camp Skill list (0x108770) from snapshot data. record(id) returns the
+// 0x28-byte SKILL.TBL record. Allies list their Persona's slots; the protagonist lists every
+// stock Persona's slots, each costed with that Persona selected, then merges duplicates.
+template<class Record>
+std::vector<Skill> SkillList(const Snapshot& v, const Member& m, Record record) {
+    struct Entry { int persona; Skill skill; };
+    auto has = [](const std::array<int, 8>& slots, int id) { return std::find(slots.begin(), slots.end(), id) != slots.end(); };
+    auto cost = [&](Skill& s, const std::array<int, 8>& slots) {
+        if (s.id > 0x1cf) return; // 0x225290 stores no cost for passives
+        std::set<int> owned(slots.begin(), slots.end());
+        owned.insert(m.accessory_skill);
+        int max_hp = Maximum(m.base_hp, owned, m.effects, false), max_sp = Maximum(m.base_sp, owned, m.effects, true);
+        auto entry = record(s.id);
+        s.type = entry.at(3);
+        s.cost = SkillCost(entry, m.cost_free, max_hp, max_sp, owned);
+    };
+    std::vector<Entry> list;
+    std::map<int, const Persona*> stock;
+    if (m.id == 1) {
+        for (const auto& p : v.personas) if (p.slot < v.stock_capacity) stock[p.slot] = &p;
+        int present = int(stock.size());
+        for (int i = 0; i < present; ++i) {
+            if (!stock.contains(i)) continue; // 0x1d6c60 returns null; the loop still counts it
+            for (int id : stock[i]->skills) {
+                if (!id) continue;
+                Entry e{i, {id}};
+                cost(e.skill, stock[i]->skills);
+                list.push_back(e);
+            }
+        }
+        // Duplicates: keep a Spell Master Persona's copy; otherwise the game keeps the copy
+        // with the larger battle effect (0x1e0eb0 -> 0x73b20), which is not reproduced.
+        for (size_t i = 0; i < list.size(); ++i) {
+            for (size_t j = i + 1; j < list.size();) {
+                if (list[j].skill.id != list[i].skill.id) { ++j; continue; }
+                if (list[i].skill.id <= 0x1cf && !has(stock.at(list[i].persona)->skills, 0x235)) {
+                    if (has(stock.at(list[j].persona)->skills, 0x235)) list[i] = list[j];
+                    else if (list[i].skill.type != list[j].skill.type || list[i].skill.cost != list[j].skill.cost ||
+                             !list[j].skill.cost_known)
+                        list[i].skill.cost_known = false;
+                }
+                list[j] = list.back(); list.pop_back();
+            }
+        }
+    } else {
+        for (int id : m.skills) {
+            if (!id) continue;
+            Entry e{-1, {id}};
+            cost(e.skill, m.skills);
+            list.push_back(e);
+        }
+    }
+    if (list.size() > 0x60) throw std::runtime_error("skill list too long");
+    auto key = [](int id) { return std::pair{(id & 0xffc0) != 0xc0, id}; };
+    std::sort(list.begin(), list.end(), [&](const Entry& a, const Entry& b) { return key(a.skill.id) < key(b.skill.id); });
+    std::vector<Skill> out;
+    for (auto& e : list) out.push_back(std::move(e.skill));
+    return out;
+}
+
+class Reader {
+public:
+    explicit Reader(const EdenDsmodHostApi& h) : host(h) {}
+    void UpdateHost(const EdenDsmodHostApi& h) {
+        if (h.main_base != host.main_base) { pins_ok = false; item_table = 0; holidays_loaded = false; moon.clear(); }
+        host = h;
+    }
+    Bytes Read(u64 at, size_t n) const {
+        if (!at || n > 32768 || at + n < at || !host.is_mapped || !host.read_memory ||
+            !host.is_mapped(host.userdata, at, n)) throw std::runtime_error("memory unavailable");
+        Bytes b(n);
+        if (!host.read_memory(host.userdata, at, b.data(), n)) throw std::runtime_error("memory read failed");
+        return b;
+    }
+    template<class T> T Get(u64 at) const { return At<T>(Read(at, sizeof(T)), 0); }
+    u64 Pointer(u64 at) const {
+        u64 p = Get<u64>(at);
+        if (!p || p % 4) throw std::runtime_error("pointer unavailable");
+        return p;
+    }
+    bool Sample(Snapshot& out, std::string& why) {
+        try {
+            if (!pins_ok) {
+                for (auto pin : Pins) {
+                    u64 hash = UINT64_C(14695981039346656037);
+                    for (u8 byte : Read(host.main_base + pin.offset, pin.size)) hash = (hash ^ byte) * UINT64_C(1099511628211);
+                    if (hash != pin.hash) throw std::runtime_error("executable verification failed");
+                }
+                pins_ok = true;
+            }
+            Context before = Scene();
+            u64 state = Pointer(host.main_base + 0x70e800), allies = Pointer(host.main_base + 0x70e808);
+            Bytes s = Read(state, 0x5d20), a = Read(allies, 0xa00);
+            Snapshot first = Values(s, a);
+            Bytes s2 = Read(state, 0x5d20), a2 = Read(allies, 0xa00);
+            Snapshot second = Values(s2, a2);
+            if (!(before == Scene()) || state != Pointer(host.main_base + 0x70e800) ||
+                allies != Pointer(host.main_base + 0x70e808) || !(first == second))
+                throw std::runtime_error("context changed");
+            out = std::move(second); out.battle = before.battle != 0; why = "Ready"; return true;
+        } catch (const std::exception& e) { out = {}; why = e.what(); return false; }
+    }
+    // The current Tartarus floor (throws outside the dungeon or during a battle). Read twice;
+    // a floor change or move between the reads fails closed.
+    FloorMap Map() const {
+        Context c = Scene();
+        if (!c.dungeon || c.battle) throw std::runtime_error("Not exploring Tartarus");
+        auto once = [&] {
+            FloorMap m;
+            auto work = Read(host.main_base + 0x816838, 0x80 + 16 * 0x100);
+            for (int i = 0; i < 256; ++i) {
+                size_t at = 0x80 + (i >> 4) * 0x100 + (i & 15) * 16;
+                m.kind[i] = work.at(at); m.sides[i] = work.at(at + 0xb) & 15;
+                if (m.kind[i] > 2) throw std::runtime_error("invalid floor cell");
+            }
+            m.start_x = work.at(0x70); m.start_y = work.at(0x71); m.exit_x = work.at(0x72); m.exit_y = work.at(0x73);
+            m.floor = Get<int32_t>(Pointer(c.dungeon + 0x48) + 4);
+            if (m.floor < 2 || m.floor > 999) throw std::runtime_error("invalid floor");
+            if (m.start_x > 15 || m.start_y > 15 || m.exit_x > 15 || m.exit_y > 15) throw std::runtime_error("invalid floor");
+            // Explored blocks: main+0x82a109[y * 16 + x] (getter 0x1a94a0), set for a block's origin
+            // cell; the minimap (0x22bdd0) draws a whole block when its origin is explored. A cell
+            // is seen when the origin recorded in its +4 byte (y * 16 + x) is.
+            auto explored = Read(host.main_base + 0x82a109, 256);
+            for (int i = 0; i < 256; ++i)
+                m.seen[i] = m.kind[i] == 1 && explored.at(work.at(0x80 + (i >> 4) * 0x100 + (i & 15) * 16 + 4)) ? 1 : 0;
+            // Leader: field unit 0 (GOT 0x70e2b8 -> main+0x817cb0) +0x60; its model +0x190 holds the
+            // world matrix (forward row at +0x30, position at +0x40); its task data +0x48/+0x4c the
+            // cell 0x192a90 / 0x192aa0 report, which must agree with the position.
+            u64 unit = Pointer(host.main_base + 0x817cb0 + 0x60);
+            auto model = Read(Pointer(unit + 0x190), 0x50);
+            m.forward_x = At<float>(model, 0x30); m.forward_z = At<float>(model, 0x38);
+            m.x = At<float>(model, 0x40); m.z = At<float>(model, 0x48);
+            auto cell = Read(Pointer(Pointer(unit + 0x250) + 0x48) + 0x48, 8);
+            if (!std::isfinite(m.x) || !std::isfinite(m.z) || !std::isfinite(m.forward_x) || !std::isfinite(m.forward_z))
+                throw std::runtime_error("invalid position");
+            int cx = int(std::floor((m.x + 400) / 800)), cz = int(std::floor((m.z + 400) / 800));
+            if (std::abs(cx - At<int32_t>(cell, 0)) > 1 || std::abs(cz - At<int32_t>(cell, 4)) > 1)
+                throw std::runtime_error("leader position unavailable");
+            // A position's block is explored when the origin recorded in its cell is (0x1761c0 /
+            // 0x1a94c0); positions outside the grid are never shown.
+            auto seen_at = [&](float x, float z) {
+                int ix = int(std::floor((x + 400) / 800)), iz = int(std::floor((z + 400) / 800));
+                return ix >= 0 && ix < 16 && iz >= 0 && iz < 16 && m.seen[iz * 16 + ix];
+            };
+            auto finite = [](float a, float b) { return std::isfinite(a) && std::isfinite(b); };
+            auto chests = Read(Pointer(host.main_base + 0x70e628), 32 * 0x190);
+            for (int i = 0; i < 32; ++i) {
+                size_t at = i * 0x190;
+                if (At<int32_t>(chests, at) != 1 || At<int32_t>(chests, at + 4) == 1) continue;
+                FloorMap::Icon k{At<float>(chests, at + 0x170), At<float>(chests, at + 0x178)};
+                if (finite(k.x, k.z) && seen_at(k.x, k.z)) m.chests.push_back(k);
+            }
+            auto single = [&](u64 got) -> std::optional<FloorMap::Icon> {
+                auto obj = Read(Pointer(host.main_base + got), 0x178);
+                if (At<int32_t>(obj, 0) != 1) return std::nullopt;
+                FloorMap::Icon k{At<float>(obj, 0x168), At<float>(obj, 0x170)};
+                if (!finite(k.x, k.z) || !seen_at(k.x, k.z)) return std::nullopt;
+                return k;
+            };
+            m.teleporter = single(0x70e5c0); m.wanderer = single(0x70e638);
+            u64 shadows = Pointer(host.main_base + 0x70e530);
+            for (int i = 0; i < 24; ++i) {
+                auto unit = Read(shadows + i * 0x790, 0x68);
+                if (!At<u64>(unit, 0x48) || !At<u64>(unit, 0x60) || !At<u64>(unit, 0x58)) continue;
+                auto pos = Read(At<u64>(unit, 0x58) + 0x40, 12);
+                FloorMap::Icon k{At<float>(pos, 0), At<float>(pos, 8)};
+                float dy = At<float>(pos, 4) - At<float>(model, 0x44);
+                if (!finite(k.x, k.z) || !std::isfinite(dy)) continue;
+                if (std::sqrt((k.x - m.x) * (k.x - m.x) + dy * dy + (k.z - m.z) * (k.z - m.z)) < 2000)
+                    m.shadows.push_back(k);
+            }
+            return m;
+        };
+        FloorMap first = once(), second = once();
+        if (!(first.kind == second.kind && first.sides == second.sides && first.exit_x == second.exit_x &&
+              first.exit_y == second.exit_y) || !(c == Scene()))
+            throw std::runtime_error("context changed");
+        return second;
+    }
+    // The native camp Skill list for one member (cmpSkill.c builder 0x108770), in its order.
+    // Tables are the game's loaded copies: names via getter 0x77570, records via the 0x70df70
+    // GOT slot that the cost function 0x74a10 reads.
+    std::vector<Skill> Skills(const Snapshot& v, const Member& m) const {
+        u64 lang_at = Pointer(host.main_base + 0x70df20);
+        u32 lang = Get<u32>(lang_at);
+        bool wide = lang == 3 || (lang >= 5 && lang <= 8);
+        u64 names = Pointer(Pointer(host.main_base + (wide ? 0x70e0e0 : 0x70e0e8)));
+        u64 table = Pointer(Pointer(host.main_base + 0x70df70));
+        size_t width = wide ? 0x1d : 0x13;
+        auto record = [&](int id) { return Read(table + id * 0x28, 0x28); };
+        auto rows = SkillList(v, m, record);
+        // SKILL.TBL section 0 (GOT 0x70df48): 624 x 2 bytes, byte 0 the element/category
+        // (0-9 Slash..Dark, 10-15 ailments, 17 recovery, 18 support, 19 special, 0xff passive).
+        auto elements = Read(Pointer(Pointer(host.main_base + 0x70df48)), 624 * 2);
+        std::vector<Skill> out;
+        for (auto& s : rows) {
+            if (s.id >= 0 && s.id < 624) s.element = elements[s.id * 2];
+            auto raw = Read(names + s.id * width, width);
+            auto end = std::find(raw.begin(), raw.end(), u8{});
+            if (end == raw.end()) throw std::runtime_error("unterminated skill name");
+            s.name.assign(raw.begin(), end);
+            for (unsigned char c : s.name) if (c < 32 || c > 126) { s.name = "Skill " + std::to_string(s.id); break; }
+            out.push_back(std::move(s));
+        }
+        if (Get<u32>(lang_at) != lang) throw std::runtime_error("context changed");
+        return out;
+    }
+    // Equipment names and stats for one member. Records come from the item table behind GOT
+    // 0x70e7f8 (stride 0x38); custom equipment listed through GOT 0x70e4e8 (0x15fb90) takes
+    // At/Hit from S+0x4ba8/+0x4baa, minimum 1. Names follow getter 0x1d3bf0.
+    std::vector<Equip> Equipment(const Member& m) const {
+        u64 state = Pointer(host.main_base + 0x70e800);
+        u64 items = Pointer(Pointer(host.main_base + 0x70e7f8));
+        auto custom = Read(Pointer(host.main_base + 0x70e4e8), 12);
+        int count = At<int32_t>(custom, 8);
+        if (count < 0 || count > 30) throw std::runtime_error("invalid equipment index");
+        Bytes custom_ids = count ? Read(At<u64>(custom, 0), count * 2) : Bytes{};
+        Bytes forged = count ? Read(state + 0x4ba8, count * 8) : Bytes{};
+        u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+        if (lang > 15) throw std::runtime_error("unsupported language");
+        u64 names = Pointer(Pointer(host.main_base + 0x70e828) + lang * 8);
+        std::vector<Equip> out;
+        for (int id : m.equip) {
+            if (id < 0 || id >= 0x1000) throw std::runtime_error("unsupported equipment");
+            auto rec = Read(items + id * 0x38, 0x38);
+            Equip e; e.id = id;
+            e.at = At<u16>(rec, 8); e.hit = At<u16>(rec, 0xa);
+            e.df = At<u16>(rec, 0x10); e.ev = At<u16>(rec, 0x12);
+            for (int j = 0; j < count; ++j) if (At<u16>(custom_ids, 2 * j) == id) {
+                e.at = std::max<int>(1, At<u16>(forged, 8 * j)); e.hit = std::max<int>(1, At<u16>(forged, 8 * j + 2));
+                break;
+            }
+            u64 text = Get<u64>(names + id * 8);
+            if (text) {
+                auto raw = Read(text, 64);
+                auto end = std::find(raw.begin(), raw.end(), u8{});
+                if (end == raw.end()) throw std::runtime_error("unterminated item name");
+                e.name.assign(raw.begin(), end);
+                for (unsigned char c : e.name) if (c < 32 || c > 126) { e.name = "Item " + std::to_string(id); break; }
+            }
+            out.push_back(std::move(e));
+        }
+        return out;
+    }
+    // One native camp Item tab with names (getter 0x1d3bf0). Reads the item table's +0/+4
+    // words for every ID and the inventory twice to reject torn reads.
+    std::vector<Item> Items(int tab) const {
+        if (tab < 0 || tab > 2) throw std::runtime_error("invalid item tab");
+        LoadItemTable();
+        u64 state = Pointer(host.main_base + 0x70e800);
+        auto counts = Read(state + 0x4bc, ItemIds), flags = Read(state + 0x4640, 0x100);
+        auto list = ItemList(tab, counts, flags, item_type, item_category);
+        if (counts != Read(state + 0x4bc, ItemIds) || flags != Read(state + 0x4640, 0x100))
+            throw std::runtime_error("context changed");
+        return Named(list);
+    }
+    // What the native Equip screen offers member `m` for `slot` (EquipChoices), named.
+    std::vector<Item> EquipList(const Snapshot& v, const Member& m, int slot) const {
+        if (slot < 0 || slot > 3) throw std::runtime_error("invalid equipment slot");
+        LoadItemTable();
+        u64 state = Pointer(host.main_base + 0x70e800);
+        auto counts = Read(state + 0x4bc, ItemIds), flags = Read(state + 0x4640, 0x100);
+        auto list = EquipChoices(m.id, slot, m.equip[slot], v.female, counts, flags, item_type, item_wear);
+        if (counts != Read(state + 0x4bc, ItemIds) || flags != Read(state + 0x4640, 0x100))
+            throw std::runtime_error("context changed");
+        return Named(list);
+    }
+    void LoadItemTable() const {
+        u64 items = Pointer(Pointer(host.main_base + 0x70e7f8));
+        // The item table is static data loaded at boot; its +0/+4/+0x30 words are cached per table
+        // address and refreshed periodically rather than re-read (108 KB) every sample.
+        if (items != item_table || ++item_table_age >= 120) {
+            std::vector<u32> type(ItemIds), category(ItemIds), wear(ItemIds);
+            for (int first = 0; first < ItemIds; first += 0x200) {
+                int n = std::min(0x200, ItemIds - first);
+                auto block = Read(items + first * 0x38, n * 0x38);
+                for (int i = 0; i < n; ++i) {
+                    type[first + i] = At<u32>(block, i * 0x38); category[first + i] = At<u32>(block, i * 0x38 + 4);
+                    wear[first + i] = At<u32>(block, i * 0x38 + 0x30);
+                }
+            }
+            item_type = std::move(type); item_category = std::move(category); item_wear = std::move(wear);
+            item_table = items; item_table_age = 0;
+        }
+    }
+    std::vector<Item> Named(const std::vector<std::pair<int, int>>& list) const {
+        u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+        if (lang > 15) throw std::runtime_error("unsupported language");
+        u64 names = Pointer(Pointer(host.main_base + 0x70e828) + lang * 8);
+        std::vector<Item> out;
+        for (auto [id, count] : list) {
+            Item it{id, count};
+            if (u64 text = Get<u64>(names + id * 8)) {
+                auto raw = Read(text, 64);
+                auto end = std::find(raw.begin(), raw.end(), u8{});
+                if (end != raw.end()) it.name.assign(raw.begin(), end);
+                for (unsigned char c : it.name) if (c < 32 || c > 126) { it.name.clear(); break; }
+            }
+            if (it.name.empty()) it.name = "Item " + std::to_string(id);
+            out.push_back(std::move(it));
+        }
+        return out;
+    }
+    // Details for the stock Persona in record slot `slot` (PERSONA -> Details, 0x21b290).
+    PersonaDetail Details(const Snapshot& v, const Member& hero, int slot) const {
+        auto it = std::find_if(v.personas.begin(), v.personas.end(), [&](const Persona& p) { return p.slot == slot; });
+        if (it == v.personas.end()) throw std::runtime_error("Persona absent");
+        u64 state = Pointer(host.main_base + 0x70e800);
+        auto persona = Read(state + 0x105c + slot * 0x34, 0x34);
+        PersonaDetail d;
+        d.id = At<u16>(persona, 2); d.level = persona.at(4);
+        if (d.id != it->id || d.id >= 0x100) throw std::runtime_error("context changed");
+        auto base = Read(Pointer(Pointer(host.main_base + 0x70e210)) + d.id * 0xe, 0xe);
+        int arcana = base.at(2), base_level = base.at(3);
+        auto text = [&](u64 at, size_t width) {
+            auto raw = Read(at, width);
+            auto end = std::find(raw.begin(), raw.end(), u8{});
+            std::string s(raw.begin(), end);
+            for (unsigned char c : s) if (c < 32 || c > 126) return std::string();
+            return s;
+        };
+        u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+        bool wide = lang == 3 || (lang >= 5 && lang <= 8); // 0x1d6a60
+        d.name = text(Pointer(Pointer(host.main_base + (wide ? 0x70e470 : 0x70e478))) + d.id * (wide ? 0x15 : 0x11), wide ? 0x15 : 0x11);
+        if (arcana < 0x20) d.arcana = text(Pointer(Pointer(host.main_base + 0x70e0f0)) + arcana * 0x15, 0x15); // 0x77600
+        auto aff = Read(Pointer(Pointer(host.main_base + 0x70e848)) + d.id * 0x22, 0x22);
+        static constexpr int element[9]{0, 1, 2, 3, 4, 5, 6, 8, 9};
+        for (int i = 0; i < 9; ++i) d.affinity[i] = AffinityLabel(At<u16>(aff, element[i] * 2));
+        if (it->selected) {
+            auto accessory = Read(Pointer(Pointer(host.main_base + 0x70e7f8)) + hero.equip[3] * 0x38, 0x38);
+            for (int s = 0; s < 5; ++s) d.stats[s] = PersonaStat(persona, s, AccessoryBonus(accessory, hero.effects, s));
+        } else for (int s = 0; s < 5; ++s) d.stats[s] = PersonaStatPlain(persona, s);
+        d.next_exp = d.level >= 99 ? 0 : std::max(0, PersonaExpForLevel(d.level + 1, base_level) - int(At<u32>(persona, 8)));
+        u64 skill_names = Pointer(Pointer(host.main_base + (wide ? 0x70e0e0 : 0x70e0e8)));
+        for (int k = 0; k < 8; ++k)
+            if (int id = At<u16>(persona, 0xc + k * 2); id > 0 && id < 0x270)
+                d.skills[k] = text(skill_names + id * (wide ? 0x1d : 0x13), wide ? 0x1d : 0x13);
+        // Skill card (0x21d0e0 / 0x21d380): the first kind-5 entry before an empty kind.
+        auto learn = Read(Pointer(Pointer(host.main_base + 0x70e840)) + d.id * 0x46, 0x46);
+        for (int k = 0; k < 16; ++k) {
+            int kind = learn.at(7 + 4 * k);
+            if (!kind) break;
+            if (kind != 5) continue;
+            int card = At<u16>(learn, 8 + 4 * k);
+            if (card < 0x690 || card >= ItemIds) break;
+            d.card_level = base_level + learn.at(6 + 4 * k);
+            u64 names = Pointer(Pointer(host.main_base + 0x70e828) + lang * 8);
+            if (u64 at = Get<u64>(names + card * 8)) d.card = text(at, 64);
+            break;
+        }
+        if (d.id < 0xc0 || d.id >= 0xe0) {
+            std::array<int, 8> known{};
+            for (int k = 0; k < 8; ++k) known[k] = At<u16>(persona, 0xc + k * 2);
+            auto next = NextSkills(Bytes(learn.begin() + 6, learn.end()), base_level, d.level, known);
+            if (!next.empty() && next[0].first > 0 && next[0].first < 0x270) {
+                d.next_level = next[0].second; d.next_more = int(next.size()) - 1;
+                d.next_skill = text(skill_names + next[0].first * (wide ? 0x1d : 0x13), wide ? 0x1d : 0x13);
+            }
+        }
+        return d;
+    }
+    // The native S.LINK list: for arcana 0..27, the first link 1..30 whose static info has that
+    // arcana and that has a record (0x1d4310). Static info [main+0x813f78] (0x74-byte rows from
+    // +8, s16 arcana at +0); names [main+0x813f80] / partners [main+0x814028] (64-byte rows from
+    // +8), loaded for the current protagonist.
+    std::vector<SocialLink> Links() const {
+        u64 state = Pointer(host.main_base + 0x70e800);
+        auto records = Read(state + 0x78, 28 * 0x10);
+        u64 info = Pointer(host.main_base + 0x813f78), names = Pointer(host.main_base + 0x813f80),
+            partners = Pointer(host.main_base + 0x814028);
+        if (Get<u32>(info + 4) < 31 || Get<u32>(names + 4) < 31 || Get<u32>(partners + 4) < 31)
+            throw std::runtime_error("Social Link tables unavailable");
+        auto info_rows = Read(info + 8, 31 * 0x74);
+        auto text = [&](u64 at) {
+            auto raw = Read(at, 64);
+            auto end = std::find(raw.begin(), raw.end(), u8{});
+            std::string s(raw.begin(), end);
+            for (unsigned char c : s) if (c < 32 || c > 126) return std::string();
+            return s;
+        };
+        auto record = [&](int id) -> int {
+            for (int i = 0; i < 28; ++i) if (At<u16>(records, i * 0x10 + 4) == id) return i;
+            return -1;
+        };
+        u64 arcana_names = Pointer(Pointer(host.main_base + 0x70e0f0));
+        std::vector<SocialLink> out;
+        for (int a = 0; a < 0x1c; ++a) {
+            for (int id = 1; id < 0x1f; ++id) {
+                int r = record(id);
+                if (At<int16_t>(info_rows, id * 0x74) != a || r < 0) continue;
+                SocialLink l; l.id = id; l.arcana = a;
+                u32 flags = At<u32>(records, r * 0x10);
+                l.rank = At<u16>(records, r * 0x10 + 6);
+                l.status = l.rank == 10 ? 1 : (flags & 2) ? 3 : (flags & 1) ? 2 : 0;
+                l.arcana_name = text(arcana_names + a * 0x15);
+                l.name = text(names + 8 + id * 64); l.partner = text(partners + 8 + id * 64);
+                out.push_back(std::move(l));
+                break;
+            }
+        }
+        if (records != Read(state + 0x78, 28 * 0x10)) throw std::runtime_error("context changed");
+        return out;
+    }
+    // The player's club, as message function 0xa3 names it (0x1afda0 -> 0x1d5950 -> 0x11a500):
+    // 0x1d59d0 tries link kinds in order (female: arg 0 -> 1, 2; arg 1 -> 3, 4; male: arg 0 -> 1,
+    // 2, 3; arg 1 -> 4, 5, 6); a kind's link is the first ID 0..30 whose static info row (+4 bit 2)
+    // has that kind at +0xe and that has a record (0x11b000). The link maps to a club name index
+    // (female: links 9..12 -> 3, 4, 1, 2; male: links 11..17 -> 1, 2, 3, 0, 4, 5, 6). -1 if none.
+    int ClubIndex(int arg, bool female) const {
+        u64 state = Pointer(host.main_base + 0x70e800), info = Pointer(host.main_base + 0x813f78);
+        auto records = Read(state + 0x78, 28 * 0x10);
+        auto rows = Read(info + 8, 31 * 0x74);
+        auto has = [&](int id) { for (int i = 0; i < 28; ++i) if (At<u16>(records, i * 0x10 + 4) == id) return true; return false; };
+        auto link = [&](int kind) {
+            for (int id = 0; id < 31; ++id)
+                if ((rows.at(id * 0x74 + 4) & 4) && At<u16>(rows, id * 0x74 + 0xe) == kind && id && has(id)) return id;
+            return 0;
+        };
+        static constexpr int female_kinds[2][3]{{1, 2, 0}, {3, 4, 0}}, male_kinds[2][3]{{1, 2, 3}, {4, 5, 6}};
+        if (arg < 0 || arg > 1) return -1;
+        int id = 0;
+        for (int kind : female ? female_kinds[arg] : male_kinds[arg]) if (kind && !id) id = link(kind);
+        static constexpr int female_club[4]{3, 4, 1, 2}, male_club[7]{1, 2, 3, 0, 4, 5, 6};
+        if (female) return id >= 9 && id < 13 ? female_club[id - 9] : -1;
+        return id >= 11 && id < 18 ? male_club[id - 11] : -1;
+    }
+    // The members a link's Details screen lists (0xe01e0): its static info row's (0x11a1b0) nine
+    // {u32 flag, u32 member} pairs at +0x24, each kept when the member is set and its flag is 0 or
+    // set (0x1d0a80). Rows with byte +8 == 1 (SEES) are reordered as the game does.
+    std::vector<int> LinkMembers(int id) const {
+        if (id < 1 || id > 30) return {};
+        u64 state = Pointer(host.main_base + 0x70e800), info = Pointer(host.main_base + 0x813f78);
+        auto row = Read(info + 8 + u64(id) * 0x74, 0x74);
+        auto flags = Read(state + 0x46cc, 0x100);
+        std::vector<int> list;
+        for (int k = 0; k < 9; ++k) {
+            u32 flag = At<u32>(row, 0x24 + 8 * k), member = At<u32>(row, 0x28 + 8 * k);
+            if (!member) continue;
+            if (flag && !((At<u32>(flags, (flag / 32) * 4) >> (flag % 32)) & 1)) continue;
+            list.push_back(int(member));
+        }
+        if (row.at(8) != 1) return list;
+        // 0xe03cc: for each unit ID in this order, every collected entry equal to it is replaced by
+        // the collected entry at that order position.
+        static constexpr int order[9]{2, 5, 4, 7, 6, 3, 10, 8, 9};
+        std::vector<int> out;
+        for (int k = 0; k < 9; ++k)
+            for (int v : list)
+                if (v == order[k] && size_t(k) < list.size()) out.push_back(list[k]);
+        return out;
+    }
+    // Moon phase table behind GOT 0x70e258 (static; read once per main base, 0x200 days).
+    const Bytes& MoonTable() const {
+        if (moon.empty()) {
+            u64 at = Get<u64>(host.main_base + 0x70e258); // a byte table: no alignment required
+            if (!at) throw std::runtime_error("moon table unavailable");
+            moon = Read(at, 0x200);
+        }
+        return moon;
+    }
+    const std::vector<std::pair<int, int>>& Holidays() const { return HolidayTable(); }
+    // Enemies of the current encounter: E = [B + 0x1168] (B behind GOT 0x70df08); +2 u16 count,
+    // +8 pointer to 0x3c-byte enemy units (byte 0 bit 2 set, +4 id, +6 level, +8 HP, +0xa SP).
+    std::vector<Enemy> Enemies() const {
+        u64 state = Pointer(host.main_base + 0x70e800);
+        u64 encounter = Pointer(Pointer(Pointer(host.main_base + 0x70df08)) + 0x1168);
+        auto head = Read(encounter, 0x10);
+        int count = At<u16>(head, 2);
+        if (count > 8) throw std::runtime_error("unsupported encounter");
+        u64 units_at = At<u64>(head, 8);
+        Bytes units = count ? Read(units_at, count * 0x3c) : Bytes{};
+        u64 stats = Pointer(Pointer(host.main_base + 0x70dff8)), affinity = Pointer(Pointer(host.main_base + 0x70e0d0));
+        u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+        bool wide = lang == 3 || (lang >= 5 && lang <= 8); // name getter 0x6b990, kind 1
+        u64 names = Pointer(Pointer(host.main_base + (wide ? 0x70dfe8 : 0x70dff0)));
+        u64 arcana_names = Pointer(Pointer(host.main_base + 0x70e0f0));
+        auto text = [&](u64 at, size_t width) {
+            auto raw = Read(at, width);
+            auto end = std::find(raw.begin(), raw.end(), u8{});
+            std::string s(raw.begin(), end);
+            for (unsigned char c : s) if (c < 32 || c > 126) return std::string();
+            return s;
+        };
+        std::vector<Enemy> out;
+        for (int i = 0; i < count; ++i) {
+            size_t at = i * 0x3c;
+            if (!(units.at(at) & 4)) throw std::runtime_error("invalid enemy record");
+            Enemy e; e.id = At<u16>(units, at + 4);
+            if (e.id >= 0x150) throw std::runtime_error("invalid enemy");
+            e.level = units.at(at + 6); e.hp = At<u16>(units, at + 8); e.sp = At<u16>(units, at + 10);
+            e.status = At<u32>(units, at + 0xc);
+            for (int k = 0; k < 3; ++k) e.buffs[k] = units.at(at + 0x1c + k);
+            auto record = Read(stats + e.id * 0x3e, 0x3e);
+            // 0x6e880 / 0x6ecf0 for enemies: table +4 / +6, then the same HP/SP Up passives.
+            std::set<int> skills;
+            for (int k = 0; k < 8; ++k) skills.insert(At<u16>(record, 0xe + k * 2));
+            e.max_hp = Maximum(At<u16>(record, 4), skills, {}, false, true);
+            e.max_sp = Maximum(At<u16>(record, 6), skills, {}, true, true);
+            if (record.at(2) < 0x20) e.arcana = text(arcana_names + record.at(2) * 0x15, 0x15);
+            e.name = text(names + e.id * (wide ? 0x1f : 0x13), wide ? 0x1f : 0x13);
+            // Analyzed bit (0x1e05c0); the panel skips enemies with stats-table +0x1e bit 5.
+            u32 word = Get<u32>(state + 0x4d14 + ((e.id >> 3) & 0x1ffc));
+            e.analyzed = ((word >> (e.id & 31)) & 1) && !(record.at(0x1e) & 0x20);
+            auto aff = Read(affinity + e.id * 0x22, 0x22);
+            static constexpr int element[9]{0, 1, 2, 3, 4, 5, 6, 8, 9};
+            for (int k = 0; k < 9; ++k) e.affinity[k] = e.analyzed ? AffinityLabel(At<u16>(aff, element[k] * 2)) : "-";
+            out.push_back(std::move(e));
+        }
+        if (head != Read(encounter, 0x10) || (count && units != Read(units_at, count * 0x3c)))
+            throw std::runtime_error("context changed");
+        return out;
+    }
+    // The camp menu (CampMenu), or nullopt while no camp task is listed. Read twice.
+    std::optional<CampMenu> Camp() const {
+        auto once = [&]() -> std::optional<CampMenu> {
+            u64 data = 0;
+            auto heads = Read(host.main_base + 0x8e51c98, 24);
+            int seen = 0;
+            for (int i = 0; i < 3; ++i) {
+                std::set<u64> visited;
+                for (u64 node = At<u64>(heads, i * 8); node;) {
+                    if (node % 8 || !visited.insert(node).second || ++seen > 256) throw std::runtime_error("task list changed");
+                    auto raw = Read(node, 0x60);
+                    if (Name(raw) == "cmpMain") {
+                        if (data) throw std::runtime_error("ambiguous camp menu");
+                        Callbacks(raw, 0xf5900, 0xf5fa0);
+                        data = At<u64>(raw, 0x48);
+                        if (!data) throw std::runtime_error("camp menu starting");
+                    }
+                    node = At<u64>(raw, 0x50);
+                }
+            }
+            if (!data) return std::nullopt;
+            CampMenu c;
+            auto top = Read(data, 0x90);
+            c.state = At<int32_t>(top, 0); c.sub = At<int32_t>(top, 4); c.cursor = At<int32_t>(top, 0x58);
+            c.input = At<u8>(top, 0x10) & 1;
+            int n = At<int32_t>(top, 0x80);
+            if (n < 1 || n > 7) throw std::runtime_error("bad camp command list");
+            for (int k = 0; k < n; ++k) c.commands.push_back(At<int32_t>(top, 0x64 + 4 * k));
+            if (c.state == 4 && c.cursor >= 0 && c.cursor < n && c.commands[c.cursor] == 1) {
+                auto item = Read(data + 0x930, 0x3d00);
+                c.row = At<int32_t>(item, 0x30); c.scroll = At<int32_t>(item, 0x34); c.target = At<int32_t>(item, 0x38);
+                c.tab = At<int16_t>(item, 0x3cf8);
+                int len = At<int32_t>(item, 0x3cd0);
+                if (len < 0 || len > 0x200) throw std::runtime_error("bad item list");
+                for (int k = 0; k < len; ++k) c.use_list.push_back({At<int32_t>(item, 0x50 + 8 * k), At<int32_t>(item, 0x54 + 8 * k)});
+                for (int k = 0; k < 4; ++k) { int id = At<u16>(item, 0x44 + 2 * k); if (id >= 1 && id <= 10) c.targets.push_back(id); else break; }
+            }
+            if (c.state == 6 && c.cursor >= 0 && c.cursor < n && c.commands[c.cursor] == 3) {
+                auto eq = Read(data + 0x6200, 0x1468);
+                c.member = At<int16_t>(eq, 0x3c); c.slot = At<int16_t>(eq, 0x3e);
+                c.equip_scroll = At<int16_t>(eq, 0x40); c.equip_row = At<int16_t>(eq, 0x42);
+                for (int k = 0; k < 10; ++k) { int id = At<u16>(eq, 0x52 + 2 * k); if (id >= 1 && id <= 10) c.members.push_back(id); else break; }
+                int len = At<int16_t>(eq, 0x1462);
+                if (len < 0 || len > 0x500) throw std::runtime_error("bad equipment list");
+                for (int k = 0; k < len; ++k) c.equip_list.push_back({At<u16>(eq, 0x66 + 4 * k), At<u16>(eq, 0x68 + 4 * k)});
+            }
+            if (c.state == 7 && c.cursor >= 0 && c.cursor < n && c.commands[c.cursor] == 2) {
+                auto pl = Read(data + 0x9020, 8);
+                c.personas = At<int32_t>(pl, 0); c.persona_row = At<int32_t>(pl, 4);
+                if (c.personas < 0 || c.personas > 12) throw std::runtime_error("bad Persona list");
+            }
+            return c;
+        };
+        auto first = once(), second = once();
+        if (first != second) throw std::runtime_error("camp menu changing");
+        return second;
+    }
+    // The protagonist's names as message functions 0x81..0x83 print them: the player-entered
+    // surname (main+0x864c10, getter 0x1ddf90) and first name (+0x864c24, 0x1ddff0), and the
+    // full name 0x1af510 builds: first name first for languages 1 and 5-8, else surname first,
+    // joined by the language's separator glyph (GOT 0x70e748). English's 0x9b8a is a blank
+    // glyph in font0.fnt; other separators are not decoded, so the full name stays empty.
+    p3p_talk::Names TalkNames() const {
+        auto decode = [&](u64 at) {
+            auto raw = Read(host.main_base + at, 0x14);
+            std::string name;
+            for (size_t i = 0; i < raw.size() && raw[i]; ++i) {
+                if (raw[i] == ' ') { name += ' '; continue; }
+                if (raw[i] != 0x80 || i + 1 >= raw.size() || raw[i + 1] < 0x80 || raw[i + 1] > 0xDE) return std::string{};
+                name += char(raw[++i] - 0x60);
+            }
+            return name;
+        };
+        p3p_talk::Names n{decode(0x864c10), decode(0x864c24), {}};
+        u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+        if (lang > 15 || n.surname.empty() || n.first.empty()) return n;
+        u32 separator = Get<u32>(Pointer(host.main_base + 0x70e748) + lang * 4);
+        if (separator != 0x9b8a && separator != 0x8080) return n;
+        n.full = (1u << lang & 0x1e2) ? n.first + " " + n.surname : n.surname + " " + n.first;
+        return n;
+    }
+    // The script's text variables for message function 0x44 (main+0x83a318 + index * 8 -> string),
+    // kept only when plain printable ASCII.
+    void TalkNumbers(p3p_talk::Names& n) const {
+        auto table = Read(host.main_base + 0x83a318, 16 * 8);
+        for (int i = 0; i < 16; ++i) {
+            std::string text;
+            if (u64 at = At<u64>(table, i * 8)) {
+                try {
+                    auto raw = Read(at & ~u64{3}, 32);
+                    auto begin = raw.begin() + (at & 3), end = std::find(begin, raw.end(), u8{});
+                    if (end != raw.end()) text.assign(begin, end);
+                    for (unsigned char c : text) if (c < 32 || c > 126) { text.clear(); break; }
+                } catch (const std::exception&) { text.clear(); }
+            }
+            n.numbers.push_back(std::move(text));
+        }
+    }
+    // The open message window and choices (p3p_talk.h), or nullopt when none is open. A
+    // selection's window wins over plain text windows. Read twice; any change fails closed.
+    std::optional<p3p_talk::Talk> Talk() const {
+        auto once = [&]() -> std::optional<std::pair<p3p_talk::Window, Bytes>> {
+            auto pool = Read(host.main_base + 0x83a898, 128 * 0x40);
+            std::optional<p3p_talk::Window> best;
+            for (int i = 0; i < 128; ++i) {
+                u64 at = At<u64>(pool, i * 0x40 + 0x18);
+                if (!at) continue;
+                auto raw = Read(at, 0x270);
+                if (!At<u32>(raw, 0)) continue;
+                p3p_talk::Window w;
+                w.bmd = At<u64>(raw, 0x08); w.message = At<u64>(raw, 0x30);
+                if (!w.bmd || !w.message || At<u64>(raw, 0x260) != w.bmd + 0x20) continue;
+                w.page = At<u16>(raw, 0x48); w.pages = At<u16>(raw, 0x4a);
+                w.selection = At<int32_t>(raw, 0x58); w.mask = At<u32>(raw, 0x68);
+                w.state = At<int16_t>(raw, 0x6c); w.cursor = At<int16_t>(raw, 0x6e); w.shown = At<int16_t>(raw, 0x72);
+                if (!best || (w.state >= 1 && best->state < 1)) best = w;
+            }
+            if (!best) return std::nullopt;
+            auto head = Read(best->bmd, 0x20);
+            u32 size = At<u32>(head, 4), count = At<u32>(head, 0x18);
+            if (size < 0x28 || size > 0x100000 || count == 0 || count > 4096 || 0x20 + 8 * count > size) throw std::runtime_error("bad message file");
+            // The whole file is cached while its address, size and dialog table stay the same.
+            auto table = Read(best->bmd, 0x20 + 8 * count);
+            if (talk_file_at != best->bmd || talk_file.size() != size || !std::equal(table.begin(), table.end(), talk_file.begin())) {
+                Bytes file;
+                for (u32 off = 0; off < size; off += 0x8000) {
+                    auto part = Read(best->bmd + off, std::min<u32>(0x8000, size - off));
+                    file.insert(file.end(), part.begin(), part.end());
+                }
+                talk_file = std::move(file); talk_file_at = best->bmd;
+            }
+            return std::pair{*best, talk_file};
+        };
+        auto first = once(), second = once();
+        if (first.has_value() != second.has_value()) throw std::runtime_error("context changed");
+        if (!second) return std::nullopt;
+        const auto& [a, fa] = *first; const auto& [w, file] = *second;
+        if (a.bmd != w.bmd || a.message != w.message || a.page != w.page || a.state != w.state || a.cursor != w.cursor ||
+            a.mask != w.mask || a.selection != w.selection || fa != file)
+            throw std::runtime_error("context changed");
+        auto names = TalkNames();
+        TalkNumbers(names);
+        return p3p_talk::Parse(file, w, names);
+    }
+    // Persona name getter 0x1d6a60 (wide table for languages 3 and 5-8).
+    std::string PersonaName(int id) const {
+        if (id < 0 || id >= 0x100) return {};
+        u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+        bool wide = lang == 3 || (lang >= 5 && lang <= 8);
+        auto raw = Read(Pointer(Pointer(host.main_base + (wide ? 0x70e470 : 0x70e478))) + id * (wide ? 0x15 : 0x11), wide ? 0x15 : 0x11);
+        auto end = std::find(raw.begin(), raw.end(), u8{});
+        std::string s(raw.begin(), end);
+        for (unsigned char c : s) if (c < 32 || c > 126) return {};
+        return s;
+    }
+    // Stats page values for one member (cmpStatus / Persona status 0x21b390 paths).
+    Stats MemberStats(const Snapshot& v, const Member& m) const {
+        u64 state = Pointer(host.main_base + 0x70e800), allies = Pointer(host.main_base + 0x70e808);
+        u64 items = Pointer(Pointer(host.main_base + 0x70e7f8));
+        Bytes persona;
+        if (m.id == 1) {
+            auto it = std::find_if(v.personas.begin(), v.personas.end(), [](const Persona& p) { return p.selected; });
+            if (it == v.personas.end()) throw std::runtime_error("Persona selection absent");
+            persona = Read(state + 0x105c + it->slot * 0x34, 0x34);
+        } else persona = Read(allies + m.id * 0x118 - 0x22c + 0x88, 0x34);
+        if (At<u16>(persona, 2) != m.persona) throw std::runtime_error("context changed");
+        auto accessory = Read(items + m.equip[3] * 0x38, 0x38);
+        Stats out;
+        for (int s = 0; s < 5; ++s) {
+            out.bonus[s] = AccessoryBonus(accessory, m.effects, s);
+            out.stats[s] = PersonaStat(persona, s, out.bonus[s]);
+        }
+        if (m.id != 1) {
+            // 0x1d71b0 for party Personas: owner row of the level table behind GOT 0x70e838.
+            int pid = At<u16>(persona, 2);
+            if ((pid & 0xffe0) != 0xc0) throw std::runtime_error("unexpected ally Persona");
+            int owner = Get<int16_t>(Pointer(Pointer(host.main_base + 0x70e830)) + (pid - 0xc0) * 0x26e);
+            if (owner < 2 || owner > 10) throw std::runtime_error("unexpected Persona owner");
+            int level = std::min(m.level + 1, 99);
+            u32 need = Get<u32>(Pointer(Pointer(host.main_base + 0x70e838)) + owner * 0x188 + level * 4 - 0x318);
+            out.next_exp = int(std::max<int64_t>(0, int64_t(need) - At<u32>(persona, 8)));
+        } else {
+            // Protagonist EXP u32 S+0x68 (0x1d10c0) against the 99 u32 level thresholds at
+            // [GOT 0x70e818]: level = thresholds <= EXP (0x1d1990), next = t[level] (0x1d1a00).
+            if (m.level < 99) {
+                u32 need = Get<u32>(Pointer(host.main_base + 0x70e818) + m.level * 4);
+                out.next_exp = int(std::max<int64_t>(0, int64_t(need) - Get<u32>(state + 0x68)));
+            } else out.next_exp = 0;
+            // Points S+0x60/+0x62/+0x64 (0x1d1000/1040/1080); thresholds 0x11a3c0; names 0x11a2f0.
+            auto points = Read(state + 0x60, 6);
+            auto table = Read(Pointer(host.main_base + 0x813fd0), 0x28);
+            u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+            bool wide = lang == 6 || lang == 8;
+            u64 names = Pointer(host.main_base + 0x813fc8);
+            for (int stat = 0; stat < 3; ++stat) {
+                std::array<int, 6> thr{};
+                for (int k = 1; k <= 6; ++k) thr[k - 1] = At<u16>(table, stat * 10 + k * 2 + 6);
+                Social so; so.points = At<u16>(points, stat * 2); so.rank = SocialRank(so.points, thr);
+                size_t width = wide ? 0x17 : 0x11;
+                auto raw = Read(names + stat * (wide ? 0x8a : 0x66) + (so.rank - 1) * width + 8, width);
+                auto end = std::find(raw.begin(), raw.end(), u8{});
+                if (end != raw.end()) so.name.assign(raw.begin(), end);
+                for (unsigned char c : so.name) if (c < 32 || c > 126) { so.name.clear(); break; }
+                out.social.push_back(so);
+            }
+        }
+        return out;
+    }
+private:
+    // Holiday table behind GOT 0x70e250 (static game data; read once per main base).
+    const std::vector<std::pair<int, int>>& HolidayTable() const {
+        if (holidays_loaded) return holidays;
+        auto raw = Read(Pointer(host.main_base + 0x70e250), 0x164 * 4);
+        holidays.clear();
+        for (int i = 0; i < 0x164; ++i) {
+            int month = At<int16_t>(raw, i * 4);
+            if (month == -1) break;
+            holidays.emplace_back(month, At<int16_t>(raw, i * 4 + 2));
+        }
+        holidays_loaded = true;
+        return holidays;
+    }
+    EdenDsmodHostApi host;
+    bool pins_ok{};
+    mutable bool holidays_loaded{};
+    mutable Bytes moon;
+    mutable std::vector<std::pair<int, int>> holidays;
+public:
+    // The last sequence ID Scene() saw (GOT 0x70e368 table: 2 initread, 3 startread, 4 TITLE,
+    // 6 BATTLE, 8 filed2d, 9 field, 10 dungeon, 13/14 calendar), or -1 before any read.
+    mutable int last_sequence{-1};
+private:
+    mutable u64 talk_file_at{};
+    mutable Bytes talk_file; // the open window's message file (Talk())
+    mutable u64 item_table{};
+    mutable int item_table_age{};
+    mutable std::vector<u32> item_type, item_category, item_wear;
+    struct Context {
+        u64 observer{}, data{}, field{}, field_data{}, resource{}, menu{}, battle{}, dungeon{};
+        int state{}, area{}, subarea{};
+        bool operator==(const Context&) const = default;
+    };
+    static std::string Name(const Bytes& b) {
+        auto end = std::find(b.begin(), b.begin() + 24, u8{});
+        if (end == b.begin() + 24) throw std::runtime_error("invalid task name");
+        return {b.begin(), end};
+    }
+    void Callbacks(const Bytes& b, u64 fn, u64 end) const {
+        if (At<u64>(b, 0x38) != host.main_base + fn || At<u64>(b, 0x40) != host.main_base + end)
+            throw std::runtime_error("task verification failed");
+    }
+    Context Scene() const {
+        Context c;
+        c.observer = Pointer(host.main_base + 0x86fae0);
+        auto observer = Read(c.observer, 0x60);
+        if (Name(observer) != "sequence observer") throw std::runtime_error("observer unavailable");
+        Callbacks(observer, 0x1e7ba0, 0x1e7c80);
+        c.data = Pointer(c.observer + 0x48);
+        auto seq = Read(c.data, 0x20);
+        int sequence = At<int32_t>(seq, 4);
+        last_sequence = sequence;
+        if (At<u32>(seq, 0) || !std::isfinite(At<float>(seq, 12)) || At<float>(seq, 12) > 0 || At<u64>(seq, 24))
+            throw std::runtime_error("Loading");
+        // Sequence table (GOT 0x70e368): 6 BATTLE, 8 filed2d, 9 field, 10 dungeon.
+        if (sequence != 6 && (sequence < 8 || sequence > 10))
+            throw std::runtime_error("Waiting for supported gameplay, sequence " + std::to_string(sequence));
+        auto heads = Read(host.main_base + 0x8e51c98, 24);
+        std::map<u64, Bytes> tasks;
+        for (int i = 0; i < 3; ++i) {
+            std::set<u64> visited;
+            for (u64 node = At<u64>(heads, i * 8); node;) {
+                if (node % 8 || !visited.insert(node).second || tasks.size() >= 256)
+                    throw std::runtime_error("task list changed");
+                auto raw = Read(node, 0x60); auto name = Name(raw);
+                if (name == "mcProc") throw std::runtime_error("Loading or saving");
+                if (name == "battle") {
+                    if (c.battle) throw std::runtime_error("ambiguous battle");
+                    Callbacks(raw, 0x56610, 0x566b0); c.battle = node;
+                }
+                if (name == "automatic dungeon ") {
+                    if (c.dungeon) throw std::runtime_error("ambiguous dungeon");
+                    Callbacks(raw, 0x182100, 0x1825c0); c.dungeon = node;
+                }
+                if (name == "fld2DProcess") {
+                    if (c.field) throw std::runtime_error("ambiguous field");
+                    Callbacks(raw, 0x16a040, 0x16a840); c.field = node; c.field_data = At<u64>(raw, 0x48);
+                }
+                u64 next = At<u64>(raw, 0x50); tasks.emplace(node, std::move(raw)); node = next;
+            }
+        }
+        if (!tasks.contains(c.observer)) throw std::runtime_error("observer unavailable");
+        if (c.battle) {
+            // The battle task (created by 0x558b0) runs inside the field/dungeon sequence, or as
+            // sequence 6 for battles started outside them (its start callback 0x1e8050 calls 0x558b0).
+            u64 work = Pointer(Pointer(host.main_base + 0x70df08));
+            if (!Pointer(work + 0x1168)) throw std::runtime_error("Battle starting");
+            if (heads != Read(host.main_base + 0x8e51c98, 24) || seq != Read(c.data, 0x20))
+                throw std::runtime_error("context changed");
+            return c;
+        }
+        if (sequence == 6) throw std::runtime_error("Battle starting");
+        if (sequence == 10) {
+            // Tartarus: the dungeon sequence's task (created by 0x181fb0, kept in GOT 0x70e5b0).
+            if (!c.dungeon || c.dungeon != Pointer(Pointer(host.main_base + 0x70e5b0)))
+                throw std::runtime_error("Dungeon unavailable");
+            if (heads != Read(host.main_base + 0x8e51c98, 24) || seq != Read(c.data, 0x20))
+                throw std::runtime_error("context changed");
+            return c;
+        }
+        if (sequence != 8) throw std::runtime_error("Waiting for supported gameplay, sequence " + std::to_string(sequence));
+        if (!c.field_data) throw std::runtime_error("field unavailable");
+        auto field = Read(c.field_data, 0x68);
+        c.state = At<u32>(field, 0); c.area = At<u32>(field, 4); c.subarea = At<u32>(field, 8);
+        c.resource = At<u64>(field, 0x20); c.menu = At<u64>(field, 0x28);
+        if (!c.resource || (c.state != 14 && c.state != 16)) throw std::runtime_error("Field transition");
+        if (c.state == 16) {
+            if (!tasks.contains(c.menu)) throw std::runtime_error("menu unavailable");
+            Callbacks(tasks.at(c.menu), 0xf5900, 0xf5fa0);
+        }
+        if (heads != Read(host.main_base + 0x8e51c98, 24) || field != Read(c.field_data, 0x68) || seq != Read(c.data, 0x20))
+            throw std::runtime_error("context changed");
+        return c;
+    }
+    // First-name getter 0x1ddff0: the player-entered name at main+0x864c24 for unit 1, otherwise
+    // the language's table behind GOT 0x70e860 (IDs up to 10). The player's name uses the game's
+    // two-byte text encoding; only the letters and space observed live are decoded.
+    std::string MemberName(int id) const {
+        try {
+            if (id == 1) {
+                auto raw = Read(host.main_base + 0x864c24, 0x14);
+                std::string name;
+                for (size_t i = 0; i < raw.size() && raw[i]; ++i) {
+                    if (raw[i] == ' ') { name += ' '; continue; }
+                    if (raw[i] != 0x80 || i + 1 >= raw.size()) return {};
+                    char c = char(raw[++i] - 0x60);
+                    if (!std::isalpha(static_cast<unsigned char>(c))) return {};
+                    name += c;
+                }
+                return name;
+            }
+            u32 lang = Get<u32>(Pointer(host.main_base + 0x70df20));
+            if (lang > 15 || id > 10) return {};
+            u64 text = Get<u64>(Pointer(Pointer(host.main_base + 0x70e860) + lang * 8) + id * 8);
+            if (!text) return {};
+            auto raw = Read(text, 32);
+            auto end = std::find(raw.begin(), raw.end(), u8{});
+            if (end == raw.end()) return {};
+            std::string name(raw.begin(), end);
+            for (unsigned char c : name) if (c < 32 || c > 126) return {};
+            return name;
+        } catch (const std::exception&) { return {}; } // names are cosmetic; never fail the snapshot
+    }
+    static bool Flag(const Bytes& s, int flag) { return (At<u32>(s, 0x46cc + flag / 32 * 4) >> (flag % 32)) & 1; }
+    Snapshot Values(const Bytes& s, const Bytes& a) const {
+        Snapshot v; v.day = At<u16>(s, 0xc4c); v.time = s.at(0xc4e); v.money = At<u32>(s, 0x4b8c);
+        v.holiday = Holiday(v.day, HolidayTable());
+        v.dark = At<u32>(s, 0x4950) & 0x200; v.female = s.at(0x48cc) & 0x80;
+        int selected = At<int16_t>(s, 0x1058);
+        if (selected < 0 || selected >= 12) throw std::runtime_error("Persona selection unavailable");
+        for (int i = 0; i < 12; ++i) {
+            size_t at = 0x105c + i * 0x34;
+            if (!(s.at(at) & 1)) continue;
+            Persona p{At<u16>(s, at + 2), s.at(at + 4), i, i == selected};
+            for (int k = 0; k < 8; ++k) p.skills[k] = At<u16>(s, at + 12 + k * 2);
+            v.personas.push_back(p);
+        }
+        v.stock_capacity = StockCapacity(At<u32>(s, 0x490c));
+        if (!(s.at(0x105c + selected * 0x34) & 1)) throw std::runtime_error("Persona selection absent");
+        for (int i = 0; i < 28; ++i) {
+            size_t at = 0x78 + 16 * i;
+            int id = At<u16>(s, at + 4), rank = At<u16>(s, at + 6);
+            if (id) { if (id >= 32 || rank > 10) throw std::runtime_error("invalid Social Link"); v.links.push_back({id, rank}); }
+        }
+        constexpr int order[]{1,2,5,4,7,6,3,10,8,9};
+        u64 levels = Pointer(host.main_base + 0x70e810), items = Pointer(Pointer(host.main_base + 0x70e7f8));
+        auto custom = Read(Pointer(host.main_base + 0x70e4e8), 12);
+        int count = At<int32_t>(custom, 8);
+        if (count < 0 || count > 30) throw std::runtime_error("invalid equipment index");
+        Bytes custom_ids = count ? Read(At<u64>(custom, 0), count * 2) : Bytes{};
+        auto item = [&](int id) { if (id < 0 || id >= 0x1000) throw std::runtime_error("unsupported equipment"); return Read(items + id * 0x38, 0x38); };
+        for (int id : order) {
+            bool joined = id == 1 || Flag(s, 0x14e + id);
+            if (id == 4) joined = joined && Flag(s, 0x52);
+            if (id == 9) joined = joined && !Flag(s, 0xa8);
+            if (!joined) continue;
+            const Bytes& units = id == 1 ? s : a;
+            size_t unit = id == 1 ? 0x24 : id * 0x118 - 0x22c;
+            if (At<u16>(units, unit + 2) != id || (id != 1 && (units.at(unit) & 4)))
+                throw std::runtime_error("invalid member record");
+            size_t persona = id == 1 ? 0x105c + selected * 0x34 : unit + 0x88;
+            Member m; m.id = id; m.level = id == 1 ? s.at(unit + 6) : a.at(persona + 4);
+            m.persona = At<u16>(units, persona + 2); m.cost_free = units.at(unit + 0xd) & 2;
+            m.name = MemberName(id);
+            m.hp = At<u16>(units, unit + 8); m.sp = At<u16>(units, unit + 10); m.status = At<u32>(units, unit + 0xc);
+            for (int k = 0; k < 3; ++k) m.buffs[k] = units.at(unit + 0x1c + k);
+            if (m.level < 1 || m.level > 99) throw std::runtime_error("invalid level");
+            std::set<int> skills;
+            for (int i = 0; i < 8; ++i) skills.insert(m.skills[i] = At<u16>(units, persona + 12 + i * 2));
+            size_t equip = id == 1 ? 0x4b4 : unit + 0x50;
+            for (int i = 0; i < 4; ++i) m.equip[i] = At<u16>(units, equip + 2 * i);
+            m.accessory_skill = At<u32>(item(At<u16>(units, equip + 6)), 0x24);
+            skills.insert(m.accessory_skill);
+            auto& effects = m.effects;
+            for (int i = 0; i < 3; ++i) {
+                int eid = At<u16>(units, equip + 2 * i), effect = -1;
+                for (int j = 0; j < count; ++j) if (At<u16>(custom_ids, 2 * j) == eid) { effect = At<u16>(s, 0x4bac + 8 * j); break; }
+                if (effect < 0) effect = At<u16>(item(eid), 0x28);
+                ++effects[effect];
+            }
+            auto bases = Read(levels + (m.level - 1) * 0x2c + id * 4, 4);
+            m.base_hp = At<u16>(bases, 0); m.base_sp = At<u16>(bases, 2);
+            m.max_hp = Maximum(m.base_hp, skills, effects, false);
+            m.max_sp = Maximum(m.base_sp, skills, effects, true);
+            if (m.max_hp < 1 || m.max_sp < 1 || m.hp > m.max_hp || m.sp > m.max_sp)
+                throw std::runtime_error("invalid HP/SP");
+            v.members.push_back(m);
+        }
+        // Active party: the protagonist (always the leader, members[0]), then the allies in the
+        // u16 slots at S+0x4b90 (getter 0x1d2ab0; 0 = empty), the list the dungeon hands to battle
+        // (0x61810, 0x558b0 -> B+0x1148..0x1160). Same order as the native camp party panel
+        // (slot 4/22: slots 2, 5 -> Kotone, Yukari, Junpei).
+        v.party.push_back(0);
+        for (int slot = 0; slot < 4; ++slot) {
+            int id = At<u16>(s, 0x4b90 + 2 * slot);
+            if (!id) continue;
+            auto it = std::find_if(v.members.begin(), v.members.end(), [&](const Member& m) { return m.id == id; });
+            if (id == 1 || it == v.members.end()) throw std::runtime_error("party member not in roster");
+            v.party.push_back(int(it - v.members.begin()));
+        }
+        return v;
+    }
+};
+} // namespace p3p

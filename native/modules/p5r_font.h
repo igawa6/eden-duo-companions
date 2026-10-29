@@ -253,7 +253,11 @@ struct Atlas {
 
 constexpr uint32_t AtlasColumns = 16;
 
-inline bool BuildAtlas(const Decoded& f, Atlas& out) {
+/// Maps a code point to a font glyph index (-1 = none). P5R's EN font is GlyphIndex; another
+/// Atlus title passes its own (e.g. P3P's ASCII-only font0.fnt).
+using IndexFn = int (*)(uint32_t);
+
+inline bool BuildAtlas(const Decoded& f, Atlas& out, IndexFn glyph_index = GlyphIndex) {
     out = {};
     uint32_t baseline{}, cap{};
     if (f.count == 0 || !CapMetrics(f, baseline, cap))
@@ -293,7 +297,7 @@ inline bool BuildAtlas(const Decoded& f, Atlas& out) {
     const uint16_t space = static_cast<uint16_t>((f.cell_w * 7 + 12) / 25); // 13 px at 48
     for (uint32_t i = 0; i < run; ++i) {
         const uint32_t cp = FirstCodepoint + i;
-        const int index = GlyphIndex(cp);
+        const int index = glyph_index(cp);
         Glyph& g = out.glyphs[i];
         if (index < 0 || static_cast<uint32_t>(index) >= f.count)
             continue; // w = h = advance = 0: an empty slot
@@ -319,9 +323,9 @@ inline bool BuildAtlas(const Decoded& f, Atlas& out) {
     return true;
 }
 
-inline bool DecodeAtlas(const uint8_t* d, size_t n, Atlas& out) {
+inline bool DecodeAtlas(const uint8_t* d, size_t n, Atlas& out, IndexFn glyph_index = GlyphIndex) {
     Decoded f;
-    return Decode(d, n, f) && BuildAtlas(f, out);
+    return Decode(d, n, f) && BuildAtlas(f, out, glyph_index);
 }
 
 /// Atlas key used in the manifest: "module:p5r_font:<package path>", e.g.

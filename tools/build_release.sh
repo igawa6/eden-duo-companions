@@ -11,6 +11,7 @@
 #   0100F9F00C696000-CrashTeamRacingNitroFueledDS-<ver>.dsmod.zip
 #   01003E601E324000-DragonQuest3HD2DDS-<ver>.dsmod.zip
 #   0100C510166F0000-ChainedEchoesDS-<ver>.dsmod.zip
+#   0100DCD01525A000-Persona3PortableDS-<ver>.dsmod.zip
 #
 # usage: tools/build_release.sh [out dir]            (default: dist)
 #
@@ -30,18 +31,19 @@
 #   CTR_LINUX_SO / CTR_ANDROID_SO       Crash Team Racing Nitro-Fueled (dsmod-ctr)
 #   DQ3_LINUX_SO / DQ3_ANDROID_SO       Dragon Quest III HD-2D Remake (dsmod-dq3)
 #   CE_LINUX_SO / CE_ANDROID_SO         Chained Echoes (dsmod-ce)
+#   P3P_LINUX_SO / P3P_ANDROID_SO       Persona 3 Portable (dsmod-p3p)
 # Versions default to each package's current release; override with P5R_VERSION, DREAD_VERSION,
 # LA_VERSION, MK8D_VERSION, WONDER_VERSION, LP_VERSION, LP_PEARL_VERSION, CTR_VERSION, DQ3_VERSION,
-# CE_VERSION.
+# CE_VERSION, P3P_VERSION.
 # GAMES selects which archives to build (default: "p5r dread la mk8d wonder acnh fe3h isaac
-# lp lp-pearl ctr dq3 ce"); only the selected
+# lp lp-pearl ctr dq3 ce p3p"); only the selected
 # games' modules are required.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT=${1:-dist}
 mkdir -p "$OUT"
 OUT=$(cd "$OUT" && pwd)
-GAMES=" ${GAMES:-p5r dread la mk8d wonder acnh fe3h isaac lp lp-pearl ctr dq3 ce} "
+GAMES=" ${GAMES:-p5r dread la mk8d wonder acnh fe3h isaac lp lp-pearl ctr dq3 ce p3p} "
 want() { [[ $GAMES == *" $1 "* ]]; }
 if want p5r; then
   : "${P5R_LINUX_SO:?set P5R_LINUX_SO}" "${P5R_ANDROID_SO:?set P5R_ANDROID_SO}"
@@ -78,6 +80,9 @@ if want dq3; then
 fi
 if want ce; then
   : "${CE_LINUX_SO:?set CE_LINUX_SO}" "${CE_ANDROID_SO:?set CE_ANDROID_SO}"
+fi
+if want p3p; then
+  : "${P3P_LINUX_SO:?set P3P_LINUX_SO}" "${P3P_ANDROID_SO:?set P3P_ANDROID_SO}"
 fi
 PY=${PYTHON:-python3}
 export PYTHONDONTWRITEBYTECODE=1
@@ -182,5 +187,11 @@ if want ce; then
   pkg ChainedEchoes ChainedEchoesDS "${CE_VERSION:-1.0.0}" --min-runtime 18 \
     --module "linux-x86_64=$CE_LINUX_SO" --module "android-arm64-v8a=$CE_ANDROID_SO" \
     --build-id 17B6A110CC529FBE --build-id 3D730AA2C1DADC4C
+fi
+if want p3p; then
+  # shellcheck disable=SC2046
+  pkg Persona3Portable Persona3PortableDS "${P3P_VERSION:-1.0.0}" --min-runtime 19 \
+    --module "linux-x86_64=$P3P_LINUX_SO" --module "android-arm64-v8a=$P3P_ANDROID_SO" \
+    $(build_ids Persona3Portable)
 fi
 (cd "$OUT" && sha256sum ./*.dsmod.zip)

@@ -1,0 +1,2 @@
+P3PFONT
+The companion draws text with the game font read from your own romfs (data_EN/umd0.cpk, init.bin, font/font0.fnt). This file holds no game data.
