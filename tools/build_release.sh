@@ -190,7 +190,7 @@ if want ce; then
 fi
 if want p3p; then
   # shellcheck disable=SC2046
-  pkg Persona3Portable Persona3PortableDS "${P3P_VERSION:-1.0.0}" --min-runtime 19 \
+  pkg Persona3Portable Persona3PortableDS "${P3P_VERSION:-1.0.1}" --min-runtime 19 \
     --module "linux-x86_64=$P3P_LINUX_SO" --module "android-arm64-v8a=$P3P_ANDROID_SO" \
     $(build_ids Persona3Portable)
 fi
