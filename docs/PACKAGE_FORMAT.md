@@ -15,8 +15,8 @@ Parser locations (all in the [Eden Duo](https://github.com/igawa6/eden-duo) repo
   `ModRuntime::Discover`
 - `mod_settings.cpp`: `ParseSettings`, `ApplySettings` (the built-in `@settings` page)
 - `mod_expr.cpp`: `CompileExpr` (derived `expr`); `mod_nav.cpp`: `Nav::ParseChord`
-- `mod_sources.cpp`, `mod_romfs_sources.cpp`, `mod_user_source.cpp`: asset sources (`base:`,
-  `aoc:`, `user:`)
+- `mod_sources.cpp`, `mod_romfs_sources.cpp`, `mod_user_source.cpp`, `mod_sysfont_source.cpp`:
+  asset sources (`base:`, `aoc:`, `user:`, `sysfont:`)
 - `mod_nx_runtime.cpp`: `NxAssets::ParseManifestExtras`, `ParseMsbtConfig`
 - `mod_guest_bridge.cpp`: `ResolveCallArg`
 - `mod_module.cpp`: `GameModule::Load`
@@ -516,6 +516,7 @@ The runtime 16 and 17 lines are illustrations, not from a shipped package.
 | `base:/<path>` | 15 | Asset sources | The program romfs as the base game ships it, without the update or LayeredFS. Files the update dropped are still there |
 | `aoc:/<path>` | 15 | Asset sources | The add-on content (DLC) data romfs the game mounts. Missing when no DLC is installed or it is disabled |
 | `user:<path>` | 17 | Asset sources | A file the player put in `<Eden data>/dualscreen/user/<TITLEID>/<path>` (below) |
+| `sysfont:<name>` | 23 | Asset sources | The console's shared system font `<name>` as TrueType bytes, from the real firmware only (below) |
 | `module:<key>` (image) | | Module `load_image` | Asynchronous: null until the module delivers the image. The module defines the key format (≤4096 characters since runtime 16, 256 before) |
 | `module:<key>` (bytes) | 12 | Module `load_data` | Any byte read through `ReadAssetBytes`: map `geo` and layer blobs, `map.areas_src`, the `font` metrics. May block while the module generates the data; empty if no module serves the key |
 | `composite:<name>` | | `composites` | Layered image built by the runtime |
@@ -537,6 +538,16 @@ The runtime 16 and 17 lines are illustrations, not from a shipped package.
   `%APPDATA%\eden\dualscreen\user\<TITLEID>\` on Windows. Use it for material the player supplies
   (a portrait, a translation): a package cannot put files there, it only reads what the player
   added.
+- **`sysfont:` rules (runtime 23, `mod_sysfont_source.cpp`).** Read-only, for a module whose game
+  draws text from the console's shared fonts (pl:u) rather than its own romfs (for example Korean
+  and Chinese). `<name>` is a shared font file name with or without `.bfttf`:
+  `nintendo_udsg-r_std_003`, `nintendo_udsg-r_org_zh-cn_003`, `nintendo_udsg-r_ext_zh-cn_003`,
+  `nintendo_udjxh-db_zh-tw_003`, `nintendo_udsg-r_ko_003`, `nintendo_ext_003`, `nintendo_ext2_003`.
+  The bytes come only from the player's real firmware; with no firmware or keys too old to decrypt
+  it the read is empty, never the substitute font the emulator synthesizes for the game. Offer a
+  language only when the read is non-empty. A module reads it with `read_romfs`; capability bit
+  `EDEN_DSMOD_CAP_SOURCE_SYSFONT`. `get_i64("__source:sysfont")` = 1 only says the runtime knows the
+  prefix, not that a font is present.
 
 ```json
 {"type":"image","rect":[20,20,200,200],"src":"user:portraits/hero.png","empty_src":"file:portrait_blank.png"}
@@ -985,7 +996,7 @@ package metadata and every `file:` reference, but not the manifest's semantics.
 
 ## 6. Runtime history and `min_runtime`
 
-`DualScreenRuntimeVersion` is currently **22** (Eden Duo 1.3.0), with **module ABI 1 unchanged**.
+`DualScreenRuntimeVersion` is currently **23** (Eden Duo 1.3.3; 22 in 1.3.0–1.3.2.2), with **module ABI 1 unchanged**.
 Eden Duo 1.2.0 provides runtime 19, and 1.1.0 provides runtime 18. What each version adds to the
 package format:
 
@@ -1004,6 +1015,7 @@ package format:
 | 20 | `button` / `button_neg` chords: an arbitrary analog stick vector (`LStick(x,y)` / `RStick(x,y)`) or a normalized two-axis diagonal alias (`LX+LY-`, …) as one token, and chords mixing sticks with buttons (a `+` right after an axis name is its sign, not a separator: a positive axis before another token needs `++`, e.g. `"LX++A"`); write-extension batches of up to 32 ops (16 before); a map widget's drawn view, `@map_view_cx` / `_cy` / `_ppw` / `_x` / `_y` / `_w` / `_h:<area>` (undocumented until now) |
 | 21 | Device and emulator values: `@device.battery_present` / `battery_pct` / `charging` and `@perf.fps` / `speed_pct` / `frametime_ms` / `frametime_x10`, published for a package that names them and answered to a module's `get_i64` / `get_f64` regardless; image `pan_bounds`, limiting a `pan_zoom` picture's pan/zoom window to part of it |
 | 22 | Map `view_rotate_bind` turns the whole view clockwise about the widget centre (markers, labels and pins stay upright; the pre-existing `marker_rotate_bind` becomes relative to the turned map); two-axis scroll regions (`axes`, `lock_axis`, `content_w[_bind]` / `content_h[_bind]`, widget `scroll_follow`, `@scroll_x` / `@scroll_max_x`); tap payload `"payload": "$tap"`; text `slant_deg` / `italic`; dynamic-marker `frames` / `frame_ms` / `pulse`; manifest `preload`; `@map_view_rot:<area>` and module read access to every `@map_view_*` key and to `@view_zoom` / `@view_pan_x` / `@view_pan_y:<id>` (also newly published), one tick behind |
+| 23 | `sysfont:` source: the console's shared system fonts as TrueType bytes, real firmware only (empty otherwise), for Korean / Chinese text a game takes from the firmware; a module's `read_romfs` reads it |
 
 Runtimes 14 and 15 were first released together, so the outline, rise and chord keys, whose exact
 version the source does not record, are listed under 15.

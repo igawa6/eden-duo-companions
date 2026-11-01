@@ -3,7 +3,7 @@
 | Term | Meaning |
 |---|---|
 | **Accessor / getter** | A small game function that returns or loads a global. Modules decode the global's address from the getter's ADRP + LDR/ADD instructions instead of hardcoding it. |
-| **Asset source** | A named prefix in a source string (`file:`, `romfs:`, `base:`, `aoc:`, `user:`, `module:`) resolved by the `AssetSources` registry. `base:` and `aoc:` arrived in runtime 15, `user:` in 17. An unknown prefix reads as missing. |
+| **Asset source** | A named prefix in a source string (`file:`, `romfs:`, `base:`, `aoc:`, `user:`, `sysfont:`, `module:`) resolved by the `AssetSources` registry. `base:` and `aoc:` arrived in runtime 15, `user:` in 17, `sysfont:` (the console's system fonts, real firmware only) in 23. An unknown prefix reads as missing. |
 | **Asset-free package** | A package that ships no game art, fonts or text. Everything is decoded at runtime from the player's own romfs. |
 | **Aux screen / aux window** | The code's name for the second screen. On desktop it is an SDL3 "Screen 2" window or a windowless virtual canvas; on Android it is a `Presentation` on a secondary display. |
 | **`AuxRouting`** | Shared state between the runtime, the renderer and the frontend: published pixels, dirty tiles, touch, haptics, and the `dsm:u` layer binding. |
