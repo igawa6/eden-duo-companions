@@ -4160,13 +4160,14 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
           "type": "image",
           "rect": [
-            560,
-            18,
+            470,
+            104,
             300,
             52
           ],
@@ -4182,8 +4183,8 @@
         {
           "type": "label",
           "rect": [
-            710,
-            18,
+            620,
+            104,
             0,
             52
           ],
@@ -6562,13 +6563,14 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
           "type": "image",
           "rect": [
-            560,
-            18,
+            470,
+            104,
             300,
             52
           ],
@@ -6584,8 +6586,8 @@
         {
           "type": "label",
           "rect": [
-            710,
-            18,
+            620,
+            104,
             0,
             52
           ],
@@ -6967,13 +6969,14 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
           "type": "image",
           "rect": [
-            560,
-            18,
+            470,
+            104,
             300,
             52
           ],
@@ -6989,8 +6992,8 @@
         {
           "type": "label",
           "rect": [
-            710,
-            18,
+            620,
+            104,
             0,
             52
           ],
@@ -8206,13 +8209,14 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
           "type": "image",
           "rect": [
-            560,
-            18,
+            470,
+            104,
             300,
             52
           ],
@@ -8228,8 +8232,8 @@
         {
           "type": "label",
           "rect": [
-            710,
-            18,
+            620,
+            104,
             0,
             52
           ],
@@ -9890,13 +9894,14 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
           "type": "image",
           "rect": [
-            560,
-            18,
+            470,
+            104,
             300,
             52
           ],
@@ -9912,8 +9917,8 @@
         {
           "type": "label",
           "rect": [
-            710,
-            18,
+            620,
+            104,
             0,
             52
           ],
@@ -11802,13 +11807,14 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
           "type": "image",
           "rect": [
-            560,
-            18,
+            470,
+            104,
             300,
             52
           ],
@@ -11824,8 +11830,8 @@
         {
           "type": "label",
           "rect": [
-            710,
-            18,
+            620,
+            104,
             0,
             52
           ],
@@ -12670,13 +12676,14 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
           "type": "image",
           "rect": [
-            560,
-            18,
+            470,
+            104,
             300,
             52
           ],
@@ -12692,8 +12699,8 @@
         {
           "type": "label",
           "rect": [
-            710,
-            18,
+            620,
+            104,
             0,
             52
           ],
@@ -17130,13 +17137,14 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
           "type": "image",
           "rect": [
-            560,
-            18,
+            470,
+            104,
             300,
             52
           ],
@@ -17152,8 +17160,8 @@
         {
           "type": "label",
           "rect": [
-            710,
-            18,
+            620,
+            104,
             0,
             52
           ],
@@ -19885,13 +19893,14 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
           "type": "image",
           "rect": [
-            560,
-            18,
+            470,
+            104,
             300,
             52
           ],
@@ -19907,8 +19916,8 @@
         {
           "type": "label",
           "rect": [
-            710,
-            18,
+            620,
+            104,
             0,
             52
           ],
@@ -21099,13 +21108,14 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
           "type": "image",
           "rect": [
-            560,
-            18,
+            470,
+            104,
             300,
             52
           ],
@@ -21121,8 +21131,8 @@
         {
           "type": "label",
           "rect": [
-            710,
-            18,
+            620,
+            104,
             0,
             52
           ],
@@ -22068,13 +22078,14 @@
           ],
           "src": "module:p3p:fill",
           "tint": "#B3D9D9DE",
+          "input_block": true,
           "need_bind": "live.paused"
         },
         {
           "type": "image",
           "rect": [
-            560,
-            18,
+            470,
+            104,
             300,
             52
           ],
@@ -22090,8 +22101,8 @@
         {
           "type": "label",
           "rect": [
-            710,
-            18,
+            620,
+            104,
             0,
             52
           ],

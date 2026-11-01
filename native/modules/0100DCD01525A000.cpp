@@ -127,7 +127,9 @@ struct Module {
     // 11); in game, republish the last values with live.paused set.
     void Paused(const std::string& why) {
         int sequence=reader.last_sequence;
-        if(sequence<=4){loaded=false;last.clear();} // boot, initread, startread, TITLE
+        // initread, startread, TITLE. Not -1: a sequence switch (the evening return to the dorm)
+        // clears the ID while it tears down the old sequence.
+        if(sequence>=2&&sequence<=4){loaded=false;last.clear();}
         if(!loaded){I("ui.page",11);T("status",why);return;}
         for(const auto& o:last){
             if(o.is_text)host.publish_text(host.userdata,o.key.c_str(),o.text.c_str());
