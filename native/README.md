@@ -79,11 +79,22 @@ not require a separately distributed `libc++_shared.so`. ACNH diagnostics defaul
 | `dsmod-ctr` | `0100F9F00C696000.so` |
 | `dsmod-dq3` | `01003E601E324000.so` |
 | `dsmod-ce` | `0100C510166F0000.so` |
+| `dsmod-ot0` (development, runtime 22) | `01005270232F2000.so` |
 
 Strip each platform's library with the matching toolchain's `llvm-strip --strip-all` and pass
 only those libraries to [`tools/build_release.sh`](../tools/build_release.sh), as documented in
 [`tools/README.md`](../tools/README.md). Existing published APKs, archives and release tags are
 unchanged by this repository move.
+
+The opt-in `dsmod-ot0` target implements revealed local maps, native protagonist parts and adaptive Formation for Octopath Traveler 0
+update 1.0.5. Its test targets are `dsmod-ot0-pak-test`, `dsmod-ot0-image-test`,
+`dsmod-ot0-reader-test`, `dsmod-ot0-appearance-test`, `dsmod-ot0-exploration-test`,
+`dsmod-ot0-map-test`, `dsmod-ot0-screen-test`, and `dsmod-ot0-test`; run with
+`ctest --test-dir <build-directory> -R '^dsmod-ot0($|-)' --output-on-failure`.
+Set `OT0_PAK` to your own merged `pakchunk0-Switch.pak` to additionally validate all pinned
+members and real-asset ABI rendering. Private fixtures are optional and never packaged.
+Package only this development companion with `GAMES=ot0`, `OT0_LINUX_SO` and
+`OT0_ANDROID_SO`; see its [scope](../packages/OctopathTraveler0/README.md).
 
 ## Source provenance
 

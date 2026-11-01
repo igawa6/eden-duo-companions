@@ -1,0 +1,4870 @@
+{
+  "format": 1,
+  "title_id": "01005270232F2000",
+  "name": "Octopath Traveler 0 companion",
+  "min_runtime": 22,
+  "nav": false,
+  "requires_module": true,
+  "module": {
+    "abi": 1,
+    "build_ids": [
+      "9FE60A212CFF9B9A3656AB63D4F882E500000000000000000000000000000000"
+    ]
+  },
+  "load_plan": "guest/<build>/load-plan.json",
+  "canvas_w": 1240,
+  "canvas_h": 1080,
+  "background": "#FF000000",
+  "derived": [
+    {
+      "name": "ot0.fallback",
+      "expr": "module_error == 1 || ot0.asset_error == 1"
+    },
+    {
+      "name": "ot0.map_tab",
+      "expr": "ot0.map_available == 1 && ot0.battle != 1"
+    },
+    {
+      "name": "ot0.party_tab",
+      "expr": "ot0.ready == 1 && ot0.battle != 1"
+    },
+    {
+      "name": "ot0.standard_map_tab",
+      "expr": "ot0.map_tab == 1"
+    },
+    {
+      "name": "ot0.nomap_tabs",
+      "expr": "ot0.party_tab == 1 && ot0.map_tab != 1"
+    },
+    {
+      "name": "ot0.heal_header",
+      "expr": "ot0.heal_available == 1 && ot0.map_page == 1"
+    },
+    {
+      "name": "ot0.fx0.bp",
+      "expr": "'ot0.fx0.on' == 1 && 'ot0.fx0.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx1.bp",
+      "expr": "'ot0.fx1.on' == 1 && 'ot0.fx1.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx2.bp",
+      "expr": "'ot0.fx2.on' == 1 && 'ot0.fx2.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx3.bp",
+      "expr": "'ot0.fx3.on' == 1 && 'ot0.fx3.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx4.bp",
+      "expr": "'ot0.fx4.on' == 1 && 'ot0.fx4.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx5.bp",
+      "expr": "'ot0.fx5.on' == 1 && 'ot0.fx5.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx6.bp",
+      "expr": "'ot0.fx6.on' == 1 && 'ot0.fx6.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx7.bp",
+      "expr": "'ot0.fx7.on' == 1 && 'ot0.fx7.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx8.bp",
+      "expr": "'ot0.fx8.on' == 1 && 'ot0.fx8.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx9.bp",
+      "expr": "'ot0.fx9.on' == 1 && 'ot0.fx9.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx10.bp",
+      "expr": "'ot0.fx10.on' == 1 && 'ot0.fx10.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx11.bp",
+      "expr": "'ot0.fx11.on' == 1 && 'ot0.fx11.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx12.bp",
+      "expr": "'ot0.fx12.on' == 1 && 'ot0.fx12.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx13.bp",
+      "expr": "'ot0.fx13.on' == 1 && 'ot0.fx13.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx14.bp",
+      "expr": "'ot0.fx14.on' == 1 && 'ot0.fx14.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx15.bp",
+      "expr": "'ot0.fx15.on' == 1 && 'ot0.fx15.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx16.bp",
+      "expr": "'ot0.fx16.on' == 1 && 'ot0.fx16.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx17.bp",
+      "expr": "'ot0.fx17.on' == 1 && 'ot0.fx17.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx18.bp",
+      "expr": "'ot0.fx18.on' == 1 && 'ot0.fx18.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx19.bp",
+      "expr": "'ot0.fx19.on' == 1 && 'ot0.fx19.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx20.bp",
+      "expr": "'ot0.fx20.on' == 1 && 'ot0.fx20.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx21.bp",
+      "expr": "'ot0.fx21.on' == 1 && 'ot0.fx21.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx22.bp",
+      "expr": "'ot0.fx22.on' == 1 && 'ot0.fx22.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx23.bp",
+      "expr": "'ot0.fx23.on' == 1 && 'ot0.fx23.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx24.bp",
+      "expr": "'ot0.fx24.on' == 1 && 'ot0.fx24.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx25.bp",
+      "expr": "'ot0.fx25.on' == 1 && 'ot0.fx25.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx26.bp",
+      "expr": "'ot0.fx26.on' == 1 && 'ot0.fx26.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx27.bp",
+      "expr": "'ot0.fx27.on' == 1 && 'ot0.fx27.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx28.bp",
+      "expr": "'ot0.fx28.on' == 1 && 'ot0.fx28.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx29.bp",
+      "expr": "'ot0.fx29.on' == 1 && 'ot0.fx29.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx30.bp",
+      "expr": "'ot0.fx30.on' == 1 && 'ot0.fx30.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx31.bp",
+      "expr": "'ot0.fx31.on' == 1 && 'ot0.fx31.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx32.bp",
+      "expr": "'ot0.fx32.on' == 1 && 'ot0.fx32.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx33.bp",
+      "expr": "'ot0.fx33.on' == 1 && 'ot0.fx33.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx34.bp",
+      "expr": "'ot0.fx34.on' == 1 && 'ot0.fx34.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx35.bp",
+      "expr": "'ot0.fx35.on' == 1 && 'ot0.fx35.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx36.bp",
+      "expr": "'ot0.fx36.on' == 1 && 'ot0.fx36.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx37.bp",
+      "expr": "'ot0.fx37.on' == 1 && 'ot0.fx37.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx38.bp",
+      "expr": "'ot0.fx38.on' == 1 && 'ot0.fx38.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx39.bp",
+      "expr": "'ot0.fx39.on' == 1 && 'ot0.fx39.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx40.bp",
+      "expr": "'ot0.fx40.on' == 1 && 'ot0.fx40.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx41.bp",
+      "expr": "'ot0.fx41.on' == 1 && 'ot0.fx41.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx42.bp",
+      "expr": "'ot0.fx42.on' == 1 && 'ot0.fx42.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx43.bp",
+      "expr": "'ot0.fx43.on' == 1 && 'ot0.fx43.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.fx44.bp",
+      "expr": "'ot0.fx44.on' == 1 && 'ot0.fx44.player' == 0 && 'ot0.fallback' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.settings_0",
+      "expr": "'@flag:ot0.hide_party_hud' == 0 && '@flag:ot0.haptics' == 0 && '@flag:ot0.reduced_motion' == 0"
+    },
+    {
+      "name": "ot0.settings_1",
+      "expr": "'@flag:ot0.hide_party_hud' == 1 && '@flag:ot0.haptics' == 0 && '@flag:ot0.reduced_motion' == 0"
+    },
+    {
+      "name": "ot0.settings_2",
+      "expr": "'@flag:ot0.hide_party_hud' == 0 && '@flag:ot0.haptics' == 1 && '@flag:ot0.reduced_motion' == 0"
+    },
+    {
+      "name": "ot0.settings_3",
+      "expr": "'@flag:ot0.hide_party_hud' == 1 && '@flag:ot0.haptics' == 1 && '@flag:ot0.reduced_motion' == 0"
+    },
+    {
+      "name": "ot0.settings_4",
+      "expr": "'@flag:ot0.hide_party_hud' == 0 && '@flag:ot0.haptics' == 0 && '@flag:ot0.reduced_motion' == 1"
+    },
+    {
+      "name": "ot0.settings_5",
+      "expr": "'@flag:ot0.hide_party_hud' == 1 && '@flag:ot0.haptics' == 0 && '@flag:ot0.reduced_motion' == 1"
+    },
+    {
+      "name": "ot0.settings_6",
+      "expr": "'@flag:ot0.hide_party_hud' == 0 && '@flag:ot0.haptics' == 1 && '@flag:ot0.reduced_motion' == 1"
+    },
+    {
+      "name": "ot0.settings_7",
+      "expr": "'@flag:ot0.hide_party_hud' == 1 && '@flag:ot0.haptics' == 1 && '@flag:ot0.reduced_motion' == 1"
+    },
+    {
+      "name": "ot0.touch_59",
+      "expr": "'ot0.fallback' != 1 && 'ot0.map.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_60",
+      "expr": "'ot0.fallback' != 1 && 'ot0.map.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_61",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p0.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_62",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p0.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_63",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp0.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_64",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp0.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_65",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p1.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_66",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p1.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_67",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp1.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_68",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp1.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_69",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p2.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_70",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p2.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_71",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp2.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_72",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp2.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_73",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p3.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_74",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p3.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_75",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp3.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_76",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp3.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_77",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p4.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_78",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p4.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_79",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp4.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_80",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp4.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_81",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p5.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_82",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p5.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_83",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp5.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_84",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp5.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_85",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p6.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_86",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p6.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_87",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp6.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_88",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp6.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_89",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p7.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_90",
+      "expr": "'ot0.fallback' != 1 && 'ot0.p7.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_91",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp7.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_92",
+      "expr": "'ot0.fallback' != 1 && 'ot0.mp7.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_93",
+      "expr": "'ot0.fallback' != 1 && 'ot0.foe0.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_94",
+      "expr": "'ot0.fallback' != 1 && 'ot0.foe0.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_95",
+      "expr": "'ot0.fallback' != 1 && 'ot0.foe1.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_96",
+      "expr": "'ot0.fallback' != 1 && 'ot0.foe1.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_97",
+      "expr": "'ot0.fallback' != 1 && 'ot0.foe2.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_98",
+      "expr": "'ot0.fallback' != 1 && 'ot0.foe2.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_99",
+      "expr": "'ot0.fallback' != 1 && 'ot0.foe3.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_100",
+      "expr": "'ot0.fallback' != 1 && 'ot0.foe3.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_101",
+      "expr": "'ot0.fallback' != 1 && 'ot0.foe4.on' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_102",
+      "expr": "'ot0.fallback' != 1 && 'ot0.foe4.on' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_103",
+      "expr": "'ot0.fallback' != 1 && 'ot0.combat' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_104",
+      "expr": "'ot0.fallback' != 1 && 'ot0.combat' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_105",
+      "expr": "'ot0.fallback' != 1 && 'ot0.party_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_106",
+      "expr": "'ot0.fallback' != 1 && 'ot0.party_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_107",
+      "expr": "'ot0.fallback' != 1 && 'ot0.party_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_108",
+      "expr": "'ot0.fallback' != 1 && 'ot0.party_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_109",
+      "expr": "'ot0.fallback' != 1 && 'ot0.standard_map_tab' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_110",
+      "expr": "'ot0.fallback' != 1 && 'ot0.standard_map_tab' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_111",
+      "expr": "'ot0.fallback' != 1 && 'ot0.standard_map_tab' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_112",
+      "expr": "'ot0.fallback' != 1 && 'ot0.standard_map_tab' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_113",
+      "expr": "'ot0.fallback' != 1 && 'ot0.standard_map_tab' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_114",
+      "expr": "'ot0.fallback' != 1 && 'ot0.standard_map_tab' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_115",
+      "expr": "'ot0.fallback' != 1 && 'ot0.standard_map_tab' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_116",
+      "expr": "'ot0.fallback' != 1 && 'ot0.standard_map_tab' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_117",
+      "expr": "'ot0.fallback' != 1 && 'ot0.nomap_tabs' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_118",
+      "expr": "'ot0.fallback' != 1 && 'ot0.nomap_tabs' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_119",
+      "expr": "'ot0.fallback' != 1 && 'ot0.nomap_tabs' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_120",
+      "expr": "'ot0.fallback' != 1 && 'ot0.nomap_tabs' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_121",
+      "expr": "'ot0.fallback' != 1 && 'ot0.nomap_tabs' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_122",
+      "expr": "'ot0.fallback' != 1 && 'ot0.nomap_tabs' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_123",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_124",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_125",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_126",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_127",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_128",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_129",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_130",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_131",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_132",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_133",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_134",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_135",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_136",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_137",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_138",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_139",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_140",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_141",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_142",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_143",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_144",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_145",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_146",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_147",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_148",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_149",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_150",
+      "expr": "'ot0.fallback' != 1 && 'ot0.items_page' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_151",
+      "expr": "'ot0.fallback' != 1 && 'ot0.heal_header' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_152",
+      "expr": "'ot0.fallback' != 1 && 'ot0.heal_header' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_153",
+      "expr": "'ot0.fallback' != 1 && 'ot0.heal_open' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_154",
+      "expr": "'ot0.fallback' != 1 && 'ot0.heal_open' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_155",
+      "expr": "'ot0.fallback' != 1 && 'ot0.heal_confirm' != 0 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_156",
+      "expr": "'ot0.fallback' != 1 && 'ot0.heal_confirm' != 0 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_157",
+      "expr": "'ot0.fallback' != 1 && 'ot0.party_tab' != 0 && '@flag:ot0.haptics' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.touch_158",
+      "expr": "'ot0.fallback' != 1 && 'ot0.party_tab' != 0 && '@flag:ot0.haptics' == 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.touch_159",
+      "expr": "'ot0.fallback' != 1 && 'ot0.party_tab' != 0 && '@flag:ot0.haptics' != 1 && '@flag:ot0.reduced_motion' == 1"
+    },
+    {
+      "name": "ot0.touch_160",
+      "expr": "'ot0.fallback' != 1 && 'ot0.party_tab' != 0 && '@flag:ot0.haptics' == 1 && '@flag:ot0.reduced_motion' == 1"
+    },
+    {
+      "name": "ot0.touch_161",
+      "expr": "'ot0.fallback' != 1 && 'ot0.combat' != 0 && '@flag:ot0.haptics' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.touch_162",
+      "expr": "'ot0.fallback' != 1 && 'ot0.combat' != 0 && '@flag:ot0.haptics' == 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.touch_163",
+      "expr": "'ot0.fallback' != 1 && 'ot0.combat' != 0 && '@flag:ot0.haptics' != 1 && '@flag:ot0.reduced_motion' == 1"
+    },
+    {
+      "name": "ot0.touch_164",
+      "expr": "'ot0.fallback' != 1 && 'ot0.combat' != 0 && '@flag:ot0.haptics' == 1 && '@flag:ot0.reduced_motion' == 1"
+    },
+    {
+      "name": "ot0.touch_165",
+      "expr": "'ot0.fallback' != 1 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_166",
+      "expr": "'ot0.fallback' != 1 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_167",
+      "expr": "'ot0.fallback' != 1 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_168",
+      "expr": "'ot0.fallback' != 1 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_169",
+      "expr": "'ot0.fallback' != 1 && '@flag:ot0.haptics' != 1"
+    },
+    {
+      "name": "ot0.touch_170",
+      "expr": "'ot0.fallback' != 1 && '@flag:ot0.haptics' == 1"
+    },
+    {
+      "name": "ot0.touch_171",
+      "expr": "'ot0.fallback' != 1 && '@flag:ot0.haptics' != 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.touch_172",
+      "expr": "'ot0.fallback' != 1 && '@flag:ot0.haptics' == 1 && '@flag:ot0.reduced_motion' != 1"
+    },
+    {
+      "name": "ot0.touch_173",
+      "expr": "'ot0.fallback' != 1 && '@flag:ot0.haptics' != 1 && '@flag:ot0.reduced_motion' == 1"
+    },
+    {
+      "name": "ot0.touch_174",
+      "expr": "'ot0.fallback' != 1 && '@flag:ot0.haptics' == 1 && '@flag:ot0.reduced_motion' == 1"
+    }
+  ],
+  "flags": {
+    "ot0.hide_party_hud": 1,
+    "ot0.haptics": 1,
+    "ot0.reduced_motion": 0
+  },
+  "persist_flags": [
+    "ot0.hide_party_hud",
+    "ot0.haptics",
+    "ot0.reduced_motion"
+  ],
+  "anim_hz": 60,
+  "haptics": {
+    "enabled": true,
+    "respect_system": true,
+    "tap": "off",
+    "write": "off",
+    "select": "off",
+    "refused": "reject",
+    "hold": "off",
+    "swipe": "off",
+    "nav": "off"
+  },
+  "module_tick_hidden": true,
+  "map": {
+    "areas": {
+      "ot0map": {
+        "min": [
+          0,
+          0
+        ],
+        "max": [
+          704,
+          772
+        ],
+        "clamp_view": true,
+        "no_pin": true,
+        "dynamic_markers": [
+          {
+            "group": "ot0_rings",
+            "count": 8,
+            "x": "ot0.rg{i}.x",
+            "y": "ot0.rg{i}.y",
+            "kind": "ot0.rg{i}.on",
+            "hide_when_kind": 0,
+            "tint_bind": "ot0.rg{i}.tint",
+            "size": 212,
+            "frames": [
+              "module:ot0:ringf/0",
+              "module:ot0:ringf/1",
+              "module:ot0:ringf/2",
+              "module:ot0:ringf/3",
+              "module:ot0:ringf/4",
+              "module:ot0:ringf/5",
+              "module:ot0:ringf/6",
+              "module:ot0:ringf/7",
+              "module:ot0:ringf/8",
+              "module:ot0:ringf/9",
+              "module:ot0:ringf/10",
+              "module:ot0:ringf/11",
+              "module:ot0:ringf/12",
+              "module:ot0:ringf/13",
+              "module:ot0:ringf/14",
+              "module:ot0:ringf/15",
+              "module:ot0:ringf/16",
+              "module:ot0:ringf/17",
+              "module:ot0:ringf/18",
+              "module:ot0:ringf/19",
+              "module:ot0:ringf/20",
+              "module:ot0:ringf/21",
+              "module:ot0:ringf/22",
+              "module:ot0:ringf/23"
+            ],
+            "frame_ms": 50
+          },
+          {
+            "group": "ot0_icons",
+            "count": 32,
+            "x": "ot0.mk{i}.x",
+            "y": "ot0.mk{i}.y",
+            "kind": "ot0.mk{i}.on",
+            "hide_when_kind": 0,
+            "icon_src_bind": "ot0.mk{i}.src",
+            "size": 96
+          },
+          {
+            "group": "ot0_player",
+            "count": 1,
+            "x": "ot0.pl.x",
+            "y": "ot0.pl.y",
+            "kind": "ot0.pl.on",
+            "hide_when_kind": 0,
+            "icon_src_bind": "ot0.pl.src",
+            "size": 56
+          }
+        ]
+      }
+    }
+  },
+  "actions": {
+    "map_reset": {
+      "kind": "view_reset",
+      "view": "ot0_map"
+    },
+    "select_0": {
+      "kind": "module",
+      "action": "select",
+      "argument": 0
+    },
+    "select_1": {
+      "kind": "module",
+      "action": "select",
+      "argument": 1
+    },
+    "select_2": {
+      "kind": "module",
+      "action": "select",
+      "argument": 2
+    },
+    "select_3": {
+      "kind": "module",
+      "action": "select",
+      "argument": 3
+    },
+    "select_4": {
+      "kind": "module",
+      "action": "select",
+      "argument": 4
+    },
+    "select_5": {
+      "kind": "module",
+      "action": "select",
+      "argument": 5
+    },
+    "select_6": {
+      "kind": "module",
+      "action": "select",
+      "argument": 6
+    },
+    "select_7": {
+      "kind": "module",
+      "action": "select",
+      "argument": 7
+    },
+    "focus_foe_0": {
+      "kind": "module",
+      "action": "foe",
+      "argument": 0
+    },
+    "focus_foe_1": {
+      "kind": "module",
+      "action": "foe",
+      "argument": 1
+    },
+    "focus_foe_2": {
+      "kind": "module",
+      "action": "foe",
+      "argument": 2
+    },
+    "focus_foe_3": {
+      "kind": "module",
+      "action": "foe",
+      "argument": 3
+    },
+    "focus_foe_4": {
+      "kind": "module",
+      "action": "foe",
+      "argument": 4
+    },
+    "detail_mode": {
+      "kind": "module",
+      "action": "detail_mode",
+      "argument": 0
+    },
+    "party_stats": {
+      "kind": "module",
+      "action": "party_view",
+      "argument": 0
+    },
+    "party_equipment": {
+      "kind": "module",
+      "action": "party_view",
+      "argument": 1
+    },
+    "page_map": {
+      "kind": "module",
+      "action": "page",
+      "argument": 0
+    },
+    "page_party": {
+      "kind": "module",
+      "action": "page",
+      "argument": 1
+    },
+    "hud_hide_on": {
+      "kind": "module",
+      "action": "hud_hide",
+      "argument": 1
+    },
+    "hud_hide_off": {
+      "kind": "module",
+      "action": "hud_hide",
+      "argument": 0
+    },
+    "open_settings": {
+      "kind": "page",
+      "page": "@settings",
+      "transition": "fade",
+      "duration_ms": 150
+    },
+    "page_items": {
+      "kind": "module",
+      "action": "page",
+      "argument": 2
+    },
+    "page_quests": {
+      "kind": "module",
+      "action": "page",
+      "argument": 3
+    },
+    "items_tab_0": {
+      "kind": "module",
+      "action": "items_tab",
+      "argument": 0
+    },
+    "items_tab_1": {
+      "kind": "module",
+      "action": "items_tab",
+      "argument": 1
+    },
+    "items_tab_2": {
+      "kind": "module",
+      "action": "items_tab",
+      "argument": 2
+    },
+    "items_tab_3": {
+      "kind": "module",
+      "action": "items_tab",
+      "argument": 3
+    },
+    "items_tab_4": {
+      "kind": "module",
+      "action": "items_tab",
+      "argument": 4
+    },
+    "items_tab_5": {
+      "kind": "module",
+      "action": "items_tab",
+      "argument": 5
+    },
+    "items_tab_6": {
+      "kind": "module",
+      "action": "items_tab",
+      "argument": 6
+    },
+    "items_tab_7": {
+      "kind": "module",
+      "action": "items_tab",
+      "argument": 7
+    },
+    "items_tab_8": {
+      "kind": "module",
+      "action": "items_tab",
+      "argument": 8
+    },
+    "items_tab_9": {
+      "kind": "module",
+      "action": "items_tab",
+      "argument": 9
+    },
+    "items_tab_10": {
+      "kind": "module",
+      "action": "items_tab",
+      "argument": 10
+    },
+    "items_tab_11": {
+      "kind": "module",
+      "action": "items_tab",
+      "argument": 11
+    },
+    "items_prev": {
+      "kind": "module",
+      "action": "items_page_step",
+      "argument": 0
+    },
+    "items_next": {
+      "kind": "module",
+      "action": "items_page_step",
+      "argument": 1
+    },
+    "heal": {
+      "kind": "module",
+      "action": "heal",
+      "argument": 0
+    },
+    "heal_apply": {
+      "kind": "module",
+      "action": "heal_apply",
+      "argument": 0
+    },
+    "heal_cancel": {
+      "kind": "module",
+      "action": "heal_cancel",
+      "argument": 0
+    },
+    "@settings:ot0.hide_party_hud": {
+      "kind": "flag",
+      "flag": "ot0.hide_party_hud"
+    },
+    "@settings:ot0.haptics": {
+      "kind": "flag",
+      "flag": "ot0.haptics"
+    },
+    "@settings:ot0.reduced_motion": {
+      "kind": "flag",
+      "flag": "ot0.reduced_motion"
+    },
+    "settings_back": {
+      "kind": "page",
+      "page": "@back",
+      "transition": "fade",
+      "duration_ms": 150
+    },
+    "open_settings_still": {
+      "kind": "page",
+      "page": "@settings",
+      "transition": "none",
+      "duration_ms": 0
+    },
+    "settings_back_still": {
+      "kind": "page",
+      "page": "@back",
+      "transition": "none",
+      "duration_ms": 0
+    }
+  },
+  "pages": [
+    {
+      "id": "party",
+      "title": "Party",
+      "widgets": [
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src_bind": "ot0.screen",
+          "color": "#FFFFFFFF",
+          "need_bind": "!module_error"
+        },
+        {
+          "type": "map",
+          "id": "ot0_map",
+          "rect": [
+            44,
+            122,
+            704,
+            772
+          ],
+          "area": "ot0map",
+          "image_bind": "ot0.map.pic",
+          "pan_zoom": true,
+          "min_zoom": 1,
+          "max_zoom": 8,
+          "view_rect_x0_bind": "ot0.map.v.x0",
+          "view_rect_y0_bind": "ot0.map.v.y0",
+          "view_rect_x1_bind": "ot0.map.v.x1",
+          "view_rect_y1_bind": "ot0.map.v.y1",
+          "area_label": false,
+          "need_bind": "ot0.map.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "src_bind": "ot0.map.next",
+          "color": "#01FFFFFF",
+          "need_bind": "ot0.map.on"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_59",
+          "rect": [
+            628,
+            774,
+            112,
+            112
+          ],
+          "bg": "#C0101418",
+          "color": "#80D6D0C4",
+          "frame": 2,
+          "on_tap": "map_reset",
+          "need_bind": "ot0.touch_59",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_60",
+          "rect": [
+            628,
+            774,
+            112,
+            112
+          ],
+          "bg": "#C0101418",
+          "color": "#80D6D0C4",
+          "frame": 2,
+          "on_tap": "map_reset",
+          "need_bind": "ot0.touch_60",
+          "haptic": "light"
+        },
+        {
+          "type": "image",
+          "rect": [
+            662,
+            808,
+            44,
+            44
+          ],
+          "src": "module:ot0:glyph/player/ffffffff",
+          "need_bind": "ot0.map.on"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx0.src",
+          "x_bind": "ot0.fx0.x",
+          "y_bind": "ot0.fx0.y",
+          "scale_bind": "ot0.fx0.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx0.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx1.src",
+          "x_bind": "ot0.fx1.x",
+          "y_bind": "ot0.fx1.y",
+          "scale_bind": "ot0.fx1.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx1.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx2.src",
+          "x_bind": "ot0.fx2.x",
+          "y_bind": "ot0.fx2.y",
+          "scale_bind": "ot0.fx2.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx2.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx3.src",
+          "x_bind": "ot0.fx3.x",
+          "y_bind": "ot0.fx3.y",
+          "scale_bind": "ot0.fx3.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx3.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx4.src",
+          "x_bind": "ot0.fx4.x",
+          "y_bind": "ot0.fx4.y",
+          "scale_bind": "ot0.fx4.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx4.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx5.src",
+          "x_bind": "ot0.fx5.x",
+          "y_bind": "ot0.fx5.y",
+          "scale_bind": "ot0.fx5.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx5.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx6.src",
+          "x_bind": "ot0.fx6.x",
+          "y_bind": "ot0.fx6.y",
+          "scale_bind": "ot0.fx6.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx6.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx7.src",
+          "x_bind": "ot0.fx7.x",
+          "y_bind": "ot0.fx7.y",
+          "scale_bind": "ot0.fx7.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx7.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx8.src",
+          "x_bind": "ot0.fx8.x",
+          "y_bind": "ot0.fx8.y",
+          "scale_bind": "ot0.fx8.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx8.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx9.src",
+          "x_bind": "ot0.fx9.x",
+          "y_bind": "ot0.fx9.y",
+          "scale_bind": "ot0.fx9.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx9.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx10.src",
+          "x_bind": "ot0.fx10.x",
+          "y_bind": "ot0.fx10.y",
+          "scale_bind": "ot0.fx10.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx10.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx11.src",
+          "x_bind": "ot0.fx11.x",
+          "y_bind": "ot0.fx11.y",
+          "scale_bind": "ot0.fx11.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx11.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx12.src",
+          "x_bind": "ot0.fx12.x",
+          "y_bind": "ot0.fx12.y",
+          "scale_bind": "ot0.fx12.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx12.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx13.src",
+          "x_bind": "ot0.fx13.x",
+          "y_bind": "ot0.fx13.y",
+          "scale_bind": "ot0.fx13.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx13.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx14.src",
+          "x_bind": "ot0.fx14.x",
+          "y_bind": "ot0.fx14.y",
+          "scale_bind": "ot0.fx14.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx14.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx15.src",
+          "x_bind": "ot0.fx15.x",
+          "y_bind": "ot0.fx15.y",
+          "scale_bind": "ot0.fx15.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx15.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx16.src",
+          "x_bind": "ot0.fx16.x",
+          "y_bind": "ot0.fx16.y",
+          "scale_bind": "ot0.fx16.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx16.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx17.src",
+          "x_bind": "ot0.fx17.x",
+          "y_bind": "ot0.fx17.y",
+          "scale_bind": "ot0.fx17.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx17.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx18.src",
+          "x_bind": "ot0.fx18.x",
+          "y_bind": "ot0.fx18.y",
+          "scale_bind": "ot0.fx18.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx18.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx19.src",
+          "x_bind": "ot0.fx19.x",
+          "y_bind": "ot0.fx19.y",
+          "scale_bind": "ot0.fx19.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx19.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx20.src",
+          "x_bind": "ot0.fx20.x",
+          "y_bind": "ot0.fx20.y",
+          "scale_bind": "ot0.fx20.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx20.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx21.src",
+          "x_bind": "ot0.fx21.x",
+          "y_bind": "ot0.fx21.y",
+          "scale_bind": "ot0.fx21.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx21.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx22.src",
+          "x_bind": "ot0.fx22.x",
+          "y_bind": "ot0.fx22.y",
+          "scale_bind": "ot0.fx22.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx22.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx23.src",
+          "x_bind": "ot0.fx23.x",
+          "y_bind": "ot0.fx23.y",
+          "scale_bind": "ot0.fx23.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx23.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx24.src",
+          "x_bind": "ot0.fx24.x",
+          "y_bind": "ot0.fx24.y",
+          "scale_bind": "ot0.fx24.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx24.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx25.src",
+          "x_bind": "ot0.fx25.x",
+          "y_bind": "ot0.fx25.y",
+          "scale_bind": "ot0.fx25.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx25.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx26.src",
+          "x_bind": "ot0.fx26.x",
+          "y_bind": "ot0.fx26.y",
+          "scale_bind": "ot0.fx26.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx26.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx27.src",
+          "x_bind": "ot0.fx27.x",
+          "y_bind": "ot0.fx27.y",
+          "scale_bind": "ot0.fx27.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx27.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx28.src",
+          "x_bind": "ot0.fx28.x",
+          "y_bind": "ot0.fx28.y",
+          "scale_bind": "ot0.fx28.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx28.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx29.src",
+          "x_bind": "ot0.fx29.x",
+          "y_bind": "ot0.fx29.y",
+          "scale_bind": "ot0.fx29.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx29.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx30.src",
+          "x_bind": "ot0.fx30.x",
+          "y_bind": "ot0.fx30.y",
+          "scale_bind": "ot0.fx30.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx30.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx31.src",
+          "x_bind": "ot0.fx31.x",
+          "y_bind": "ot0.fx31.y",
+          "scale_bind": "ot0.fx31.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx31.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx32.src",
+          "x_bind": "ot0.fx32.x",
+          "y_bind": "ot0.fx32.y",
+          "scale_bind": "ot0.fx32.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx32.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx33.src",
+          "x_bind": "ot0.fx33.x",
+          "y_bind": "ot0.fx33.y",
+          "scale_bind": "ot0.fx33.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx33.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx34.src",
+          "x_bind": "ot0.fx34.x",
+          "y_bind": "ot0.fx34.y",
+          "scale_bind": "ot0.fx34.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx34.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx35.src",
+          "x_bind": "ot0.fx35.x",
+          "y_bind": "ot0.fx35.y",
+          "scale_bind": "ot0.fx35.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx35.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx36.src",
+          "x_bind": "ot0.fx36.x",
+          "y_bind": "ot0.fx36.y",
+          "scale_bind": "ot0.fx36.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx36.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx37.src",
+          "x_bind": "ot0.fx37.x",
+          "y_bind": "ot0.fx37.y",
+          "scale_bind": "ot0.fx37.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx37.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx38.src",
+          "x_bind": "ot0.fx38.x",
+          "y_bind": "ot0.fx38.y",
+          "scale_bind": "ot0.fx38.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx38.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx39.src",
+          "x_bind": "ot0.fx39.x",
+          "y_bind": "ot0.fx39.y",
+          "scale_bind": "ot0.fx39.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx39.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx40.src",
+          "x_bind": "ot0.fx40.x",
+          "y_bind": "ot0.fx40.y",
+          "scale_bind": "ot0.fx40.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx40.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx41.src",
+          "x_bind": "ot0.fx41.x",
+          "y_bind": "ot0.fx41.y",
+          "scale_bind": "ot0.fx41.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx41.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx42.src",
+          "x_bind": "ot0.fx42.x",
+          "y_bind": "ot0.fx42.y",
+          "scale_bind": "ot0.fx42.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx42.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx43.src",
+          "x_bind": "ot0.fx43.x",
+          "y_bind": "ot0.fx43.y",
+          "scale_bind": "ot0.fx43.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx43.bp"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "src_bind": "ot0.fx44.src",
+          "x_bind": "ot0.fx44.x",
+          "y_bind": "ot0.fx44.y",
+          "scale_bind": "ot0.fx44.scale",
+          "tint_bind": "ot0.pulse",
+          "tint_colors": [
+            "#5AFFFFFF",
+            "#65FFFFFF",
+            "#70FFFFFF",
+            "#7BFFFFFF",
+            "#86FFFFFF",
+            "#91FFFFFF",
+            "#9CFFFFFF",
+            "#A7FFFFFF",
+            "#B2FFFFFF",
+            "#BDFFFFFF",
+            "#C8FFFFFF",
+            "#D3FFFFFF",
+            "#DEFFFFFF",
+            "#E9FFFFFF",
+            "#F4FFFFFF",
+            "#FFFFFFFF"
+          ],
+          "need_bind": "ot0.fx44.bp"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_61",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p0.x",
+          "y_bind": "ot0.p0.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_0",
+          "need_bind": "ot0.touch_61",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_62",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p0.x",
+          "y_bind": "ot0.p0.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_0",
+          "need_bind": "ot0.touch_62",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_63",
+          "rect": [
+            792,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp0.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_0",
+          "need_bind": "ot0.touch_63",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_64",
+          "rect": [
+            792,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp0.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_0",
+          "need_bind": "ot0.touch_64",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_65",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p1.x",
+          "y_bind": "ot0.p1.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_1",
+          "need_bind": "ot0.touch_65",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_66",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p1.x",
+          "y_bind": "ot0.p1.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_1",
+          "need_bind": "ot0.touch_66",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_67",
+          "rect": [
+            792,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp1.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_1",
+          "need_bind": "ot0.touch_67",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_68",
+          "rect": [
+            792,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp1.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_1",
+          "need_bind": "ot0.touch_68",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_69",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p2.x",
+          "y_bind": "ot0.p2.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_2",
+          "need_bind": "ot0.touch_69",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_70",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p2.x",
+          "y_bind": "ot0.p2.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_2",
+          "need_bind": "ot0.touch_70",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_71",
+          "rect": [
+            792,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp2.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_2",
+          "need_bind": "ot0.touch_71",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_72",
+          "rect": [
+            792,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp2.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_2",
+          "need_bind": "ot0.touch_72",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_73",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p3.x",
+          "y_bind": "ot0.p3.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_3",
+          "need_bind": "ot0.touch_73",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_74",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p3.x",
+          "y_bind": "ot0.p3.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_3",
+          "need_bind": "ot0.touch_74",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_75",
+          "rect": [
+            792,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp3.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_3",
+          "need_bind": "ot0.touch_75",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_76",
+          "rect": [
+            792,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp3.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_3",
+          "need_bind": "ot0.touch_76",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_77",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p4.x",
+          "y_bind": "ot0.p4.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_4",
+          "need_bind": "ot0.touch_77",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_78",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p4.x",
+          "y_bind": "ot0.p4.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_4",
+          "need_bind": "ot0.touch_78",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_79",
+          "rect": [
+            1008,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp4.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_4",
+          "need_bind": "ot0.touch_79",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_80",
+          "rect": [
+            1008,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp4.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_4",
+          "need_bind": "ot0.touch_80",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_81",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p5.x",
+          "y_bind": "ot0.p5.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_5",
+          "need_bind": "ot0.touch_81",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_82",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p5.x",
+          "y_bind": "ot0.p5.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_5",
+          "need_bind": "ot0.touch_82",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_83",
+          "rect": [
+            1008,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp5.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_5",
+          "need_bind": "ot0.touch_83",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_84",
+          "rect": [
+            1008,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp5.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_5",
+          "need_bind": "ot0.touch_84",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_85",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p6.x",
+          "y_bind": "ot0.p6.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_6",
+          "need_bind": "ot0.touch_85",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_86",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p6.x",
+          "y_bind": "ot0.p6.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_6",
+          "need_bind": "ot0.touch_86",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_87",
+          "rect": [
+            1008,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp6.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_6",
+          "need_bind": "ot0.touch_87",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_88",
+          "rect": [
+            1008,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp6.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_6",
+          "need_bind": "ot0.touch_88",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_89",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p7.x",
+          "y_bind": "ot0.p7.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_7",
+          "need_bind": "ot0.touch_89",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_90",
+          "rect": [
+            0,
+            0,
+            312,
+            160
+          ],
+          "x_bind": "ot0.p7.x",
+          "y_bind": "ot0.p7.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_7",
+          "need_bind": "ot0.touch_90",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_91",
+          "rect": [
+            1008,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp7.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_7",
+          "need_bind": "ot0.touch_91",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_92",
+          "rect": [
+            1008,
+            0,
+            216,
+            202
+          ],
+          "y_bind": "ot0.mp7.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "select_7",
+          "need_bind": "ot0.touch_92",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_93",
+          "rect": [
+            12,
+            0,
+            576,
+            130
+          ],
+          "y_bind": "ot0.foe0.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "focus_foe_0",
+          "need_bind": "ot0.touch_93",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_94",
+          "rect": [
+            12,
+            0,
+            576,
+            130
+          ],
+          "y_bind": "ot0.foe0.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "focus_foe_0",
+          "need_bind": "ot0.touch_94",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_95",
+          "rect": [
+            12,
+            0,
+            576,
+            130
+          ],
+          "y_bind": "ot0.foe1.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "focus_foe_1",
+          "need_bind": "ot0.touch_95",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_96",
+          "rect": [
+            12,
+            0,
+            576,
+            130
+          ],
+          "y_bind": "ot0.foe1.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "focus_foe_1",
+          "need_bind": "ot0.touch_96",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_97",
+          "rect": [
+            12,
+            0,
+            576,
+            130
+          ],
+          "y_bind": "ot0.foe2.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "focus_foe_2",
+          "need_bind": "ot0.touch_97",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_98",
+          "rect": [
+            12,
+            0,
+            576,
+            130
+          ],
+          "y_bind": "ot0.foe2.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "focus_foe_2",
+          "need_bind": "ot0.touch_98",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_99",
+          "rect": [
+            12,
+            0,
+            576,
+            130
+          ],
+          "y_bind": "ot0.foe3.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "focus_foe_3",
+          "need_bind": "ot0.touch_99",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_100",
+          "rect": [
+            12,
+            0,
+            576,
+            130
+          ],
+          "y_bind": "ot0.foe3.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "focus_foe_3",
+          "need_bind": "ot0.touch_100",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_101",
+          "rect": [
+            12,
+            0,
+            576,
+            130
+          ],
+          "y_bind": "ot0.foe4.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "focus_foe_4",
+          "need_bind": "ot0.touch_101",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_102",
+          "rect": [
+            12,
+            0,
+            576,
+            130
+          ],
+          "y_bind": "ot0.foe4.y",
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "focus_foe_4",
+          "need_bind": "ot0.touch_102",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_103",
+          "rect": [
+            864,
+            16,
+            232,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "detail_mode",
+          "need_bind": "ot0.touch_103",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_104",
+          "rect": [
+            864,
+            16,
+            232,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "detail_mode",
+          "need_bind": "ot0.touch_104",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_105",
+          "rect": [
+            16,
+            0,
+            244,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "party_stats",
+          "need_bind": "ot0.touch_105",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_106",
+          "rect": [
+            16,
+            0,
+            244,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "party_stats",
+          "need_bind": "ot0.touch_106",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_107",
+          "rect": [
+            272,
+            0,
+            244,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "party_equipment",
+          "need_bind": "ot0.touch_107",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_108",
+          "rect": [
+            272,
+            0,
+            244,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "party_equipment",
+          "need_bind": "ot0.touch_108",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_109",
+          "rect": [
+            16,
+            956,
+            262,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_map",
+          "need_bind": "ot0.touch_109",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_110",
+          "rect": [
+            16,
+            956,
+            262,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_map",
+          "need_bind": "ot0.touch_110",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_111",
+          "rect": [
+            290,
+            956,
+            262,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_party",
+          "need_bind": "ot0.touch_111",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_112",
+          "rect": [
+            290,
+            956,
+            262,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_party",
+          "need_bind": "ot0.touch_112",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_113",
+          "rect": [
+            564,
+            956,
+            262,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_items",
+          "need_bind": "ot0.touch_113",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_114",
+          "rect": [
+            564,
+            956,
+            262,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_items",
+          "need_bind": "ot0.touch_114",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_115",
+          "rect": [
+            838,
+            956,
+            262,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_quests",
+          "need_bind": "ot0.touch_115",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_116",
+          "rect": [
+            838,
+            956,
+            262,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_quests",
+          "need_bind": "ot0.touch_116",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_117",
+          "rect": [
+            16,
+            956,
+            352,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_party",
+          "need_bind": "ot0.touch_117",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_118",
+          "rect": [
+            16,
+            956,
+            352,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_party",
+          "need_bind": "ot0.touch_118",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_119",
+          "rect": [
+            380,
+            956,
+            352,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_items",
+          "need_bind": "ot0.touch_119",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_120",
+          "rect": [
+            380,
+            956,
+            352,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_items",
+          "need_bind": "ot0.touch_120",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_121",
+          "rect": [
+            744,
+            956,
+            352,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_quests",
+          "need_bind": "ot0.touch_121",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_122",
+          "rect": [
+            744,
+            956,
+            352,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_quests",
+          "need_bind": "ot0.touch_122",
+          "haptic": "light"
+        },
+        {
+          "type": "image",
+          "rect": [
+            44,
+            214,
+            1152,
+            128
+          ],
+          "src_bind": "ot0.quests.row{i}",
+          "need_bind": "ot0.quests_page",
+          "repeat": 64,
+          "repeat_bind": "ot0.quests.count",
+          "repeat_dy": 128,
+          "scroll": "quests"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_123",
+          "rect": [
+            22,
+            106,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_0",
+          "need_bind": "ot0.touch_123",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_124",
+          "rect": [
+            22,
+            106,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_0",
+          "need_bind": "ot0.touch_124",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_125",
+          "rect": [
+            146,
+            106,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_1",
+          "need_bind": "ot0.touch_125",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_126",
+          "rect": [
+            146,
+            106,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_1",
+          "need_bind": "ot0.touch_126",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_127",
+          "rect": [
+            22,
+            230,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_2",
+          "need_bind": "ot0.touch_127",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_128",
+          "rect": [
+            22,
+            230,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_2",
+          "need_bind": "ot0.touch_128",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_129",
+          "rect": [
+            146,
+            230,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_3",
+          "need_bind": "ot0.touch_129",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_130",
+          "rect": [
+            146,
+            230,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_3",
+          "need_bind": "ot0.touch_130",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_131",
+          "rect": [
+            22,
+            354,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_4",
+          "need_bind": "ot0.touch_131",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_132",
+          "rect": [
+            22,
+            354,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_4",
+          "need_bind": "ot0.touch_132",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_133",
+          "rect": [
+            146,
+            354,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_5",
+          "need_bind": "ot0.touch_133",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_134",
+          "rect": [
+            146,
+            354,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_5",
+          "need_bind": "ot0.touch_134",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_135",
+          "rect": [
+            22,
+            478,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_6",
+          "need_bind": "ot0.touch_135",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_136",
+          "rect": [
+            22,
+            478,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_6",
+          "need_bind": "ot0.touch_136",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_137",
+          "rect": [
+            146,
+            478,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_7",
+          "need_bind": "ot0.touch_137",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_138",
+          "rect": [
+            146,
+            478,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_7",
+          "need_bind": "ot0.touch_138",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_139",
+          "rect": [
+            22,
+            602,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_8",
+          "need_bind": "ot0.touch_139",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_140",
+          "rect": [
+            22,
+            602,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_8",
+          "need_bind": "ot0.touch_140",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_141",
+          "rect": [
+            146,
+            602,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_9",
+          "need_bind": "ot0.touch_141",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_142",
+          "rect": [
+            146,
+            602,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_9",
+          "need_bind": "ot0.touch_142",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_143",
+          "rect": [
+            22,
+            726,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_10",
+          "need_bind": "ot0.touch_143",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_144",
+          "rect": [
+            22,
+            726,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_10",
+          "need_bind": "ot0.touch_144",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_145",
+          "rect": [
+            146,
+            726,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_11",
+          "need_bind": "ot0.touch_145",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_146",
+          "rect": [
+            146,
+            726,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_tab_11",
+          "need_bind": "ot0.touch_146",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_147",
+          "rect": [
+            860,
+            0,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_prev",
+          "need_bind": "ot0.touch_147",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_148",
+          "rect": [
+            860,
+            0,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_prev",
+          "need_bind": "ot0.touch_148",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_149",
+          "rect": [
+            1092,
+            0,
+            132,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_next",
+          "need_bind": "ot0.touch_149",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_150",
+          "rect": [
+            1092,
+            0,
+            132,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "items_next",
+          "need_bind": "ot0.touch_150",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_151",
+          "rect": [
+            636,
+            0,
+            140,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "heal",
+          "need_bind": "ot0.touch_151",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_152",
+          "rect": [
+            636,
+            0,
+            140,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "heal",
+          "need_bind": "ot0.touch_152",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_153",
+          "rect": [
+            44,
+            782,
+            328,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "heal_cancel",
+          "need_bind": "ot0.touch_153",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_154",
+          "rect": [
+            44,
+            782,
+            328,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "heal_cancel",
+          "need_bind": "ot0.touch_154",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_155",
+          "rect": [
+            400,
+            782,
+            348,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "heal_apply",
+          "need_bind": "ot0.touch_155",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_156",
+          "rect": [
+            400,
+            782,
+            348,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "heal_apply",
+          "need_bind": "ot0.touch_156",
+          "haptic": "confirm"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_157",
+          "rect": [
+            1112,
+            956,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "open_settings",
+          "need_bind": "ot0.touch_157",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_158",
+          "rect": [
+            1112,
+            956,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "open_settings",
+          "need_bind": "ot0.touch_158",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_159",
+          "rect": [
+            1112,
+            956,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "open_settings_still",
+          "need_bind": "ot0.touch_159",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_160",
+          "rect": [
+            1112,
+            956,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "open_settings_still",
+          "need_bind": "ot0.touch_160",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_161",
+          "rect": [
+            1112,
+            16,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "open_settings",
+          "need_bind": "ot0.touch_161",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_162",
+          "rect": [
+            1112,
+            16,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "open_settings",
+          "need_bind": "ot0.touch_162",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_163",
+          "rect": [
+            1112,
+            16,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "open_settings_still",
+          "need_bind": "ot0.touch_163",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_164",
+          "rect": [
+            1112,
+            16,
+            112,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "open_settings_still",
+          "need_bind": "ot0.touch_164",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "bg": "#FF14181D",
+          "color": "#FF414953",
+          "frame": 4,
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            170,
+            0,
+            0
+          ],
+          "text": "COMPANION UNAVAILABLE",
+          "text_scale": 8,
+          "align": "center",
+          "color": "#FFFFFFFF",
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            320,
+            0,
+            0
+          ],
+          "text": "OCTOPATH TRAVELER 0",
+          "text_scale": 6,
+          "align": "center",
+          "color": "#FFD6D0C4",
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            440,
+            0,
+            0
+          ],
+          "text": "SUPPORTED UPDATE: 1.0.5",
+          "text_scale": 5,
+          "align": "center",
+          "color": "#FFFFFFFF",
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            510,
+            0,
+            0
+          ],
+          "text": "BUILD: 9FE60A212CFF9B9A",
+          "text_scale": 5,
+          "align": "center",
+          "color": "#FFD6D0C4",
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            680,
+            0,
+            0
+          ],
+          "text": "USE THE SUPPORTED GAME UPDATE",
+          "text_scale": 5,
+          "align": "center",
+          "color": "#FFFFFFFF",
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            750,
+            0,
+            0
+          ],
+          "text": "COMPANION VIEW IS UNAVAILABLE",
+          "text_scale": 5,
+          "align": "center",
+          "color": "#FFD6D0C4",
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            120,
+            870,
+            1000,
+            120
+          ],
+          "bind_text": "module_error_message",
+          "text_scale": 4,
+          "color": "#FFD6D0C4",
+          "wrap_width": 1000,
+          "max_lines": 3,
+          "need_bind": "module_error"
+        }
+      ],
+      "scrolls": [
+        {
+          "id": "quests",
+          "rect": [
+            44,
+            214,
+            1152,
+            700
+          ],
+          "content_h_bind": "ot0.quests.h",
+          "show_bind": "ot0.quests_page",
+          "reset_bind": "ot0.quests.gen",
+          "bar": "#B0D6D0C4",
+          "bar_track": "#30000000",
+          "bar_w": 6
+        }
+      ]
+    },
+    {
+      "id": "@settings",
+      "title": "Settings",
+      "no_auto_leave": true,
+      "widgets": [
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src": "module:ot0:settings/000",
+          "need_bind": "ot0.settings_0"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src": "module:ot0:settings/100",
+          "need_bind": "ot0.settings_1"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src": "module:ot0:settings/010",
+          "need_bind": "ot0.settings_2"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src": "module:ot0:settings/110",
+          "need_bind": "ot0.settings_3"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src": "module:ot0:settings/001",
+          "need_bind": "ot0.settings_4"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src": "module:ot0:settings/101",
+          "need_bind": "ot0.settings_5"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src": "module:ot0:settings/011",
+          "need_bind": "ot0.settings_6"
+        },
+        {
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src": "module:ot0:settings/111",
+          "need_bind": "ot0.settings_7"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_165",
+          "rect": [
+            48,
+            228,
+            1144,
+            148
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "@settings:ot0.hide_party_hud",
+          "need_bind": "ot0.touch_165",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_166",
+          "rect": [
+            48,
+            228,
+            1144,
+            148
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "@settings:ot0.hide_party_hud",
+          "need_bind": "ot0.touch_166",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_167",
+          "rect": [
+            48,
+            418,
+            1144,
+            148
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "@settings:ot0.haptics",
+          "need_bind": "ot0.touch_167",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_168",
+          "rect": [
+            48,
+            418,
+            1144,
+            148
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "@settings:ot0.haptics",
+          "need_bind": "ot0.touch_168",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_169",
+          "rect": [
+            48,
+            608,
+            1144,
+            148
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "@settings:ot0.reduced_motion",
+          "need_bind": "ot0.touch_169",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_170",
+          "rect": [
+            48,
+            608,
+            1144,
+            148
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "@settings:ot0.reduced_motion",
+          "need_bind": "ot0.touch_170",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_171",
+          "rect": [
+            16,
+            956,
+            1208,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "settings_back",
+          "need_bind": "ot0.touch_171",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_172",
+          "rect": [
+            16,
+            956,
+            1208,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "settings_back",
+          "need_bind": "ot0.touch_172",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_173",
+          "rect": [
+            16,
+            956,
+            1208,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "settings_back_still",
+          "need_bind": "ot0.touch_173",
+          "haptic": "off"
+        },
+        {
+          "type": "rect",
+          "id": "ot0.touch_174",
+          "rect": [
+            16,
+            956,
+            1208,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "settings_back_still",
+          "need_bind": "ot0.touch_174",
+          "haptic": "light"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "bg": "#FF14181D",
+          "color": "#FF414953",
+          "frame": 4,
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            170,
+            0,
+            0
+          ],
+          "text": "COMPANION UNAVAILABLE",
+          "text_scale": 8,
+          "align": "center",
+          "color": "#FFFFFFFF",
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            320,
+            0,
+            0
+          ],
+          "text": "OCTOPATH TRAVELER 0",
+          "text_scale": 6,
+          "align": "center",
+          "color": "#FFD6D0C4",
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            440,
+            0,
+            0
+          ],
+          "text": "SUPPORTED UPDATE: 1.0.5",
+          "text_scale": 5,
+          "align": "center",
+          "color": "#FFFFFFFF",
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            510,
+            0,
+            0
+          ],
+          "text": "BUILD: 9FE60A212CFF9B9A",
+          "text_scale": 5,
+          "align": "center",
+          "color": "#FFD6D0C4",
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            680,
+            0,
+            0
+          ],
+          "text": "USE THE SUPPORTED GAME UPDATE",
+          "text_scale": 5,
+          "align": "center",
+          "color": "#FFFFFFFF",
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            750,
+            0,
+            0
+          ],
+          "text": "COMPANION VIEW IS UNAVAILABLE",
+          "text_scale": 5,
+          "align": "center",
+          "color": "#FFD6D0C4",
+          "need_bind": "ot0.fallback"
+        },
+        {
+          "type": "label",
+          "rect": [
+            120,
+            870,
+            1000,
+            120
+          ],
+          "bind_text": "module_error_message",
+          "text_scale": 4,
+          "color": "#FFD6D0C4",
+          "wrap_width": 1000,
+          "max_lines": 3,
+          "need_bind": "module_error"
+        }
+      ]
+    }
+  ],
+  "_about": "Generated by tools/octopath-traveler-0/gen_manifest.py. Native assets/fonts decoded from owned romfs; no game data shipped. Current-section revealed minimap, native protagonist parts, adaptive Formation, battle page (live resources, native computed attributes/statuses, Auto/Overview selection details, revealed weaknesses, shields, BP) and lifecycle; native equipment-shop comparisons, computed resource gauges and native settings. Direct field Healing Skills use native learned/target/cost rules and consume SP once, with bottom-only confirmation. Optional moved top-screen minimap/party HUD hide (setting, default on, full visible-marker readiness required). No hidden weaknesses or markers."
+}

@@ -1,0 +1,16 @@
+Octopath Traveler 0 companion 1.0.0
+Copyright 2026 igawa6. GPL-3.0-or-later.
+Source: https://github.com/igawa6/eden-duo-companions
+
+Third-party components (original notices preserved in source):
+- ooz decompressor by Powzix, GPL-3.0-or-later.
+  https://github.com/powzix/ooz/tree/05038060aa68f9187ae9923b2388ca8db40e58d1
+- BCn decoder, MPL-2.0: Copyright 2022 Skyline Team and Contributors;
+  Copyright 2019 The SwiftShader Authors. All Rights Reserved.
+  https://github.com/skyline-emu/skyline
+  Derived from SwiftShader BC_Decoder.cpp at commit d070309f7d154d6764cbd514b1a5c8bfcef61d06.
+- stb_truetype by Sean Barrett and contributors, public domain or MIT (dual licensed).
+  https://github.com/nothings/stb
+
+Game assets and fonts are loaded from the user's game files and are not distributed here.
+OCTOPATH TRAVELER 0 and its assets belong to their respective rights holders.

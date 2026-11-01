@@ -785,6 +785,68 @@ if(BUILD_TESTING AND NOT ANDROID)
         COMPILE_DEFINITIONS DQ3_TEST_API=1)
 endif()
 
+# Octopath Traveler 0 first slice: normal Formation and lifecycle; native assets from owned romfs.
+set(OT0_PAK_SOURCES ot0_pak.cpp ${DQ3_OOZ_SOURCES}
+    "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp")
+set(OT0_CORE_SOURCES ${OT0_PAK_SOURCES} ot0_heal.cpp ot0_companion_helper.cpp ot0_image.cpp ot0_reader.cpp ot0_results.cpp ot0_field_stats.cpp ot0_battle.cpp ot0_battle_selection.cpp ot0_hud.cpp ot0_minimap.cpp ot0_resources.cpp ot0_enemy_stats.cpp ot0_battle_stats.cpp ot0_battle_metadata.cpp ot0_battle_status.cpp ot0_equipment.cpp ot0_gear.cpp ot0_data.cpp ot0_screen.cpp ot0_map_assets.cpp ot0_enemy_assets.cpp ot0_appearance.cpp ot0_exploration.cpp)
+dsmod_add_module(dsmod-ot0 EXCLUDE_FROM_ALL
+    TITLE 01005270232F2000
+    SOURCES 01005270232F2000.cpp ${OT0_CORE_SOURCES}
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_write_extensions
+    INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-ot0-heal KEEP_ASSERTS SOURCES ../tests/ot0_heal_test.cpp ot0_heal.cpp)
+    dsmod_add_test(dsmod-ot0-results KEEP_ASSERTS SOURCES ../tests/ot0_results_test.cpp ot0_results.cpp)
+    dsmod_add_test(dsmod-ot0-field-stats KEEP_ASSERTS SOURCES ../tests/ot0_field_stats_test.cpp ot0_field_stats.cpp)
+    dsmod_add_test(dsmod-ot0-pak KEEP_ASSERTS SOURCES ot0_pak_test.cpp ${OT0_PAK_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-ot0-image KEEP_ASSERTS SOURCES ot0_image_test.cpp ot0_image.cpp ${OT0_PAK_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-ot0-enemy KEEP_ASSERTS
+        SOURCES ot0_enemy_test.cpp ot0_enemy_assets.cpp ot0_data.cpp ${OT0_PAK_SOURCES}
+        INCLUDE_DIRECTORIES ${EDEN_SOURCE_ROOT}/externals/bc_decoder)
+    dsmod_add_test(dsmod-ot0-companion-helper KEEP_ASSERTS
+        SOURCES ../tests/ot0_companion_helper_test.cpp ot0_companion_helper.cpp)
+    dsmod_add_test(dsmod-ot0-map-lease KEEP_ASSERTS
+        SOURCES ../tests/ot0_map_lease_test.cpp ot0_companion_helper.cpp)
+    dsmod_add_test(dsmod-ot0-battle KEEP_ASSERTS
+        SOURCES ../tests/ot0_battle_test.cpp ot0_battle.cpp)
+    dsmod_add_test(dsmod-ot0-selection KEEP_ASSERTS
+        SOURCES ../tests/ot0_battle_selection_test.cpp ot0_battle_selection.cpp ot0_resources.cpp)
+    dsmod_add_test(dsmod-ot0-hud KEEP_ASSERTS
+        SOURCES ../tests/ot0_hud_test.cpp ot0_hud.cpp)
+    dsmod_add_test(dsmod-ot0-minimap KEEP_ASSERTS
+        SOURCES ot0_minimap_test.cpp ot0_minimap.cpp ot0_exploration.cpp)
+    dsmod_add_test(dsmod-ot0-resources KEEP_ASSERTS
+        SOURCES ../tests/ot0_resources_test.cpp ot0_resources.cpp)
+    dsmod_add_test(dsmod-ot0-enemy-stats KEEP_ASSERTS
+        SOURCES ../tests/ot0_enemy_stats_test.cpp ot0_enemy_stats.cpp)
+    dsmod_add_test(dsmod-ot0-battle-stats KEEP_ASSERTS
+        SOURCES ../tests/ot0_battle_stats_test.cpp ot0_battle_stats.cpp)
+    dsmod_add_test(dsmod-ot0-battle-metadata KEEP_ASSERTS
+        SOURCES ../tests/ot0_battle_metadata_test.cpp ot0_battle_metadata.cpp ot0_data.cpp)
+    dsmod_add_test(dsmod-ot0-battle-status KEEP_ASSERTS
+        SOURCES ../tests/ot0_battle_status_test.cpp ot0_battle_status.cpp ot0_battle_metadata.cpp ot0_data.cpp ot0_exploration.cpp)
+    dsmod_add_test(dsmod-ot0-equipment KEEP_ASSERTS
+        SOURCES ../tests/ot0_equipment_test.cpp ot0_equipment.cpp ot0_reader.cpp)
+    dsmod_add_test(dsmod-ot0-reader KEEP_ASSERTS
+        SOURCES ../tests/ot0_reader_test.cpp ot0_reader.cpp ot0_data.cpp)
+    dsmod_add_test(dsmod-ot0-appearance KEEP_ASSERTS
+        SOURCES ot0_appearance_test.cpp ot0_appearance.cpp ${OT0_PAK_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-ot0-exploration KEEP_ASSERTS
+        SOURCES ot0_exploration_test.cpp ot0_exploration.cpp)
+    dsmod_add_test(dsmod-ot0-map KEEP_ASSERTS
+        SOURCES ot0_map_test.cpp ot0_map_assets.cpp ot0_data.cpp ${OT0_PAK_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-ot0-screen KEEP_ASSERTS
+        SOURCES ot0_screen_test.cpp ${OT0_CORE_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-ot0 KEEP_ASSERTS
+        SOURCES 01005270232F2000_test.cpp 01005270232F2000.cpp ${OT0_CORE_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+endif()
+
 # Pokémon Brilliant Diamond/Shining Pearl 1.3.0 + Luminescent Platinum 2.2F: live party/battle reader
 # (lp_live), battle-menu drive and art/text/data decoded from the player's romfs through the
 # Unity asset reader (lp_unity, from lp.cmake).
