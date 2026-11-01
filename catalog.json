@@ -16,11 +16,11 @@
   {"titleId": "010086500D3C8000", "name": "VA-11 Hall-A: Cyberpunk Bartender Action", "gametdb": "AS36A"},
   {"titleId": "01008CF01BAAC000", "name": "The Legend of Zelda: Echoes of Wisdom", "gametdb": "BDGEA"},
   {"titleId": "010093801237C000", "name": "Metroid Dread", "gametdb": "AYL8A"},
-  {"titleId": "010097F018538000", "name": "Dave the Diver"},
+  {"titleId": "010097F018538000", "name": "Dave the Diver", "gametdb": "A8XTA"},
   {"titleId": "0100BA4026E94000", "name": "Castlevania: Belmont's Curse", "gametdb": "BUBLA"},
   {"titleId": "0100C2901153C000", "name": "Yoru, Tomosu", "gametdb": "AXNMA", "region": "JA"},
   {"titleId": "0100C510166F0000", "name": "Chained Echoes", "gametdb": "A6KCA"},
   {"titleId": "0100D04004176000", "name": "Farming Simulator: Nintendo Switch Edition", "gametdb": "AESEA"},
-  {"titleId": "0100DCD01525A000", "name": "Persona 3 Portable"},
+  {"titleId": "0100DCD01525A000", "name": "Persona 3 Portable", "gametdb": "A4TPA"},
   {"titleId": "0100F9F00C696000", "name": "Crash Team Racing Nitro-Fueled", "gametdb": "AST4A"}
 ]
