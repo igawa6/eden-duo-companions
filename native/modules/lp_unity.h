@@ -59,7 +59,8 @@
 namespace lp_unity {
 
 /// Hard cap on any single allocation driven by file contents.
-inline constexpr std::size_t MaxAlloc = 64u * 1024u * 1024u;
+// 80 MiB: a 4096x4096 ASTC 6x6 texture decodes block-padded to 4098x4098 RGBA (just over 64 MiB).
+inline constexpr std::size_t MaxAlloc = 80u * 1024u * 1024u;
 /// Hard cap on the number of Value nodes one object read may create.
 inline constexpr std::size_t MaxValues = 4u * 1024u * 1024u;
 

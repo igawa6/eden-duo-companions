@@ -32,7 +32,7 @@ cmake -S native/modules -B build-native-linux -G Ninja \
   -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
 cmake --build build-native-linux --parallel 4 --target \
   dsmod-p5r dsmod-dread dsmod-mk8d dsmod-wonder dsmod-acnh dsmod-fe3h dsmod-isaac \
-  dsmod-lp dsmod-lp-pearl dsmod-ctr dsmod-dq3 dsmod-ce dsmod-p3p
+  dsmod-lp dsmod-lp-pearl dsmod-ctr dsmod-dq3 dsmod-ce dsmod-p3p dsmod-fee
 ```
 
 To run the existing synthetic tests, configure another build with `-DBUILD_TESTING=ON`, build
@@ -57,7 +57,7 @@ cmake -S native/modules -B build-native-android -G Ninja \
   -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DEDEN_ACNH_BUILD_DIAGNOSTICS=OFF
 cmake --build build-native-android --parallel 4 --target \
   dsmod-p5r dsmod-dread dsmod-mk8d dsmod-wonder dsmod-acnh dsmod-fe3h dsmod-isaac \
-  dsmod-lp dsmod-lp-pearl dsmod-ctr dsmod-dq3 dsmod-ce dsmod-p3p
+  dsmod-lp dsmod-lp-pearl dsmod-ctr dsmod-dq3 dsmod-ce dsmod-p3p dsmod-fee
 ```
 
 Keep this build outside Gradle's `.cxx` directories. Use `c++_static` so the installed module does
@@ -72,6 +72,7 @@ not require a separately distributed `libc++_shared.so`. ACNH diagnostics defaul
 | `dsmod-wonder` | `010015100B514000.so` |
 | `dsmod-acnh` | `01006F8002326000.so` |
 | `dsmod-fe3h` | `010055D009F78000.so` |
+| `dsmod-fee` | `0100A6301214E000.so` |
 | `dsmod-isaac` | `010021C000B6A000.so` |
 | `dsmod-lp` | `0100000011D90000.so` |
 | `dsmod-lp-pearl` | `010018E011D92000.so` |

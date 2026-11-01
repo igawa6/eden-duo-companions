@@ -2252,7 +2252,15 @@ std::optional<Image> Reader::LoadTexture(std::string_view bundle, std::string_vi
         {
             std::lock_guard lock{l->mutex};
             l->Index();
-            const auto it = l->texture_by_name.find(std::string{texture});
+            auto it = l->texture_by_name.find(std::string{texture});
+            if (it == l->texture_by_name.end()) // case-insensitive ("Solanel_Cafe2F" vs "solanel_cafe2f")
+                it = std::find_if(l->texture_by_name.begin(), l->texture_by_name.end(), [&](const auto& e) {
+                    return std::equal(e.first.begin(), e.first.end(), texture.begin(), texture.end(),
+                                      [](char a, char b) {
+                                          return std::tolower(static_cast<unsigned char>(a)) ==
+                                                 std::tolower(static_cast<unsigned char>(b));
+                                      });
+                });
             if (it == l->texture_by_name.end())
                 return std::nullopt;
             id = it->second;

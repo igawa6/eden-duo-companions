@@ -789,6 +789,67 @@ endif()
 # (lp_live), battle-menu drive and art/text/data decoded from the player's romfs through the
 # Unity asset reader (lp_unity, from lp.cmake).
 include("${CMAKE_CURRENT_LIST_DIR}/lp.cmake")
+
+# Fire Emblem Engage 2.0.0 (0100A6301214E000): read-only IL2CPP live reader (scene flags,
+# MapSituation, UnitPool force rosters, MapImage grid/terrain + the game-computed danger bitmap)
+# and content-keyed war-map images (fee_map), plus the game's own message tables and face
+# thumbnails decoded from the player's romfs (fee_text, fee_assets through lp_unity).
+set(FEE_MODULE_SOURCES
+    0100A6301214E000.cpp
+    fee_reader.cpp
+    fee_reader.h
+    fee_pins.inc
+    fee_map.cpp
+    fee_map.h
+    fee_text.cpp
+    fee_text.h
+    fee_assets.cpp
+    fee_assets.h
+    fee_font.cpp
+    fee_font.h
+    fee_sprites.cpp
+    fee_sprites.h
+    fee_hud.cpp
+    fee_hud.h
+    fee_hub.cpp
+    fee_hub.h
+    fee_guest.h
+    ${LP_UNITY_SOURCES})
+dsmod_add_module(dsmod-fee EXCLUDE_FROM_ALL
+    TITLE 0100A6301214E000
+    SOURCES ${FEE_MODULE_SOURCES}
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
+    INCLUDE_DIRECTORIES ${LP_UNITY_INCLUDE_DIRECTORIES})
+
+if(BUILD_TESTING AND NOT ANDROID)
+    # Synthetic MSBT/table joins plus the reader's pure helpers; needs no game data.
+    dsmod_add_test(dsmod-fee-reader KEEP_ASSERTS
+        SOURCES fee_reader_test.cpp fee_reader.cpp fee_reader.h fee_pins.inc fee_map.cpp fee_map.h
+            fee_text.cpp fee_text.h fee_assets.cpp fee_assets.h fee_font.cpp fee_font.h fee_sprites.cpp fee_sprites.h ${LP_UNITY_SOURCES}
+        INCLUDE_DIRECTORIES ${LP_UNITY_INCLUDE_DIRECTORIES}
+        COMPILE_OPTIONS -Wall -Wextra)
+    # Pure key-grammar/dispatch checks for fee_sprites (P0-3 native art), no game data needed.
+    dsmod_add_test(dsmod-fee-sprites KEEP_ASSERTS
+        SOURCES fee_sprites_test.cpp fee_sprites.cpp fee_sprites.h ${LP_UNITY_SOURCES}
+        INCLUDE_DIRECTORIES ${LP_UNITY_INCLUDE_DIRECTORIES}
+        COMPILE_OPTIONS -Wall -Wextra)
+    # D2 war-map compositor: synthetic Ch.10-like frame, Hash/Geometry contract + Render pixel
+    # spot checks; dumps a few PNGs for a visual compare against the D2 raw crops.
+    dsmod_add_test(dsmod-fee-map KEEP_ASSERTS
+        SOURCES fee_map_test.cpp fee_map.cpp fee_map.h
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/stb"
+        COMPILE_OPTIONS -Wall -Wextra)
+    # Somniel/world-map/roster reader (fee_hub.cpp): synthetic HubSequence/GmapSequence +
+    # UnitPool force-0 roster, scene-mode gating and the roster_pick action.
+    dsmod_add_test(dsmod-fee-hub KEEP_ASSERTS
+        SOURCES fee_hub_test.cpp fee_hub.cpp fee_hub.h fee_text.cpp fee_text.h fee_pins.inc ${LP_UNITY_SOURCES}
+        INCLUDE_DIRECTORIES ${LP_UNITY_INCLUDE_DIRECTORIES}
+        COMPILE_OPTIONS -Wall -Wextra)
+    # Native HUD hide (fee_hud.cpp): fake mailbox + simulated guest stub, hide/restore plans.
+    dsmod_add_test(dsmod-fee-hud KEEP_ASSERTS
+        SOURCES fee_hud_test.cpp fee_hud.cpp fee_hud.h
+        COMPILE_OPTIONS -Wall -Wextra)
+endif()
 set(LP_MODULE_SOURCES
     0100000011D90000.cpp
     lp_live.cpp
