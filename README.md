@@ -43,6 +43,8 @@ This repository holds the companion source code, packages, documentation and scr
 | 23 | [Persona 3 Portable](#persona-3-portable) | `0100DCD01525A000` | 1.0.0 (base game) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/persona-3-portable-1.0.0) | ⭐<br><a href="https://github.com/jschroeder1"><img src="https://img.shields.io/badge/jschroeder1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="jschroeder1"></a> |
 | 24 | [Fire Emblem Engage](#fire-emblem-engage) | `0100A6301214E000` | 2.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/fire-emblem-engage-1.0.0) | 🥇<br><a href="https://ko-fi.com/F1Z828KX2X"><img src="https://img.shields.io/badge/tomochan-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="tomochan"></a> |
 | 25 | [Octopath Traveler 0](#octopath-traveler-0) | `01005270232F2000` | 1.0.5 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/octopath-traveler-0-1.0.0) | 🥇<br><a href="https://ko-fi.com/W7W1DAK7T"><img src="https://img.shields.io/badge/TwoBitSprite-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="TwoBitSprite"></a> |
+| 26 | [Pokémon Sword](#pokemon-sword) | `0100ABF008968000` | 1.3.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-sword-1.0.0) | 🥇<br><a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a> |
+| 27 | [Pokémon Shield](#pokemon-shield) | `01008DB008C2C000` | 1.3.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-shield-1.0.0) | 🥇<br><a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -798,6 +800,68 @@ A revealed local map, party reference and live battle view on the bottom screen.
 
 The companion ships no game art: maps, icons, sprites, text and fonts are read from your game files.
 Code: GPL-3.0-or-later; third-party decoder and font-rasterizer notices are included in the package.
+
+</details>
+
+---
+
+<a id="pokemon-sword"></a>
+
+## Pokémon Sword
+
+🥇 <a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a>
+
+<details>
+<summary>Screenshots and details</summary>
+
+`0100ABF008968000` · game version 1.3.2 (Isle of Armor and Crown Tundra supported) · companion 1.0.0
+
+| Town Map | Battle | Pokédex |
+|:---:|:---:|:---:|
+| <img src="screenshots/pokemon-sword/town-map.png" width="300" alt="Pokémon Sword: Town Map"> | <img src="screenshots/pokemon-sword/battle.png" width="300" alt="Pokémon Sword: Battle"> | <img src="screenshots/pokemon-sword/pokedex.png" width="300" alt="Pokémon Sword: Pokédex"> |
+
+Keep Galar's Town Map, your party, Pokédex, Bag and League Card on the second screen, with touch battle commands that follow the game's own menus.
+
+- **Town Map.** Your position, weather and Wild Area zone. Tap a town or route to see its wild Pokémon by weather, then Fly there with the game's Flying Taxi. Rotom Bike toggle and raid dens.
+- **Pokémon.** Stats, nature, ability, moves and type matchups; drag to reorder the party.
+- **Pokédex and Bag.** Regional lists with entries, stats and evolutions; every pocket, and medicine, PP items, candies and evolution stones used through the game's own effects.
+- **League Card.** Your trainer card picture, money, BP, Watts, badges and caught counts.
+- **Battles.** Commands and moves in step with the game's cursor, type effectiveness, a Poké Ball picker, foe/own/field details that fold away, and offline Max Raids with Dynamax.
+- **Settings.** Language, reduced motion, battle HP and battle menus on the top screen, and the folded battle layout. Native battle menus are hidden on top by default; native HP plates stay.
+- **Compatibility.** Requires Eden Duo 1.3.2.2 or newer (runtime 22). Korean and Chinese text needs Eden Duo 1.3.3 (runtime 23) and the console's system fonts from your own firmware. Pokémon Shield has its own package; do not install the Sword package for Shield. Other game versions are refused.
+
+By igawa6. Source: GPL-3.0-or-later. The companion ships no game art and no game text: maps, icons, Pokémon sprites, the font and all game text (names, descriptions, menu and battle words, place names) are read from your own game files; those assets remain the property of their respective owners. Research credits: SysBot.NET and CaptureSight (heap offsets), PKHeX (save and Pokémon data layouts), pkNX and pokedat (game file formats), PKHeX_Raid_Plugin (den locations).
+
+</details>
+
+---
+
+<a id="pokemon-shield"></a>
+
+## Pokémon Shield
+
+🥇 <a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a>
+
+<details>
+<summary>Screenshots and details</summary>
+
+`01008DB008C2C000` · game version 1.3.2 (Isle of Armor and Crown Tundra supported) · companion 1.0.0
+
+| Town Map | Battle | Pokédex |
+|:---:|:---:|:---:|
+| <img src="screenshots/pokemon-shield/town-map.png" width="300" alt="Pokémon Shield: Town Map"> | <img src="screenshots/pokemon-shield/battle.png" width="300" alt="Pokémon Shield: Battle"> | <img src="screenshots/pokemon-shield/pokedex.png" width="300" alt="Pokémon Shield: Pokédex"> |
+
+The Pokémon Sword companion, built for Shield: Galar's Town Map, your party, Pokédex, Bag and League Card on the second screen, with touch battle commands that follow the game's own menus.
+
+- **Town Map.** Your position, weather and Wild Area zone. Tap a town or route to see its wild Pokémon by weather (Shield's encounter tables), then Fly there with the game's Flying Taxi. Rotom Bike toggle and raid dens.
+- **Pokémon.** Stats, nature, ability, moves and type matchups; drag to reorder the party.
+- **Pokédex and Bag.** Regional lists with Shield's entries, stats and evolutions; every pocket, and medicine, PP items, candies and evolution stones used through the game's own effects.
+- **League Card.** Your trainer card picture, money, BP, Watts, badges and caught counts.
+- **Battles.** Commands and moves in step with the game's cursor, type effectiveness, a Poké Ball picker, foe/own/field details that fold away, and offline Max Raids with Dynamax.
+- **Settings.** Language, reduced motion, battle HP and battle menus on the top screen, and the folded battle layout. Native battle menus are hidden on top by default; native HP plates stay.
+- **Compatibility.** Requires Eden Duo 1.3.2.2 or newer (runtime 22). Korean and Chinese text needs Eden Duo 1.3.3 (runtime 23) and the console's system fonts from your own firmware. Pokémon Sword has its own package; do not install the Shield package for Sword. Other game versions are refused. Tested on the desktop build; Android handheld check pending.
+
+By igawa6. Source: GPL-3.0-or-later. The companion ships no game art and no game text: maps, icons, Pokémon sprites, the font and all game text (names, descriptions, menu and battle words, place names) are read from your own game files; those assets remain the property of their respective owners. Research credits: SysBot.NET and CaptureSight (heap offsets), PKHeX (save and Pokémon data layouts), pkNX and pokedat (game file formats), PKHeX_Raid_Plugin (den locations).
 
 </details>
 
