@@ -1,0 +1,25 @@
+{
+ "format": 1,
+ "type": "dual-screen-mod",
+ "title_id": "0100ABF008968000",
+ "name": "Pokemon Sword dual screen",
+ "version": "1.0.0",
+ "requires_module": true,
+ "min_runtime": 22,
+ "module": {
+  "abi": 1,
+  "build_ids": [
+   "A3B75BCD3311385A"
+  ],
+  "libraries": {
+   "linux-x86_64": {
+    "path": "modules/linux-x86_64/0100ABF008968000.so",
+    "sha256": "ce51b8306a744e2558cb34ace34d8fbf7821ba074e4436209aab132c4541e6f4"
+   },
+   "android-arm64-v8a": {
+    "path": "modules/android-arm64-v8a/0100ABF008968000.so",
+    "sha256": "a8a93ca25ef72477d47f818fc70e8fcd5b69acb49e21e3813b7439faa81cd83a"
+   }
+  }
+ }
+}

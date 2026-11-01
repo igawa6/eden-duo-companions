@@ -1145,3 +1145,129 @@ if(BUILD_TESTING AND NOT ANDROID)
   add_executable(dsmod-echoes-quick-slot-bridge-test echoes_quick_slot_bridge_test.cpp)
   add_test(NAME dsmod-echoes-quick-slot-bridge COMMAND dsmod-echoes-quick-slot-bridge-test)
 endif()
+
+# Pokemon Sword (title 0100ABF008968000), 1.3.2 (+Isle of Armor/Crown Tundra AOC, optional).
+# ABI glue, a build-id gate for the known build (and a "please update" path for other catalogued
+# Sword builds), and a reader layer whose domains (party/trainer/bag/dex/location/dens/battle)
+# each sit behind sw_addresses.h's one lead table. Trainer and party are wired for real (verified
+# live, 2 boots, 2026-10-24 -- see sw_addresses.h/sw_reader.h); bag/dex/location/dens/battle have
+# no verified anchor yet and report "unavailable". sw_pk8.h (PK8 decrypt+validate) and
+# sw_type_chart.h (18x18 effectiveness) need no live game and are unit-tested directly; the
+# "-reader-live" test below exercises the full Reader::Sample() pipeline against a synthetic
+# heap built from the real decrypted-party fixture bytes. Create() parses the host's config JSON
+# (nlohmann, like every other module here that reads one) for "_build_match" -- the module's own
+# ABI glue needs the include dir too, not just its test.
+# Japanese (2026-11-01): sw_modfont.cpp rasterises the game's own BFOTF (stb_truetype) and rebuilds
+# the package BFFNT (acnh_tex.cpp BNTX + bc_decoder) for a live switch back to a Latin language.
+set(SW_FONT_SOURCES sw_modfont.cpp acnh_tex.cpp "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp")
+# Game variants (sw_variant.h, generated from tools/pokemon-sword/sw_variants.py): one source tree,
+# one module per title id, like Brilliant Diamond / Shining Pearl above. The importer and the module
+# ABI bind a package to one title, so a twin is its own library: the same sources, its title as the
+# library name, and SW_VARIANT_<KEY>=1 selecting its record (the module static_asserts that the
+# record's title id is this TITLE).
+#   sw_add_variant_module(<target> <title id> [<compile definition>...])
+function(sw_add_variant_module target title)
+    dsmod_add_module(${target} EXCLUDE_FROM_ALL
+        TITLE ${title}
+        SOURCES 0100ABF008968000.cpp ${SW_FONT_SOURCES}
+        EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
+        INCLUDE_DIRECTORIES "${EDEN_NLOHMANN_JSON_INCLUDE_DIR}" "${EDEN_SOURCE_ROOT}/externals/bc_decoder"
+        COMPILE_DEFINITIONS SW_MODULE_TITLE_ID=0x${title}ULL ${ARGN})
+    # No absolute build-host path in the DWARF of even the unstripped local build (review P2; the
+    # packaged .so is stripped and checked by tools/build_dualscreen_package.py as well).
+    target_compile_options(${target} PRIVATE "-fdebug-prefix-map=$ENV{HOME}=~")
+endfunction()
+sw_add_variant_module(dsmod-pokemon-sword 0100ABF008968000)
+# Pokemon Shield: the same sources with the Shield record (package packages/PokemonShield).
+sw_add_variant_module(dsmod-pokemon-shield 01008DB008C2C000 SW_VARIANT_SHIELD=1)
+if(BUILD_TESTING AND NOT ANDROID)
+    # 0100ABF008968000.cpp is compiled into this test too (Dread's own test does the same, see
+    # dsmod-dread-test above) so TestBuildMatchPublishedEverySample can drive the real
+    # eden_dsmod_get_module()->create()/sample()/destroy() entry points, not a reimplementation.
+    dsmod_add_test(dsmod-pokemon-sword-reader KEEP_ASSERTS
+        SOURCES 0100ABF008968000_test.cpp 0100ABF008968000.cpp ${SW_FONT_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_NLOHMANN_JSON_INCLUDE_DIR}" "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-pokemon-sword-reader-live KEEP_ASSERTS
+        SOURCES 0100ABF008968000_reader_test.cpp)
+    # The same two binaries' checks against real bytes: a private save's blocks (SW_FIXTURES_DIR)
+    # and the player's romfs (SW_ROMFS_DIR), neither in this repository; skipped without them.
+    add_test(NAME dsmod-pokemon-sword-reader-private COMMAND dsmod-pokemon-sword-reader-test --private-data)
+    add_test(NAME dsmod-pokemon-sword-reader-live-private COMMAND dsmod-pokemon-sword-reader-live-test --private-data)
+    set_tests_properties(dsmod-pokemon-sword-reader-private dsmod-pokemon-sword-reader-live-private
+        PROPERTIES SKIP_RETURN_CODE 77)
+    dsmod_add_test(dsmod-pokemon-sword-portrait KEEP_ASSERTS
+        SOURCES sw_trainer_portrait_test.cpp)
+    dsmod_add_test(dsmod-pokemon-sword-portrait-control KEEP_ASSERTS
+        SOURCES sw_portrait_control_test.cpp)
+    dsmod_add_test(dsmod-pokemon-sword-map-selection KEEP_ASSERTS
+        SOURCES sw_map_selection_test.cpp)
+    # Route list (Town Map Wild Pokemon row + grid): baked encounter table lookup, weather mapping,
+    # species sets vs the research dump, post-game levels, unlabelled zones selectable.
+    dsmod_add_test(dsmod-pokemon-sword-route KEEP_ASSERTS
+        SOURCES sw_route_test.cpp)
+    # Companion language: MessagePath per language, string table completeness (every key in every
+    # language, format codes, font coverage), French module text and a French name decode.
+    dsmod_add_test(dsmod-pokemon-sword-lang KEEP_ASSERTS
+        SOURCES sw_lang_test.cpp)
+    # Japanese font (sw_modfont): BFOTF decode on a synthetic container, a rasterised atlas from a
+    # synthetic font-free path, the BFFNT rebuild's metrics, and (with SW_ROMFS_DIR set to an
+    # extracted romfs) every ja / ja-kana string's glyphs in the real FOT-RodinNTLGPro-DB face.
+    # tools/pokemon-sword/ja_font_metrics.json (offline text fit): not a test, never packaged.
+    add_executable(sw-font-metrics-tool EXCLUDE_FROM_ALL sw_modfont_tool.cpp ${SW_FONT_SOURCES})
+    target_compile_features(sw-font-metrics-tool PRIVATE cxx_std_20)
+    target_include_directories(sw-font-metrics-tool PRIVATE "${CMAKE_CURRENT_LIST_DIR}" "${EDEN_SOURCE_ROOT}/src"
+        "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    dsmod_add_test(dsmod-pokemon-sword-font KEEP_ASSERTS
+        SOURCES sw_modfont_test.cpp ${SW_FONT_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    # Native battle menu cursor chain (top -> bottom sync), fake guest memory.
+    dsmod_add_test(dsmod-pokemon-sword-battle-cursor KEEP_ASSERTS
+        SOURCES sw_battle_cursor_test.cpp)
+    # Guest helper (direct battle commands): mailbox protocol with a fake mailbox/clock, tap-time
+    # preconditions, and the shipped load-plan's stub encoding against sw_helper_mailbox.h.
+    dsmod_add_test(dsmod-pokemon-sword-helper KEEP_ASSERTS
+        SOURCES sw_helper_mailbox_test.cpp
+        INCLUDE_DIRECTORIES "${EDEN_NLOHMANN_JSON_INCLUDE_DIR}")
+    # Variant record: the generated record against sw_variants.py's values, the build gate through
+    # it, and every main offset the module compares against at its verified Sword 1.3.2 value.
+    dsmod_add_test(dsmod-pokemon-sword-variant KEEP_ASSERTS
+        SOURCES sw_variant_test.cpp)
+    # Pattern resolvers (tools/pokemon-sword/sw_sigscan.py): synthetic AArch64 images for every site
+    # kind, the variant config's consistency and the generated header being current; with
+    # SWORD_NSO set to the player's 1.3.2 exefs/main, every signature must find its verified
+    # offset there (skipped without it).
+    find_package(Python3 COMPONENTS Interpreter)
+    if(Python3_FOUND)
+        add_test(NAME dsmod-pokemon-sword-sigscan
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-sword/test_sigscan.py")
+        add_test(NAME dsmod-pokemon-sword-sigscan-main
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-sword/test_sigscan.py" --main)
+        set_tests_properties(dsmod-pokemon-sword-sigscan-main PROPERTIES SKIP_RETURN_CODE 77)
+        # F13: no text copied from the game in the manifest, the module sources or the built
+        # module (tools/pokemon-sword/check_no_game_text.py); needs SW_ROMFS_DIR (skipped without).
+        add_test(NAME dsmod-pokemon-sword-no-game-text
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-sword/check_no_game_text.py"
+                    --module "$<TARGET_FILE:dsmod-pokemon-sword>")
+        set_tests_properties(dsmod-pokemon-sword-no-game-text PROPERTIES SKIP_RETURN_CODE 77)
+    endif()
+    # Shield twins (SW_VARIANT_SHIELD=1): the variant record and its offsets, the Shield route
+    # tables (encount_t) against the research decoder's dump of the Shield romfs, the signature
+    # scan on the Shield 1.3.2 main (SHIELD_NSO) and no game text in the Shield module and manifest
+    # (SHIELD_ROMFS_DIR = the Shield romfs). Skipped like their Sword twins without those inputs.
+    dsmod_add_test(dsmod-pokemon-shield-variant KEEP_ASSERTS
+        SOURCES sw_variant_test.cpp
+        COMPILE_DEFINITIONS SW_VARIANT_SHIELD=1)
+    dsmod_add_test(dsmod-pokemon-shield-route KEEP_ASSERTS
+        SOURCES sw_route_test.cpp
+        COMPILE_DEFINITIONS SW_VARIANT_SHIELD=1)
+    if(Python3_FOUND)
+        add_test(NAME dsmod-pokemon-shield-sigscan-main
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-sword/test_sigscan.py" --main --variant shield)
+        set_tests_properties(dsmod-pokemon-shield-sigscan-main PROPERTIES SKIP_RETURN_CODE 77)
+        add_test(NAME dsmod-pokemon-shield-no-game-text
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-sword/check_no_game_text.py"
+                    --variant shield --romfs-env SHIELD_ROMFS_DIR
+                    --module "$<TARGET_FILE:dsmod-pokemon-shield>")
+        set_tests_properties(dsmod-pokemon-shield-no-game-text PROPERTIES SKIP_RETURN_CODE 77)
+    endif()
+endif()

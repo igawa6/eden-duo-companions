@@ -1,0 +1,119 @@
+// SPDX-FileCopyrightText: Copyright 2026 Eden DSMod fork
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+// Species -> type(s), read live from the player's own romfs personal table -- not an embedded
+// guess (PORTING_A_GAME.md's requested lookup for the Pokémon weakness board). The table is
+// `romfs:/bin/pml/personal/personal_total.bin`: 1192 fixed 0xB0 (176)-byte PersonalInfoSWSH
+// records (confirmed empirically this cycle: 209792 bytes / 176 == 1192 exactly, matching the
+// known Gen 8 SWSH personal-table entry count), indexed directly by national dex number for
+// every base-form species (no form remap needed for 1..898, the range sw_pk8::species_in_range
+// already accepts). Type1/Type2 live at +0x06/+0x07 of each record; confirmed against eight
+// species spanning the whole table (Bulbasaur Grass/Poison, Charmander Fire, Charizard
+// Fire/Flying, Squirtle Water, Pikachu Electric, Snorlax Normal, Mewtwo Psychic, Gardevoir
+// Psychic/Fairy, Grookey Grass, Zacian Fairy, Zamazenta Fighting, Eternatus Poison/Dragon,
+// Calyrex Psychic/Grass) -- every one matched the real Pokémon exactly. A mono-type species
+// stores the same id in both bytes (the game's own "no second type" convention), so a caller
+// never needs a separate "has second type" flag.
+//
+// This is a plain, uncompressed, non-SARC romfs file, so one `host->read_romfs` range read (no
+// container syntax, no BNTX decode) returns the 2 bytes this header needs -- the same
+// "range reads keep large ROMFS archives out of the 60 Hz reader path" mechanism
+// mod_module_host.cpp already uses for every other plain-file romfs source. Static per-species
+// game data never changes boot to boot, so there is no torn-read concern the way live heap reads
+// have one; a read failure (missing file, host too old, out-of-range species) fails closed --
+// GetTypes() returns false and writes nothing, exactly like every other domain in this module.
+//
+// The personal table's own type-id order (0 Normal .. 17 Fairy, matching PKHeX's PersonalInfo
+// convention and this project's own research tool, tools/mockup/kit.py's TNAME/TYPES) is NOT the
+// same order as sw_type_chart.h's Type enum, so ToChartType() below translates between them --
+// get this translation right or every weakness-board lookup silently points at the wrong type.
+
+#pragma once
+
+#include <cstdint>
+#include <cstdio>
+#include <cstring>
+
+#include "core/mods/dsmod_module_abi.h"
+#include "sw_type_chart.h"
+#include "sw_lang.h"
+
+namespace sw_species_types {
+
+using u16 = std::uint16_t;
+using u8 = std::uint8_t;
+
+constexpr const char* kPersonalTablePath = "romfs:/bin/pml/personal/personal_total.bin";
+constexpr std::size_t kRecordSize = 176;       // 0xB0; PersonalInfoSWSH
+constexpr std::size_t kTypeOffset = 0x06;      // Type1 at +0x06, Type2 at +0x07
+constexpr u16 kMaxKnownSpecies = 898;          // same bound as sw_pk8::kMaxKnownSpeciesSwSh
+constexpr int kPersonalTypeCount = 18;
+
+// The romfs-internal slug each type id uses in its own texture/path names (type_dummy_eng.arc),
+// confirmed against this cycle's assets.tsv (every "type glyph <Name>" / "type label <Name>"
+// row) -- the personal table's own id order (0 normal .. 17 fairy), index for index.
+inline constexpr const char* kPersonalTypeSlug[kPersonalTypeCount]{
+    "normal", "kakutou", "hikou", "doku", "jimen", "iwa", "mushi", "ghost", "hagane",
+    "honoo", "mizu", "kusa", "denki", "esper", "koori", "dragon", "aku", "yousei",
+};
+
+/// Translates a personal-table type id (0..17, the table's own order) into sw_type_chart.h's
+/// Type enum (a different order). Out-of-range input returns Type::Normal as a safe default --
+/// callers must gate on the type id's own validity (0..17) before trusting the chart lookup.
+inline sw_type_chart::Type ToChartType(int personal_type_id) {
+    using T = sw_type_chart::Type;
+    static constexpr T kMap[kPersonalTypeCount]{
+        T::Normal, T::Fighting, T::Flying, T::Poison, T::Ground, T::Rock, T::Bug, T::Ghost,
+        T::Steel, T::Fire, T::Water, T::Grass, T::Electric, T::Psychic, T::Ice, T::Dragon,
+        T::Dark, T::Fairy,
+    };
+    if (personal_type_id < 0 || personal_type_id >= kPersonalTypeCount) return T::Normal;
+    return kMap[personal_type_id];
+}
+
+/// Builds the 3-level romfs source string for a type's label (`name=true`, 44 px tall native
+/// text) or glyph disc (`name=false`), the same `arc#timg/__Combined.bntx#texture^suffix`
+/// convention this package's other SARC-member BNTX references already use (confirmed live,
+/// MODULE-SCAFFOLD.md's "Asset references fixed" entry).
+inline bool TypeImageSource(int personal_type_id, bool label, char* out, std::size_t out_size) {
+    if (personal_type_id < 0 || personal_type_id >= kPersonalTypeCount || !out || out_size == 0)
+        return false;
+    const char* slug = kPersonalTypeSlug[personal_type_id];
+    int n;
+    if (label) {
+        // The type-name plate has its name baked in: the companion language's arc (sw_lang.h;
+        // gen_manifest.py maps every offered language's plate in sprite_map).
+        const std::string_view suffix = sw_lang::ArtSuffix(sw_lang::Current());
+        n = std::snprintf(out, out_size,
+                           "romfs:/bin/appli/icon_type/bin/type_dummy%.*s.arc#timg/"
+                           "__Combined.bntx#typeIcon_text_%02d_%s_00^o",
+                           static_cast<int>(suffix.size()), suffix.data(), personal_type_id, slug);
+    } else {
+        n = std::snprintf(out, out_size,
+                           "romfs:/bin/appli/icon_type/bin/type_dummy_eng.arc#timg/"
+                           "__Combined.bntx#typeIcon_%02d_%s_00^t",
+                           personal_type_id, slug);
+    }
+    return n > 0 && static_cast<std::size_t>(n) < out_size;
+}
+
+/// Reads a species' Type1/Type2 (personal-table ids, 0..17) straight from the player's own
+/// romfs. Fails closed (returns false, leaves type1/type2 untouched) on a missing host function,
+/// an out-of-range species, a short read, or an out-of-range type byte -- never guesses.
+inline bool GetTypes(const EdenDsmodHostApi& host, u16 species, u8& type1, u8& type2) {
+    if (!host.read_romfs) return false;
+    if (species < 1 || species > kMaxKnownSpecies) return false;
+
+    u8 buf[2]{};
+    const std::uint64_t offset =
+        static_cast<std::uint64_t>(species) * kRecordSize + kTypeOffset;
+    const std::size_t got = host.read_romfs(host.userdata, kPersonalTablePath, offset, buf, 2);
+    if (got != 2) return false;
+    if (buf[0] >= kPersonalTypeCount || buf[1] >= kPersonalTypeCount) return false;
+
+    type1 = buf[0];
+    type2 = buf[1];
+    return true;
+}
+
+} // namespace sw_species_types

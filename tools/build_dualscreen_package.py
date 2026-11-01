@@ -202,6 +202,42 @@ def validate_staged_package(staged: Path, package_manifest: dict, expected_title
 
     check_file_references(ds_manifest)
 
+    # A manifest that gates a widget's visibility on the host's `build_match` config key is
+    # relying on the host finding a per-build `<BUILD16>.json` data file in this same package
+    # (mod_module_host.cpp: `config["_build_match"] = !manifest.build_id_file.empty();`,
+    # PACKAGE_FORMAT.md section 4). A package that uses this gate but ships no such file is
+    # permanently broken -- the gated widget (almost always an "Update Required" overlay) never
+    # hides, on *any* build, including a fully supported one. Found the hard way in Pokémon
+    # Sword's first live boot (contracts/LIVE-PACKAGE-TEST.md section 2). Checked here, at
+    # packaging time, rather than trusted to every future manifest author remembering it.
+    def uses_build_match(value: object) -> bool:
+        if isinstance(value, dict):
+            if value.get("hide_bind") == "build_match" or value.get("need_bind") == "build_match":
+                return True
+            return any(uses_build_match(child) for child in value.values())
+        if isinstance(value, list):
+            return any(uses_build_match(child) for child in value)
+        return False
+
+    if uses_build_match(ds_manifest):
+        build_ids = (ds_manifest.get("module") or {}).get("build_ids") or []
+        data_dir = staged / "dualscreen"
+        missing = [
+            build_id
+            for build_id in build_ids
+            if not (data_dir / f"{build_id}.json").is_file()
+            and not (data_dir / f"{build_id.lower()}.json").is_file()
+        ]
+        if missing:
+            raise PackageError(
+                "dualscreen/manifest.json gates a widget on \"build_match\", which the host sets "
+                "only when a per-build data file was found (PACKAGE_FORMAT.md section 4); missing "
+                f"<BUILD16>.json for build id(s): {', '.join(missing)}. Ship "
+                "dualscreen/<BUILD_ID>.json (any valid JSON object; it needs no points/symbols/"
+                "patches unless this package's readers use manifest-declared ones) or the gated "
+                "widget will never hide on any build."
+            )
+
     package_module = package_manifest.get("module")
     manifest_module = ds_manifest.get("module")
     if package_module != manifest_module:

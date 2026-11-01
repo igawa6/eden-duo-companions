@@ -1,0 +1,25 @@
+{
+ "format": 1,
+ "type": "dual-screen-mod",
+ "title_id": "01008DB008C2C000",
+ "name": "Pokemon Shield dual screen",
+ "version": "1.0.0",
+ "requires_module": true,
+ "min_runtime": 22,
+ "module": {
+  "abi": 1,
+  "build_ids": [
+   "A16802625E7826BF"
+  ],
+  "libraries": {
+   "linux-x86_64": {
+    "path": "modules/linux-x86_64/01008DB008C2C000.so",
+    "sha256": "8db20ae7367139a47f3025a876b6805c5ec041efc7ec86d7997d6422d20b9c08"
+   },
+   "android-arm64-v8a": {
+    "path": "modules/android-arm64-v8a/01008DB008C2C000.so",
+    "sha256": "6ce962d4f5734065a1c6ce9f003c6a2541c07ccdf56830f026ac99f0017cdee2"
+   }
+  }
+ }
+}

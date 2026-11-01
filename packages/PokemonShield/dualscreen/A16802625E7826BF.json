@@ -1,0 +1,6 @@
+{
+ "_game": "Pokemon Shield",
+ "_build_id": "A16802625E7826BF83B6F9708E475B912A9AB7DF",
+ "_source": "1.3.2 (update v458752)",
+ "_note": "This file exists only so the host's per-build data-file probe (mod_manifest.cpp's <BUILD16>.json / <build16_lower>.json / data.json search, in that order) finds a match for this one build and sets config[\"_build_match\"]=1 (mod_module_host.cpp:488). That flag gates the map page's 'Update Required' overlay (manifest.json's hide_bind:\"build_match\"). Without this file build_match was 0 on every boot, including the fully-supported 1.3.2 build -- see contracts/LIVE-PACKAGE-TEST.md section 2 for the bug this fixes. This module's own build-id gate (native/modules/sw_build.h, compared against the full host->build_id string) and every reader anchor (sw_addresses.h, get_heap_begin()+offset) are independent of this file and unaffected by it: no points/symbols/spies/patches/metadata_anchor keys are declared here, on purpose, so there is exactly one source of truth for this module's addressing."
+}

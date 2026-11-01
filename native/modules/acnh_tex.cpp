@@ -184,15 +184,16 @@ std::vector<Texture> Textures(std::span<const u8> b) {
     return out;
 }
 
-bool DecodeTexture(std::span<const u8> b, const Texture& t, Image& out) {
+bool DecodeTexture(std::span<const u8> b, const Texture& t, Image& out, u32 layer = 0) {
     const auto f = GetFormat(t.format);
-    if (!f)
+    if (!f || layer >= t.arrays)
         return false;
     const u32 bx = (t.w + f->bw - 1) / f->bw, by = (t.h + f->bh - 1) / f->bh;
     const size_t array_size = t.size / t.arrays;
-    if (!Fits(b, t.image, array_size))
+    const u64 start = t.image + u64{layer} * array_size;
+    if (!Fits(b, start, array_size))
         return false;
-    const auto src = b.subspan(t.image, array_size);
+    const auto src = b.subspan(start, array_size);
     std::vector<u8> blocks;
     if (t.tile == 0) {
         if (!Unswizzle2d(src, f->bpb, bx, by, t.layout & 7, blocks))
@@ -302,6 +303,17 @@ bool BntxDecodeAny(const uint8_t* bytes, size_t size, std::string_view tex, Imag
         if (tex.empty() || t.name == tex)
             return DecodeTexture(b, t, out);
     return false;
+}
+
+bool BntxDecodeLayer(const uint8_t* bytes, size_t size, uint32_t layer, Image& out) {
+    const auto b = BntxView({bytes, size});
+    const auto textures = Textures(b);
+    return !textures.empty() && DecodeTexture(b, textures.front(), out, layer);
+}
+
+uint32_t BntxLayers(const uint8_t* bytes, size_t size) {
+    const auto textures = Textures(BntxView({bytes, size}));
+    return textures.empty() ? 0 : textures.front().arrays;
 }
 
 bool BntxDecode(const std::vector<uint8_t>& bntx, std::string_view tex, Image& out) {

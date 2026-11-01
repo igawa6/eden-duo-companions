@@ -37,5 +37,9 @@ bool BfresBntxDecode(const std::vector<uint8_t>& bfres, std::string_view tex, Im
 std::vector<TexInfo> BntxList(const std::vector<uint8_t>& bytes);
 /// Decode the BNTX embedded at `bytes` (BNTX magic searched), texture by name (empty = first).
 bool BntxDecodeAny(const uint8_t* bytes, size_t size, std::string_view tex, Image& out);
+/// One array layer of the first texture of the BNTX at `bytes` (a BFFNT's glyph sheets are the
+/// layers of one texture), and how many layers it has (0 = no texture).
+bool BntxDecodeLayer(const uint8_t* bytes, size_t size, uint32_t layer, Image& out);
+uint32_t BntxLayers(const uint8_t* bytes, size_t size);
 
 } // namespace acnh
