@@ -41,6 +41,8 @@ This repository holds the companion source code, packages, documentation and scr
 | 21 | [The Legend of Zelda: Echoes of Wisdom](#the-legend-of-zelda-echoes-of-wisdom) | `01008CF01BAAC000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/echoes-of-wisdom-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/3rd-Poll-Next-Switch-Game-on-Eden-Duo-C7J128KB48"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 | 22 | [Dave the Diver](#dave-the-diver) | `010097F018538000` | 1.0.6.1267 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/dave-the-diver-1.0.0) | ⭐<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a> |
 | 23 | [Persona 3 Portable](#persona-3-portable) | `0100DCD01525A000` | 1.0.0 (base game) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/persona-3-portable-1.0.0) | ⭐<br><a href="https://github.com/jschroeder1"><img src="https://img.shields.io/badge/jschroeder1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="jschroeder1"></a> |
+| 24 | [Fire Emblem Engage](#fire-emblem-engage) | `0100A6301214E000` | 2.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/fire-emblem-engage-1.0.0) | 🥇<br><a href="https://ko-fi.com/F1Z828KX2X"><img src="https://img.shields.io/badge/tomochan-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="tomochan"></a> |
+| 25 | [Octopath Traveler 0](#octopath-traveler-0) | `01005270232F2000` | 1.0.5 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/octopath-traveler-0-1.0.0) | 🥇<br><a href="https://ko-fi.com/W7W1DAK7T"><img src="https://img.shields.io/badge/TwoBitSprite-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="TwoBitSprite"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -732,6 +734,70 @@ A bottom-screen version of the camp menu, in blue or pink to match the protagoni
 The companion ships no game art: menus, fonts, portraits and text are read from your own game files.
 
 Requires Eden Duo 1.2.0 or newer. Contributed by [jschroeder1](https://github.com/jschroeder1).
+
+</details>
+
+---
+
+<a id="fire-emblem-engage"></a>
+
+## Fire Emblem Engage
+
+🥇 <a href="https://ko-fi.com/F1Z828KX2X"><img src="https://img.shields.io/badge/tomochan-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="tomochan"></a>
+
+<details>
+<summary>Screenshots and details</summary>
+
+`0100A6301214E000` · game version 2.0.0 · companion 1.0.0
+
+| War | Unit details | Somniel |
+|:---:|:---:|:---:|
+| <img src="screenshots/fire-emblem-engage/war.png" width="300" alt="Fire Emblem Engage: War"> | <img src="screenshots/fire-emblem-engage/unit-details.png" width="300" alt="Fire Emblem Engage: Unit details"> | <img src="screenshots/fire-emblem-engage/somniel.png" width="300" alt="Fire Emblem Engage: Somniel"> |
+
+Keep the battlefield, your army and the Somniel on the second screen.
+
+- **War.** Inspect the tactical map, danger zone and units with All, Map and Char layouts; pan and zoom without moving the native cursor.
+- **Unit details.** Stats, items, skills, Engage information and Emblem bonds. Matchup follows the native attack forecast and combat.
+- **Somniel.** Map, People and Legend views with live positions, people and facilities.
+- **Units and Roster.** Browse deployed units, the preparation bench and your army.
+- **World Map.** Current chapter and available destinations from the game's own state.
+- **HUD and feedback.** Top-screen HUD toggles, reduced motion and haptic settings. Unit and terrain windows are shown by default; minimaps are hidden by default.
+- **Compatibility.** Requires Eden Duo 1.3.2.2 or newer (runtime 22). Unsupported game builds are refused. Tested on AYN Thor with Eden Duo 1.3.3.
+
+By igawa6. Source: GPL-3.0-or-later. The companion ships no game art: maps, portraits, icons, fonts and localized text are read from your own game files; those assets remain the property of their respective owners.
+
+</details>
+
+---
+
+<a id="octopath-traveler-0"></a>
+
+## Octopath Traveler 0
+
+🥇 <a href="https://ko-fi.com/W7W1DAK7T"><img src="https://img.shields.io/badge/TwoBitSprite-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="TwoBitSprite"></a>
+
+<details>
+<summary>Screenshots and details</summary>
+
+`01005270232F2000` · game version 1.0.5 · companion 1.0.0
+
+| Map | Party | Battle |
+|:---:|:---:|:---:|
+| <img src="screenshots/octopath-traveler-0/map.png" width="300" alt="Octopath Traveler 0: Map"> | <img src="screenshots/octopath-traveler-0/party.png" width="300" alt="Octopath Traveler 0: Party"> | <img src="screenshots/octopath-traveler-0/battle.png" width="300" alt="Octopath Traveler 0: Battle"> |
+
+A revealed local map, party reference and live battle view on the bottom screen. Requires Eden Duo 1.3.2 or newer (runtime 22).
+
+- **Map.** Pan and zoom the current revealed section with native markers and party HP/SP.
+- **Party.** Status and equipment; read-only Items and Quests pages keep native information at hand.
+- **Battle.** Party resources, BP forecast, enemy shields, Break, revealed weaknesses and status icons.
+  Auto follows native targeting; Overview enables companion-only enemy focus.
+- **Healing Skills.** Preview a learned, affordable field recovery skill and confirm the native SP transaction.
+- **Settings.** Restore the native top HUD, reduce motion and toggle touch feedback.
+- **Limits.** English/current section only; unsupported builds are refused. Helper-dependent information
+  is unavailable when native relocation is unsupported. Consumables are read-only; live revival is untested. Tested on AYN Thor with pre-release builds. No newer-patch compatibility claim.
+
+The companion ships no game art: maps, icons, sprites, text and fonts are read from your game files.
+Code: GPL-3.0-or-later; third-party decoder and font-rasterizer notices are included in the package.
 
 </details>
 
