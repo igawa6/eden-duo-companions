@@ -1827,9 +1827,18 @@ SAFARI_HIDDEN_SPECS = [(0, HIDDEN_BIG, 1, "cmd_safari_ball", "cmd_safari_ball", 
 HIDDEN_CONT = [452, 958, 336, 80]      # Continue, directly under Run
 # the fold arrow (hide, top-right of the card's tab row) and the folded tab (restore, the card's
 # old top-left): cmn_ico_arrow_01 is a tall narrow chevron (~1:2), not square
-FOLD_ICON_W, FOLD_ICON_H = 36, 64
-FOLD_ARROW_W, FOLD_ARROW_H = 116, 112
-FOLD_TAB_W, FOLD_TAB_H = 300, 112
+# Owner 2026-11-03: the arrow was too big and butted against the tab row's own label ("Field" in
+# English, worse in longer languages) with no gap -- the two tap rects literally overlapped (the
+# arrow's rect reached all the way to the tab row's own right edge). Fixed two ways together:
+# (1) the drawn icon is 50% of its old size; (2) FOLD_RESERVE carves out a dedicated strip on the
+# tab row's right that the tab segments never draw into (see battle_pane's TAB_ROW_W), so the
+# arrow's own (smaller) tap rect sits after a real gap, never inside any tab's tap rect, in every
+# language (tab labels already wrap/fit within their own segment, which now ends before the
+# reserved strip begins).
+FOLD_ICON_W, FOLD_ICON_H = 18, 32
+FOLD_RESERVE = 90  # px of tab-row width reserved for the fold arrow, carved out of TAB_ROW_W
+FOLD_ARROW_W, FOLD_ARROW_H = FOLD_RESERVE - 12, 112  # the reserved strip, minus the card's own 12px pad
+FOLD_TAB_W, FOLD_TAB_H = 160, 96  # smaller folded tab to match the smaller icon; still a comfortable tap target
 FOLD_TINT = "#FF293663"  # same tint as the page_balls prev/next arrows
 # the 2x2 move grid (owner mockup c), native DS order: top-left, top-right, bottom-left, bottom-right
 GRID_W, GRID_H = 584, 150
@@ -1944,15 +1953,20 @@ def battle_pane(x, w, sfx):
     names = ["lp.bt.foe.name", "lp.bt.own.name"]
     # a double: one tab for the focused battler (a card of the overview), then Field
     dn, dsel, dtap = ["lp.bt.dname"], ["lp.bt.dsel0"], ["btab20"]
+    # Singles only: the fold arrow (lp.bt.pane_arrow needs sgl==1) shares this tab row, so its
+    # segments stop FOLD_RESERVE px short of the card's right edge, leaving the arrow's strip
+    # entirely outside every tab's own tap rect. Doubles never show the arrow and keep the full
+    # width (no reserve, nothing to clear).
+    TAB_ROW_W = w - 24 - FOLD_RESERVE
     if field:
-        out += battle_tabs(x+12, y+10, w-24, names + ["field"], gate="lp.bt.tabs.sf")
-        out += battle_tabs(x+12, y+10, w-24, names, gate="lp.bt.tabs.sn")
+        out += battle_tabs(x+12, y+10, TAB_ROW_W, names + ["field"], gate="lp.bt.tabs.sf")
+        out += battle_tabs(x+12, y+10, TAB_ROW_W, names, gate="lp.bt.tabs.sn")
         out += battle_tabs(x+12, y+10, w-24, dn + ["field"], gate="lp.bt.tabs.df", ons=dsel + ["lp.bt.dsel1"],
                            taps=dtap + ["btab2"])
         out += battle_tabs(x+12, y+10, w-24, dn, gate="lp.bt.tabs.dn", ons=dsel, taps=dtap)
     else:
         # the move page: Move first (the highlighted move), then the battlers
-        out += battle_tabs(x+12, y+10, w-24, ["tab_move"] + names, gate="lp.bt.sgl",
+        out += battle_tabs(x+12, y+10, TAB_ROW_W, ["tab_move"] + names, gate="lp.bt.sgl",
                            ons=["lp.bt.t3", "lp.bt.t0", "lp.bt.t1"], taps=["btab3", "btab0", "btab1"])
         out += battle_tabs(x+12, y+10, w-24, ["tab_move"] + dn, gate="lp.bt.dbl", ons=["lp.bt.t3"] + dsel,
                            taps=["btab3"] + dtap)

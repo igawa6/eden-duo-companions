@@ -353,6 +353,31 @@ class ManifestTests(unittest.TestCase):
             self.assertFalse(arrow_icon.get('flip_x'))   # hide: left-pointing fold arrow (the game's ◀)
             self.assertTrue(tab_icon.get('flip_x'))      # restore: right-pointing
 
+    def test_fold_arrow_tap_rect_never_overlaps_a_tab_tap_rect(self):
+        # Owner 2026-11-03: the arrow's own tap rect used to reach the tab row's right edge
+        # exactly, so it sat on top of (part of) the last tab's own tap rect -- not just a visual
+        # label clash. battle_pane() now reserves FOLD_RESERVE px of the tab row exclusively for
+        # the arrow; assert the two rects are disjoint on both pages (3-tab battle page, 2-tab
+        # moves page), not just that they look far apart in a screenshot.
+        def intersects(a, b):
+            ax, ay, aw, ah = a; bx, by, bw, bh = b
+            return ax < bx + bw and bx < ax + aw and ay < by + bh and by < ay + ah
+
+        for page_id, pane_w in (('battle', gen.STRIP_W), ('moves', gen.MOVE_PANE_W)):
+            page = next(p for p in self.manifest['pages'] if p['id'] == page_id)
+            fold_x, fold_y = 24 + pane_w - gen.FOLD_ARROW_W - 12, gen.BODY_Y - 20
+            arrow_rect = [fold_x, fold_y, gen.FOLD_ARROW_W, gen.FOLD_ARROW_H]
+            # every single-battle tab's own tappable background rect (battle_tabs' `rect(...,
+            # on_tap=...)`, not the label) -- on_tap in {btab0, btab1, btab2} on this gated row
+            tab_taps = {'battle': ('btab0', 'btab1', 'btab2'), 'moves': ('btab3', 'btab0', 'btab1')}[page_id]
+            singles_gate = {'battle': 'lp.bt.tabs.s', 'moves': 'lp.bt.sgl'}[page_id]
+            tab_rects = [w['rect'] for w in page['widgets']
+                        if w.get('type') == 'rect' and w.get('on_tap') in tab_taps
+                        and singles_gate in (w.get('need_bind') or '')]
+            self.assertTrue(tab_rects, page_id)
+            for tr in tab_rects:
+                self.assertFalse(intersects(arrow_rect, tr), (page_id, arrow_rect, tr))
+
     def test_move_grid_hidden_reuses_todays_move_actions_and_long_press_restores_pane(self):
         moves = next(p for p in self.manifest['pages'] if p['id'] == 'moves')
         for k, (gx, gy) in enumerate(gen.GRID_CELLS):
