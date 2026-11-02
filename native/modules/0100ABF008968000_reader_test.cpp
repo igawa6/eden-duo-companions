@@ -24,6 +24,7 @@
 #include "sw_move_data.h"
 #include "sw_move_names.h"
 #include "sw_reader.h"
+#include "sw_encounter_fixture.h"
 #include "sw_species_types.h"
 #include "sw_test_fixtures.h"
 #include "sw_zone.h"
@@ -3648,10 +3649,12 @@ RouteWorld AddRouteWorld(FakeHost& fake, std::uint64_t zone, std::uint32_t weath
 }
 
 void TestRouteListPipeline() {
+    sw_test_encounters::Fixtures(false,"z_wr0102",true);
     FakeHost fake = BuildFixture(false);
     AddLiveParty(fake);
     AddBattleFixture(fake, 0xFFFFFFFFu, 200, 356, 25, 55, 40, 120);
     const auto rolling = sw_town_map::ZoneHash("z_wr0102");
+    for (const auto& [path,bytes] : sw_test_encounters::files) fake.dat_files[path]=bytes;
     const auto world = AddRouteWorld(fake, rolling, 1); // standing in Rolling Fields, Cloudy
     std::vector<std::string> en(900, "Mon"), fr(900, "Pkmn");
     en[37] = "Vulpix"; fr[37] = "Goupix";
@@ -3663,13 +3666,15 @@ void TestRouteListPipeline() {
     reader.SetLanguage(sw_lang::Lang::English);
     PrimeWorldEntered(fake, host, reader);
     fake.ints.clear(); fake.texts.clear(); reader.Sample(host);
-    const auto* zone = sw_route::Find(rolling);
+    sw_route_encounters::Data encounters;
+    assert(sw_route_encounters::Load(host,encounters));
+    const auto* zone = sw_route::Find(encounters,rolling);
     assert(zone && fake.ints.at("sw.map.wild.ready") == 1);
     assert(fake.ints.at("sw.map.wild.place_ready") == 0); // the card's title already names it
-    const int count = static_cast<int>(sw_route::Rows(*zone, 1).size());
+    const int count = static_cast<int>(sw_route::Rows(encounters,*zone, 1).size());
     assert(fake.ints.at("sw.map.wild.count") == count && count > 5);
     assert(fake.ints.at("sw.map.wild.more_ready") == 1 && fake.texts.at("sw.map.wild.more") == "+" + std::to_string(count - 5));
-    assert(fake.texts.at("sw.map.wild.strip.0.icon_src").find("poke_icon_") != std::string::npos);
+    assert(fake.texts.at("sw.map.wild.strip.0.icon_src").find("module:sw:ui/form/") != std::string::npos);
     assert(fake.ints.at("sw.route.list_open") == 0 && fake.ints.at("sw.route.ready") == 0);
     assert(fake.ints.at("sw.progress.champion_known") == 0); // no Hall of Fame block in this heap
 
@@ -3698,7 +3703,7 @@ void TestRouteListPipeline() {
     const auto p = "sw.route." + std::to_string(vulpix) + ".";
     assert(fake.texts.at(p + "method").starts_with("Wanders ") && fake.texts.at(p + "method").ends_with("%"));
     assert(fake.texts.at(p + "level").starts_with("Lv. ") && fake.texts.at(p + "level") != "Lv. 60");
-    assert(fake.texts.at(p + "icon_src").find("poke_icon_0037_00") != std::string::npos);
+    assert(fake.texts.at(p + "icon_src").find("module:sw:ui/form/37/0") != std::string::npos);
     assert(fake.ints.at(p + "caught") == 0); // no Pokedex blocks in this heap: never a guessed ball
     assert(!reader.DispatchAction("route_weather", 9));
     // Hall of Fame entered: Wild Area wild Pokemon are Lv. 60 or more.

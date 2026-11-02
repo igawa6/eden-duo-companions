@@ -44,11 +44,8 @@ void TestSwordRecord() {
     assert(std::string_view(kActive.module_name) == "Pokemon Sword DSMod");
     assert(std::string_view(kActive.dex_comment_file) == "zukan_comment_A.dat");
     assert(sw_dex_text::ZukanCommentDatPath() == sw_lang::MessagePath("zukan_comment_A.dat"));
-    assert(std::string_view(SW_VARIANT_ROUTE_ENCOUNTERS) == "sw_route_encounters.h");
-    // The route tables the variant selected are Sword's (encount_k): Route 2's Seedot (273).
-    bool seedot = false;
-    for (const auto& slot : sw_route_encounters::kSlots) seedot |= slot.species == 273;
-    assert(seedot);
+    assert(std::string_view(SW_VARIANT_ENCOUNTER_SUFFIX) == "k");
+
 }
 
 void TestBuild() {
@@ -148,15 +145,8 @@ void TestShieldRecord() {
     assert(std::string_view(kActive.module_name) == "Pokemon Shield DSMod");
     assert(std::string_view(kActive.dex_comment_file) == "zukan_comment_B.dat");
     assert(sw_dex_text::ZukanCommentDatPath() == sw_lang::MessagePath("zukan_comment_B.dat"));
-    assert(std::string_view(SW_VARIANT_ROUTE_ENCOUNTERS) == "sw_route_encounters_shield.h");
-    // The route tables the variant selected are Shield's (encount_t): Route 2 has Lotad (270),
-    // not Sword's Seedot (273).
-    bool lotad = false, seedot = false;
-    for (const auto& slot : sw_route_encounters::kSlots) {
-        lotad |= slot.species == 270;
-        seedot |= slot.species == 273;
-    }
-    assert(lotad && !seedot);
+    assert(std::string_view(SW_VARIANT_ENCOUNTER_SUFFIX) == "t");
+
 }
 
 void TestShieldBuild() {

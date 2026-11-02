@@ -192,8 +192,9 @@ public:
     }
 
     // A new session (module configure): forget everything that belongs to the previous boot's
-    // game state. Companion selection and the romfs caches (static game data) survive.
+    // game state. The encounter cache is per session; other static romfs caches survive.
     void ResetSession() {
+        encounters_.Reset();
         phase_ = Phase::kTitle;
         phase_known_ = false;
         field_stable_ticks_ = 0;
@@ -404,7 +405,7 @@ public:
         // Town Map "Wild Pokemon" row -> the grid page for the place it shows (the selected place,
         // else where the player stands), latched until Back; route_weather = a weather chip.
         if (a == "map_wild") {
-            const auto* zone = sw_route::Find(wild_target_);
+            const auto* zone = sw_route::Find(encounters_.data, wild_target_);
             if (!zone) return false;
             route_zone_ = wild_target_;
             route_weather_ = sw_route::DefaultWeather(*zone, route_zone_ == field_zone_ ? live_weather_ : -1);
@@ -414,7 +415,7 @@ public:
         }
         if (a == "route_back") { route_open_ = false; return true; }
         if (a == "route_weather") {
-            const auto* zone = sw_route::Find(route_zone_);
+            const auto* zone = sw_route::Find(encounters_.data, route_zone_);
             if (!zone || !route_open_) return false;
             int k = 0;
             for (const int w : sw_route::kChipOrder) {
@@ -3004,7 +3005,10 @@ private:
         return src;
     }
 
+    sw_route_encounters::Cache encounters_;
+
     void SampleRoute(const EdenDsmodHostApi& host) {
+        encounters_.Ensure(host);
         const char* page_c = host.get_text ? host.get_text(host.userdata, "__page") : nullptr;
         const std::string_view page = page_c ? std::string_view{page_c} : std::string_view{};
         // Leaving the grid through the app rail forgets it (the Fly page's rule): the next Wild
@@ -3018,7 +3022,7 @@ private:
         // has no table, so the row hides there, like a town without wild Pokemon).
         const auto* selected = map_ready() ? map_selection_.Get(map_catalog_) : nullptr;
         wild_target_ = selected ? selected->zone_hash : field_zone_;
-        const auto* zone = sw_route::Find(wild_target_);
+        const auto* zone = sw_route::Find(encounters_.data, wild_target_);
         const bool here = wild_target_ == field_zone_;
         const int weather = zone ? sw_route::DefaultWeather(*zone, here ? live_weather_ : -1) : -1;
         const bool map_page = page.empty() || page == "map";
@@ -3028,7 +3032,7 @@ private:
             PubI(host, "sw.map.wild.ready", zone ? 1 : 0);
             if (!zone || !map_page) return;
             EnsureSpeciesNames(host);
-            const auto rows = sw_route::Rows(*zone, weather);
+            const auto rows = sw_route::Rows(encounters_.data, *zone, weather);
             const int count = static_cast<int>(rows.size());
             PubI(host, "sw.map.wild.count", count);
             // The row names the place only when it is not where the player stands (the card's
@@ -3038,7 +3042,7 @@ private:
             PubT(host, "sw.map.wild.place", place.c_str());
             char key[48], src[160];
             for (int i = 0; i < kWildStrip; ++i) {
-                const bool ok = i < count && sw_species_icons::IconSourceForm(rows[static_cast<std::size_t>(i)].species,
+                const bool ok = i < count && sw_route::IconSource(rows[static_cast<std::size_t>(i)].species,
                                                                               rows[static_cast<std::size_t>(i)].form, src, sizeof src);
                 std::snprintf(key, sizeof key, "sw.map.wild.strip.%d.ready", i);
                 PubI(host, key, ok ? 1 : 0);
@@ -3055,7 +3059,7 @@ private:
         });
 
         // Grid page (latched place + chosen weather).
-        const auto* rz = route_open_ ? sw_route::Find(route_zone_) : nullptr;
+        const auto* rz = route_open_ ? sw_route::Find(encounters_.data, route_zone_) : nullptr;
         const bool route_page = page.empty() || page == "route";
         if (rz && !sw_route::Possible(*rz, route_weather_)) route_weather_ = sw_route::DefaultWeather(*rz, -1);
         const bool route_here = rz && route_zone_ == field_zone_;
@@ -3071,7 +3075,7 @@ private:
             EnsureDexReverseIndex(host);
             PubT(host, "sw.route.name", RoutePlaceName(host, route_zone_).c_str());
             // Weather chips: only zones whose tables differ between the weathers that can happen.
-            const bool varies = sw_route::Varies(*rz);
+            const bool varies = sw_route::Varies(encounters_.data, *rz);
             PubI(host, "sw.route.weather.shown", varies ? 1 : 0);
             char src[160];
             int k = 0;
@@ -3091,14 +3095,14 @@ private:
                 sw_str::Id::kRouteWeather8};
             PubT(host, "sw.route.weather.name", varies && route_weather_ >= 0 && route_weather_ < 9
                                                     ? sw_str::S(kWeatherNames[route_weather_]) : "");
-            const auto rows = sw_route::Rows(*rz, route_weather_);
+            const auto rows = sw_route::Rows(encounters_.data, *rz, route_weather_);
             const int count = std::min(static_cast<int>(rows.size()), kRouteMaxRows);
             PubI(host, "sw.route.count", count);
             const bool champion = champion_known_ && champion_;
             for (int i = 0; i < count; ++i) {
                 const auto& row = rows[static_cast<std::size_t>(i)];
                 const std::string p = "sw.route." + std::to_string(i) + ".";
-                const bool icon = sw_species_icons::IconSourceForm(row.species, row.form, src, sizeof src);
+                const bool icon = sw_route::IconSource(row.species, row.form, src, sizeof src);
                 PubI(host, (p + "icon_ready").c_str(), icon ? 1 : 0);
                 // large art (class 2) draws smaller so it stays clear of the text column
                 const bool big = sw_route::IconClass(row.species) == 2;

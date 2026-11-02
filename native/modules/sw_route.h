@@ -2,11 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-// Wild Pokemon of a Town Map place (owner 2026-11-01, "same as Lumi": the route list). Data =
-// sw_route_encounters.h, baked from the player's romfs by tools/pokemon-sword/gen_route_encounters.py
-// and keyed by the Town Map zone hash. Weather ids here are the LIVE enum (sw.location.weather.id,
-// sw_overworld.h); the generator converted the encounter tables' own order at bake time.
-// Every species shows its icon and name (owner: no seen gating, like Lumi).
+// Wild Pokemon of a Town Map place; encounter rows are read from the player's romfs.
 
 #include <algorithm>
 #include <array>
@@ -15,9 +11,9 @@
 #include <vector>
 
 #include "sw_variant.h"
-// The variant's baked tables (Sword: sw_route_encounters.h, encount_k).
-#include SW_VARIANT_ROUTE_ENCOUNTERS
+#include "sw_encounters.h"
 #include "sw_species_icon_metrics.h"
+#include "sw_species_icons.h"
 
 namespace sw_route {
 using sw_route_encounters::Slot;
@@ -43,13 +39,13 @@ inline Shown ShownOf(int method) {
     }
 }
 
-inline const Zone* Find(std::uint64_t zone_hash) {
+inline const Zone* Find(const sw_route_encounters::Data& data, std::uint64_t zone_hash) {
     if (!zone_hash) return nullptr;
-    const auto* begin = std::begin(sw_route_encounters::kZones);
-    const auto* end = std::end(sw_route_encounters::kZones);
-    const auto* it = std::lower_bound(begin, end, zone_hash,
+    const auto begin = std::begin(data.zones);
+    const auto end = std::end(data.zones);
+    const auto it = std::lower_bound(begin, end, zone_hash,
                                       [](const Zone& z, std::uint64_t h) { return z.zone_hash < h; });
-    return it != end && it->zone_hash == zone_hash && it->count ? it : nullptr;
+    return it != end && it->zone_hash == zone_hash && it->count ? &*it : nullptr;
 }
 
 inline bool Possible(const Zone& zone, int weather) {
@@ -66,13 +62,13 @@ inline int DefaultWeather(const Zone& zone, int live) {
 }
 
 /// True when two possible weathers list different slots (the grid then shows weather chips).
-inline bool Varies(const Zone& zone) {
+inline bool Varies(const sw_route_encounters::Data& data, const Zone& zone) {
     int first = -1;
     for (const int w : kChipOrder) {
         if (!Possible(zone, w)) continue;
         if (first < 0) { first = w; continue; }
         for (int i = 0; i < zone.count; ++i) {
-            const auto mask = sw_route_encounters::kSlots[zone.first + i].weathers;
+            const auto mask = data.slots[zone.first + i].weathers;
             if (((mask >> first) & 1) != ((mask >> w) & 1)) return true;
         }
     }
@@ -90,11 +86,11 @@ struct Row {
     int min_level = 0, max_level = 0;
 };
 
-/// The cards of `zone` in `weather`, in the baked order (method, then rate): wanderers first.
-inline std::vector<Row> Rows(const Zone& zone, int weather) {
+/// The cards of `zone` in `weather`, in encounter-table order (method, then rate): wanderers first.
+inline std::vector<Row> Rows(const sw_route_encounters::Data& data, const Zone& zone, int weather) {
     std::vector<Row> rows;
     for (int i = 0; i < zone.count; ++i) {
-        const Slot& s = sw_route_encounters::kSlots[zone.first + i];
+        const Slot& s = data.slots[zone.first + i];
         if (weather < 0 || weather >= kWeatherCount || !((s.weathers >> weather) & 1)) continue;
         auto it = std::find_if(rows.begin(), rows.end(),
                                [&](const Row& r) { return r.species == s.species && r.form == s.form; });
@@ -130,6 +126,14 @@ inline std::pair<int, int> Levels(const Zone& zone, const Row& row, bool champio
     if (!champion || !zone.boost60) return {row.min_level, row.max_level};
     constexpr int floor = sw_route_encounters::kBoostLevel;
     return {std::max(row.min_level, floor), std::max(row.max_level, floor)};
+}
+
+// Module-owned form sources avoid an offline list of encounter forms in the manifest.
+inline bool IconSource(std::uint16_t species, std::uint8_t form, char* out, std::size_t size) {
+    char original[160];
+    if (!sw_species_icons::IconSourceForm(species, form, original, sizeof original)) return false;
+    const int n = std::snprintf(out, size, "module:sw:ui/form/%u/%u", unsigned(species), unsigned(form));
+    return n > 0 && static_cast<std::size_t>(n) < size;
 }
 
 /// Size class of a species' box-icon art (its alpha box, sw_species_icon_metrics.h), so a small

@@ -1,25 +1,10 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: Copyright 2026 igawa6
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Generate native/modules/sw_route_encounters.h: Pokemon Sword's wild encounter tables (the Town
-Map's "Wild Pokemon" row and grid page), baked from the player's own romfs (swsh_encounters.py).
-Numbers and ids only -- species names come from the game's monsname table at run time.
+"""Offline reference decoder for runtime encounter verification; output is never a build input.
 
-Keyed by Town Map zone hash (FNV-1a 64 of "z_r0101"): the hash sw_town_map / sw_map_selection
-anchors and the reader's current zone use. One Slot per (species, form, method, rate, levels)
-with the weathers it appears in.
-
-Weather bits are stored in the LIVE weather enum's order (sw.location.weather.id, sw_overworld.h:
-0 Sunny, 1 Cloudy, 2 Rain, 3 Storm, 4 Snow, 5 Snowstorm, 6 Sunshine, 7 Sandstorm, 8 Mist), NOT the
-encounter sub-table order (0 Normal, 1 Overcast, 2 Raining, 3 Thunderstorm, 4 Intense Sun,
-5 Snowing, 6 Snowstorm, 7 Sandstorm, 8 Heavy Fog): the two differ at 4/5/6 (Rolling Fields' table 4
-is Vulpix/Mudbray = sunshine, table 5 Vanillite = snow). Converting here lets the module compare a
-slot's mask with the live id directly.
-
-The version's tables (Sword encount_k, Shield encount_t) and the output header are the variant's
-(sw_variants.py, --variant, default sword).
-
-    SW_ROMFS_DIR=<extracted romfs dir> python3 tools/pokemon-sword/gen_route_encounters.py [--check]
+SW_ROMFS_DIR=<player romfs> python3 tools/pokemon-sword/gen_route_encounters.py
+    --variant sword --out <scratch reference header>
 """
 import argparse
 import os
@@ -31,8 +16,6 @@ sys.path.insert(0, str(HERE))
 import swsh_encounters as S  # noqa: E402
 import sw_variants  # noqa: E402
 
-ROOT = HERE.parents[1]
-MODULES = ROOT / "native/modules"
 TABLE_TO_LIVE = [0, 1, 2, 3, 6, 4, 5, 7, 8]
 METHOD = {"wander": 0, "flying": 1, "surf": 2, "special": 3, "grass": 4, "trees": 5, "fishing": 6}
 ALL = (1 << 9) - 1
@@ -111,11 +94,10 @@ def render(zones, slots, variant):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true", help="fail if the committed header differs")
-    ap.add_argument("--out", help="default: native/modules/<the variant's route header>")
+    ap.add_argument("--out", required=True, help="scratch reference header (never a build input)")
     sw_variants.add_argument(ap)
     a = ap.parse_args()
     variant = sw_variants.get(a.variant)
-    a.out = a.out or str(MODULES / variant.route_header)
     romfs = os.environ.get("SW_ROMFS_DIR", "")
     if not romfs or not (Path(romfs) / "bin/archive/field/resident/data_table.gfpak").exists():
         raise SystemExit(f"set SW_ROMFS_DIR to an extracted {variant.name} {variant.build.version} romfs")

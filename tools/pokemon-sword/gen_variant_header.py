@@ -85,7 +85,7 @@ def render() -> str:
             continue
         lines.append(f"#{'if' if first else 'elif'} defined(SW_VARIANT_{key.upper()}) && SW_VARIANT_{key.upper()}")
         lines.append(f'#define SW_VARIANT_NAME "{v.name}"')
-        lines.append(f'#define SW_VARIANT_ROUTE_ENCOUNTERS "{v.route_header}"')
+        lines.append(f'#define SW_VARIANT_ENCOUNTER_SUFFIX "{v.romfs_suffix}"')
         lines.append(f"inline constexpr const Variant& kActive = {c_ident(key)};")
         first = False
     d = V.VARIANTS[V.DEFAULT]
@@ -93,8 +93,8 @@ def render() -> str:
         lines.append("#else")
     lines.append(f"// Default variant: {d.name}.")
     lines.append(f'#define SW_VARIANT_NAME "{d.name}"')
-    lines.append(f"// The variant's wild encounter tables (gen_route_encounters.py), included by sw_route.h.")
-    lines.append(f'#define SW_VARIANT_ROUTE_ENCOUNTERS "{d.route_header}"')
+    lines.append(f"// The variant's encounter archive member suffix.")
+    lines.append(f'#define SW_VARIANT_ENCOUNTER_SUFFIX "{d.romfs_suffix}"')
     lines.append(f"inline constexpr const Variant& kActive = {c_ident(V.DEFAULT)};")
     if not first:
         lines.append("#endif")

@@ -1159,7 +1159,17 @@ endif()
 # ABI glue needs the include dir too, not just its test.
 # Japanese (2026-11-01): sw_modfont.cpp rasterises the game's own BFOTF (stb_truetype) and rebuilds
 # the package BFFNT (acnh_tex.cpp BNTX + bc_decoder) for a live switch back to a Latin language.
-set(SW_FONT_SOURCES sw_modfont.cpp acnh_tex.cpp "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp")
+file(GLOB SW_LZ4_DIR LIST_DIRECTORIES true "${EDEN_CPM_CACHE}/lz4/*/lib")
+list(LENGTH SW_LZ4_DIR SW_LZ4_COUNT)
+if(NOT SW_LZ4_COUNT EQUAL 1)
+    message(FATAL_ERROR "Expected one LZ4 source in the compatible runtime CPM cache")
+endif()
+list(GET SW_LZ4_DIR 0 SW_LZ4_DIR)
+add_library(sw-archive-lz4 STATIC "${SW_LZ4_DIR}/lz4.c")
+set_target_properties(sw-archive-lz4 PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_include_directories(sw-archive-lz4 PUBLIC "${SW_LZ4_DIR}")
+
+set(SW_FONT_SOURCES sw_ui_images.cpp sw_modfont.cpp acnh_tex.cpp "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp")
 # Game variants (sw_variant.h, generated from tools/pokemon-sword/sw_variants.py): one source tree,
 # one module per title id, like Brilliant Diamond / Shining Pearl above. The importer and the module
 # ABI bind a package to one title, so a twin is its own library: the same sources, its title as the
@@ -1173,6 +1183,7 @@ function(sw_add_variant_module target title)
         EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
         INCLUDE_DIRECTORIES "${EDEN_NLOHMANN_JSON_INCLUDE_DIR}" "${EDEN_SOURCE_ROOT}/externals/bc_decoder"
         COMPILE_DEFINITIONS SW_MODULE_TITLE_ID=0x${title}ULL ${ARGN})
+    target_link_libraries(${target} PRIVATE sw-archive-lz4)
     # No absolute build-host path in the DWARF of even the unstripped local build (review P2; the
     # packaged .so is stripped and checked by tools/build_dualscreen_package.py as well).
     target_compile_options(${target} PRIVATE "-fdebug-prefix-map=$ENV{HOME}=~")
@@ -1270,4 +1281,33 @@ if(BUILD_TESTING AND NOT ANDROID)
                     --module "$<TARGET_FILE:dsmod-pokemon-shield>")
         set_tests_properties(dsmod-pokemon-shield-no-game-text PROPERTIES SKIP_RETURN_CODE 77)
     endif()
+endif()
+
+# Encounter readers are shared by the reader tests and each variant's route tests.
+if(BUILD_TESTING AND NOT ANDROID)
+    foreach(target dsmod-pokemon-sword-reader-test dsmod-pokemon-sword-reader-live-test
+                   dsmod-pokemon-sword-route-test dsmod-pokemon-shield-route-test
+                   dsmod-pokemon-sword-font-test sw-font-metrics-tool)
+        target_link_libraries(${target} PRIVATE sw-archive-lz4)
+    endforeach()
+    foreach(variant sword shield)
+        add_test(NAME dsmod-pokemon-${variant}-route-romfs
+                 COMMAND dsmod-pokemon-${variant}-route-test --romfs)
+        set_tests_properties(dsmod-pokemon-${variant}-route-romfs PROPERTIES SKIP_RETURN_CODE 77)
+    endforeach()
+endif()
+
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-pokemon-sword-ui-images KEEP_ASSERTS
+        SOURCES sw_ui_images_test.cpp sw_ui_images.cpp acnh_tex.cpp
+                "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    target_link_libraries(dsmod-pokemon-sword-ui-images-test PRIVATE sw-archive-lz4)
+    add_test(NAME dsmod-pokemon-sword-ui-images-romfs COMMAND dsmod-pokemon-sword-ui-images-test --romfs)
+    set_tests_properties(dsmod-pokemon-sword-ui-images-romfs PROPERTIES SKIP_RETURN_CODE 77)
+endif()
+
+if(BUILD_TESTING AND NOT ANDROID AND Python3_Interpreter_FOUND)
+    add_test(NAME dsmod-pokemon-sword-ui-geometry
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-sword/gen_ui_geometry.py" --check)
 endif()

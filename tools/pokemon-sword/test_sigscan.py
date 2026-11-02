@@ -169,13 +169,13 @@ def test_variant_config():
     assert sword.build.build16 == "A3B75BCD3311385A" and len(sword.build.build_id) == 64
     assert sword.encounter_tables == ("encount_k.bin", "encount_symbol_k.bin")
     assert sword.title_arc == "title_demo_k_00_eng" and sword.title_logo == "grptext_titledemo_logo_k_00^q"
-    assert sword.package_dir == "PokemonSword" and sword.route_header == "sw_route_encounters.h"
+    assert sword.package_dir == "PokemonSword" and sword.encounter_tables == ("encount_k.bin", "encount_symbol_k.bin")
     shield = V.get("shield")
     assert shield.title_hex == "01008DB008C2C000" and V.SHIELD_TITLE_ID == shield.title_id
     assert shield.build.build16 == "A16802625E7826BF" and len(shield.build.build_id) == 64
     assert shield.encounter_tables == ("encount_t.bin", "encount_symbol_t.bin")
     assert shield.title_arc == "title_demo_t_00_eng" and shield.title_logo == "grptext_titledemo_logo_t_00^q"
-    assert shield.package_dir == "PokemonShield" and shield.route_header == "sw_route_encounters_shield.h"
+    assert shield.package_dir == "PokemonShield" and shield.encounter_tables == ("encount_t.bin", "encount_symbol_t.bin")
     assert shield.dex_comment_file == "zukan_comment_B.dat" and shield.save_game_version == 45
     # the League Card check (sw_trainer_portrait.h) derives TrainerCard8's version byte (0 / 1) from this
     assert (sword.save_game_version - 44, shield.save_game_version - 44) == (0, 1)

@@ -28,6 +28,12 @@
 #include "sw_species_icons.h"
 #include "sw_species_names.h"
 #include "sw_test_fixtures.h"
+#include "sw_encounter_fixture.h"
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+#include <chrono>
 #include "sw_text.h"
 #include "sw_type_chart.h"
 #include "sw_zone.h"
@@ -838,6 +844,57 @@ void TestBuildMatchPublishedEverySample() {
     std::puts("0100ABF008968000: _build_match is read from the host's create() config and "
               "republished as build_match (1/0) on every sample -- the map page's Update "
               "Required overlay now hides correctly on the supported build");
+}
+
+// Exercise the public module image contract and serialize a session reset against a
+// blocked encounter read. The real host passes keys including the "module:" prefix.
+void TestRuntimeImagesAndSessionReset() {
+    const auto* api=eden_dsmod_get_module(EDEN_DSMOD_MODULE_ABI_VERSION,EDEN_DSMOD_MODULE_ABI_HASH);
+    const auto* ext=eden_dsmod_get_extensions(EDEN_DSMOD_EXT_VERSION,EDEN_DSMOD_EXT_HASH);
+    assert(api && ext && ext->load_image && ext->configure);
+    struct Context {
+        std::mutex mutex;
+        std::condition_variable cv;
+        bool entered=false,release=false;
+        std::atomic<bool> configuring=false,configured=false;
+    } ctx;
+    sw_test_encounters::Fixtures(false);
+    EdenDsmodHostApi host{};
+    host.abi_version=EDEN_DSMOD_MODULE_ABI_VERSION;host.struct_size=sizeof host;
+    host.abi_hash=EDEN_DSMOD_MODULE_ABI_HASH;host.title_id=sw_build::kSwordTitleId;
+    std::memcpy(host.build_id,sw_build::kBuildId,sw_build::kKnownBuildIdBytes);
+    host.userdata=&ctx;
+    host.get_heap_begin=[](void*)->std::uint64_t{return 0;};
+    host.is_mapped=[](void*,std::uint64_t,std::uint64_t)->EdenDsmodBool{return EDEN_DSMOD_FALSE;};
+    host.read_memory=[](void*,std::uint64_t,void*,std::size_t)->EdenDsmodBool{return EDEN_DSMOD_FALSE;};
+    host.read_romfs=[](void* u,const char* path,std::uint64_t offset,void* out,std::size_t size)->std::size_t {
+        auto& c=*static_cast<Context*>(u);
+        if(std::string_view(path)=="romfs:/bin/archive/field/resident/data_table.gfpak" && !out) {
+            std::unique_lock lock(c.mutex);c.entered=true;c.cv.notify_all();
+            c.cv.wait(lock,[&]{return c.release;});
+        }
+        return sw_test_encounters::Read(nullptr,path,offset,out,size);
+    };
+    void* instance=api->create(&host,R"({"_build_match":true})");assert(instance);
+    bool received=false;
+    const auto sink=+[](void* u,std::uint32_t w,std::uint32_t h,const std::uint8_t*,std::size_t n) {
+        assert(w==124 && h==124 && n==124*124*4);*static_cast<bool*>(u)=true;
+    };
+    assert(ext->load_image(instance,&host,"module:sw:ui/disc_white",&received,sink)==EDEN_DSMOD_TRUE && received);
+    assert(ext->load_image(instance,&host,"sw:ui/disc_white",&received,sink)==EDEN_DSMOD_FALSE);
+    std::thread sample([&]{api->sample(instance,&host);});
+    {
+        std::unique_lock lock(ctx.mutex);
+        assert(ctx.cv.wait_for(lock,std::chrono::seconds(10),[&]{return ctx.entered;}));
+    }
+    std::thread configure([&]{ctx.configuring=true;ext->configure(instance,nullptr);ctx.configured=true;});
+    while(!ctx.configuring) std::this_thread::yield();
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    assert(!ctx.configured);
+    { std::lock_guard lock(ctx.mutex);ctx.release=true;ctx.cv.notify_all(); }
+    sample.join();configure.join();assert(ctx.configured);
+    api->destroy(instance);
+    std::puts("module UI: full image-key dispatch; configure waits for encounter sampling PASS");
 }
 
 // The same decoders on synthetic blocks: KItem slot bit layout, pouch bounds and the Rotom Bike
@@ -1668,6 +1725,7 @@ int main(int argc, char** argv) {
     TestEffectivenessLabelFailsClosed();
     TestZoneNameDecodeAndTagValidation();
     TestBuildMatchPublishedEverySample();
+    TestRuntimeImagesAndSessionReset();
     TestBagPouchDecodeSynthetic();
     TestZukanAndDexHomeSynthetic();
     TestEvolutionDecodeSwinubChain();

@@ -93,13 +93,13 @@ inline constexpr Variant kShield{
 #define SW_VARIANT_HAS_SHIELD 1
 #if defined(SW_VARIANT_SHIELD) && SW_VARIANT_SHIELD
 #define SW_VARIANT_NAME "Pokemon Shield"
-#define SW_VARIANT_ROUTE_ENCOUNTERS "sw_route_encounters_shield.h"
+#define SW_VARIANT_ENCOUNTER_SUFFIX "t"
 inline constexpr const Variant& kActive = kShield;
 #else
 // Default variant: Pokemon Sword.
 #define SW_VARIANT_NAME "Pokemon Sword"
-// The variant's wild encounter tables (gen_route_encounters.py), included by sw_route.h.
-#define SW_VARIANT_ROUTE_ENCOUNTERS "sw_route_encounters.h"
+// The variant's encounter archive member suffix.
+#define SW_VARIANT_ENCOUNTER_SUFFIX "k"
 inline constexpr const Variant& kActive = kSword;
 #endif
 } // namespace sw_variant

@@ -202,26 +202,12 @@ def build_sprite_map():
         src = arc("townmap", "townmap_top_00", f"weather_icon_s_{i:02d}^t")
         m[src] = src
     # Route list: the Pokédex distribution page's weather icons (chips; 10 = the fishing glyph) and
-    # the box icons of the encounter forms (Galarian Zigzagoon, Pumpkaboo sizes, ...) the module
-    # publishes from sw_route_encounters.h (sw_species_icons::IconSourceForm).
+    # box icons of encounter forms are module-owned runtime images.
     for i in range(1, 11):
         src = arc("pokedex", "pokedex_distribution", f"weather_icon_s_{i:02d}^t")
         m[src] = src
-    for stem in route_form_stems():
-        m[icon_pokemon_src(stem)] = icon_pokemon_src(stem)
     return m
 
-
-def route_form_stems():
-    """'0263_01s' etc.: every (species, form > 0) of the baked encounter table, with the icon id
-    and gender suffix sw_species_icon_table.h gives the species."""
-    import re
-    modules = ROOT / "native/modules"
-    table = {int(a): (int(b), d) for a, b, _c, d in re.findall(
-        r"\{(\d+), (\d+), (\d+), '(\w)'\}", (modules / "sw_species_icon_table.h").read_text())}
-    slots = re.findall(r"\{(\d+),(\d+),\d+,\d+,\d+,\d+,0x[0-9A-F]+\}",
-                       (modules / VARIANT.route_header).read_text())
-    return sorted({f"{table[int(sp)][0]:04d}_{int(form):02d}{table[int(sp)][1]}" for sp, form in slots if int(form)})
 
 
 # kit.type_colour(): the most saturated pixel of each native type label (typeIcon_text_NN), the
@@ -449,7 +435,7 @@ def type_disc_row(prefix, kind, pos, count=8, d=56, gate="hide", dy=None, extra=
 
 def lock(cx, cy, d=88):
     sz = {88: (89, 89), 56: (57, 57)}[d]
-    return image(cx - sz[0] / 2, cy - sz[1] / 2, sz[0], sz[1], f"file:img/lock{d}.png")
+    return image(cx - sz[0] / 2, cy - sz[1] / 2, sz[0], sz[1], f"module:sw:ui/lock{d}")
 
 
 def den_marker(cx, i):
@@ -521,14 +507,14 @@ def rail(selected, dim=False):
             out.append({"type": "button", "id": f"tab_{tab_id}_rm", "rect": [round(cw * i), RAIL_Y, round(cw), H - RAIL_Y],
                         "text": "", "bg": "#00000000", "color": "#00000000", "on_tap": f"{action}_rm",
                         "hide_bind": MOTION_FLAG, "hide_eq": 0})
-        out.append(image(cx - 56, cy - 56, 112, 112, "file:img/disc_black.png" if on else "file:img/disc_white.png",
+        out.append(image(cx - 56, cy - 56, 112, 112, "module:sw:ui/disc_black" if on else "module:sw:ui/disc_white",
                          tint=f"#{a}FFFFFF"))
         out.append(image(cx - 41.5, cy - 41.5, 83, 83,
                          arc("xmenu", "xmenu_top_00_eng", f"xmenu_button_icon_{icon_name}_00^s"),
                          tint=f"#{a}{accent[3:]}"))
         out.append(T(cx, H - 14, text, 34, f"#{a}FFFFFF", "m", maxw=cw - 12))
         if on:
-            out.append(image(cx - DISC_D * 0.56 - 27, cy - 27, 54, 54, "file:img/chevron2.png"))
+            out.append(image(cx - DISC_D * 0.56 - 27, cy - 27, 54, 54, "module:sw:ui/chevron2"))
     return out
 
 
@@ -712,7 +698,7 @@ def wild_row():
                            src_bind=f"sw.map.wild.strip.{i}.icon_src", need=gate))
     TAB_DERIVED["d.map.wild.more"] = "sw.map.wild.ready && sw.map.wild.more_ready"
     w.append(T(1058, y + 88, "", 34, LABEL_GREY, bind="sw.map.wild.more", need="d.map.wild.more"))
-    w.append(image(1128, y + 52, 40, 40, "file:img/chevron2.png", tint=INK, need=g))
+    w.append(image(1128, y + 52, 40, 40, "module:sw:ui/chevron2", tint=INK, need=g))
     anim_group(w, g, "map_wild", ms=150, box_=[692, y, 486, 104])
     w.append({"type": "button", "rect": [692, y, 486, 104], "text": "", "bg": "#00000000",
               "color": "#00000000", "on_tap": "map_wild_tap", "need_bind": g, "haptic": "light"})
@@ -1296,7 +1282,7 @@ def page_pokedex():
     b.append(repeated(bg, DEX_MAX_ROWS, "sw.dex.row_count", row_h, "dex_row_bg_{i}", "dex_rows"))
     icon = image(ex0, 156 - 6, 136, 112, src_bind="sw.dex.row.{i}.icon_src", need="sw.dex.row.{i}.icon_ready")
     b.append(repeated(icon, DEX_MAX_ROWS, "sw.dex.row_count", row_h, "dex_row_icon_{i}", "dex_rows"))
-    silhouette = image(ex0 + 20, 156 - 6 + 20, 96, 76, "file:img/disc_black.png", tint="#30000000",
+    silhouette = image(ex0 + 20, 156 - 6 + 20, 96, 76, "module:sw:ui/disc_black", tint="#30000000",
                        hide="sw.dex.row.{i}.seen", eq=1)
     b.append(repeated(silhouette, DEX_MAX_ROWS, "sw.dex.row_count", row_h, "dex_row_sil_{i}", "dex_rows"))
     no_label = T(ex0 + 136, 156 + 74, "", 44, INK, bind="sw.dex.row.{i}.dex_no_text")
@@ -2127,7 +2113,7 @@ def pane_toggle(pane_x1, collapsed, tag):
         hx, gate, act, flip = pane_x1 - 112, PANE, "battle_pane_hide", True
     dx0 = hx + 22 if collapsed else pane_x1 - 80
     return [box(dx0, 210, dx0 + 64, 274, 32, INNER, need=gate),
-            image(dx0 + 12, 222, 40, 40, "file:img/chevron2.png", tint=INK, flip_x=flip, need=gate),
+            image(dx0 + 12, 222, 40, 40, "module:sw:ui/chevron2", tint=INK, flip_x=flip, need=gate),
             TAP | {"id": f"bt_pane_{'show' if collapsed else 'hide'}_{tag}", "rect": [hx, 186, 112, 112],
                    "on_tap": act, "haptic": "light", "need_bind": gate}]
 
@@ -2240,7 +2226,7 @@ def cmd_capsule(key, text, col, cell, cx0, cy0, cx1, cy1, sizes, group, anim_box
         # cursor resting on it shows the chevron.
         w.append(box(cx0, cy0, cx1, cy1, radius, DARK))
         w += [T((cx0 + cx1) / 2, base(px), text, px, WHITE, "m", need=gate) for px, gate in sizes]
-        w.append(image(cx0 - co, cy0 + h / 2 - cs / 2, cs, cs, "file:img/chevron2.png", need=selected))
+        w.append(image(cx0 - co, cy0 + h / 2 - cs / 2, cs, cs, "module:sw:ui/chevron2", need=selected))
         anim_group(w[-1:], selected, f"{group}{i}", box_=anim_box)
         # Back = the native B press (the game returns to the first Pokemon's command).
         w.append(btn | {"on_tap": "battle_native_b"})
@@ -2248,11 +2234,11 @@ def cmd_capsule(key, text, col, cell, cx0, cy0, cx1, cy1, sizes, group, anim_box
     w.append(box(cx0, cy0, cx1, cy1, radius, INNER))
     cursor = box(cx0, cy0, cx1, cy1, radius, DARK, need=selected)
     w.append(cursor)
-    w.append(image(gx, gy, gw, gh, f"file:img/cmd_{key}.png", tint=col))
+    w.append(image(gx, gy, gw, gh, f"module:sw:ui/cmd_{key}", tint=col))
     w += [T(lx, base(px), text, px, INK, maxw=tmax, need=need("!" + selected, gate)) for px, gate in sizes]
     white = [T(lx, base(px), text, px, WHITE, maxw=tmax, need=need(selected, gate)) for px, gate in sizes]
     w += white
-    w.append(image(cx0 - co, cy0 + h / 2 - cs / 2, cs, cs, "file:img/chevron2.png", need=selected))
+    w.append(image(cx0 - co, cy0 + h / 2 - cs / 2, cs, cs, "module:sw:ui/chevron2", need=selected))
     # The native command cursor (dark capsule + chevron) fades onto the chosen command.
     anim_group([cursor, *white, w[-1]], selected, f"{group}{i}", box_=anim_box)
     if buttons is not None:
@@ -2465,7 +2451,7 @@ def battle_target_window():
                        need=f"d.tg.{t}.idle"),
                      T(x0 + 504, y0 + 190, "", 44, WHITE, "r", bind=q + ".hp_pct_text", maxw=200,
                        need=f"d.tg.{t}.sel"),
-                     image(x0 - 40, y0 + 80, 60, 60, "file:img/chevron2.png", need=f"d.tg.{t}.sel"),
+                     image(x0 - 40, y0 + 80, 60, 60, "module:sw:ui/chevron2", need=f"d.tg.{t}.sel"),
                      # the user itself (greyed on the top: the game refuses it for this move)
                      box(x0, y0, x1, y1, 44, VEIL, need=q + ".user")]
             # The highlight's own pair only: an anim on the idle (black) name would hide it on every
@@ -2672,8 +2658,8 @@ def battle_shortcut(x, y, key, action, *, ball=False, move_info=False, ready=Non
     # Owner dev.23 4a: no frame on the right edge (the bar runs into the card's edge).
     out = [rect(x, y, width, height, INK), rect(x+2, y+2, width-2, height-4, WHITE),
            rect(x, y, join, height, key_color),
-           image(x+join, y, round(24*scale), height, "file:img/key_wedge.png", tint=key_color),
-           image(x+4, y+1, 52, 52, f"file:img/key_{key.lower()}.png")]
+           image(x+join, y, round(24*scale), height, "module:sw:ui/key_wedge", tint=key_color),
+           image(x+4, y+1, 52, 52, f"module:sw:ui/key_{key.lower()}")]
     if ball:
         out.append(image(x+130, y-13, 80, 80, src_bind="sw.battle.ball.first.icon_src"))
     else:
@@ -2694,7 +2680,7 @@ def move_body(x, row_y, move, index):
     b = [highlight,
          image(x, yy, 640, 94, "file:img/rr47.png", slice_=[47]*4,
                tint_bind=move+".type_id", tint_colors=MOVE_COLORS),
-         image(x, yy, 640, 94, "file:img/move_max_body.png", need=move+".preview_ready"),
+         image(x, yy, 640, 94, "module:sw:ui/move_max_body", need=move+".preview_ready"),
          image(x+389, yy, 107, 94, arc("battle", "battle_skillSelect_00_eng", "battle_gskill_bg_04^t"),
                src_rect=[0,20/128,1,108/128]),
          image(x+496, yy, 144, 94, "file:img/move_pp_tail.png", tint="#FF000000"),
@@ -2724,7 +2710,7 @@ def move_body(x, row_y, move, index):
            "color":"#00000000", "on_tap":"battle_native_a",
            "on_hold":f"battle_inspect_move_{index}", "hold_ms":450,
            "need_bind":f"d.move.native_sel{index}"}]
-    b.append(image(x-42,yy+20,54,54,"file:img/chevron2.png",need=selected))
+    b.append(image(x-42,yy+20,54,54,"module:sw:ui/chevron2",need=selected))
     # The move cursor fades in on the inspected row. Rows shift down by d.move.stack_offset
     # (0..336) with fewer than four moves, so the box spans every row position.
     anim_group([highlight, b[-1]], selected, f"mv_sel{index}", box_=[x-50, row_y, 700, 112+336])
@@ -2843,7 +2829,7 @@ def move_pill(x0, y0, move, index):
     b = [ring,
          image(x0, y0, PILL_W, PILL_H, "file:img/rr47.png", slice_=[47] * 4,
                tint_bind=move + ".type_id", tint_colors=MOVE_COLORS),
-         image(x0, y0, PILL_W, PILL_H, "file:img/move_max_body.png", need=move + ".preview_ready"),
+         image(x0, y0, PILL_W, PILL_H, "module:sw:ui/move_max_body", need=move + ".preview_ready"),
          image(x1 - 196, y0, 70, PILL_H, arc("battle", "battle_skillSelect_00_eng", "battle_gskill_bg_04^t"),
                src_rect=[0, 20 / 128, 1, 108 / 128]),
          image(x1 - 130, y0, 130, PILL_H, "file:img/move_pp_tail.png", tint="#FF000000") | {

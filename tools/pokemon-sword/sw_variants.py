@@ -72,7 +72,6 @@ class Variant:
     package_name: str           # package.json / manifest.json "name"
     romfs_suffix: str           # k = Sword, t = Shield
     dex_comment_file: str       # Pokedex entries (zukan_comment_A / _B)
-    route_header: str           # native/modules/<header>: gen_route_encounters.py's baked tables
     save_game_version: int      # PKHeX GameVersion in MyStatus8 (SW 44, SH 45); the League Card's
                                 # own version byte (TrainerCard8 +0x24) is this - 44 (SW 0, SH 1)
     aoc_title_ids: tuple        # Isle of Armor, Crown Tundra (optional)
@@ -499,7 +498,6 @@ SWORD = Variant(
     package_name="Pokemon Sword dual screen",
     romfs_suffix="k",
     dex_comment_file="zukan_comment_A.dat",
-    route_header="sw_route_encounters.h",
     save_game_version=44,
     aoc_title_ids=(0x0100ABF008969001, 0x0100ABF008969002),
     build=SWORD_132,
@@ -764,7 +762,6 @@ SHIELD = Variant(
     romfs_suffix="t",
     # The Shield main names zukan_comment_B.dat (Sword's names _A); both files ship in each romfs.
     dex_comment_file="zukan_comment_B.dat",
-    route_header="sw_route_encounters_shield.h",
     save_game_version=45,
     # The dump's two AOC license stubs (Isle of Armor, Crown Tundra).
     aoc_title_ids=(0x01008DB008C2D001, 0x01008DB008C2D002),

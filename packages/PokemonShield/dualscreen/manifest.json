@@ -106,7 +106,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#80FFFFFF"
     },
     {
@@ -147,7 +147,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#80FFFFFF"
     },
     {
@@ -188,7 +188,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#80FFFFFF"
     },
     {
@@ -229,7 +229,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#80FFFFFF"
     },
     {
@@ -270,7 +270,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#80FFFFFF"
     },
     {
@@ -1816,7 +1816,7 @@
       40
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "tint": "#FF000000",
      "need_bind": "d.map.tools.40",
      "anim": {
@@ -2480,7 +2480,7 @@
       57
      ],
      "empty_src": "",
-     "src": "file:img/lock56.png",
+     "src": "module:sw:ui/lock56",
      "hide_bind": "sw.map.fly.ready",
      "hide_eq": 1,
      "need_bind": "d.map.tools.73",
@@ -4482,7 +4482,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_black.png",
+     "src": "module:sw:ui/disc_black",
      "tint": "#FFFFFFFF"
     },
     {
@@ -4523,7 +4523,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png"
+     "src": "module:sw:ui/chevron2"
     },
     {
      "type": "button",
@@ -4566,7 +4566,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -4639,7 +4639,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -4712,7 +4712,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -4785,7 +4785,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -5413,7 +5413,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_black.png",
+     "src": "module:sw:ui/disc_black",
      "tint": "#FFFFFFFF"
     },
     {
@@ -5454,7 +5454,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png"
+     "src": "module:sw:ui/chevron2"
     },
     {
      "type": "button",
@@ -5497,7 +5497,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -5570,7 +5570,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -5643,7 +5643,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -5716,7 +5716,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -7621,7 +7621,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_black.png",
+     "src": "module:sw:ui/disc_black",
      "tint": "#FFFFFFFF"
     },
     {
@@ -7662,7 +7662,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png"
+     "src": "module:sw:ui/chevron2"
     },
     {
      "type": "button",
@@ -7705,7 +7705,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -7778,7 +7778,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -7851,7 +7851,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -7924,7 +7924,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -12935,7 +12935,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -13008,7 +13008,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_black.png",
+     "src": "module:sw:ui/disc_black",
      "tint": "#FFFFFFFF"
     },
     {
@@ -13049,7 +13049,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png"
+     "src": "module:sw:ui/chevron2"
     },
     {
      "type": "button",
@@ -13092,7 +13092,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -13165,7 +13165,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -13238,7 +13238,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -16596,7 +16596,7 @@
       76
      ],
      "empty_src": "",
-     "src": "file:img/disc_black.png",
+     "src": "module:sw:ui/disc_black",
      "tint": "#30000000",
      "hide_bind": "sw.dex.row.{i}.seen",
      "hide_eq": 1,
@@ -19057,7 +19057,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -19130,7 +19130,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -19203,7 +19203,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_black.png",
+     "src": "module:sw:ui/disc_black",
      "tint": "#FFFFFFFF"
     },
     {
@@ -19244,7 +19244,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png"
+     "src": "module:sw:ui/chevron2"
     },
     {
      "type": "button",
@@ -19287,7 +19287,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -19360,7 +19360,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -20453,7 +20453,7 @@
       57
      ],
      "empty_src": "",
-     "src": "file:img/lock56.png",
+     "src": "module:sw:ui/lock56",
      "need_bind": "!d.bag.use.ready"
     },
     {
@@ -20557,7 +20557,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -20630,7 +20630,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -20703,7 +20703,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -20776,7 +20776,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_black.png",
+     "src": "module:sw:ui/disc_black",
      "tint": "#FFFFFFFF"
     },
     {
@@ -20817,7 +20817,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png"
+     "src": "module:sw:ui/chevron2"
     },
     {
      "type": "button",
@@ -20860,7 +20860,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -30958,7 +30958,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -31031,7 +31031,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -31104,7 +31104,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -31177,7 +31177,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_white.png",
+     "src": "module:sw:ui/disc_white",
      "tint": "#FFFFFFFF"
     },
     {
@@ -31250,7 +31250,7 @@
       112
      ],
      "empty_src": "",
-     "src": "file:img/disc_black.png",
+     "src": "module:sw:ui/disc_black",
      "tint": "#FFFFFFFF"
     },
     {
@@ -31291,7 +31291,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png"
+     "src": "module:sw:ui/chevron2"
     },
     {
      "type": "rect",
@@ -42414,7 +42414,7 @@
       40
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "tint": "#FF000000",
      "flip_x": true,
      "need_bind": "d.bt.pane"
@@ -42571,7 +42571,7 @@
       55
      ],
      "empty_src": "",
-     "src": "file:img/key_wedge.png",
+     "src": "module:sw:ui/key_wedge",
      "tint": "#FF000000",
      "need_bind": "d.shortcut.battle_ball_open.3"
     },
@@ -42584,7 +42584,7 @@
       52
      ],
      "empty_src": "",
-     "src": "file:img/key_x.png",
+     "src": "module:sw:ui/key_x",
      "need_bind": "d.shortcut.battle_ball_open.4"
     },
     {
@@ -42680,7 +42680,7 @@
       55
      ],
      "empty_src": "",
-     "src": "file:img/key_wedge.png",
+     "src": "module:sw:ui/key_wedge",
      "tint": "#FF0095B5",
      "need_bind": "d.shortcut.battle_info.3",
      "y_bind": "d.bt.y.dy",
@@ -42695,7 +42695,7 @@
       52
      ],
      "empty_src": "",
-     "src": "file:img/key_y.png",
+     "src": "module:sw:ui/key_y",
      "need_bind": "d.shortcut.battle_info.4",
      "y_bind": "d.bt.y.dy",
      "y_scale": 1
@@ -42824,7 +42824,7 @@
       92
      ],
      "empty_src": "",
-     "src": "file:img/cmd_fight.png",
+     "src": "module:sw:ui/cmd_fight",
      "tint": "#FFC8143C",
      "y_bind": "d.cmd.dy.fight",
      "y_scale": 1,
@@ -42943,7 +42943,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.bt.cmd.fight.7",
      "anim": {
       "bind": "d.anim.bt_cmd0",
@@ -43098,7 +43098,7 @@
       92
      ],
      "empty_src": "",
-     "src": "file:img/cmd_pokemon.png",
+     "src": "module:sw:ui/cmd_pokemon",
      "tint": "#FF6CDB8C",
      "y_bind": "d.cmd.dy.pokemon",
      "y_scale": 1,
@@ -43217,7 +43217,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.bt.cmd.pokemon.7",
      "anim": {
       "bind": "d.anim.bt_cmd1",
@@ -43372,7 +43372,7 @@
       92
      ],
      "empty_src": "",
-     "src": "file:img/cmd_bag.png",
+     "src": "module:sw:ui/cmd_bag",
      "tint": "#FFE8C08A",
      "y_bind": "d.cmd.dy.bag",
      "y_scale": 1,
@@ -43491,7 +43491,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.bt.cmd.bag.7",
      "anim": {
       "bind": "d.anim.bt_cmd2",
@@ -43646,7 +43646,7 @@
       92
      ],
      "empty_src": "",
-     "src": "file:img/cmd_run.png",
+     "src": "module:sw:ui/cmd_run",
      "tint": "#FFD58BE0",
      "y_bind": "d.cmd.dy.run",
      "y_scale": 1,
@@ -43765,7 +43765,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.bt.cmd.run.7",
      "anim": {
       "bind": "d.anim.bt_cmd3",
@@ -43918,7 +43918,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.bt.cmd.back.3",
      "anim": {
       "bind": "d.anim.bt_cmd4",
@@ -44069,7 +44069,7 @@
       40
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "tint": "#FF000000",
      "need_bind": "d.bt.collapsed"
     },
@@ -44137,7 +44137,7 @@
       55
      ],
      "empty_src": "",
-     "src": "file:img/key_wedge.png",
+     "src": "module:sw:ui/key_wedge",
      "tint": "#FF000000",
      "need_bind": "d.shortcut.battle_ball_open.c.3"
     },
@@ -44150,7 +44150,7 @@
       52
      ],
      "empty_src": "",
-     "src": "file:img/key_x.png",
+     "src": "module:sw:ui/key_x",
      "need_bind": "d.shortcut.battle_ball_open.c.4"
     },
     {
@@ -44246,7 +44246,7 @@
       55
      ],
      "empty_src": "",
-     "src": "file:img/key_wedge.png",
+     "src": "module:sw:ui/key_wedge",
      "tint": "#FF0095B5",
      "need_bind": "d.shortcut.battle_info.c.3",
      "y_bind": "d.bt.y.dy",
@@ -44261,7 +44261,7 @@
       52
      ],
      "empty_src": "",
-     "src": "file:img/key_y.png",
+     "src": "module:sw:ui/key_y",
      "need_bind": "d.shortcut.battle_info.c.4",
      "y_bind": "d.bt.y.dy",
      "y_scale": 1
@@ -44386,7 +44386,7 @@
       150
      ],
      "empty_src": "",
-     "src": "file:img/cmd_fight.png",
+     "src": "module:sw:ui/cmd_fight",
      "tint": "#FFC8143C",
      "need_bind": "d.bt.cmdc.fight.2"
     },
@@ -44447,7 +44447,7 @@
       98
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.bt.cmdc.fight.5",
      "anim": {
       "bind": "d.anim.bt_cmdc0",
@@ -44596,7 +44596,7 @@
       104
      ],
      "empty_src": "",
-     "src": "file:img/cmd_pokemon.png",
+     "src": "module:sw:ui/cmd_pokemon",
      "tint": "#FF6CDB8C",
      "x_bind": "d.cc.dx.pokemon",
      "x_scale": 1,
@@ -44669,7 +44669,7 @@
       68
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.bt.cmdc.pokemon.5",
      "anim": {
       "bind": "d.anim.bt_cmdc1",
@@ -44838,7 +44838,7 @@
       104
      ],
      "empty_src": "",
-     "src": "file:img/cmd_bag.png",
+     "src": "module:sw:ui/cmd_bag",
      "tint": "#FFE8C08A",
      "x_bind": "d.cc.dx.bag",
      "x_scale": 1,
@@ -44911,7 +44911,7 @@
       68
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.bt.cmdc.bag.5",
      "anim": {
       "bind": "d.anim.bt_cmdc2",
@@ -45080,7 +45080,7 @@
       104
      ],
      "empty_src": "",
-     "src": "file:img/cmd_run.png",
+     "src": "module:sw:ui/cmd_run",
      "tint": "#FFD58BE0",
      "x_bind": "d.cc.dx.run",
      "x_scale": 1,
@@ -45153,7 +45153,7 @@
       68
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.bt.cmdc.run.5",
      "anim": {
       "bind": "d.anim.bt_cmdc3",
@@ -45304,7 +45304,7 @@
       68
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.bt.cmdc.back.2",
      "anim": {
       "bind": "d.anim.bt_cmdc4",
@@ -45706,7 +45706,7 @@
       89
      ],
      "empty_src": "",
-     "src": "file:img/lock88.png",
+     "src": "module:sw:ui/lock88",
      "need_bind": "d.bt.lock.e",
      "anim": {
       "bind": "d.anim.bt_dim",
@@ -45724,7 +45724,7 @@
       89
      ],
      "empty_src": "",
-     "src": "file:img/lock88.png",
+     "src": "module:sw:ui/lock88",
      "need_bind": "d.bt.lock.c",
      "anim": {
       "bind": "d.anim.bt_dim",
@@ -55368,7 +55368,7 @@
       40
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "tint": "#FF000000",
      "flip_x": true,
      "need_bind": "d.bt.pane"
@@ -55506,7 +55506,7 @@
       40
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "tint": "#FF000000",
      "need_bind": "d.bt.collapsed"
     },
@@ -55571,7 +55571,7 @@
       55
      ],
      "empty_src": "",
-     "src": "file:img/key_wedge.png",
+     "src": "module:sw:ui/key_wedge",
      "tint": "#FF0095B5"
     },
     {
@@ -55583,7 +55583,7 @@
       52
      ],
      "empty_src": "",
-     "src": "file:img/key_y.png"
+     "src": "module:sw:ui/key_y"
     },
     {
      "type": "image",
@@ -55721,7 +55721,7 @@
       94
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.mv.body.p0.2",
      "y_bind": "d.move.stack_offset",
      "y_scale": 1
@@ -56018,7 +56018,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.mv.body.p0.16",
      "anim": {
       "bind": "d.anim.mv_sel0",
@@ -56120,7 +56120,7 @@
       94
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.mv.body.p1.2",
      "y_bind": "d.move.stack_offset",
      "y_scale": 1
@@ -56417,7 +56417,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.mv.body.p1.16",
      "anim": {
       "bind": "d.anim.mv_sel1",
@@ -56519,7 +56519,7 @@
       94
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.mv.body.p2.2",
      "y_bind": "d.move.stack_offset",
      "y_scale": 1
@@ -56816,7 +56816,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.mv.body.p2.16",
      "anim": {
       "bind": "d.anim.mv_sel2",
@@ -56918,7 +56918,7 @@
       94
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.mv.body.p3.2",
      "y_bind": "d.move.stack_offset",
      "y_scale": 1
@@ -57215,7 +57215,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.mv.body.p3.16",
      "anim": {
       "bind": "d.anim.mv_sel3",
@@ -57510,7 +57510,7 @@
       150
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.move.pill0.2"
     },
     {
@@ -57906,7 +57906,7 @@
       150
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.move.pill1.2"
     },
     {
@@ -58302,7 +58302,7 @@
       150
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.move.pill2.2"
     },
     {
@@ -58698,7 +58698,7 @@
       150
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.move.pill3.2"
     },
     {
@@ -59845,7 +59845,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.battle.target.15"
     },
     {
@@ -60114,7 +60114,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.battle.target.31"
     },
     {
@@ -60413,7 +60413,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.battle.target.48"
     },
     {
@@ -60682,7 +60682,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.battle.target.64"
     },
     {
@@ -66043,7 +66043,7 @@
       55
      ],
      "empty_src": "",
-     "src": "file:img/key_wedge.png",
+     "src": "module:sw:ui/key_wedge",
      "tint": "#FF0095B5"
     },
     {
@@ -66055,7 +66055,7 @@
       52
      ],
      "empty_src": "",
-     "src": "file:img/key_y.png"
+     "src": "module:sw:ui/key_y"
     },
     {
      "type": "image",
@@ -66173,7 +66173,7 @@
       92
      ],
      "empty_src": "",
-     "src": "file:img/cmd_fight.png",
+     "src": "module:sw:ui/cmd_fight",
      "tint": "#FFC8143C",
      "y_bind": "d.raid.dy.fight",
      "y_scale": 1,
@@ -66240,7 +66240,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.raid.cmd.fight.5",
      "anim": {
       "bind": "d.anim.raid_cmd0",
@@ -66382,7 +66382,7 @@
       92
      ],
      "empty_src": "",
-     "src": "file:img/cmd_cheer.png",
+     "src": "module:sw:ui/cmd_cheer",
      "tint": "#FFF2B61F",
      "y_bind": "d.raid.dy.cheer",
      "y_scale": 1,
@@ -66473,7 +66473,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.raid.cmd.cheer.5",
      "anim": {
       "bind": "d.anim.raid_cmd5",
@@ -66591,7 +66591,7 @@
       92
      ],
      "empty_src": "",
-     "src": "file:img/cmd_pokemon.png",
+     "src": "module:sw:ui/cmd_pokemon",
      "tint": "#FF6CDB8C",
      "y_bind": "d.raid.dy.pokemon",
      "y_scale": 1,
@@ -66658,7 +66658,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.raid.cmd.pokemon.5",
      "anim": {
       "bind": "d.anim.raid_cmd1",
@@ -66776,7 +66776,7 @@
       92
      ],
      "empty_src": "",
-     "src": "file:img/cmd_bag.png",
+     "src": "module:sw:ui/cmd_bag",
      "tint": "#FFE8C08A",
      "y_bind": "d.raid.dy.bag",
      "y_scale": 1,
@@ -66843,7 +66843,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.raid.cmd.bag.5",
      "anim": {
       "bind": "d.anim.raid_cmd2",
@@ -66961,7 +66961,7 @@
       92
      ],
      "empty_src": "",
-     "src": "file:img/cmd_run.png",
+     "src": "module:sw:ui/cmd_run",
      "tint": "#FFD58BE0",
      "y_bind": "d.raid.dy.run",
      "y_scale": 1,
@@ -67028,7 +67028,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.raid.cmd.run.5",
      "anim": {
       "bind": "d.anim.raid_cmd3",
@@ -72152,7 +72152,7 @@
       40
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "tint": "#FF000000",
      "flip_x": true,
      "need_bind": "d.bt.pane"
@@ -72290,7 +72290,7 @@
       40
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "tint": "#FF000000",
      "need_bind": "d.bt.collapsed"
     },
@@ -72355,7 +72355,7 @@
       55
      ],
      "empty_src": "",
-     "src": "file:img/key_wedge.png",
+     "src": "module:sw:ui/key_wedge",
      "tint": "#FF0095B5"
     },
     {
@@ -72367,7 +72367,7 @@
       52
      ],
      "empty_src": "",
-     "src": "file:img/key_y.png"
+     "src": "module:sw:ui/key_y"
     },
     {
      "type": "image",
@@ -72505,7 +72505,7 @@
       94
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.mv.body.p0.2",
      "y_bind": "d.move.stack_offset",
      "y_scale": 1
@@ -72802,7 +72802,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.mv.body.p0.16",
      "anim": {
       "bind": "d.anim.mv_sel0",
@@ -72904,7 +72904,7 @@
       94
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.mv.body.p1.2",
      "y_bind": "d.move.stack_offset",
      "y_scale": 1
@@ -73201,7 +73201,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.mv.body.p1.16",
      "anim": {
       "bind": "d.anim.mv_sel1",
@@ -73303,7 +73303,7 @@
       94
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.mv.body.p2.2",
      "y_bind": "d.move.stack_offset",
      "y_scale": 1
@@ -73600,7 +73600,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.mv.body.p2.16",
      "anim": {
       "bind": "d.anim.mv_sel2",
@@ -73702,7 +73702,7 @@
       94
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.mv.body.p3.2",
      "y_bind": "d.move.stack_offset",
      "y_scale": 1
@@ -73999,7 +73999,7 @@
       54
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.mv.body.p3.16",
      "anim": {
       "bind": "d.anim.mv_sel3",
@@ -74294,7 +74294,7 @@
       150
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.move.pill0.2"
     },
     {
@@ -74690,7 +74690,7 @@
       150
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.move.pill1.2"
     },
     {
@@ -75086,7 +75086,7 @@
       150
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.move.pill2.2"
     },
     {
@@ -75482,7 +75482,7 @@
       150
      ],
      "empty_src": "",
-     "src": "file:img/move_max_body.png",
+     "src": "module:sw:ui/move_max_body",
      "need_bind": "d.move.pill3.2"
     },
     {
@@ -76629,7 +76629,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.battle.target.15"
     },
     {
@@ -76898,7 +76898,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.battle.target.31"
     },
     {
@@ -77197,7 +77197,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.battle.target.48"
     },
     {
@@ -77466,7 +77466,7 @@
       60
      ],
      "empty_src": "",
-     "src": "file:img/chevron2.png",
+     "src": "module:sw:ui/chevron2",
      "need_bind": "d.battle.target.64"
     },
     {
@@ -78631,11 +78631,11 @@
   "libraries": {
    "linux-x86_64": {
     "path": "modules/linux-x86_64/01008DB008C2C000.so",
-    "sha256": "8db20ae7367139a47f3025a876b6805c5ec041efc7ec86d7997d6422d20b9c08"
+    "sha256": "cabf600053d77eb5275420e1754f83c4758c42a500a2c4966e7c9694327c40dc"
    },
    "android-arm64-v8a": {
     "path": "modules/android-arm64-v8a/01008DB008C2C000.so",
-    "sha256": "6ce962d4f5734065a1c6ce9f003c6a2541c07ccdf56830f026ac99f0017cdee2"
+    "sha256": "c5baa3450ab6fc7917ee336f6ee4b397034746acb80fceda232fcd2213e5d609"
    }
   }
  },
@@ -80754,25 +80754,7 @@
   "romfs:/bin/appli/pokedex/bin/pokedex_distribution.arc#timg/__Combined.bntx#weather_icon_s_07^t": "romfs:/bin/appli/pokedex/bin/pokedex_distribution.arc#timg/__Combined.bntx#weather_icon_s_07^t",
   "romfs:/bin/appli/pokedex/bin/pokedex_distribution.arc#timg/__Combined.bntx#weather_icon_s_08^t": "romfs:/bin/appli/pokedex/bin/pokedex_distribution.arc#timg/__Combined.bntx#weather_icon_s_08^t",
   "romfs:/bin/appli/pokedex/bin/pokedex_distribution.arc#timg/__Combined.bntx#weather_icon_s_09^t": "romfs:/bin/appli/pokedex/bin/pokedex_distribution.arc#timg/__Combined.bntx#weather_icon_s_09^t",
-  "romfs:/bin/appli/pokedex/bin/pokedex_distribution.arc#timg/__Combined.bntx#weather_icon_s_10^t": "romfs:/bin/appli/pokedex/bin/pokedex_distribution.arc#timg/__Combined.bntx#weather_icon_s_10^t",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0052_02s_n.bntx#poke_icon_0052_02s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0052_02s_n.bntx#poke_icon_0052_02s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0077_01s_n.bntx#poke_icon_0077_01s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0077_01s_n.bntx#poke_icon_0077_01s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0079_01s_n.bntx#poke_icon_0079_01s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0079_01s_n.bntx#poke_icon_0079_01s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0110_01s_n.bntx#poke_icon_0110_01s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0110_01s_n.bntx#poke_icon_0110_01s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0222_01s_n.bntx#poke_icon_0222_01s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0222_01s_n.bntx#poke_icon_0222_01s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0263_01s_n.bntx#poke_icon_0263_01s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0263_01s_n.bntx#poke_icon_0263_01s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0264_01s_n.bntx#poke_icon_0264_01s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0264_01s_n.bntx#poke_icon_0264_01s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0422_01s_n.bntx#poke_icon_0422_01s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0422_01s_n.bntx#poke_icon_0422_01s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0423_01s_n.bntx#poke_icon_0423_01s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0423_01s_n.bntx#poke_icon_0423_01s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0550_01s_n.bntx#poke_icon_0550_01s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0550_01s_n.bntx#poke_icon_0550_01s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0562_01s_n.bntx#poke_icon_0562_01s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0562_01s_n.bntx#poke_icon_0562_01s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0618_01s_n.bntx#poke_icon_0618_01s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0618_01s_n.bntx#poke_icon_0618_01s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0734_01m_n.bntx#poke_icon_0734_01m_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0734_01m_n.bntx#poke_icon_0734_01m_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0735_01s_n.bntx#poke_icon_0735_01s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0735_01s_n.bntx#poke_icon_0735_01s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0735_02s_n.bntx#poke_icon_0735_02s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0735_02s_n.bntx#poke_icon_0735_02s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0735_03s_n.bntx#poke_icon_0735_03s_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0735_03s_n.bntx#poke_icon_0735_03s_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0942_01m_n.bntx#poke_icon_0942_01m_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0942_01m_n.bntx#poke_icon_0942_01m_n",
-  "romfs:/bin/appli/icon_pokemon/poke_icon_0972_01n_n.bntx#poke_icon_0972_01n_n": "romfs:/bin/appli/icon_pokemon/poke_icon_0972_01n_n.bntx#poke_icon_0972_01n_n"
+  "romfs:/bin/appli/pokedex/bin/pokedex_distribution.arc#timg/__Combined.bntx#weather_icon_s_10^t": "romfs:/bin/appli/pokedex/bin/pokedex_distribution.arc#timg/__Combined.bntx#weather_icon_s_10^t"
  },
  "derived": [
   {

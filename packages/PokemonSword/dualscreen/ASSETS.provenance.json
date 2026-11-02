@@ -1,18 +1,10 @@
 {
  "format": 1,
- "_note": "Package-authored img/*.png, generated offline by tools/pokemon-sword/bake_assets.py with the design-mockup toolkit's own primitives (PIL) against the extracted romfs texture cache -- never shipped as raw extracted game files. Every other picture in manifest.json is romfs: (the player's own game files) or a plain vector widget.",
+ "_note": "Authored geometric package images. Runtime game images are loaded from the player's romfs.",
  "files": {
   "img/shell_red_bands.png": {
    "origin": "generated",
    "source": "dir_d2.shell() (tools/mockup/kit.py field()) -- flat ImageDraw polygons, Rotom red + the two diagonal bands every D2 page shares; no extracted texture"
-  },
-  "img/disc_white.png": {
-   "origin": "generated",
-   "source": "tools/mockup/kit.py's disc() -- the real xmenu_top_00_eng.arc#xmenu_button_bg_00^s quarter texture, mirrored x4 with its own shadow texture, tinted white; the native X-menu rail's own quarter-disc art, baked flat (the runtime has no quadrant-mirror compositing)"
-  },
-  "img/disc_black.png": {
-   "origin": "generated",
-   "source": "same as disc_white.png, tinted #FF1F1D1C for the selected tab"
   },
   "img/wedge.png": {
    "origin": "generated",
@@ -66,34 +58,6 @@
    "origin": "generated",
    "source": "PIL pieslice inverse corner radius 30, white -- clips a picture to a rounded frame"
   },
-  "img/chevron2.png": {
-   "origin": "generated",
-   "source": "tools/mockup/kit.py chevron(): xmenu_top_00_eng.arc#cursor_black_00^t two-tone (white ring, #1F1D1C core), baked flat (the runtime has no two-tone shader)"
-  },
-  "img/lock88.png": {
-   "origin": "generated",
-   "source": "tools/mockup/kit2.py lock_tag(d=88): white disc + status_bg_00.arc#icon_lock^t two-tone (#1F1D1C glyph, white ring), the D2 'direct control pending' marker"
-  },
-  "img/lock56.png": {
-   "origin": "generated",
-   "source": "tools/mockup/kit2.py lock_tag(d=56): white disc + status_bg_00.arc#icon_lock^t two-tone (#1F1D1C glyph, white ring), the D2 'direct control pending' marker"
-  },
-  "img/cmd_fight.png": {
-   "origin": "generated",
-   "source": "tools/mockup/battlekit.py cmd_glyph('fight'): battle_commandSelect_00_eng.arc#battle_command_00^r inverted to a white line mask (the native command capsule draws the glyph's lines in the command colour)"
-  },
-  "img/cmd_pokemon.png": {
-   "origin": "generated",
-   "source": "tools/mockup/battlekit.py cmd_glyph('pokemon'): battle_commandSelect_00_eng.arc#battle_command_01^r inverted to a white line mask (the native command capsule draws the glyph's lines in the command colour)"
-  },
-  "img/cmd_bag.png": {
-   "origin": "generated",
-   "source": "tools/mockup/battlekit.py cmd_glyph('bag'): battle_commandSelect_00_eng.arc#battle_command_02^r inverted to a white line mask (the native command capsule draws the glyph's lines in the command colour)"
-  },
-  "img/cmd_run.png": {
-   "origin": "generated",
-   "source": "tools/mockup/battlekit.py cmd_glyph('run'): battle_commandSelect_00_eng.arc#battle_command_03^r inverted to a white line mask (the native command capsule draws the glyph's lines in the command colour)"
-  },
   "img/wedge_chip.png": {
    "origin": "generated",
    "source": "PIL polygon, dir_a.page_dex's dex-chip wedge (x0+34,20)-(x0+62,20)-(x0+40,122)-(x0+14,122), white mask tinted per chip"
@@ -106,10 +70,6 @@
    "origin": "generated",
    "source": "PIL rounded_rectangle radius 46 (4x supersampled), white 9-slice tile"
   },
-  "img/cmd_cheer.png": {
-   "origin": "generated",
-   "source": "tools/mockup/battlekit.py cmd_glyph('cheer'): battle_commandSelect_00_eng.arc#battle_command_04^r inverted to a white line mask (the native command capsule draws the glyph's lines in the command colour)"
-  },
   "img/rr47.png": {
    "origin": "generated",
    "source": "PIL rounded_rectangle radius 47 (4x supersampled), white 9-slice tile"
@@ -121,22 +81,6 @@
   "img/move_pp_tail.png": {
    "origin": "generated",
    "source": "PIL rectangle + right semicircle radius47 (4x supersampled), white144x94 alpha mask; native battle_button_skill_00 PP backing x465..600 scaled from600px to640px width"
-  },
-  "img/key_wedge.png": {
-   "origin": "generated",
-   "source": "battle_commandSelect_01_eng.arc#diagonal_44_blackwhite_00^r, native24x44 black portion as invert(luminance)*source alpha, white RGB; no resize or geometry change"
-  },
-  "img/key_x.png": {
-   "origin": "generated",
-   "source": "battle_commandSelect_01_eng.arc#button_icon_X_00^t, native42x42 black letter on white key plate converted via invert(luminance)*source alpha to a white glyph mask; no resize/redraw"
-  },
-  "img/key_y.png": {
-   "origin": "generated",
-   "source": "battle_commandSelect_01_eng.arc#button_icon_Y_00^t, native42x42 black letter on white key plate converted via invert(luminance)*source alpha to a white glyph mask; no resize/redraw"
-  },
-  "img/move_max_body.png": {
-   "origin": "generated",
-   "source": "battle_skillSelect_00_eng.arc#battle_gskill_bg_00^o native64x8 Max gradient, bilinear fit640x94 with native600:88 body radius47 supersampled alpha mask"
   },
   "img/loading_ball.png": {
    "origin": "generated",

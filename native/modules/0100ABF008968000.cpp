@@ -24,6 +24,7 @@
 #include "sw_fly.h"
 #include "sw_helper_mailbox.h"
 #include "sw_modfont.h"
+#include "sw_ui_images.h"
 #include "sw_reader.h"
 #include "sw_trainer_portrait.h"
 #include "sw_portrait_control.h"
@@ -204,6 +205,7 @@ struct Module {
     // Japanese in the game's own font (sw_modfont.h): built when the companion language is
     // Japanese, served through decode_font / load_image ("module:sw:font/<p>").
     sw_modfont::Font font;
+    sw_ui_images::Images images;
     std::int64_t font_logged_epoch = 0;
     // Korean / Chinese are offered only when this host returns their shared system font
     // (sw_modfont::ProbeSysfonts, once per module instance = per boot).
@@ -1183,7 +1185,12 @@ void SampleCallback(void* p, const EdenDsmodHostApi* host) {
         }
         m->reader.SetTextNote([](void* ctx, std::string_view text) { static_cast<sw_modfont::Font*>(ctx)->Note(text); },
                               &m->font);
-        m->reader.Sample(*host);
+        {
+            // Configure can reset the session from the loader thread. Keep the encounter
+            // cache and its readers under the same lock as ResetSession and route actions.
+            std::lock_guard lock{m->direct.mutex};
+            m->reader.Sample(*host);
+        }
         {
             std::lock_guard lock{m->direct.mutex};
             m->portrait.SetAutoHint(m->direct.mailbox_address,
@@ -1274,6 +1281,7 @@ void ConfigureCallback(void* p, const EdenDsmodHostExtensions* ext) {
         auto& m = *static_cast<Module*>(p);
         std::lock_guard lock{m.direct.mutex};
         if (m.direct.portrait) m.direct.portrait->Shutdown();
+        m.images.Reset();
         m.reader.ResetSession(); // review L6: a new session forgets the last one's game state
         m.portrait.Reset();
         m.direct.fly_known = false;
@@ -1380,6 +1388,7 @@ EdenDsmodBool ActionCallback(void* instance, const char* action, std::int64_t ar
             return PartySwapAction(*m, a, argument) ? EDEN_DSMOD_TRUE : EDEN_DSMOD_FALSE;
         if (a == "fly_go" || a == "map_fly" || a == "map_fly_close" || a == "field_use" || a == "field_use_open" || a == "field_use_on" || a == "field_use_on_move" || a == "field_use_cancel" || a == "field_bike")
             return FieldAction(*m, a, argument) ? EDEN_DSMOD_TRUE : EDEN_DSMOD_FALSE;
+        std::lock_guard lock{m->direct.mutex};
         return m->reader.DispatchAction(action, argument) ? EDEN_DSMOD_TRUE : EDEN_DSMOD_FALSE;
     } catch (...) {
         return EDEN_DSMOD_FALSE;
@@ -1394,6 +1403,8 @@ EdenDsmodBool LoadImageCallback(void* instance, const EdenDsmodHostApi* host,
         if (m.build_label) return EDEN_DSMOD_FALSE;
         if (host) {
             bool handled = false;
+            const bool image_ok = m.images.Load(*host, key, receiver, sink, handled);
+            if (handled) return image_ok ? EDEN_DSMOD_TRUE : EDEN_DSMOD_FALSE;
             const bool ok = m.font.LoadImage(*host, key, receiver, sink, handled);
             if (handled) return ok ? EDEN_DSMOD_TRUE : EDEN_DSMOD_FALSE;
         }

@@ -119,10 +119,11 @@ class Game:
         return self.cache[key]
 
     def wild_places(self, loc):
-        """Town Map names of the places with wild Pokemon (sw_route_encounters.h's zones; the two
+        """Town Map names of the places with wild Pokemon (runtime-decoded zones; the two
         unlabelled zones and Route 10's second one show their _01 sibling's name), worst first."""
         measure_as(loc)
-        zones = re.findall(r"// (z_\w+)", (ROOT / "native/modules" / VARIANT.route_header).read_text())
+        import swsh_encounters
+        zones = [e["zone"] for e in swsh_encounters.decode(self.base.parents[1], VARIANT.encounter_tables).values()]
         alias = {"z_r0202": "z_r0201", "z_d0103": "z_d0101", "z_r1002": "z_r1001"}
         lang = FOLDER["de" if loc == "pseudo" else loc]
         labels = read_tbl(self.base / lang / "script/place_name.tbl")
