@@ -60,6 +60,21 @@ void TestZeroHoldTicksHidesOnTheFirstMiss() {
     assert(f.Step(false) == false); // no hold at all: equivalent to publishing the raw value
 }
 
+void TestArmIgnoresShortPulses() {
+    HoldFilter f(10, 20);
+    for (int i = 0; i < 14; ++i)
+        assert(f.Step(true) == false); // a 14-tick pulse (spurious message-start read) never shows
+    assert(f.Step(false) == false);
+    for (int i = 0; i < 19; ++i)
+        assert(f.Step(true) == false); // hits restart after a miss: 19 is still short of 20
+    assert(f.Step(true) == true);      // hit 20: shown
+    for (int i = 0; i < 3; ++i)
+        assert(f.Step(false) == true); // a 2-3 tick in-wait drop-out is held
+    assert(f.Step(true) == true);      // still shown, no re-arm needed while shown
+    assert(f.Reset() == false);
+    assert(f.Step(true) == false);     // after Reset it must arm again
+}
+
 int main() {
     TestHiddenUntilFirstWant();
     TestHoldsThroughAShortMissRun();
@@ -67,6 +82,7 @@ int main() {
     TestNeverShownStaysHidden();
     TestResetHidesAtOnceAndForgetsTheHold();
     TestZeroHoldTicksHidesOnTheFirstMiss();
-    std::puts("dsmod_hold_test: HoldFilter shows at once, holds through short misses, resets at once");
+    TestArmIgnoresShortPulses();
+    std::puts("dsmod_hold_test: HoldFilter arms after K hits, holds through short misses, resets at once");
     return 0;
 }

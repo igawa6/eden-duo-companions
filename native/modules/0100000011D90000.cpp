@@ -1967,11 +1967,11 @@ private:
             I64("lp.bt.cmd" + std::to_string(k) + ".available", k <= (snap.action_max - snap.action_min));
         I64("lp.bt.ball.focus", snap.ball.focus ? 1 : 0);
         I64("lp.bt.ball.input", snap.ball.focus && drive.kind == Drive::Kind::None ? 1 : 0);
-        // The raw per-tick read (Reader::CanContinueBattle) can drop out for one or a few samples
-        // while a native canvas/message-window field is merely settling between two states that
-        // both mean "waiting for A" (owner issue 2026-10-23 #1: the button flickered on/off).
-        // Hold it: show the instant it is true, hide only after ContinueHoldTicks consecutive
-        // misses. A drive in progress means the companion itself is driving an input right now,
+        // The raw per-tick read (Reader::CanContinueBattle) is briefly true (7-14 ticks) as each
+        // auto-advancing battle message starts, and can drop out for 2-3 ticks during a real wait
+        // (owner issue 2026-10-23 #1: the button flickered on/off). Show it only after
+        // ContinueArmTicks consecutive hits, hide only after ContinueHoldTicks consecutive misses.
+        // A drive in progress means the companion itself is driving an input right now,
         // so it is never a real "waiting for A" moment -- reset the hold at once instead of
         // holding over a stale true through it (dsmod_hold.h).
         const bool continue_now = drive.kind == Drive::Kind::None
@@ -3949,15 +3949,13 @@ private:
     bool waza_seen = false;
     int move_done_ticks = 0;
     static constexpr int MoveDoneTicks = 6;
-    // battle "continue" trigger hold (owner issue 2026-10-23 #1): show at once, hide only after
-    // ContinueHoldTicks consecutive misses of the raw CanContinueBattle read. 10 ticks (~167 ms at
-    // the module's 60 Hz sample rate) sits between MoveDoneTicks (6, the same file's own settle
-    // debounce) and Sword's much longer MenuWantFilter::kHoldTicks (30, a different, async-load
-    // condition); chosen without a live per-tick capture (harness battle access blocked this
-    // session, see STATUS.md) so it is a reasoned default, not a measured one -- revisit with real
-    // numbers if the flicker persists.
-    dsmod_hold::HoldFilter continue_hold{ContinueHoldTicks};
+    // battle "continue" trigger (owner issue 2026-10-23 #1), measured live 2026-11-02 at one sample
+    // per tick (milestones/20261102-continue-hide-measurement): spurious raw pulses at the start of
+    // auto-advancing messages last 7-14 ticks, real waits 100+ ticks, in-wait drop-outs 2-3 ticks.
+    // Arm after 20 hits (~0.33 s), hold through 10 misses.
+    static constexpr int ContinueArmTicks = 20;
     static constexpr int ContinueHoldTicks = 10;
+    dsmod_hold::HoldFilter continue_hold{ContinueHoldTicks, ContinueArmTicks};
     // battle pane: each page's tab (0 Foe, 1 You, 2 Field), reset to the foe at every battle start
     int tab_cmd = 0, tab_fight = 0;
     int64_t battle_seq = 0;
