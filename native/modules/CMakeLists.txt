@@ -957,6 +957,10 @@ foreach(lp_target IN ITEMS dsmod-lp dsmod-lp-pearl)
     endif()
 endforeach()
 if(BUILD_TESTING AND NOT ANDROID)
+    # Generic per-tick visibility hold filter (dsmod_hold.h): no game memory, no romfs. Lumi's
+    # battle "continue" trigger is its first caller (owner issue 2026-10-23 #1).
+    dsmod_add_test(dsmod-hold KEEP_ASSERTS
+        SOURCES dsmod_hold_test.cpp dsmod_hold.h)
     dsmod_add_test(dsmod-lp-poketch-display KEEP_ASSERTS
         SOURCES lp_poketch_display_test.cpp lp_poketch_display.h lp_poketch.cpp lp_raster.h
             ${LP_UNITY_SOURCES}

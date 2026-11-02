@@ -16,6 +16,7 @@
 #include "core/mods/dsmod_module_abi.h"
 #include "core/mods/dsmod_module_extensions.h"
 #include "core/mods/modules/dsmod_module_sdk.h"
+#include "dsmod_hold.h"
 #include "lp_anim.h"
 #include "lp_field_actions.h"
 #include "lp_assets.h"
@@ -1936,8 +1937,10 @@ private:
         // 0 title / loading, 1 party, 2 battle, 3 map, 4 route, 5 Pokétch, 6 Pokédex, 7 Bag, 8 Pokétch full screen
         I64("lp.page", battle ? 2 : (snap.field && snap.player_ok ? (field_view == 1 ? 3 : field_view == 2 ? 4 : field_view == 3 ? (pkt_full ? 8 : 5) : field_view == 4 ? 6 : field_view == 5 ? 7 : 1) : 0));
         if constexpr (DebugKeys) I64("lp.field", snap.field ? 1 : 0);
-        if (!battle)
+        if (!battle) {
+            continue_hold.Reset(); // battle end: a later battle starts the hold fresh
             return;
+        }
         // runtime 18 runs modules before PublishFlags: no flag is visible here, so the menus are always parked
         live.HideBattleMenus(true);
         menus_parked = true;
@@ -1947,7 +1950,17 @@ private:
             I64("lp.bt.cmd" + std::to_string(k) + ".available", k >= snap.action_min && k <= snap.action_max);
         I64("lp.bt.ball.focus", snap.ball.focus ? 1 : 0);
         I64("lp.bt.ball.input", snap.ball.focus && drive.kind == Drive::Kind::None ? 1 : 0);
-        I64("lp.bt.continue", snap.battle_continue && drive.kind == Drive::Kind::None ? 1 : 0);
+        // The raw per-tick read (Reader::CanContinueBattle) can drop out for one or a few samples
+        // while a native canvas/message-window field is merely settling between two states that
+        // both mean "waiting for A" (owner issue 2026-10-23 #1: the button flickered on/off).
+        // Hold it: show the instant it is true, hide only after ContinueHoldTicks consecutive
+        // misses. A drive in progress means the companion itself is driving an input right now,
+        // so it is never a real "waiting for A" moment -- reset the hold at once instead of
+        // holding over a stale true through it (dsmod_hold.h).
+        const bool continue_now = drive.kind == Drive::Kind::None
+            ? continue_hold.Step(snap.battle_continue)
+            : continue_hold.Reset();
+        I64("lp.bt.continue", continue_now ? 1 : 0);
         I64("lp.bt.target.on", snap.dbl.target_open);
         I64("lp.bt.target.input", snap.dbl.target_open && !snap.dbl.target_moving && drive.kind == Drive::Kind::None);
         I64("lp.bt.target.spread", snap.dbl.target_open && !snap.dbl.target_single);
@@ -3919,6 +3932,15 @@ private:
     bool waza_seen = false;
     int move_done_ticks = 0;
     static constexpr int MoveDoneTicks = 6;
+    // battle "continue" trigger hold (owner issue 2026-10-23 #1): show at once, hide only after
+    // ContinueHoldTicks consecutive misses of the raw CanContinueBattle read. 10 ticks (~167 ms at
+    // the module's 60 Hz sample rate) sits between MoveDoneTicks (6, the same file's own settle
+    // debounce) and Sword's much longer MenuWantFilter::kHoldTicks (30, a different, async-load
+    // condition); chosen without a live per-tick capture (harness battle access blocked this
+    // session, see STATUS.md) so it is a reasoned default, not a measured one -- revisit with real
+    // numbers if the flicker persists.
+    dsmod_hold::HoldFilter continue_hold{ContinueHoldTicks};
+    static constexpr int ContinueHoldTicks = 10;
     // battle pane: each page's tab (0 Foe, 1 You, 2 Field), reset to the foe at every battle start
     int tab_cmd = 0, tab_fight = 0;
     int64_t battle_seq = 0;

@@ -1,13 +1,22 @@
 // SPDX-FileCopyrightText: Copyright 2026 Eden DSMod fork
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// The whole Pokémon module (0100000011D90000.cpp, or the Pearl build) through its exported C ABI,
-// with a host that has no game memory and no romfs: what it publishes before a game is readable,
-// and that every action needing the field or a battle is refused instead of acting on a default
-// snapshot. Needs no game data.
+// The whole Pokémon module (0100000011D90000.cpp, or the Pearl build) through its exported C ABI.
+//   1. With a host that has no game memory and no romfs: what it publishes before a game is
+//      readable, and that every action needing the field or a battle is refused instead of
+//      acting on a default snapshot. Needs no game data.
+//   2. With a host backed by a small fake memory image (the FakeMemory pattern from
+//      0100000011D90000_test.cpp): Tick()'s stale-sample menu restore (0100000011D90000.cpp
+//      ~211-230) -- once a battle has parked the native menus and samples then stop arriving (the
+//      companion window detached, owner issue 2026-10-23 #3 / companions #10's interim
+//      workaround), Tick() alone -- never Sample() again -- must put them back within a bounded
+//      number of ticks. A live aux-detach/reattach check in the harness was attempted for this
+//      pass and not reached (see games/pokemon-luminescent-platinum/STATUS.md); this is the
+//      fallback the task brief asked for in that case.
 
 #include "core/mods/dsmod_module_abi.h"
 #include "core/mods/dsmod_module_extensions.h"
+#include "lp_live.h"
 #include "lp_profile.h"
 
 #include <cassert>
@@ -96,11 +105,194 @@ void Run(bool matching_build) {
     api->destroy(m);
 }
 
+// A flat fake address space: page-granular byte map. Same shape as 0100000011D90000_test.cpp's
+// FakeMemory (a local copy: the two test binaries are separate translation units/targets).
+struct FakeMemory {
+    std::map<std::uint64_t, std::uint8_t> bytes;
+    void W64(std::uint64_t a, std::uint64_t v) {
+        for (int i = 0; i < 8; ++i) bytes[a + i] = static_cast<std::uint8_t>(v >> (8 * i));
+    }
+    void W32(std::uint64_t a, std::uint32_t v) {
+        for (int i = 0; i < 4; ++i) bytes[a + i] = static_cast<std::uint8_t>(v >> (8 * i));
+    }
+    void W32F(std::uint64_t a, float v) {
+        std::uint32_t bits;
+        std::memcpy(&bits, &v, 4);
+        W32(a, bits);
+    }
+    void W8(std::uint64_t a, std::uint8_t v) { bytes[a] = v; }
+    bool Read(std::uint64_t a, void* out, std::size_t n) const {
+        auto* o = static_cast<std::uint8_t*>(out);
+        for (std::size_t i = 0; i < n; ++i) {
+            auto it = bytes.find(a + i);
+            if (it == bytes.end()) return false;
+            o[i] = it->second;
+        }
+        return true;
+    }
+    bool Write(std::uint64_t a, const void* in, std::size_t n) {
+        auto* p = static_cast<const std::uint8_t*>(in);
+        for (std::size_t i = 0; i < n; ++i) bytes[a + i] = p[i];
+        return true;
+    }
+};
+
+// userdata for MakeMemoryHost: the ABI's function pointers cannot capture, so tick travels with
+// the memory, not as a separate reference (the same shape as lp_module_test.cpp's own FakeHost).
+struct FakeMemoryHost {
+    FakeMemory mem;
+    std::uint64_t tick = 0;
+};
+
+EdenDsmodHostApi MakeMemoryHost(FakeMemoryHost& h) {
+    EdenDsmodHostApi api{};
+    api.abi_version = EDEN_DSMOD_MODULE_ABI_VERSION;
+    api.struct_size = sizeof(EdenDsmodHostApi);
+    api.abi_hash = EDEN_DSMOD_MODULE_ABI_HASH;
+    api.userdata = &h;
+    api.title_id = lp_profile::Active.title_id;
+    const auto hex = lp_profile::Active.build_id;
+    for (std::size_t i = 0; i < sizeof(api.build_id); ++i)
+        api.build_id[i] = static_cast<std::uint8_t>(std::stoi(std::string{hex.substr(2 * i, 2)}, nullptr, 16));
+    api.main_base = 0x80000000;
+    api.main_size = 0x5000000;
+    api.get_tick = [](void* p) { return static_cast<FakeMemoryHost*>(p)->tick; };
+    api.read_memory = [](void* p, std::uint64_t a, void* out, std::size_t n) -> EdenDsmodBool {
+        return static_cast<FakeMemoryHost*>(p)->mem.Read(a, out, n) ? EDEN_DSMOD_TRUE : EDEN_DSMOD_FALSE;
+    };
+    api.write_memory = [](void* p, std::uint64_t a, const void* in, std::size_t n) -> EdenDsmodBool {
+        return static_cast<FakeMemoryHost*>(p)->mem.Write(a, in, n) ? EDEN_DSMOD_TRUE : EDEN_DSMOD_FALSE;
+    };
+    api.publish_i64 = [](void*, const char*, std::int64_t) {};
+    api.publish_text = [](void*, const char*, const char*) {};
+    api.read_romfs = [](void*, const char*, std::uint64_t, void*, size_t) -> size_t { return 0; };
+    api.get_i64 = [](void*, const char*, std::int64_t fallback) { return fallback; };
+    api.get_f64 = [](void*, const char*, double fallback) { return fallback; };
+    return api;
+}
+
+// Writes a minimal BattleViewCore -> UISystem -> {action, waza, ball} canvas layout a real battle
+// would have (same addresses/offsets as 0100000011D90000_test.cpp TestDeltaAndBattle), all three
+// lists unparked (TransitionType 0, distinct sentinel anchors) so HideBattleMenus(true) has real
+// originals to save and HideBattleMenus(false) has something to tell apart from "never parked".
+void WriteBattleLayout(FakeMemory& mem) {
+    using namespace lp_live;
+    constexpr std::uint64_t Main = 0x80000000;
+    for (const auto& f : off::Fingerprints) mem.W64(Main + f.slot, Main + f.target);
+    const std::uint64_t method = 0x1000000, klass = 0x1001000, statics = 0x1002000, bvc = 0x1003000;
+    const std::uint64_t ui = 0x1004000, action = 0x1005000, waza = 0x1006000;
+    const std::uint64_t ball = 0x1007000, balls = 0x1008000;
+    mem.W64(Main + off::BattleViewCoreGetInstance, method);
+    mem.W64(method + off::MethodKlass, klass);
+    mem.W64(klass + off::KlassStatics, statics);
+    mem.W64(statics, bvc);
+    mem.W64(bvc + off::BvcUiSystem, ui);
+    mem.W64(bvc + off::BvcViewSystem, 0);
+    mem.W64(ui + off::UiActionList, action);
+    mem.W64(ui + off::UiWazaList, waza);
+    mem.W64(ui + off::UiPokeBallList, ball);
+    mem.W64(ball + off::BallListBalls, balls);
+    mem.W32(balls + off::ListSize, 0);
+    int n = 0;
+    for (std::uint64_t list : {action, waza, ball}) {
+        for (std::uint64_t o = 0; o < 0x70; ++o) mem.W8(list + o, 0); // the canvas object is mapped as a whole
+        mem.W32(list + off::CanvasMaxIndex, 0);
+        mem.W32(list + off::CanvasCurrentIndex, 0);
+        mem.W8(list + off::CanvasIsFocus, 0);
+        mem.W8(list + off::CanvasIsShow, 0);
+        mem.W8(list + off::CanvasTransitionType, 0); // unparked (not the 1/2400,2400 parked shape)
+        mem.W32F(list + off::CanvasHideAnchor, 1000.0f + static_cast<float>(n)); // distinct originals
+        mem.W32F(list + off::CanvasShowAnchor, 2000.0f + static_cast<float>(n));
+        mem.W64(list + off::CanvasGroup, 0);
+        ++n;
+    }
+    mem.W64(Main + off::PlayerWorkTypeInfo, 0); // no PlayerWork: field/player stay unresolved, fine
+}
+
+bool AllListsParked(FakeMemory& mem) {
+    using namespace lp_live;
+    for (std::uint64_t list : {0x1005000ull, 0x1006000ull, 0x1007000ull}) {
+        std::uint32_t type = 0, hide = 0, show = 0;
+        if (!mem.Read(list + off::CanvasTransitionType, &type, 1)) return false;
+        if (!mem.Read(list + off::CanvasHideAnchor, &hide, 4)) return false;
+        if (!mem.Read(list + off::CanvasShowAnchor, &show, 4)) return false;
+        float hidef, showf;
+        std::memcpy(&hidef, &hide, 4);
+        std::memcpy(&showf, &show, 4);
+        if (type != 1 || hidef != 2400.0f || showf != 2400.0f) return false;
+    }
+    return true;
+}
+
+bool AllListsRestored(FakeMemory& mem) {
+    int n = 0;
+    for (std::uint64_t list : {0x1005000ull, 0x1006000ull, 0x1007000ull}) {
+        std::uint32_t hide = 0, show = 0;
+        if (!mem.Read(list + lp_live::off::CanvasHideAnchor, &hide, 4)) return false;
+        if (!mem.Read(list + lp_live::off::CanvasShowAnchor, &show, 4)) return false;
+        float hidef, showf;
+        std::memcpy(&hidef, &hide, 4);
+        std::memcpy(&showf, &show, 4);
+        if (hidef != 1000.0f + n || showf != 2000.0f + n) return false;
+        ++n;
+    }
+    return true;
+}
+
+// Tick() must restore the parked battle menus on its own, without a further Sample(), once
+// samples have been stale for a while -- the companion window can be hidden mid-battle (aux
+// detached: the host keeps calling tick() because the module has on_action, but stops calling
+// sample()) and the top-screen command/move/ball lists must come back for native play.
+void TestStaleSampleRestoresParkedMenus() {
+    const auto* api = eden_dsmod_get_module(EDEN_DSMOD_MODULE_ABI_VERSION, EDEN_DSMOD_MODULE_ABI_HASH);
+    const auto* ext = eden_dsmod_get_extensions(EDEN_DSMOD_EXT_VERSION, EDEN_DSMOD_EXT_HASH);
+    assert(api && ext);
+    (void)ext;
+    FakeMemoryHost h;
+    WriteBattleLayout(h.mem);
+    const EdenDsmodHostApi host = MakeMemoryHost(h);
+    void* m = api->create(&host, nullptr);
+    assert(m);
+
+    // A few sampled ticks in battle: the module parks the native menus every battle sample
+    // (0100000011D90000.cpp: "the menus are always parked").
+    assert(!AllListsParked(h.mem));
+    for (int k = 0; k < 3; ++k) {
+        ++h.tick;
+        api->sample(m, &host);
+        api->tick(m, &host);
+    }
+    assert(AllListsParked(h.mem));
+    assert(!AllListsRestored(h.mem));
+
+    // Samples stop (aux detached): only tick() keeps running, with the host tick counter still
+    // advancing. Nothing changes for the first 10 stale ticks (last_sample_tick + 10 guard).
+    for (int k = 0; k < 10; ++k) {
+        ++h.tick;
+        api->tick(m, &host);
+    }
+    assert(AllListsParked(h.mem));
+    assert(!AllListsRestored(h.mem));
+
+    // Past the guard, Tick() restores the saved originals on its own -- no Sample() since the
+    // battle was entered.
+    bool restored = false;
+    for (int k = 0; k < 40 && !restored; ++k) {
+        ++h.tick;
+        api->tick(m, &host);
+        restored = AllListsRestored(h.mem);
+    }
+    assert(restored);
+    assert(!AllListsParked(h.mem));
+    api->destroy(m);
+}
+
 } // namespace
 
 int main() {
     Run(false);
     Run(true);
+    TestStaleSampleRestoresParkedMenus();
     std::puts("lp module tests passed");
     return 0;
 }
