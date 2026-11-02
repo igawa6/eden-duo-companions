@@ -60,6 +60,20 @@ LABEL_KEYS = [
     ("cmd_battle", "Battle", "ss_btl_app", "msg_ui_btl_00"),
     ("cmd_pokemon", "Pokémon", "ss_btl_app", "msg_ui_btl_02"),
     ("cmd_run", "Run", "ss_btl_app", "msg_ui_btl_04"),
+    # Safari Zone command bar (companions #10 fix (b), contracts/safari-menu-bd130.md §5): exact
+    # message IDs from the decompiled BUIActionSelectButton.cs dictionary, including the game's own
+    # "Commnad" typo on three of the four (verified as the real compiled string, not ours). English
+    # text confirmed live-decoded offline (lp-unity-tool lang 2, real merged BD130+LP22F romfs,
+    # 2026-11-02): "Ball", not the Bulbapedia-style "Poké Balls" placeholder this row briefly had.
+    ("cmd_safari_ball", "Ball", "ss_btl_app", "msg_ui_btl_SafariCommnadBallMsg"),
+    ("cmd_safari_bait", "Bait", "ss_btl_app", "msg_ui_btl_SafariCommnadEsaMsg"),
+    ("cmd_safari_mud", "Mud", "ss_btl_app", "msg_ui_btl_SafariCommnadDoroMsg"),
+    ("cmd_safari_run", "Run", "ss_btl_app", "msg_ui_btl_SafariCommandEscapeMsg"),
+    # BUISafariBall's own count label (the native top-screen window this change parks and the
+    # companion's Safari Ball window, owner decision #5, both borrow). Confirmed live-decoded: a
+    # "Remaining: " prefix, not a combined "{0} left" template -- matches this implementation's
+    # split label-then-value layout (safari_ball_window() in gen_manifest.py) exactly.
+    ("safari_balls_label", "Remaining: ", "ss_btl_app", "msg_ui_btl_SafariNokoriMsg"),
     ("ability", "Ability", "ss_btl_app", "msg_ui_btl_wazainfo_tokusei"),
     ("power", "Power", "ss_btl_app", "msg_ui_btl_wazainfo_03"),
     ("accuracy", "Accuracy", "ss_btl_app", "msg_ui_btl_wazainfo_02"),

@@ -51,6 +51,14 @@ constexpr u64 EntityManagerTypeInfo = lp_profile::Active.EntityManagerTypeInfo;
 constexpr u64 EvDataManagerTypeInfo = lp_profile::Active.EvDataManagerTypeInfo, EvFieldObjects = 0x568, EntityParams = 0xD0;
 constexpr u64 ParamVanish = 0x20, ParamDowsing = 0x50, EntityWorldX = 0x28, EntityWorldZ = 0x30;
 constexpr u64 PlayerWorkTypeInfo = lp_profile::Active.PlayerWorkTypeInfo;        // PlayerWork_TypeInfo slot
+// &PlayerWork_TypeInfo itself (RE 2026-11-02, contracts/safari-menu-bd130.md): PlayerWork.
+// SafariBallNum is a static C# property, backed by a static field of PlayerWork's own class --
+// a different statics block than PlayerWorkTypeInfo above (that one is PlayerWork.SaveData_
+// TypeInfo, which only ever yields the instance). Disassembly of the real get_SafariBallNum()
+// (BD RVA 0x2CF48C0): statics = Ptr(Ptr(Slot(PlayerWorkClassTypeInfo)) + KlassStatics);
+// value = Rd<i32>(statics + PwSafariBallNum).
+constexpr u64 PlayerWorkClassTypeInfo = lp_profile::Active.PlayerWorkClassTypeInfo;
+constexpr u64 PwSafariBallNum = 0x48; // PlayerWork's own static field block
 constexpr u64 FieldManagerTypeInfo = lp_profile::Active.FieldManagerTypeInfo;      // FieldManager_TypeInfo slot (statics +0 = _Instance)
 constexpr u64 BattleViewCoreGetInstance = lp_profile::Active.BattleViewCoreGetInstance; // MethodInfo slot of SingletonMonoBehaviour<BattleViewCore>.get_Instance
 // .data RELATIVE relocations: slot -> main + target (from main's .rela.dyn), used to learn the
@@ -111,6 +119,12 @@ constexpr u64 ParamCore = 0x10, ParamCalc = 0x18;
 // battle view
 constexpr u64 BvcViewSystem = 0x28, BvcUiSystem = 0x30;
 constexpr u64 UiActionList = 0x38, UiWazaList = 0x40, UiPokeBallList = 0x70;
+// BattleViewUISystem._safariBall (contracts/safari-menu-bd130.md §8): the top-screen Safari Ball
+// count window (BUISafariBall). Predicted by field-declaration-order arithmetic from the already-
+// shipped, already-live-verified neighbours UiPokeBallList=0x70 and UiTargetSelect=0x80 (every
+// field in between is an 8-byte reference bucketed in declaration order) -- not independently
+// live-verified this session (no confirmed Safari battle was reached); see STATUS.md.
+constexpr u64 UiSafariBall = 0x78;
 // BD/SP 1.3.0 IL2CPP: battle message window and its input model.
 constexpr u64 UiMessageOpen = 0xB2, UiMessageSleep = 0xB1, UiMessageWindow = 0xD8;
 constexpr u64 UiMessageKeyWait = 0xBC, UiMessageQueue = 0xC8;
@@ -119,6 +133,12 @@ constexpr u64 MessageState = 0x40, MessageInput = 0x64, MessageParam = 0x10;
 constexpr u64 MessageCloseInput = 0x39;
 constexpr u64 ActionMinIndex = 0xA4, ActionMaxIndex = 0xA8; // native visible command bounds
 constexpr u64 ActionBallEnable = 0xA0; // BUIActionList._isBallEnable: 0 in trainer battles
+// BUIActionList bools, live-verified byte-for-byte 2026-11-02 (contracts/safari-menu-bd130.md §3)
+// at the position field-layout arithmetic predicts, right after _isBallEnable:
+constexpr u64 ActionNeedOpenBallWindow = 0xA1; // _needOpenBallWindow: the X quick-ball popup only
+                                                // (always false in Safari -- not the top window)
+constexpr u64 ActionIsSafari = 0xA2;           // _isSafari: the Safari-mode discriminant this change reads
+constexpr u64 ActionButtonBusy = 0xA3;         // isButtonAction
 constexpr u64 CanvasTransitionType = 0x18, CanvasHideAnchor = 0x1C, CanvasShowAnchor = 0x24;
 constexpr u64 CanvasGroup = 0x40, NativePtr = 0x10, NativeCanvasGroupAlpha = 0x3C;
 constexpr u64 CanvasMaxIndex = 0x58, CanvasCurrentIndex = 0x5C, CanvasIsFocus = 0x60, CanvasIsShow = 0x61;
@@ -159,7 +179,7 @@ constexpr u64 SetupMultiMode = 0x39;
 constexpr u64 ClientProcPokeIdx = 0x198;
 constexpr u64 UiTargetSelect = 0x80, CanvasIsValid = 0x62, TargetSingle = 0xAC;
 constexpr u64 CanvasIsTransition = 0x63; // BattleViewUICanvasBase._IsTransition (a show / hide slide)
-constexpr int RuleDouble = 1, ClientNone = 5, ViewNone = 255;
+constexpr int RuleDouble = 1, RuleSafari = 3, ClientNone = 5, ViewNone = 255;
 // The game's own Bag / Pokémon windows opened from the battle menu (contracts/battle-bag-party-ui-bd130.md):
 // UISystem +0xE8 _uiWindow (OpenMenuUI<T> stores the new window and clears +0xAC _isMenuUIEnd; the
 // window's onClosed sets it again). The window's +0x48 UIManager.UIInstance holds _uiWindow +0x10
@@ -363,6 +383,13 @@ struct Snapshot {
     bool battle_continue = false; // an input-enabled native dialogue, never a selectable menu
     CanvasState action, waza, ball;
     int action_min = 0, action_max = 3; // unknown bounds retain the normal four-command layout
+    // BUIActionList._isSafari (off::ActionIsSafari): the Safari discriminant this change adds.
+    // Preferred over MainModule's rule field as the primary Safari signal (contracts/safari-menu-
+    // bd130.md, companions #10 fix (b)) -- it lives on the same object action_min/action_max
+    // already come from, so it needs no extra pointer chain and no dependency on the double-
+    // battle rule read being reachable from every battle kind.
+    bool action_safari = false;
+    int safari_balls = -1; // PlayerWork.SafariBallNum (static field); -1 = not read this sample
     // [0] player, [1] opponent: party member 0 of each side; in a double [0] is the Pokémon
     // choosing its command (m_procPokeIdx) while one is
     std::array<BattleMon, 2> front{};
@@ -529,7 +556,7 @@ private:
         float hide_x = 0, show_x = 0;
         bool saved = false;
     };
-    std::array<Saved, 3> saved_lists{};
+    std::array<Saved, 4> saved_lists{}; // UiActionList, UiWazaList, UiPokeBallList, UiSafariBall
 };
 
 } // namespace lp_live

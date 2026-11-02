@@ -571,8 +571,14 @@ public:
                 return EDEN_DSMOD_FALSE; // the game would refuse with a message; keep it quiet
             d.kind = Drive::Kind::Move;
         } else if (action == "command") {
-            // Native order: 1 Pokémon, 2 Bag (game windows on the top screen), 3 Run
-            if (arg < 1 || arg > 3 || arg < snap.action_min || arg > snap.action_max || !snap.action.focus)
+            // Normal battle order: 1 Pokémon, 2 Bag (game windows on the top screen), 3 Run; Fight
+            // (slot 0 = action_min) drives via "battleview"/OpenMoves instead, never through here
+            // -- still excluded below, generalized from the old literal "arg < 1". Safari order
+            // (companions #10 fix (b)): 5 Ball, 6 Bait, 7 Mud, 8 Run -- none of its 4 opens a
+            // sub-list the way Fight does (contract §4), so Safari's slot 0 (Ball) has no
+            // equivalent exclusion.
+            if (arg < snap.action_min || arg > snap.action_max || !snap.action.focus ||
+                (!snap.action_safari && arg == snap.action_min))
                 return EDEN_DSMOD_FALSE;
             d.kind = Drive::Kind::Command;
         } else if (action == "ballkey") {
@@ -1945,9 +1951,20 @@ private:
         live.HideBattleMenus(true);
         menus_parked = true;
         I64("lp.bt.cmd.focus", snap.action.focus && snap.action.show ? 1 : 0);
-        I64("lp.bt.cmd.index", snap.action.current);
+        // Relative to action_min (0 in normal battles, 5 in Safari) so the manifest's existing
+        // lp.bt.cmd{k}.picked derivation ("lp.bt.cmd.index == k") needs no change for Safari's
+        // absolute indices 5..8 -- it already means "this slot's absolute index is selected".
+        I64("lp.bt.cmd.index", snap.action.current - snap.action_min);
+        // Safari (companions #10 fix (b)): BUIActionList._isSafari, same object action_min/max
+        // already come from -- the manifest picks Ball/Bait/Mud/Run vs. Battle/Pokémon/Bag/Run
+        // from this flag. Slot k always drives arg = action_min + k (both the normal 4-command
+        // set and the Safari 4-command set are exactly 4 wide), so availability is relative to
+        // the live range's own width, not the absolute index.
+        I64("lp.bt.safari", snap.action_safari ? 1 : 0);
+        I64("lp.bt.safari.balls", snap.safari_balls); // -1 when unread; the manifest's Safari Ball
+                                                       // window gates its count label on >= 0
         for (int k = 0; k < 4; ++k)
-            I64("lp.bt.cmd" + std::to_string(k) + ".available", k >= snap.action_min && k <= snap.action_max);
+            I64("lp.bt.cmd" + std::to_string(k) + ".available", k <= (snap.action_max - snap.action_min));
         I64("lp.bt.ball.focus", snap.ball.focus ? 1 : 0);
         I64("lp.bt.ball.input", snap.ball.focus && drive.kind == Drive::Kind::None ? 1 : 0);
         // The raw per-tick read (Reader::CanContinueBattle) can drop out for one or a few samples

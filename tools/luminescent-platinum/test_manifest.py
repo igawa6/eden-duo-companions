@@ -300,9 +300,12 @@ class ManifestTests(unittest.TestCase):
         # battle_dims()'s busy rect has no on_tap, so find the hidden busy_veil(0) input blocker
         # (full width, starts at the body top, hidden while lp.bt.input==1) and require every
         # hidden-state Continue widget to come later in the page's (painter's order) widget list.
+        # companions #10 fix (b): the veil's x0 split now follows lp.cfg.pane_card (never true in
+        # Safari, since safari_ball_window() replaces the wide card in both pane states), not the
+        # raw lp.cfg.pane toggle -- same gate shape, different name.
         veil_indices = [i for i, w in enumerate(battle['widgets'])
                         if w.get('type') == 'rect' and w.get('input_block') and w.get('hide_bind') == 'lp.bt.input'
-                        and w.get('rect', [None])[0] == 0 and w.get('need_bind') == '!lp.cfg.pane']
+                        and w.get('rect', [None])[0] == 0 and w.get('need_bind') == '!lp.cfg.pane_card']
         self.assertTrue(veil_indices)
         cont_indices = [battle['widgets'].index(w) for w in cont]
         self.assertTrue(all(ci > vi for ci in cont_indices for vi in veil_indices),
@@ -311,12 +314,25 @@ class ManifestTests(unittest.TestCase):
     def test_pane_fold_arrow_and_folded_tab_on_both_pages(self):
         for page_id, pane_w in (('battle', gen.STRIP_W), ('moves', gen.MOVE_PANE_W)):
             page = next(p for p in self.manifest['pages'] if p['id'] == page_id)
+            # companions #10 fix (b): the battle page's whole tabbed card -- including its own
+            # fold arrow / folded tab -- is additionally gated off in Safari (safari_ball_window()
+            # takes its place in both pane states, page_battle()'s "!lp.bt.safari" wrap on `pane`).
+            # The moves page never applies (none of the four Safari commands opens a move list).
+            def expect(need_bind, base):
+                if page_id == 'battle':
+                    self.assertTrue(need_bind.startswith('not.lp.bt.safari.with.'), need_bind)
+                    self.assertIn(base.replace('!', 'not.'), need_bind)
+                else:
+                    self.assertEqual(need_bind, base)
+
             arrows = [w for w in page['widgets'] if w.get('on_tap') == 'pane_hide']
             self.assertTrue(arrows, page_id)
-            self.assertTrue(all(w['need_bind'] == 'lp.bt.pane_arrow' for w in arrows))
+            for w in arrows:
+                expect(w['need_bind'], 'lp.bt.pane_arrow')
             tabs = [w for w in page['widgets'] if w.get('on_tap') == 'pane_show']
             self.assertTrue(tabs, page_id)
-            self.assertTrue(all(w['need_bind'] == '!lp.cfg.pane' for w in tabs))
+            for w in tabs:
+                expect(w['need_bind'], '!lp.cfg.pane')
             # owner: "only show arrow" -- the folded tab carries no tab-name label of its own
             self.assertFalse(any(w.get('type') == 'label' and w.get('on_tap') == 'pane_show' for w in page['widgets']))
 
@@ -332,8 +348,8 @@ class ManifestTests(unittest.TestCase):
                               if w.get('rect') == arrow_rect and 'cmn_ico_arrow_01' in w.get('src', ''))
             tab_icon = next(w for w in page['widgets']
                             if w.get('rect') == tab_rect and 'cmn_ico_arrow_01' in w.get('src', ''))
-            self.assertEqual(arrow_icon['need_bind'], 'lp.bt.pane_arrow')
-            self.assertEqual(tab_icon['need_bind'], '!lp.cfg.pane')
+            expect(arrow_icon['need_bind'], 'lp.bt.pane_arrow')
+            expect(tab_icon['need_bind'], '!lp.cfg.pane')
             self.assertFalse(arrow_icon.get('flip_x'))   # hide: left-pointing fold arrow (the game's ◀)
             self.assertTrue(tab_icon.get('flip_x'))      # restore: right-pointing
 

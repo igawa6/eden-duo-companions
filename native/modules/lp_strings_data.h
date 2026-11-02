@@ -207,6 +207,11 @@ enum class Key : std::uint16_t {
     cmd_battle,
     cmd_pokemon,
     cmd_run,
+    cmd_safari_ball,
+    cmd_safari_bait,
+    cmd_safari_mud,
+    cmd_safari_run,
+    safari_balls_label,
     ability,
     power,
     accuracy,
@@ -279,7 +284,7 @@ enum class Key : std::uint16_t {
 
 // key, game table, label, flags, variants reading the label (bit = lp_lang::Variant), text per
 // variant (en, pt-BR, fr, de, es-ES, es-419, ko, zh-Hans, zh-Hant, ja, it; "" = English)
-inline constexpr std::array<Row, 263> Rows{{
+inline constexpr std::array<Row, 268> Rows{{
     {"start_starting", "", "", 0, 0x000,
      {"Starting Luminescent Platinum…", "Iniciando Luminescent Platinum…", "Lancement de Luminescent Platinum…", "Luminescent Platinum wird gestartet…", "Iniciando Luminescent Platinum…", "Iniciando Luminescent Platinum…", "Luminescent Platinum을 시작하는 중…", "正在启动 Luminescent Platinum……", "正在啟動 Luminescent Platinum……", "Luminescent Platinumを起動中…", "Avvio di Luminescent Platinum…"}},
     {"start_starting_bd", "", "", 0, 0x000,
@@ -672,6 +677,16 @@ inline constexpr std::array<Row, 263> Rows{{
      {"Pokémon", "", "", "", "", "", "", "", "", "", ""}},
     {"cmd_run", "ss_btl_app", "msg_ui_btl_04", 0, 0x7FF,
      {"Run", "", "", "", "", "", "", "", "", "", ""}},
+    {"cmd_safari_ball", "ss_btl_app", "msg_ui_btl_SafariCommnadBallMsg", 0, 0x7FF,
+     {"Ball", "", "", "", "", "", "", "", "", "", ""}},
+    {"cmd_safari_bait", "ss_btl_app", "msg_ui_btl_SafariCommnadEsaMsg", 0, 0x7FF,
+     {"Bait", "", "", "", "", "", "", "", "", "", ""}},
+    {"cmd_safari_mud", "ss_btl_app", "msg_ui_btl_SafariCommnadDoroMsg", 0, 0x7FF,
+     {"Mud", "", "", "", "", "", "", "", "", "", ""}},
+    {"cmd_safari_run", "ss_btl_app", "msg_ui_btl_SafariCommandEscapeMsg", 0, 0x7FF,
+     {"Run", "", "", "", "", "", "", "", "", "", ""}},
+    {"safari_balls_label", "ss_btl_app", "msg_ui_btl_SafariNokoriMsg", 0, 0x7FF,
+     {"Remaining: ", "", "", "", "", "", "", "", "", "", ""}},
     {"ability", "ss_btl_app", "msg_ui_btl_wazainfo_tokusei", 0, 0x7FF,
      {"Ability", "", "", "", "", "", "", "", "", "", ""}},
     {"power", "ss_btl_app", "msg_ui_btl_wazainfo_03", 0, 0x7FF,
@@ -854,7 +869,7 @@ inline constexpr std::array<SumSpec, 12> Sums{{
 
 // Where the manifest draws each string (the dev fit report, lp-unity-tool fit): scale, smallest
 // scale (fit_text), width available (0 = unbounded), lines allowed (0 = any), and the page.
-inline constexpr std::array<FitSpec, 469> Fits{{
+inline constexpr std::array<FitSpec, 478> Fits{{
     {static_cast<std::uint16_t>(Key::start_starting), 7, 4, 580, 1, "wait"},
     {static_cast<std::uint16_t>(Key::start_starting_bd), 7, 4, 580, 1, "wait"},
     {static_cast<std::uint16_t>(Key::start_starting_sp), 7, 4, 580, 1, "wait"},
@@ -1140,10 +1155,18 @@ inline constexpr std::array<FitSpec, 469> Fits{{
     {static_cast<std::uint16_t>(Key::cmd_pokemon), 8, 6, 217, 1, "battle"},
     {static_cast<std::uint16_t>(Key::bag), 8, 6, 217, 1, "battle"},
     {static_cast<std::uint16_t>(Key::cmd_run), 8, 6, 217, 1, "battle"},
+    {static_cast<std::uint16_t>(Key::cmd_safari_ball), 8, 6, 386, 1, "battle"},
+    {static_cast<std::uint16_t>(Key::cmd_safari_bait), 8, 6, 386, 1, "battle"},
+    {static_cast<std::uint16_t>(Key::cmd_safari_mud), 8, 6, 386, 1, "battle"},
+    {static_cast<std::uint16_t>(Key::cmd_safari_run), 8, 6, 386, 1, "battle"},
     {static_cast<std::uint16_t>(Key::cmd_battle), 16, 6, 635, 1, "battle"},
     {static_cast<std::uint16_t>(Key::bag), 9, 6, 185, 1, "battle"},
     {static_cast<std::uint16_t>(Key::cmd_pokemon), 9, 6, 185, 1, "battle"},
     {static_cast<std::uint16_t>(Key::cmd_run), 9, 5, 121, 1, "battle"},
+    {static_cast<std::uint16_t>(Key::cmd_safari_ball), 16, 6, 1016, 1, "battle"},
+    {static_cast<std::uint16_t>(Key::cmd_safari_bait), 9, 6, 388, 1, "battle"},
+    {static_cast<std::uint16_t>(Key::cmd_safari_mud), 9, 6, 388, 1, "battle"},
+    {static_cast<std::uint16_t>(Key::cmd_safari_run), 9, 5, 312, 1, "battle"},
     {static_cast<std::uint16_t>(Key::field), 5, 3, 209, 1, "battle"},
     {static_cast<std::uint16_t>(Key::field), 6, 3, 209, 1, "battle"},
     {static_cast<std::uint16_t>(Key::field), 5, 3, 322, 1, "battle"},
@@ -1207,6 +1230,7 @@ inline constexpr std::array<FitSpec, 469> Fits{{
     {static_cast<std::uint16_t>(Key::your_party), 6, 5, 300, 1, "battle"},
     {static_cast<std::uint16_t>(Key::enemy_party), 6, 5, 300, 1, "battle"},
     {static_cast<std::uint16_t>(Key::level_prefix), 5, 5, 60, 1, "battle"},
+    {static_cast<std::uint16_t>(Key::safari_balls_label), 5, 3, 153, 1, "battle"},
     {static_cast<std::uint16_t>(Key::level_prefix), 6, 6, 56, 1, "battle"},
     {static_cast<std::uint16_t>(Key::hp), 5, 4, 42, 1, "battle"},
     {static_cast<std::uint16_t>(Key::level_prefix), 5, 5, 48, 1, "battle"},

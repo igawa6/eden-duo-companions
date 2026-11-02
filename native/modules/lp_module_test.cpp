@@ -142,6 +142,8 @@ struct FakeMemory {
 struct FakeMemoryHost {
     FakeMemory mem;
     std::uint64_t tick = 0;
+    std::map<std::string, std::int64_t> ints; // Safari tests read these back; the park/restore
+                                               // tests above only inspect raw memory bytes
 };
 
 EdenDsmodHostApi MakeMemoryHost(FakeMemoryHost& h) {
@@ -163,7 +165,7 @@ EdenDsmodHostApi MakeMemoryHost(FakeMemoryHost& h) {
     api.write_memory = [](void* p, std::uint64_t a, const void* in, std::size_t n) -> EdenDsmodBool {
         return static_cast<FakeMemoryHost*>(p)->mem.Write(a, in, n) ? EDEN_DSMOD_TRUE : EDEN_DSMOD_FALSE;
     };
-    api.publish_i64 = [](void*, const char*, std::int64_t) {};
+    api.publish_i64 = [](void* p, const char* name, std::int64_t v) { static_cast<FakeMemoryHost*>(p)->ints[name] = v; };
     api.publish_text = [](void*, const char*, const char*) {};
     api.read_romfs = [](void*, const char*, std::uint64_t, void*, size_t) -> size_t { return 0; };
     api.get_i64 = [](void*, const char*, std::int64_t fallback) { return fallback; };
@@ -171,17 +173,19 @@ EdenDsmodHostApi MakeMemoryHost(FakeMemoryHost& h) {
     return api;
 }
 
-// Writes a minimal BattleViewCore -> UISystem -> {action, waza, ball} canvas layout a real battle
-// would have (same addresses/offsets as 0100000011D90000_test.cpp TestDeltaAndBattle), all three
-// lists unparked (TransitionType 0, distinct sentinel anchors) so HideBattleMenus(true) has real
-// originals to save and HideBattleMenus(false) has something to tell apart from "never parked".
-void WriteBattleLayout(FakeMemory& mem) {
+// Writes a minimal BattleViewCore -> UISystem -> {action, waza, ball, safari} canvas layout a real
+// battle would have (same addresses/offsets as 0100000011D90000_test.cpp TestDeltaAndBattle), all
+// four lists unparked (TransitionType 0, distinct sentinel anchors) so HideBattleMenus(true) has
+// real originals to save and HideBattleMenus(false) has something to tell apart from "never
+// parked". `safari`/`min`/`max` select a normal (false, 0, 3) or Safari (true, 5, 8) battle --
+// companions #10 fix (b).
+void WriteBattleLayout(FakeMemory& mem, bool safari = false, int min = 0, int max = 3) {
     using namespace lp_live;
     constexpr std::uint64_t Main = 0x80000000;
     for (const auto& f : off::Fingerprints) mem.W64(Main + f.slot, Main + f.target);
     const std::uint64_t method = 0x1000000, klass = 0x1001000, statics = 0x1002000, bvc = 0x1003000;
     const std::uint64_t ui = 0x1004000, action = 0x1005000, waza = 0x1006000;
-    const std::uint64_t ball = 0x1007000, balls = 0x1008000;
+    const std::uint64_t ball = 0x1007000, balls = 0x1008000, safariw = 0x1009000;
     mem.W64(Main + off::BattleViewCoreGetInstance, method);
     mem.W64(method + off::MethodKlass, klass);
     mem.W64(klass + off::KlassStatics, statics);
@@ -191,27 +195,31 @@ void WriteBattleLayout(FakeMemory& mem) {
     mem.W64(ui + off::UiActionList, action);
     mem.W64(ui + off::UiWazaList, waza);
     mem.W64(ui + off::UiPokeBallList, ball);
+    mem.W64(ui + off::UiSafariBall, safariw);
     mem.W64(ball + off::BallListBalls, balls);
     mem.W32(balls + off::ListSize, 0);
     int n = 0;
-    for (std::uint64_t list : {action, waza, ball}) {
+    for (std::uint64_t list : {action, waza, ball, safariw}) {
         for (std::uint64_t o = 0; o < 0x70; ++o) mem.W8(list + o, 0); // the canvas object is mapped as a whole
         mem.W32(list + off::CanvasMaxIndex, 0);
-        mem.W32(list + off::CanvasCurrentIndex, 0);
-        mem.W8(list + off::CanvasIsFocus, 0);
-        mem.W8(list + off::CanvasIsShow, 0);
+        mem.W32(list + off::CanvasCurrentIndex, list == action ? min : 0);
+        mem.W8(list + off::CanvasIsFocus, list == action ? 1 : 0);
+        mem.W8(list + off::CanvasIsShow, list == action ? 1 : 0);
         mem.W8(list + off::CanvasTransitionType, 0); // unparked (not the 1/2400,2400 parked shape)
         mem.W32F(list + off::CanvasHideAnchor, 1000.0f + static_cast<float>(n)); // distinct originals
         mem.W32F(list + off::CanvasShowAnchor, 2000.0f + static_cast<float>(n));
         mem.W64(list + off::CanvasGroup, 0);
         ++n;
     }
+    mem.W32(action + off::ActionMinIndex, min);
+    mem.W32(action + off::ActionMaxIndex, max);
+    mem.W8(action + off::ActionIsSafari, safari ? 1 : 0);
     mem.W64(Main + off::PlayerWorkTypeInfo, 0); // no PlayerWork: field/player stay unresolved, fine
 }
 
 bool AllListsParked(FakeMemory& mem) {
     using namespace lp_live;
-    for (std::uint64_t list : {0x1005000ull, 0x1006000ull, 0x1007000ull}) {
+    for (std::uint64_t list : {0x1005000ull, 0x1006000ull, 0x1007000ull, 0x1009000ull}) {
         std::uint32_t type = 0, hide = 0, show = 0;
         if (!mem.Read(list + off::CanvasTransitionType, &type, 1)) return false;
         if (!mem.Read(list + off::CanvasHideAnchor, &hide, 4)) return false;
@@ -226,7 +234,7 @@ bool AllListsParked(FakeMemory& mem) {
 
 bool AllListsRestored(FakeMemory& mem) {
     int n = 0;
-    for (std::uint64_t list : {0x1005000ull, 0x1006000ull, 0x1007000ull}) {
+    for (std::uint64_t list : {0x1005000ull, 0x1006000ull, 0x1007000ull, 0x1009000ull}) {
         std::uint32_t hide = 0, show = 0;
         if (!mem.Read(list + lp_live::off::CanvasHideAnchor, &hide, 4)) return false;
         if (!mem.Read(list + lp_live::off::CanvasShowAnchor, &show, 4)) return false;
@@ -287,12 +295,109 @@ void TestStaleSampleRestoresParkedMenus() {
     api->destroy(m);
 }
 
+// companions #10 fix (b): the Safari command set (Ball/Bait/Mud/Run, absolute indices 5..8) drives
+// through the same generalized "command" action and cmd{k}.available/.picked slots as the normal
+// 4-command set, and UiSafariBall parks/restores alongside the other three menus (already covered
+// by WriteBattleLayout/AllListsParked/AllListsRestored above, which this reuses with safari=true).
+void TestSafariCommands() {
+    const auto* api = eden_dsmod_get_module(EDEN_DSMOD_MODULE_ABI_VERSION, EDEN_DSMOD_MODULE_ABI_HASH);
+    const auto* ext = eden_dsmod_get_extensions(EDEN_DSMOD_EXT_VERSION, EDEN_DSMOD_EXT_HASH);
+    assert(api && ext);
+    {
+        FakeMemoryHost h;
+        WriteBattleLayout(h.mem, /*safari=*/true, /*min=*/5, /*max=*/8);
+        const EdenDsmodHostApi host = MakeMemoryHost(h);
+        void* m = api->create(&host, nullptr);
+        assert(m);
+        for (int k = 0; k < 3; ++k) {
+            ++h.tick;
+            api->sample(m, &host);
+            api->tick(m, &host);
+        }
+        assert(AllListsParked(h.mem)); // UiSafariBall included: parked the same as action/waza/ball
+        assert(h.ints.at("lp.bt.safari") == 1);
+        for (int k = 0; k < 4; ++k)
+            assert(h.ints.at("lp.bt.cmd" + std::to_string(k) + ".available") == 1); // 5..8 is 4 wide too
+        assert(h.ints.at("lp.bt.cmd.index") == 0); // relative: native CurrentIndex(5) - action_min(5)
+        // Out of range for this battle's live bounds: refused, including adjacent normal-mode
+        // values. (Checked first, in the same instance: refusals never consume the one-drive-at-
+        // a-time slot, so they do not disturb the in-range checks below.)
+        for (std::int64_t arg : {0, 1, 3, 4, 9, 99})
+            assert(ext->on_action(m, "command", arg) == EDEN_DSMOD_FALSE);
+        api->destroy(m);
+    }
+    // In range (5..8): accepted, including Safari's own slot 0 (Ball) -- unlike normal mode's
+    // Fight, none of the Safari commands opens a sub-list, so there is nothing to exclude. A fresh
+    // module per value: a successful "command" occupies the module's one-drive-at-a-time slot, so
+    // reusing one instance would make every value after the first look refused for the wrong reason.
+    for (std::int64_t arg : {5, 6, 7, 8}) {
+        FakeMemoryHost h;
+        WriteBattleLayout(h.mem, /*safari=*/true, /*min=*/5, /*max=*/8);
+        const EdenDsmodHostApi host = MakeMemoryHost(h);
+        void* m = api->create(&host, nullptr);
+        assert(m);
+        for (int k = 0; k < 3; ++k) {
+            ++h.tick;
+            api->sample(m, &host);
+            api->tick(m, &host);
+        }
+        assert(ext->on_action(m, "command", arg) == EDEN_DSMOD_TRUE);
+        api->destroy(m);
+    }
+}
+
+// Regression: an ordinary (non-Safari) battle keeps today's behaviour exactly -- Fight (0) is
+// still refused through "command" (it drives via "battleview" instead), 1..3 still accepted, nothing
+// outside 0..3 accepted, lp.bt.safari is 0, and cmd.index is unaffected by being made relative
+// (action_min is 0 in a normal battle, so current - action_min == current, no behaviour change).
+void TestNormalCommandsUnaffected() {
+    const auto* api = eden_dsmod_get_module(EDEN_DSMOD_MODULE_ABI_VERSION, EDEN_DSMOD_MODULE_ABI_HASH);
+    const auto* ext = eden_dsmod_get_extensions(EDEN_DSMOD_EXT_VERSION, EDEN_DSMOD_EXT_HASH);
+    assert(api && ext);
+    {
+        FakeMemoryHost h;
+        WriteBattleLayout(h.mem, /*safari=*/false, /*min=*/0, /*max=*/3);
+        const EdenDsmodHostApi host = MakeMemoryHost(h);
+        void* m = api->create(&host, nullptr);
+        assert(m);
+        for (int k = 0; k < 3; ++k) {
+            ++h.tick;
+            api->sample(m, &host);
+            api->tick(m, &host);
+        }
+        assert(h.ints.at("lp.bt.safari") == 0);
+        for (int k = 0; k < 4; ++k)
+            assert(h.ints.at("lp.bt.cmd" + std::to_string(k) + ".available") == 1);
+        assert(h.ints.at("lp.bt.cmd.index") == 0); // native CurrentIndex(0) - action_min(0)
+        for (std::int64_t arg : {0, 4, 5, 8, 99}) // 0 = Fight, still excluded
+            assert(ext->on_action(m, "command", arg) == EDEN_DSMOD_FALSE);
+        api->destroy(m);
+    }
+    // One fresh module per accepted value, same reason as TestSafariCommands above.
+    for (std::int64_t arg : {1, 2, 3}) {
+        FakeMemoryHost h;
+        WriteBattleLayout(h.mem, /*safari=*/false, /*min=*/0, /*max=*/3);
+        const EdenDsmodHostApi host = MakeMemoryHost(h);
+        void* m = api->create(&host, nullptr);
+        assert(m);
+        for (int k = 0; k < 3; ++k) {
+            ++h.tick;
+            api->sample(m, &host);
+            api->tick(m, &host);
+        }
+        assert(ext->on_action(m, "command", arg) == EDEN_DSMOD_TRUE);
+        api->destroy(m);
+    }
+}
+
 } // namespace
 
 int main() {
     Run(false);
     Run(true);
     TestStaleSampleRestoresParkedMenus();
+    TestSafariCommands();
+    TestNormalCommandsUnaffected();
     std::puts("lp module tests passed");
     return 0;
 }

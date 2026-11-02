@@ -467,12 +467,19 @@ def move_bar(x, y, w, h, p, *, on_tap=None, pill=True):
     return out
 
 
-def command_button(r, idx, key, scale, on_tap, min_scale=6):
+def command_button(r, idx, key, scale, on_tap, min_scale=6, series=1):
     """A battle command button. The body sprite (252x78) ends in its icon; the frame part is
-    stretched (9-slice), the icon end is scaled uniformly so the ring keeps its shape."""
+    stretched (9-slice), the icon end is scaled uniformly so the ring keeps its shape.
+
+    `series` picks the sprite set: 1 (default) is the normal Fight/Pokémon/Bag/Run bodies
+    (`btl_bt_command_01_body_NN`); 2 is the Safari set (companions #10 fix (b)), the game's own
+    icon-less bodies (`btl_bt_command_02_body_01..04`, REVIEW.md) with a centred label and no icon
+    notch -- the native Safari menu draws them this way, so idx there is just 1..4 (Ball/Bait/Mud/
+    Run), never 3 or 5 (the normal-set special cases below are series-1-only: Safari has no Bag-
+    style two-variant body and no Back/arrow-cropped body)."""
     x, y, w, h = r
-    src = ui("sharedui", f"btl_bt_command_01_body_{idx:02d}")
-    if idx == 5:
+    src = ui("sharedui", f"btl_bt_command_{series:02d}_body_{idx:02d}")
+    if idx == 5 and series == 1:
         # Back: the arrow icon end is cropped away, so the frame's own right edge (the sprite's last
         # 12 px) is drawn as a separate cap to close the border.
         cap = round(12 * h / 78)
@@ -480,7 +487,7 @@ def command_button(r, idx, key, scale, on_tap, min_scale=6):
                 sliced([x + w - cap, y, cap, h], src, (252, 78), [0, 12, 0, 12], h/78, crop=(240, 0, 252, 78)))
     else:
         body = sliced([x, y, w, h], src, (252, 78), [12, 12, 100, 12], h/78)
-    if idx == 3:
+    if idx == 3 and series == 1:
         # Both native Bag designs include line art; body_03 alone is intentionally
         # blank. One selector combines player sex with the current theme.
         names = [ui("sharedui", f"btl_bt_command_01_body_03_{variant:02d}") for variant in (2, 1)]
@@ -488,13 +495,20 @@ def command_button(r, idx, key, scale, on_tap, min_scale=6):
             widget.pop("src", None)
             widget.update(bind="lp.bt.bag.style", src_names=names + [
                 name.replace("module:lp:", "module:lp:classic/", 1) for name in names])
+    # series 1 leaves room for the body's own icon end (the label sits left of it); series 2's
+    # bodies are icon-less (no notch to avoid), so the label centres across the whole button
+    # (task: "icon-less command button art with centred labels", mockup d).
+    if series == 1:
+        label_x, label_w, align = x + int(h * 0.25), int(w - h * (100/78 + 0.25) - 12), None
+    else:
+        label_x, label_w, align = x + 12, w - 24, "center"
     out = (sliced([x + 6, y + 8, w, h], ui("sharedui", "btl_bt_command_01_shadow"),
                    (44, 40), [12, 12, 12, 12], h / 78, color="#C0FFFFFF") + body + [
         rect([x, y, w, h], "#00000000", on_tap=on_tap),
-        label([x + int(h * 0.25), y, int(w - h * (100/78 + 0.25) - 12), 0],
-              bind_text=t(key), scale=scale, color=WHITE, outline=CMD_OUTLINE, outline_px=4,
-              fit_text=True, text_min_scale=min_scale, wrap_width=int(w - h * (100/78 + 0.25) - 12), max_lines=1,
-              text_center_h=h),
+        label([label_x, y, label_w, 0], bind_text=t(key), scale=scale, color=WHITE,
+              outline=CMD_OUTLINE, outline_px=4, fit_text=True, text_min_scale=min_scale,
+              wrap_width=label_w, max_lines=1, text_center_h=h,
+              **({"align": align} if align else {})),
     ])
 
     if idx == 5:
@@ -1784,6 +1798,13 @@ MOVE_Y0 = BACK_Y - MOVE_SHORTCUT_GAP - (4 * CMD_H + 3 * CMD_GAP)
 # the command stack in the game's own order (its cursor index): Battle, Pokémon, Bag, Run
 COMMANDS = [("cmd_battle", 1, "go_moves"), ("cmd_pokemon", 2, "cmd_pokemon"), ("bag", 3, "cmd_bag"),
             ("cmd_run", 4, "cmd_run")]
+# Safari command stack (companions #10 fix (b), owner decision #4 "game order"): native list
+# order Ball/Bait/Mud/Run (relative slot k = absolute action 5+k), icon-less bodies (series=2,
+# REVIEW.md btl_bt_command_02_body_01..04). REVIEW.md: "the same curve also suits the pane-shown
+# Safari case: today's right-hand stack with the 4 icon-less bodies" -- same CMD_X/CMD_Y0 geometry
+# as COMMANDS, just this row's text/action/sprite set.
+SAFARI_COMMANDS = [("cmd_safari_ball", 1, "cmd_safari_ball"), ("cmd_safari_bait", 2, "cmd_safari_bait"),
+                   ("cmd_safari_mud", 3, "cmd_safari_mud"), ("cmd_safari_run", 4, "cmd_safari_run")]
 
 # ---- pane-hidden layout (owner mockup b, 2026-11-02 battle-pane-hide-mockups): the fold arrow on
 # the left card folds it away; one big centre button, two on a curve and the lowest one centred
@@ -1795,6 +1816,14 @@ HIDDEN_BIG = [100, 396, 1040, 256]     # Battle / (later) Poké Balls
 HIDDEN_LEFT = [24, 708, 412, 140]      # Bag / (later) Bait
 HIDDEN_RIGHT = [804, 708, 412, 140]    # Pokémon / (later) Mud
 HIDDEN_RUN = [452, 808, 336, 132]      # Run, lowest and centred either way
+# Safari's own pane-hidden specs (mockup d, companions #10 fix (b)): same four rects as the
+# normal layout above (owner decision #4), icon-less bodies, native list order (Ball/Bait/Mud/
+# Run = relative k 0..3) with no left/right swap this time (Bait really is left, Mud really is
+# right in both "native order" and "owner-approved layout").
+SAFARI_HIDDEN_SPECS = [(0, HIDDEN_BIG, 1, "cmd_safari_ball", "cmd_safari_ball", 16, 6),
+                       (1, HIDDEN_LEFT, 2, "cmd_safari_bait", "cmd_safari_bait", 9, 6),
+                       (2, HIDDEN_RIGHT, 3, "cmd_safari_mud", "cmd_safari_mud", 9, 6),
+                       (3, HIDDEN_RUN, 4, "cmd_safari_run", "cmd_safari_run", 9, 5)]
 HIDDEN_CONT = [452, 958, 336, 80]      # Continue, directly under Run
 # the fold arrow (hide, top-right of the card's tab row) and the folded tab (restore, the card's
 # old top-left): cmn_ico_arrow_01 is a tall narrow chevron (~1:2), not square
@@ -2318,23 +2347,27 @@ def switch_overlay(x):
     return overlay_motion(out, "lp.bt.sw.on", "switch", [x-16, y-16, w+32, h+40])
 
 
-def battle_commands_hidden():
+def battle_commands_hidden(specs=None, series=1):
     """Pane-hidden command layout (owner mockup b, Direction A): one big centre Battle button,
     Bag / Pokémon on a curve and Run lowest and centred, same command slots/binds/actions as the
     small stack -- just bigger and repositioned. Never drawn in a double (the caller's lp.cfg.pane
     gate already covers that). Dimmable like today's small stack; the caller draws
     hidden_continue_bar() separately, after the dim/busy veil, so Continue stays usable (mockup b2:
-    "the header cards and the folded tab stay above the dim and stay usable")."""
-    specs = [(0, HIDDEN_BIG, 1, "cmd_battle", "go_moves", 16, 6),
-             (2, HIDDEN_LEFT, 3, "bag", "cmd_bag", 9, 6),
-             (1, HIDDEN_RIGHT, 2, "cmd_pokemon", "cmd_pokemon", 9, 6),
-             # Run sits on the narrower centred rect (336 vs 412 px): the real romfs font needs a
-             # lower floor for some languages' longer "Run" (lp-unity-tool lang fit report; ko
-             # "도망간다" still overflows one line at the shared 6 floor)
-             (3, HIDDEN_RUN, 4, "cmd_run", "cmd_run", 9, 5)]
+    "the header cards and the folded tab stay above the dim and stay usable").
+
+    `specs`/`series`: the Safari variant (mockup d, companions #10 fix (b)) passes
+    SAFARI_HIDDEN_SPECS and series=2 -- same four rects, icon-less bodies."""
+    if specs is None:
+        specs = [(0, HIDDEN_BIG, 1, "cmd_battle", "go_moves", 16, 6),
+                 (2, HIDDEN_LEFT, 3, "bag", "cmd_bag", 9, 6),
+                 (1, HIDDEN_RIGHT, 2, "cmd_pokemon", "cmd_pokemon", 9, 6),
+                 # Run sits on the narrower centred rect (336 vs 412 px): the real romfs font needs a
+                 # lower floor for some languages' longer "Run" (lp-unity-tool lang fit report; ko
+                 # "도망간다" still overflows one line at the shared 6 floor)
+                 (3, HIDDEN_RUN, 4, "cmd_run", "cmd_run", 9, 5)]
     w = []
     for k, r, idx, text, act, scale, min_scale in specs:
-        w += gated_group(command_button(r, idx, text, scale, act, min_scale=min_scale),
+        w += gated_group(command_button(r, idx, text, scale, act, min_scale=min_scale, series=series),
                          f"lp.bt.cmd{k}.available")
         w += brackets(r, f"lp.bt.cmd{k}.picked")
         w += boxed_key(r[0]+r[2]-68, r[1]+r[3]-46, "A", need_bind=f"lp.bt.cmd{k}.picked")
@@ -2353,6 +2386,27 @@ def hidden_continue_bar():
                    on_tap="battlecontinue", need_bind="lp.bt.continue")]
     cont += boxed_key(cx+cw-78, cy+(ch-42)//2, "A", on_tap="battlecontinue", need_bind="lp.bt.continue")
     return cont
+
+
+def safari_ball_window(x, y):
+    """The top-screen Safari Ball count window (BUISafariBall, companions #10 fix (b)), owner
+    decision #5: "the Safari Ball window (ball count) replaces the own-Pokémon card on the bottom".
+    Real sprite sizes checked against the romfs (lp-unity-tool sprite): btl_pl_safari_01 176x106
+    (a green pill with a light circular inset on the left for the ball), btl_img_safariball_01
+    44x44 (25% of the window's width -- scaled the same here). Shown whenever lp.bt.safari (both
+    pane states: there is no own-Pokémon detail to fold away in Safari, so this does not follow
+    lp.cfg.pane the way the tabbed card does -- see page_battle()). Flush left, as REVIEW.md
+    describes the native window and reporter capture."""
+    w, h = 352, 212
+    out = sliced([x, y, w, h], ui("sharedui", "btl_pl_safari_01"), (176, 106), [24, 24, 24, 24], w/176)
+    icon = round(w * 44/176)
+    out += [img([x + round(w*0.14), y + (h-icon)//2, icon, icon], ui("sharedui", "btl_img_safariball_01")),
+            label([x + round(w*0.52), y + round(h*0.22), w - round(w*0.52) - 16, 0],
+                  bind_text=t("safari_balls_label"), scale=5, color=WHITE, outline=CMD_OUTLINE, outline_px=3,
+                  fit_text=True, text_min_scale=3, wrap_width=w - round(w*0.52) - 16, max_lines=1),
+            value([x + w - 20, y + round(h*0.48), 0, 0], "lp.bt.safari.balls", scale=9, color=WHITE,
+                  outline=CMD_OUTLINE, outline_px=4, align="right", need_bind="lp.bt.safari.balls.ok")]
+    return out
 
 
 def move_grid_cell(x, y, w, h, k):
@@ -2402,6 +2456,13 @@ def target_confirm_bar(r):
 def page_battle():
     w = battle_background()
     pane, scrolls = battle_pane(24, STRIP_W, "w")
+    # Safari (companions #10 fix (b), owner decision #5): no own Pokémon is out in the Great
+    # Marsh, so none of the tabbed card's content (Foe/You/Field tabs, fold arrow, folded tab --
+    # all internal to battle_pane()'s own lp.cfg.pane gating) applies; suppress the whole thing
+    # and draw safari_ball_window() in its place instead, unconditionally (not following
+    # lp.cfg.pane the tabbed card uses, since there is nothing of substance to fold away).
+    pane = gated_group(pane, "!lp.bt.safari")
+    gated_scrolls(scrolls, "!lp.bt.safari")
     # the game's X shortcut: first ball in the native bag list with the X key glyph, above the
     # command stack; unconditional in both layouts (owner: "the X quick-ball button stays")
     bx, by, bw, bh = 1046, BALL_Y, 164, BALL_H
@@ -2414,6 +2475,9 @@ def page_battle():
 
     # Today's small command stack (pane shown) vs. the big centre button + curve (pane hidden,
     # owner mockup b): same slots/binds/actions either way, lp.cfg.pane picks which is drawn.
+    # Safari (companions #10 fix (b)) swaps in its own 4-command set either way, gated on
+    # lp.bt.safari -- the arrow-hide toggle itself (lp.cfg.pane) still works identically in
+    # Safari, only the button content/art/labels differ.
     shown = []
     for k, (text, idx, act) in enumerate(COMMANDS):
         y = CMD_Y0 + k * (CMD_H + CMD_GAP)
@@ -2421,23 +2485,35 @@ def page_battle():
                              f"lp.bt.cmd{k}.available")
         shown += brackets([CMD_X[k], y, CMD_W, CMD_H], f"lp.bt.cmd{k}.picked")
         shown += boxed_key(CMD_X[k]+CMD_W-68, y+CMD_H-46, "A", need_bind=f"lp.bt.cmd{k}.picked")
-    w += gated_group(shown, "lp.cfg.pane")
-    w += gated_group(battle_commands_hidden(), "!lp.cfg.pane")
+    safari_shown = []
+    for k, (text, idx, act) in enumerate(SAFARI_COMMANDS):
+        y = CMD_Y0 + k * (CMD_H + CMD_GAP)
+        safari_shown += gated_group(command_button([CMD_X[k], y, CMD_W, CMD_H], idx, text, 8, act, series=2),
+                                    f"lp.bt.cmd{k}.available")
+        safari_shown += brackets([CMD_X[k], y, CMD_W, CMD_H], f"lp.bt.cmd{k}.picked")
+        safari_shown += boxed_key(CMD_X[k]+CMD_W-68, y+CMD_H-46, "A", need_bind=f"lp.bt.cmd{k}.picked")
+    w += gated_group(gated_group(shown, "!lp.bt.safari") + gated_group(safari_shown, "lp.bt.safari"),
+                     "lp.cfg.pane")
+    w += gated_group(gated_group(battle_commands_hidden(), "!lp.bt.safari") +
+                     gated_group(battle_commands_hidden(SAFARI_HIDDEN_SPECS, series=2), "lp.bt.safari"),
+                     "!lp.cfg.pane")
 
     # the dims over the buttons and the background, under the pane and the header cards; the busy
-    # veil starts right of the pane when it is shown, else covers the whole page (owner mapping:
-    # busy_veil(x0) -> x0 = 0 when hidden)
+    # veil starts right of the pane when the *wide tabbed card* is actually showing, else covers
+    # the whole page (owner mapping: busy_veil(x0) -> x0 = 0 when hidden). Safari never shows the
+    # wide card (lp.cfg.pane_card accounts for that, see derived list), only its own small window.
     w += battle_dims()
-    w += gated_group(busy_veil(24 + STRIP_W), "lp.cfg.pane")
-    w += gated_group(busy_veil(0), "!lp.cfg.pane")
+    w += gated_group(busy_veil(24 + STRIP_W), "lp.cfg.pane_card")
+    w += gated_group(busy_veil(0), "!lp.cfg.pane_card")
     w += pane
+    w += gated_group(safari_ball_window(24, BODY_Y), "lp.bt.safari")
     w += battle_status()
-    # the Bag/switch overlays sit beside the pane when it is shown; centred (equal margins) when
-    # hidden, since there is no pane to sit beside (owner mapping: x -> centred when hidden)
-    w += gated_group(bag_note(24 + STRIP_W + 20), "lp.cfg.pane")
-    w += gated_group(switch_overlay(24 + STRIP_W + 20), "lp.cfg.pane")
-    w += gated_group(bag_note(24), "!lp.cfg.pane")
-    w += gated_group(switch_overlay(24), "!lp.cfg.pane")
+    # the Bag/switch overlays sit beside the wide card when it is actually showing; centred (equal
+    # margins) otherwise, including Safari (owner mapping: x -> centred when hidden)
+    w += gated_group(bag_note(24 + STRIP_W + 20), "lp.cfg.pane_card")
+    w += gated_group(switch_overlay(24 + STRIP_W + 20), "lp.cfg.pane_card")
+    w += gated_group(bag_note(24), "!lp.cfg.pane_card")
+    w += gated_group(switch_overlay(24), "!lp.cfg.pane_card")
     # Draw after the dim and touch veil: the cards and Continue stay fully readable.
     # Run ends at y=957; preserve that stack and put the dialogue control directly below it.
     cx, cy, cw, ch = CMD_X[3], CMD_Y0 + 4 * (CMD_H + CMD_GAP), CMD_W, 70
@@ -2604,6 +2680,13 @@ def actions():
         "cmd_bag": {"kind": "module", "action": "command", "argument": 2, "enabled_bind": "lp.bt.input"},
         "cmd_run": {"kind": "module", "action": "command", "argument": 3, "enabled_bind": "lp.bt.input"},
         "cmd_ball": {"kind": "module", "action": "ballkey", "argument": 0, "enabled_bind": "lp.bt.input"},
+        # Safari (companions #10 fix (b)): Ball/Bait/Mud/Run are absolute action indices 5..8, all
+        # plain single-select commands (none opens a sub-list the way Fight does), so they drive
+        # through the same "command" module action as cmd_pokemon/cmd_bag/cmd_run above.
+        "cmd_safari_ball": {"kind": "module", "action": "command", "argument": 5, "enabled_bind": "lp.bt.input"},
+        "cmd_safari_bait": {"kind": "module", "action": "command", "argument": 6, "enabled_bind": "lp.bt.input"},
+        "cmd_safari_mud": {"kind": "module", "action": "command", "argument": 7, "enabled_bind": "lp.bt.input"},
+        "cmd_safari_run": {"kind": "module", "action": "command", "argument": 8, "enabled_bind": "lp.bt.input"},
         # one A / X press, requested by the module for exactly one sample
         "pdrv.press.a": {"kind": "button", "button": "A", "frames": 5, "enabled_bind": "pdrv.a"},
         "pdrv.press.b": {"kind": "button", "button": "B", "frames": 5, "enabled_bind": "pdrv.b"},
@@ -2676,7 +2759,8 @@ def actions():
     # (haptics.refused); a hold is "heavy" and a swipe "light" (the runtime's own kinds).
     click = ["go_moves", "cmd_pokemon", "cmd_bag", "cmd_ball",  # open a game menu, decide nothing yet
              "pkt_touch", "pkt_next"]                           # a Pokétch key, its red button
-    confirm = (["cmd_run", "balluse", "fly", "mapfly", "baguse", "bagopen"]
+    confirm = (["cmd_run", "balluse", "fly", "mapfly", "baguse", "bagopen",
+                "cmd_safari_ball", "cmd_safari_bait", "cmd_safari_mud", "cmd_safari_run"]
                + [f"move{k}" for k in range(4)] + [f"fwuse{k}" for k in range(4)]
                + [f"bagtarget{k}" for k in range(6)] + [f"bagmove{k}" for k in range(4)])
     for name in click:
@@ -2756,6 +2840,11 @@ def manifest():
             {"name": "lp.cfg.pane", "expr": "@flag:lp_pane_hidden == 0 || lp.bt.dbl == 1"},
             # the fold (hide) arrow shows only on a shown single-battle card; doubles never offer it
             {"name": "lp.bt.pane_arrow", "expr": "lp.cfg.pane == 1 && lp.bt.sgl == 1"},
+            # whether the wide tabbed card (not just the toggle flag) is actually on screen: never
+            # true in Safari (companions #10 fix (b), owner decision #5 -- safari_ball_window()
+            # takes its place in both pane states), used for the veil/overlay x0 split only
+            {"name": "lp.cfg.pane_card", "expr": "lp.cfg.pane == 1 && lp.bt.safari == 0"},
+            {"name": "lp.bt.safari.balls.ok", "expr": "lp.bt.safari.balls >= 0"},
             # the single-battle header per theme (a double shows its overview there)
             {"name": "lp.bt.sgl.modern", "expr": "lp.bt.sgl == 1 && @flag:platinum_theme == 0"},
             {"name": "lp.bt.sgl.classic", "expr": "lp.bt.sgl == 1 && @flag:platinum_theme != 0"},

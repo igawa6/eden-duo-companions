@@ -233,7 +233,7 @@ void TestDeltaAndBattle() {
         // BattleViewCore singleton chain: slot -> MethodInfo -> klass -> statics -> instance
         const std::uint64_t method = 0x1000000, klass = 0x1001000, statics = 0x1002000, bvc = 0x1003000;
         const std::uint64_t ui = 0x1004000, action = 0x1005000, waza = 0x1006000;
-        const std::uint64_t ball = 0x1007000, balls = 0x1008000;
+        const std::uint64_t ball = 0x1007000, balls = 0x1008000, safari = 0x1009000;
         mem.W64(Main + off::BattleViewCoreGetInstance + delta, method);
         mem.W64(method + off::MethodKlass, klass);
         mem.W64(klass + off::KlassStatics, statics);
@@ -243,9 +243,10 @@ void TestDeltaAndBattle() {
         mem.W64(ui + off::UiActionList, action);
         mem.W64(ui + off::UiWazaList, waza);
         mem.W64(ui + off::UiPokeBallList, ball);
+        mem.W64(ui + off::UiSafariBall, safari); // companions #10 fix (b): parked/restored like the rest
         mem.W64(ball + off::BallListBalls, balls);
         mem.W32(balls + off::ListSize, 2);
-        for (std::uint64_t list : {action, waza, ball}) {
+        for (std::uint64_t list : {action, waza, ball, safari}) {
             for (std::uint64_t o = 0; o < 0x70; ++o) // the canvas object is mapped as a whole
                 mem.W8(list + o, 0);
             mem.W32(list + off::CanvasMaxIndex, 0);

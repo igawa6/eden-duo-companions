@@ -604,8 +604,16 @@ Snapshot Reader::Sample() {
                 s.action_max = *hi;
             }
         }
-        if (s.action.obj)
+        if (s.action.obj) {
             s.ball_enabled = Rd<u8>(s.action.obj + off::ActionBallEnable).value_or(1) != 0;
+            s.action_safari = Rd<u8>(s.action.obj + off::ActionIsSafari).value_or(0) != 0;
+            if (s.action_safari) {
+                const u64 statics = Statics(off::PlayerWorkClassTypeInfo);
+                const auto balls = statics ? Rd<std::int32_t>(statics + off::PwSafariBallNum) : std::nullopt;
+                if (balls && *balls >= 0 && *balls <= 999)
+                    s.safari_balls = *balls;
+            }
+        }
         s.waza = Canvas(Ptr(ui + off::UiWazaList));
         if (const u64 ball_list = Ptr(ui + off::UiPokeBallList)) {
             s.ball = Canvas(ball_list);
@@ -1334,7 +1342,12 @@ bool Reader::HideBattleMenus(bool hide) {
     const u64 ui = bvc ? Ptr(bvc + off::BvcUiSystem) : 0;
     if (!ui)
         return false;
-    constexpr std::array<u64, 3> Lists{off::UiActionList, off::UiWazaList, off::UiPokeBallList};
+    // UiSafariBall (the top-screen Safari Ball count window) parks/restores through the same
+    // generic loop below: companions #10 fix (b), owner decision #5 (hide it by default, restore
+    // it when the companion detaches -- the existing Tick()/destructor restore paths that already
+    // call HideBattleMenus(false) need no change, they just iterate one more entry).
+    constexpr std::array<u64, 4> Lists{off::UiActionList, off::UiWazaList, off::UiPokeBallList,
+                                        off::UiSafariBall};
     constexpr float Parked = 2400.0f; // canvas units; the command list hides at 646 natively
     // _transitionType u8, _hideAnchor Vector2 (x first), _showAnchor Vector2 (x first): one read
     static_assert(off::CanvasHideAnchor - off::CanvasTransitionType == 4 &&

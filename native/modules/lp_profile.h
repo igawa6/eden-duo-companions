@@ -23,6 +23,10 @@ struct Profile {
     u64 AudioManagerTypeInfo, AudioPlaySe;
     u64 ConfirmIrekae;
     u64 DemoSceneManagerTypeInfo;
+    // &PlayerWork_TypeInfo itself (the class, for its static fields -- e.g. SafariBallNum),
+    // distinct from PlayerWorkTypeInfo above (which is PlayerWork.SaveData_TypeInfo, a nested
+    // type; confirmed by RE 2026-11-02, see contracts/safari-menu-bd130.md and STATUS.md).
+    u64 PlayerWorkClassTypeInfo;
 };
 
 // Exact 1.3.0 base executables. LP retains these build IDs. Metadata roots and method RVAs
@@ -35,7 +39,9 @@ inline constexpr Profile Diamond{
     {{{0x4932BA0, 0x1020}, {0x49AE2E8, 0x1984340}, {0x4ABD130, 0x1BDBC0}, {0x4C52418, 0x172FE60}}},
     {0x2C423A0, 0x17A1750, 0x17A17D0, 0x17A2320, 0x17A24D0, 0x17A3410,
      0x1DBC040, 0x1DBBC90},
-    0x4C59B78, 0x21EB8D0, 0x1F5A310, 0x4C5E5A0
+    0x4C59B78, 0x21EB8D0, 0x1F5A310, 0x4C5E5A0,
+    // RE 2026-11-02: disassembly of PlayerWork.get_SafariBallNum() (RVA 0x2CF48C0), confirmed HIGH.
+    0x4B79518
 };
 inline constexpr Profile Pearl{
     UINT64_C(0x010018E011D92000),
@@ -45,7 +51,12 @@ inline constexpr Profile Pearl{
     {{{0x46DA3A0, 0x23CE4}, {0x49AEC58, 0x1E324D0}, {0x4ABD948, 0x258720}, {0x4C52418, 0x172FE50}}},
     {0x1B04F90, 0x1BD49E0, 0x1BD4A60, 0x1BD55B0, 0x1BD5760, 0x1BD66A0,
      0x22249C0, 0x2224610},
-    0x4E70C50, 0x25EE490, 0x23BB7D0, 0x4E75678
+    0x4E70C50, 0x25EE490, 0x23BB7D0, 0x4E75678,
+    // NOT independently RE-confirmed (2026-11-02 RE pass only disassembled BD). Every other slot
+    // above sits exactly 0x2170D8 past its Diamond counterpart (checked across all eight existing
+    // pairs), so this is that same constant applied to Diamond's confirmed 0x4B79518 -- a pattern
+    // extrapolation, not a disassembly match. Re-derive from out-sp130/ before shipping SP.
+    0x4D905F0
 };
 
 #if defined(LP_PEARL) && LP_PEARL

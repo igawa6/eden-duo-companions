@@ -867,7 +867,12 @@ int main(int argc, char** argv) {
         std::printf("move 85 desc %s\n", a.WazaDescription(85).c_str());
         for (const auto& [t, lbl] : std::initializer_list<std::pair<const char*, const char*>>{
                  {"ss_btl_app", "msg_ui_btl_00"}, {"ss_bag_pocket", "SS_bag_pocket_001"}, {"dp_poketch", "DP_poketch_21"},
-                 {"ss_status", "SS_status_28"}, {"ss_pokedex", "SS_pokedex_130"}, {"ss_btl_app", "no_such_label"}})
+                 {"ss_status", "SS_status_28"}, {"ss_pokedex", "SS_pokedex_130"}, {"ss_btl_app", "no_such_label"},
+                 // companions #10 fix (b), contracts/safari-menu-bd130.md §5: confirm the real
+                 // localized text for the four Safari commands + the ball-count label
+                 {"ss_btl_app", "msg_ui_btl_SafariCommnadBallMsg"}, {"ss_btl_app", "msg_ui_btl_SafariCommnadEsaMsg"},
+                 {"ss_btl_app", "msg_ui_btl_SafariCommnadDoroMsg"}, {"ss_btl_app", "msg_ui_btl_SafariCommandEscapeMsg"},
+                 {"ss_btl_app", "msg_ui_btl_SafariNokoriMsg"}})
             std::printf("label %s/%s = [%s]\n", t, lbl, a.Label(t, lbl).c_str());
 
         // The font: the runtime's first decode (English defaults), then the language's build, which
