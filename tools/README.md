@@ -6,6 +6,7 @@
 | `compact_zip.py` | Rewrites `dualscreen/manifest.json` inside an archive without whitespace. The Android installer caps that file at 4 MiB. |
 | `build_release.sh` | Builds all fourteen release archives with their release names, `<TITLEID>-<Name>DS-<version>.dsmod.zip`. `GAMES` picks a subset. |
 | `p5r/` | Persona 5 Royal page generators: manifest, art recipe table and package directory. See [`p5r/README.md`](p5r/README.md). |
+| `cotl/` | Cult of the Lamb manifest and table generators. See [`cotl/README.md`](cotl/README.md). |
 | `p3p/` | Persona 3 Portable manifest and code-fingerprint generators, plus bounded NSO, save and archive readers. See [`p3p/README.md`](p3p/README.md). |
 | `dread/` | Metroid Dread page generator, the asset-free conversion and the Python reference for the module's map generator. See [`dread/README.md`](dread/README.md). |
 | `links-awakening/` | Notes on the Link's Awakening package, which is maintained by hand. |

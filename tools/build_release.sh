@@ -33,9 +33,10 @@
 #   CE_LINUX_SO / CE_ANDROID_SO         Chained Echoes (dsmod-ce)
 #   P3P_LINUX_SO / P3P_ANDROID_SO       Persona 3 Portable (dsmod-p3p)
 #   OT0_LINUX_SO / OT0_ANDROID_SO       Octopath Traveler 0 (dsmod-ot0, opt-in GAMES=ot0)
+#   COTL_LINUX_SO / COTL_ANDROID_SO     Cult of the Lamb (dsmod-cotl, opt-in GAMES=cotl)
 # Versions default to each package's current release; override with P5R_VERSION, DREAD_VERSION,
 # LA_VERSION, MK8D_VERSION, WONDER_VERSION, LP_VERSION, LP_PEARL_VERSION, CTR_VERSION, DQ3_VERSION,
-# CE_VERSION, P3P_VERSION; OT0_VERSION defaults to 1.0.0.
+# CE_VERSION, P3P_VERSION; OT0_VERSION and COTL_VERSION default to 1.0.0.
 # GAMES selects which archives to build (default: "p5r dread la mk8d wonder acnh fe3h isaac
 # lp lp-pearl ctr dq3 ce p3p"); only the selected
 # games' modules are required.
@@ -87,6 +88,9 @@ if want p3p; then
 fi
 if want ot0; then
   : "${OT0_LINUX_SO:?set OT0_LINUX_SO}" "${OT0_ANDROID_SO:?set OT0_ANDROID_SO}"
+fi
+if want cotl; then
+  : "${COTL_LINUX_SO:?set COTL_LINUX_SO}" "${COTL_ANDROID_SO:?set COTL_ANDROID_SO}"
 fi
 PY=${PYTHON:-python3}
 export PYTHONDONTWRITEBYTECODE=1
@@ -202,5 +206,11 @@ if want ot0; then
   pkg OctopathTraveler0 OctopathTraveler0DS "${OT0_VERSION:-1.0.0}" --min-runtime 22 \
     --module "linux-x86_64=$OT0_LINUX_SO" --module "android-arm64-v8a=$OT0_ANDROID_SO" \
     --build-id 9FE60A212CFF9B9A3656AB63D4F882E500000000000000000000000000000000
+fi
+if want cotl; then
+  # Game versions 1.5.27 and 1.5.28 share this build.
+  pkg CultOfTheLamb CultOfTheLambDS "${COTL_VERSION:-1.0.0}" --min-runtime 22 \
+    --module "linux-x86_64=$COTL_LINUX_SO" --module "android-arm64-v8a=$COTL_ANDROID_SO" \
+    --build-id 316A4D4881A9F1E077A07262E917917C00000000000000000000000000000000
 fi
 (cd "$OUT" && sha256sum ./*.dsmod.zip)
