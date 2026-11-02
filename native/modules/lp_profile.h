@@ -40,8 +40,10 @@ inline constexpr Profile Diamond{
     {0x2C423A0, 0x17A1750, 0x17A17D0, 0x17A2320, 0x17A24D0, 0x17A3410,
      0x1DBC040, 0x1DBBC90},
     0x4C59B78, 0x21EB8D0, 0x1F5A310, 0x4C5E5A0,
-    // RE 2026-11-02: disassembly of PlayerWork.get_SafariBallNum() (RVA 0x2CF48C0), confirmed HIGH.
-    0x4B79518
+    // PlayerWork_TypeInfo slot (il2cppdumper out-bd130 script.json). get_SafariBallNum() (RVA
+    // 0x2CF48C0) reaches it through a .got pointer at 0x4B79518 (ldr x19,[0x4B79518]; ldr x0,[x19]);
+    // like every other slot here, the profile holds the slot itself, not that .got pointer.
+    0x4C59B58
 };
 inline constexpr Profile Pearl{
     UINT64_C(0x010018E011D92000),
@@ -52,11 +54,9 @@ inline constexpr Profile Pearl{
     {0x1B04F90, 0x1BD49E0, 0x1BD4A60, 0x1BD55B0, 0x1BD5760, 0x1BD66A0,
      0x22249C0, 0x2224610},
     0x4E70C50, 0x25EE490, 0x23BB7D0, 0x4E75678,
-    // NOT independently RE-confirmed (2026-11-02 RE pass only disassembled BD). Every other slot
-    // above sits exactly 0x2170D8 past its Diamond counterpart (checked across all eight existing
-    // pairs), so this is that same constant applied to Diamond's confirmed 0x4B79518 -- a pattern
-    // extrapolation, not a disassembly match. Re-derive from out-sp130/ before shipping SP.
-    0x4D905F0
+    // PlayerWork_TypeInfo slot (il2cppdumper out-sp130 script.json); 0x2170D8 past Diamond's, like
+    // every other pair.
+    0x4E70C30
 };
 
 #if defined(LP_PEARL) && LP_PEARL
