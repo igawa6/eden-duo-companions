@@ -467,7 +467,7 @@ def move_bar(x, y, w, h, p, *, on_tap=None, pill=True):
     return out
 
 
-def command_button(r, idx, key, scale, on_tap):
+def command_button(r, idx, key, scale, on_tap, min_scale=6):
     """A battle command button. The body sprite (252x78) ends in its icon; the frame part is
     stretched (9-slice), the icon end is scaled uniformly so the ring keeps its shape."""
     x, y, w, h = r
@@ -493,7 +493,7 @@ def command_button(r, idx, key, scale, on_tap):
         rect([x, y, w, h], "#00000000", on_tap=on_tap),
         label([x + int(h * 0.25), y, int(w - h * (100/78 + 0.25) - 12), 0],
               bind_text=t(key), scale=scale, color=WHITE, outline=CMD_OUTLINE, outline_px=4,
-              fit_text=True, text_min_scale=6, wrap_width=int(w - h * (100/78 + 0.25) - 12), max_lines=1,
+              fit_text=True, text_min_scale=min_scale, wrap_width=int(w - h * (100/78 + 0.25) - 12), max_lines=1,
               text_center_h=h),
     ])
 
@@ -1577,13 +1577,20 @@ GROUP_DERIVED = {}
 
 
 def gated_group(widgets, bind):
-    """Gate every widget in a group while preserving its existing theme/state conditions."""
+    """Gate every widget in a group while preserving its existing theme/state conditions.
+
+    `bind` itself may carry a leading "!" (need_bind's own negation): sanitize it the same way as
+    `need` when building the derived NAME (a published name must never start with "!", or a
+    leading-"!" need_bind would try to strip and look up the wrong, unpublished point), while the
+    unsanitized `bind` still goes into the expr, where "!" parses as the ordinary unary operator.
+    """
+    bind_key = bind.replace("!", "not.")
     for widget in widgets:
         need = widget.get("need_bind")
         if need == bind:
             continue
         if need:
-            gate = bind + ".with." + need.replace("!", "not.")
+            gate = bind_key + ".with." + need.replace("!", "not.")
             # Derived expressions are evaluated before repeated widgets expand {i}.
             # Publish one concrete gate per row; the widget can keep its template.
             indices = range(widget.get("repeat", 1)) if "{i}" in need else [None]
@@ -1596,6 +1603,21 @@ def gated_group(widgets, bind):
         else:
             widget["need_bind"] = bind
     return widgets
+
+
+def gated_scrolls(scrolls, bind):
+    """gated_group for scroll regions' show_bind, so a hidden pane's own regions go fully inert
+    (no stray swipe/drag over the area the big-button layout now occupies), not just undrawn."""
+    bind_key = bind.replace("!", "not.")
+    for entry in scrolls:
+        show = entry.get("show_bind")
+        if show and show != bind:
+            gate = bind_key + ".with." + show.replace("!", "not.")
+            GROUP_DERIVED[gate] = {"name": gate, "expr": f"{bind} == 1 && ({show}) != 0"}
+            entry["show_bind"] = gate
+        elif not show:
+            entry["show_bind"] = bind
+    return scrolls
 
 
 def page_field():
@@ -1762,6 +1784,29 @@ MOVE_Y0 = BACK_Y - MOVE_SHORTCUT_GAP - (4 * CMD_H + 3 * CMD_GAP)
 # the command stack in the game's own order (its cursor index): Battle, Pokémon, Bag, Run
 COMMANDS = [("cmd_battle", 1, "go_moves"), ("cmd_pokemon", 2, "cmd_pokemon"), ("bag", 3, "cmd_bag"),
             ("cmd_run", 4, "cmd_run")]
+
+# ---- pane-hidden layout (owner mockup b, 2026-11-02 battle-pane-hide-mockups): the fold arrow on
+# the left card folds it away; one big centre button, two on a curve and the lowest one centred
+# below them, same four rects every variant of this layout uses (single battles only -- a double
+# always keeps the pane, lp.cfg.pane covers that). Also the slots a future Safari set (owner
+# order: Poké Balls big; Bait left, Run lowest middle, Mud right) reuses once its RE lands --
+# same four rects, different sprite/text/action per slot, no layout change needed.
+HIDDEN_BIG = [100, 396, 1040, 256]     # Battle / (later) Poké Balls
+HIDDEN_LEFT = [24, 708, 412, 140]      # Bag / (later) Bait
+HIDDEN_RIGHT = [804, 708, 412, 140]    # Pokémon / (later) Mud
+HIDDEN_RUN = [452, 808, 336, 132]      # Run, lowest and centred either way
+HIDDEN_CONT = [452, 958, 336, 80]      # Continue, directly under Run
+# the fold arrow (hide, top-right of the card's tab row) and the folded tab (restore, the card's
+# old top-left): cmn_ico_arrow_01 is a tall narrow chevron (~1:2), not square
+FOLD_ICON_W, FOLD_ICON_H = 36, 64
+FOLD_ARROW_W, FOLD_ARROW_H = 116, 112
+FOLD_TAB_W, FOLD_TAB_H = 300, 112
+FOLD_TINT = "#FF293663"  # same tint as the page_balls prev/next arrows
+# the 2x2 move grid (owner mockup c), native DS order: top-left, top-right, bottom-left, bottom-right
+GRID_W, GRID_H = 584, 150
+GRID_CELLS = [(24, 392), (632, 392), (24, 582), (632, 582)]
+HIDDEN_MOVES_BACK = [320, 816, 600, 112]
+HIDDEN_MOVES_CONFIRM = [320, 732, 600, 84]
 
 
 # ---- battle left pane: Foe / You / Field, swiped or tapped, each page scrolls -------------------
@@ -2159,6 +2204,29 @@ def battle_pane(x, w, sfx):
     if not field:
         scrolls.append({"id": f"btmove_{sfx}", "rect": vp, "count_bind": f"lp.bt.rows.move.{sfx}", "row_h": 10,
                         "reset_bind": "lp.bt.pk.rk", "show_bind": "lp.bt.t3", "bar": "#FF8A96B9", "bar_w": 6})
+
+    # Battle pane hide/restore (owner-approved 2026-11-02, OWNER-DECISIONS.md): the game's own fold
+    # arrow (not a round close chip), top-right of the tab row, hides the card -- single battles
+    # only (lp.bt.pane_arrow is false in a double, so there is no hide control there, and the
+    # derived lp.cfg.pane itself never goes false in a double, owner default #6). Tapping the
+    # folded tab left where the card was restores it, on whichever tab it had; the folded tab shows
+    # the arrow only, no tab name (owner: "1 and 2 only show arrow", overriding the mockup's label).
+    fold_x, fold_y = x + w - FOLD_ARROW_W - 12, y - 20
+    fold_arrow = [
+        rect([fold_x, fold_y, FOLD_ARROW_W, FOLD_ARROW_H], "#00000000", on_tap="pane_hide",
+             need_bind="lp.bt.pane_arrow"),
+        img([fold_x + (FOLD_ARROW_W - FOLD_ICON_W) // 2, fold_y + (FOLD_ARROW_H - FOLD_ICON_H) // 2,
+             FOLD_ICON_W, FOLD_ICON_H], ui("sharedui", "cmn_ico_arrow_01"), tint=FOLD_TINT,
+            need_bind="lp.bt.pane_arrow"),
+    ]
+    out = gated_group(out, "lp.cfg.pane") + fold_arrow
+    gated_scrolls(scrolls, "lp.cfg.pane")
+    fold_tab = panel([x, y, FOLD_TAB_W, FOLD_TAB_H], color=CREAM, shadow=False, on_tap="pane_show",
+                     need_bind="!lp.cfg.pane")
+    fold_tab.append(img([x + (FOLD_TAB_W - FOLD_ICON_W) // 2, y + (FOLD_TAB_H - FOLD_ICON_H) // 2,
+                        FOLD_ICON_W, FOLD_ICON_H], ui("sharedui", "cmn_ico_arrow_01"), tint=FOLD_TINT,
+                       flip_x=True, need_bind="!lp.cfg.pane"))
+    out += fold_tab
     return out, scrolls
 
 
@@ -2250,10 +2318,92 @@ def switch_overlay(x):
     return overlay_motion(out, "lp.bt.sw.on", "switch", [x-16, y-16, w+32, h+40])
 
 
+def battle_commands_hidden():
+    """Pane-hidden command layout (owner mockup b, Direction A): one big centre Battle button,
+    Bag / Pokémon on a curve and Run lowest and centred, same command slots/binds/actions as the
+    small stack -- just bigger and repositioned. Never drawn in a double (the caller's lp.cfg.pane
+    gate already covers that). Dimmable like today's small stack; the caller draws
+    hidden_continue_bar() separately, after the dim/busy veil, so Continue stays usable (mockup b2:
+    "the header cards and the folded tab stay above the dim and stay usable")."""
+    specs = [(0, HIDDEN_BIG, 1, "cmd_battle", "go_moves", 16, 6),
+             (2, HIDDEN_LEFT, 3, "bag", "cmd_bag", 9, 6),
+             (1, HIDDEN_RIGHT, 2, "cmd_pokemon", "cmd_pokemon", 9, 6),
+             # Run sits on the narrower centred rect (336 vs 412 px): the real romfs font needs a
+             # lower floor for some languages' longer "Run" (lp-unity-tool lang fit report; ko
+             # "도망간다" still overflows one line at the shared 6 floor)
+             (3, HIDDEN_RUN, 4, "cmd_run", "cmd_run", 9, 5)]
+    w = []
+    for k, r, idx, text, act, scale, min_scale in specs:
+        w += gated_group(command_button(r, idx, text, scale, act, min_scale=min_scale),
+                         f"lp.bt.cmd{k}.available")
+        w += brackets(r, f"lp.bt.cmd{k}.picked")
+        w += boxed_key(r[0]+r[2]-68, r[1]+r[3]-46, "A", need_bind=f"lp.bt.cmd{k}.picked")
+    return w
+
+
+def hidden_continue_bar():
+    """The pane-hidden Continue control, directly under Run (mockup b2). Drawn by the caller after
+    battle_dims()/busy_veil(), like the shown stack's own Continue -- never dimmed or swallowed by
+    the busy-input veil, so the player can always confirm a waiting message."""
+    cx, cy, cw, ch = HIDDEN_CONT
+    cont = panel([cx, cy, cw, ch], color="#FF50524B", shadow=False, on_tap="battlecontinue",
+                 need_bind="lp.bt.continue")
+    cont += [label([cx+24, cy, cw-108, 0], bind_text=t("cmd_continue"), scale=6, color=WHITE,
+                   fit_text=True, text_min_scale=4, wrap_width=cw-108, max_lines=1, text_center_h=ch,
+                   on_tap="battlecontinue", need_bind="lp.bt.continue")]
+    cont += boxed_key(cx+cw-78, cy+(ch-42)//2, "A", on_tap="battlecontinue", need_bind="lp.bt.continue")
+    return cont
+
+
+def move_grid_cell(x, y, w, h, k):
+    """One button of the 2x2 move grid (owner mockup c), the game's own move-button art: the type
+    icon cap, the name, PP top-right on the same line, effectiveness alone on the line below it,
+    ending before the A key (the pane's own self-check finding, kept here). Long-press (owner
+    default #7): the moves page has no existing "preview without submitting" action (the module's
+    "move" drive submits at once; "battleinspect" only works on the command page), so the closest
+    existing gesture is to restore the pane -- it shows today's Move-tab detail for whichever move
+    the native cursor currently has, which is not forced to the held button if the cursor is
+    elsewhere. Reported in the implementation notes as an owner-default-#7 deviation."""
+    mp = f"lp.bt.m{k}."
+    out = move_body(x, y, w, h, mp)
+    tx = x + round(80*h/76) + 24
+    ppx = x + w - MOVE_PP_GAP
+    nw = ppx - MOVE_PP_W - 28 - tx
+    ny, ey = y + 24, y + h - 58
+    out += [rect([x, y, w, h], "#00000000", on_tap=f"move{k}", on_hold="pane_show", need_bind=mp+"id"),
+            # min_scale 4 (not 5): the grid is narrower than the vertical list's own move-name
+            # room, and the real romfs font measures some long move names a few px over 5's fit
+            # (lp-unity-tool lang fit report; e.g. "Stomping Tantrum", "Nature's Madness" in en)
+            label([tx, ny, nw, 0], bind_text=mp+"name", scale=7, fit_text=True, text_min_scale=4,
+                  max_lines=1, wrap_width=nw, need_bind=mp+"id"),
+            value([ppx, y+28, 0, 0], mp+"pp", scale=MOVE_PP_SCALE, color=DARK, max_bind=mp+"ppmax",
+                  max_sep="/", align="right", need_bind=mp+"id"),
+            label([tx, ey, nw, 0], bind_text=mp+"eff", scale=5, color=MOVE_EFF_GREY, fit_text=True,
+                  text_min_scale=4, max_lines=1, wrap_width=nw, hide_bind=mp+"effgood", hide_eq=1, need_bind=mp+"id"),
+            label([tx, ey, nw, 0], bind_text=mp+"eff", scale=5, color=PANE_RED, fit_text=True,
+                  text_min_scale=4, max_lines=1, wrap_width=nw, need_bind=mp+"effgood")]
+    out += brackets([x, y, w, h], mp+"picked")
+    out += boxed_key(x+w-68, y+h-46, "A", need_bind=mp+"picked")
+    return out
+
+
+def target_confirm_bar(r):
+    """The spread-move target confirm bar (one A confirms every target); native B cancels through
+    the matching targetback overlay on the Back control at the same layout state."""
+    x, y, w, h = r
+    out = panel(r, color="#FF50524B", shadow=False, on_tap="targetconfirm", need_bind="lp.bt.target.spread")
+    out += [label([x+20, y, w-108, 0], bind_text=t("cmd_continue"), scale=6, color=WHITE, fit_text=True,
+                  text_min_scale=4, wrap_width=w-108, max_lines=1, text_center_h=h, on_tap="targetconfirm",
+                  need_bind="lp.bt.target.spread")]
+    out += boxed_key(x+w-78, y+(h-42)//2, "A", on_tap="targetconfirm", need_bind="lp.bt.target.spread")
+    return out
+
+
 def page_battle():
     w = battle_background()
     pane, scrolls = battle_pane(24, STRIP_W, "w")
-    # the game's X shortcut: first ball in the native bag list with the X key glyph, above the command stack
+    # the game's X shortcut: first ball in the native bag list with the X key glyph, above the
+    # command stack; unconditional in both layouts (owner: "the X quick-ball button stays")
     bx, by, bw, bh = 1046, BALL_Y, 164, BALL_H
     w += sliced([bx, by, bw, bh], ui("sharedui", "btl_bt_quickitem_01_body"),
                 (244, 61), [18, 14, 18, 14], 1.4, need_bind="lp.bt.ball.any")
@@ -2261,17 +2411,33 @@ def page_battle():
           img([bx + 18, by + 8, 88, 88], src_bind="lp.bt.ball0.icon", need_bind="lp.bt.ball.any"),
           img([bx + bw - 68, by + bh - 46, 59, 42], ui("sharedui", "btl_pl_ico_keyguide_01_01"),
               need_bind="lp.bt.ball.any")]
+
+    # Today's small command stack (pane shown) vs. the big centre button + curve (pane hidden,
+    # owner mockup b): same slots/binds/actions either way, lp.cfg.pane picks which is drawn.
+    shown = []
     for k, (text, idx, act) in enumerate(COMMANDS):
         y = CMD_Y0 + k * (CMD_H + CMD_GAP)
-        w += gated_group(command_button([CMD_X[k], y, CMD_W, CMD_H], idx, text, 8, act),
-                   f"lp.bt.cmd{k}.available")
-        w += brackets([CMD_X[k], y, CMD_W, CMD_H], f"lp.bt.cmd{k}.picked")
-        w += boxed_key(CMD_X[k]+CMD_W-68, y+CMD_H-46, "A", need_bind=f"lp.bt.cmd{k}.picked")
-    # the dims over the buttons and the background, under the pane and the header cards
-    w += battle_dims() + busy_veil(24 + STRIP_W)
+        shown += gated_group(command_button([CMD_X[k], y, CMD_W, CMD_H], idx, text, 8, act),
+                             f"lp.bt.cmd{k}.available")
+        shown += brackets([CMD_X[k], y, CMD_W, CMD_H], f"lp.bt.cmd{k}.picked")
+        shown += boxed_key(CMD_X[k]+CMD_W-68, y+CMD_H-46, "A", need_bind=f"lp.bt.cmd{k}.picked")
+    w += gated_group(shown, "lp.cfg.pane")
+    w += gated_group(battle_commands_hidden(), "!lp.cfg.pane")
+
+    # the dims over the buttons and the background, under the pane and the header cards; the busy
+    # veil starts right of the pane when it is shown, else covers the whole page (owner mapping:
+    # busy_veil(x0) -> x0 = 0 when hidden)
+    w += battle_dims()
+    w += gated_group(busy_veil(24 + STRIP_W), "lp.cfg.pane")
+    w += gated_group(busy_veil(0), "!lp.cfg.pane")
     w += pane
     w += battle_status()
-    w += bag_note(24 + STRIP_W + 20) + switch_overlay(24 + STRIP_W + 20)
+    # the Bag/switch overlays sit beside the pane when it is shown; centred (equal margins) when
+    # hidden, since there is no pane to sit beside (owner mapping: x -> centred when hidden)
+    w += gated_group(bag_note(24 + STRIP_W + 20), "lp.cfg.pane")
+    w += gated_group(switch_overlay(24 + STRIP_W + 20), "lp.cfg.pane")
+    w += gated_group(bag_note(24), "!lp.cfg.pane")
+    w += gated_group(switch_overlay(24), "!lp.cfg.pane")
     # Draw after the dim and touch veil: the cards and Continue stay fully readable.
     # Run ends at y=957; preserve that stack and put the dialogue control directly below it.
     cx, cy, cw, ch = CMD_X[3], CMD_Y0 + 4 * (CMD_H + CMD_GAP), CMD_W, 70
@@ -2281,7 +2447,8 @@ def page_battle():
                    color=WHITE, fit_text=True, text_min_scale=4, wrap_width=cw-108,
                    max_lines=1, text_center_h=ch, on_tap="battlecontinue", need_bind="lp.bt.continue")]
     cont += boxed_key(cx+cw-78, cy+(ch-42)//2, "A", on_tap="battlecontinue", need_bind="lp.bt.continue")
-    w += cont
+    w += gated_group(cont, "lp.cfg.pane")
+    w += gated_group(hidden_continue_bar(), "!lp.cfg.pane")
     return {"id": "battle", "widgets": w, "scrolls": scrolls}
 
 
@@ -2305,14 +2472,17 @@ def shortcut_back(r, action):
 
 
 def page_moves():
-    """Battle-sized detail card (the swipeable left pane, Move page first) and curved move stack;
-    one tap executes a move."""
+    """Battle-sized detail card (the swipeable left pane, Move page first) and curved move stack
+    (pane shown), or the game's own 2x2 move grid (pane hidden, owner mockup c); one tap executes
+    a move either way. lp.cfg.pane picks which is drawn."""
     w = battle_background()
     pane, scrolls = battle_pane(24, MOVE_PANE_W, "n")
+
+    shown = []
     for k in range(4):
         x, y, mw, mh = MOVE_X[k], MOVE_Y0+k*(CMD_H+CMD_GAP), MOVE_W, CMD_H
         mp = f"lp.bt.m{k}."
-        w += move_body(x, y, mw, mh, mp)
+        shown += move_body(x, y, mw, mh, mp)
         tx = x+round(80*mh/76)+24
         # left: the name, and under it how the move hits the foe (a double: each target, "1× · 2×"),
         # as one block centred in the frame; right: the PP large, vertically centred, ending
@@ -2320,7 +2490,7 @@ def page_moves():
         ppx = x+mw-MOVE_PP_GAP
         nw = ppx-MOVE_PP_W-28-tx
         ny, ey = y+MOVE_NAME_Y, y+MOVE_EFF_Y
-        w += [rect([x,y,mw,mh], "#00000000", on_tap=f"move{k}", need_bind=mp+"id"),
+        shown += [rect([x,y,mw,mh], "#00000000", on_tap=f"move{k}", need_bind=mp+"id"),
               label([tx,ny,nw,0], bind_text=mp+"name", scale=6,
                     fit_text=True, text_min_scale=5, max_lines=1, wrap_width=nw, need_bind=mp+"id"),
               value([ppx,y+MOVE_PP_Y,0,0], mp+"pp", scale=MOVE_PP_SCALE, color=DARK, max_bind=mp+"ppmax",
@@ -2330,23 +2500,38 @@ def page_moves():
                     need_bind=mp+"id"),
               label([tx,ey,nw,0], bind_text=mp+"eff", scale=5, color=PANE_RED,
                     fit_text=True, text_min_scale=4, max_lines=1, wrap_width=nw, need_bind=mp+"effgood")]
-        w += brackets([x,y,mw,mh], mp+"picked")
-        w += boxed_key(x+mw-68, y+mh-46, "A", need_bind=mp+"picked")
-    w += shortcut_back([W-30-BACK_W,BACK_Y,BACK_W,BACK_H], "go_battle")
-    # the dims over the buttons and the background, under the pane and the header cards
-    w += battle_dims() + busy_veil(24 + MOVE_PANE_W)
+        shown += brackets([x,y,mw,mh], mp+"picked")
+        shown += boxed_key(x+mw-68, y+mh-46, "A", need_bind=mp+"picked")
+    shown += shortcut_back([W-30-BACK_W,BACK_Y,BACK_W,BACK_H], "go_battle")
+    w += gated_group(shown, "lp.cfg.pane")
+
+    hidden = []
+    for k, (gx, gy) in enumerate(GRID_CELLS):
+        hidden += move_grid_cell(gx, gy, GRID_W, GRID_H, k)
+    hidden += shortcut_back(HIDDEN_MOVES_BACK, "go_battle")
+    w += gated_group(hidden, "!lp.cfg.pane")
+
+    # the dims over the buttons and the background, under the pane and the header cards; the busy
+    # veil starts right of the pane when it is shown, else covers the whole page
+    w += battle_dims()
+    w += gated_group(busy_veil(24 + MOVE_PANE_W), "lp.cfg.pane")
+    w += gated_group(busy_veil(0), "!lp.cfg.pane")
     w += pane
     w += battle_status()
-    w += bag_note(24 + MOVE_PANE_W + 20) + switch_overlay(24 + MOVE_PANE_W + 20)
+    # the Bag/switch overlays sit beside the pane when it is shown; centred when hidden
+    w += gated_group(bag_note(24 + MOVE_PANE_W + 20), "lp.cfg.pane")
+    w += gated_group(switch_overlay(24 + MOVE_PANE_W + 20), "lp.cfg.pane")
+    w += gated_group(bag_note(24), "!lp.cfg.pane")
+    w += gated_group(switch_overlay(24), "!lp.cfg.pane")
     # Target selection follows the native gray-out rules; overview cards submit a single
-    # target, while spread moves use one explicit A confirmation. Native B cancels.
-    w += panel([W-30-BACK_W, BACK_Y-102, BACK_W, 88], color="#FF50524B", shadow=False,
-               on_tap="targetconfirm", need_bind="lp.bt.target.spread")
-    w += [label([W-30-BACK_W+20, BACK_Y-102, BACK_W-108, 0], bind_text=t("cmd_continue"),
-                scale=6, color=WHITE, fit_text=True, text_min_scale=4, wrap_width=BACK_W-108,
-                max_lines=1, text_center_h=88, on_tap="targetconfirm", need_bind="lp.bt.target.spread")]
-    w += boxed_key(W-30-78, BACK_Y-80, "A", on_tap="targetconfirm", need_bind="lp.bt.target.spread")
-    w += gated_group(shortcut_back([W-30-BACK_W, BACK_Y, BACK_W, BACK_H], "targetback"), "lp.bt.target.on")
+    # target, while spread moves use one explicit A confirmation. Native B cancels. The confirm
+    # bar and its targetback overlay sit above whichever Back control the current layout shows.
+    w += gated_group(target_confirm_bar([W-30-BACK_W, BACK_Y-102, BACK_W, 88]), "lp.cfg.pane")
+    w += gated_group(gated_group(shortcut_back([W-30-BACK_W, BACK_Y, BACK_W, BACK_H], "targetback"),
+                                 "lp.bt.target.on"), "lp.cfg.pane")
+    w += gated_group(target_confirm_bar(HIDDEN_MOVES_CONFIRM), "!lp.cfg.pane")
+    w += gated_group(gated_group(shortcut_back(HIDDEN_MOVES_BACK, "targetback"),
+                                 "lp.bt.target.on"), "!lp.cfg.pane")
     return {"id": "moves", "widgets": w, "scrolls": scrolls}
 
 
@@ -2404,6 +2589,10 @@ def page_balls():
 def actions():
     a = {
         "open_settings": {"kind": "page", "page": "@settings", **FADE_TAB},
+        # the battle info card's fold arrow / folded tab (and the settings toggle): a manifest-only
+        # flag write, no module involvement (same pattern as the LinksAwakening pin_panel action)
+        "pane_hide": {"kind": "flag", "flag": "lp_pane_hidden", "value": 1, "haptic": "click"},
+        "pane_show": {"kind": "flag", "flag": "lp_pane_hidden", "value": 0, "haptic": "click"},
 
         "targetconfirm": {"kind": "module", "action": "targetconfirm", "enabled_bind": "lp.bt.target.input"},
         "targetback": {"kind": "module", "action": "targetback", "enabled_bind": "lp.bt.target.input"},
@@ -2522,7 +2711,9 @@ def manifest():
         "load_plan": "guest/<build>/load-plan.json",
         # The module always hides the top-screen battle menus: runtime 18 runs modules before it
         # publishes flags and derived values, so a settings toggle could never reach it.
-        "flags": {"platinum_theme": 0, ANIM_FLAG: 1},
+        # lp_pane_hidden: the battle info card's fold state (manifest-only gate, same pattern as
+        # platinum_theme; the module never reads it). 0 = shown.
+        "flags": {"platinum_theme": 0, ANIM_FLAG: 1, "lp_pane_hidden": 0},
         # the Town Map picture (1266x732 px) as a map area: world = picture px, y up
         "map": {"areas": {"townmap": {"min": [0, 0], "max": [1266, 732], "clamp_view": True, "no_pin": True,
             "dynamic_markers": [
@@ -2532,7 +2723,11 @@ def manifest():
                  "icon_src_bind": "lp.map.head", "size": 64, "anchor": [0.5, 0.5]}
             ]}}},
         "settings": [{"flag": "platinum_theme", "label": "Classic Platinum theme", "type": "toggle", "default": 0},
-                     {"flag": ANIM_FLAG, "label": "Animations", "type": "toggle", "default": 1}],
+                     {"flag": ANIM_FLAG, "label": "Animations", "type": "toggle", "default": 1},
+                     # "on = pane shown": lp_pane_hidden is 0 by default, so the custom choices read
+                     # directly as the card's own state instead of an inverted ON/OFF
+                     {"flag": "lp_pane_hidden", "label": "Battle info card", "type": "toggle",
+                      "default": 0, "choices": ["Shown", "Hidden"]}],
         "pages": [page_wait_lineup(), page_field(), page_map(), page_route(), page_poketch(), page_poketch_full(), page_inventory(4), page_inventory(5), page_battle(), page_moves(), page_balls()],
         "page_binds": [
             {"point": "lp.page", "equals": 0, "when_equal": {"page": "wait", **FADE_START}},
@@ -2555,6 +2750,12 @@ def manifest():
             {"name": "lp.bt.bag.style", "expr": "lp.player.sex + 2 * @flag:platinum_theme"},
             {"name": "lp.cfg.classic", "expr": "@flag:platinum_theme"},
             {"name": "lp.cfg.modern", "expr": "@flag:platinum_theme == 0"},
+            # the battle info card's shown/hidden state: shown unless the remembered choice folded
+            # it AND this is a single battle -- a double always keeps the pane (owner default #6),
+            # even with the flag left folded from an earlier single
+            {"name": "lp.cfg.pane", "expr": "@flag:lp_pane_hidden == 0 || lp.bt.dbl == 1"},
+            # the fold (hide) arrow shows only on a shown single-battle card; doubles never offer it
+            {"name": "lp.bt.pane_arrow", "expr": "lp.cfg.pane == 1 && lp.bt.sgl == 1"},
             # the single-battle header per theme (a double shows its overview there)
             {"name": "lp.bt.sgl.modern", "expr": "lp.bt.sgl == 1 && @flag:platinum_theme == 0"},
             {"name": "lp.bt.sgl.classic", "expr": "lp.bt.sgl == 1 && @flag:platinum_theme != 0"},

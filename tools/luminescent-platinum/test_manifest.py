@@ -26,10 +26,19 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(titles[0]['on_tap'], 'dexmode')
 
     def test_battle_active_positions_and_volatile_sections(self):
+        def depends_on(gate, target):
+            if gate == target:
+                return True
+            return any(depends_on(token, target)
+                       for token in re.findall(r"[A-Za-z0-9_.]+", self.derived.get(gate, ''))
+                       if token in self.derived or token == target)
         for index in range(4):
             rows = [w for w in self.widgets if w.get('src_bind') == f'lp.bt.fld.active{index}.icon']
             self.assertTrue(rows)
-            self.assertTrue(all(w.get('need_bind') == f'lp.bt.fld.active{index}.on' for w in rows))
+            # The pane is now also gated on lp.cfg.pane (shown/hidden); the original gate must
+            # still be an ingredient of whatever combined need_bind the card ends up with.
+            self.assertTrue(all(depends_on(w.get('need_bind', ''), f'lp.bt.fld.active{index}.on')
+                                for w in rows))
         for side in ('own', 'foe'):
             rows = [w for w in self.widgets if w.get('bind_text') == f'lp.bt.{side}.effects']
             self.assertTrue(rows)
@@ -206,7 +215,9 @@ class ManifestTests(unittest.TestCase):
 
     def test_bag_command_keeps_native_icon_for_both_players_and_themes(self):
         rows = [w for w in self.widgets if w.get('bind') == 'lp.bt.bag.style']
-        self.assertEqual(len(rows), 9)  # all regions of the single nine-sliced Bag body
+        # 9 regions of the nine-sliced Bag body, twice over: the small command stack (pane shown)
+        # and the pane-hidden curve's Bag button (owner mockup b) share the same art logic.
+        self.assertEqual(len(rows), 18)
         expected = ['module:lp:ui/sharedui/btl_bt_command_01_body_03_02',
                     'module:lp:ui/sharedui/btl_bt_command_01_body_03_01']
         expected += [name.replace('module:lp:', 'module:lp:classic/', 1) for name in expected]
@@ -229,6 +240,128 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(row['repeat'], 12)
             self.assertEqual(row['repeat_bind'], 'lp.bt.ep.rows')
             self.assertTrue(row['scroll'])
+
+    # ---- battle pane hide/restore (owner-approved 2026-11-02, battle-pane-hide-mockups) ---------
+
+    def test_pane_hide_flag_setting_and_actions_match_owner_decisions(self):
+        # Manifest-only gate: module need not read it (same pattern as platinum_theme).
+        self.assertEqual(self.manifest['flags'].get('lp_pane_hidden'), 0)
+        setting = next(s for s in self.manifest['settings'] if s['flag'] == 'lp_pane_hidden')
+        self.assertEqual(setting['type'], 'toggle')
+        self.assertEqual(setting['default'], 0)
+        self.assertEqual(len(setting.get('choices', [])), 2)  # "on = pane shown", via custom labels
+        self.assertEqual(self.manifest['actions']['pane_hide'],
+                         {'kind': 'flag', 'flag': 'lp_pane_hidden', 'value': 1, 'haptic': 'click'})
+        self.assertEqual(self.manifest['actions']['pane_show'],
+                         {'kind': 'flag', 'flag': 'lp_pane_hidden', 'value': 0, 'haptic': 'click'})
+        # No new pages/page_binds: a manifest-only gate inside the existing battle/moves pages.
+        self.assertEqual({p['id'] for p in self.manifest['pages']},
+                         {'wait', 'field', 'map', 'route', 'poketch', 'poketch_full',
+                          'pokedex', 'field_bag', 'battle', 'moves', 'balls'})
+
+    def test_pane_hidden_state_never_true_in_a_double(self):
+        self.assertEqual(self.derived['lp.cfg.pane'], '@flag:lp_pane_hidden == 0 || lp.bt.dbl == 1')
+        self.assertEqual(self.derived['lp.bt.pane_arrow'], 'lp.cfg.pane == 1 && lp.bt.sgl == 1')
+        for flag, dbl, pane_shown in ((0, 0, True), (1, 0, False), (0, 1, True), (1, 1, True)):
+            expr = (self.derived['lp.cfg.pane'].replace('@flag:lp_pane_hidden', str(flag))
+                    .replace('lp.bt.dbl', str(dbl)).replace('||', ' or ').replace('&&', ' and '))
+            self.assertEqual(eval(expr, {'__builtins__': {}}), pane_shown, (flag, dbl))
+            arrow_expr = (self.derived['lp.bt.pane_arrow']
+                          .replace('lp.cfg.pane', '1' if pane_shown else '0').replace('lp.bt.sgl', str(1 - dbl))
+                          .replace('&&', ' and '))
+            arrow_shown = eval(arrow_expr, {'__builtins__': {}})
+            # the fold arrow (hide control) only appears on a shown single-battle card
+            self.assertEqual(bool(arrow_shown), pane_shown and dbl == 0, (flag, dbl))
+
+    def test_pane_hidden_big_layout_reuses_todays_command_slots(self):
+        # owner mockup b (Direction A): one big Battle button, Bag / Pokémon on a curve, Run
+        # lowest and centred -- the exact command slots/binds/actions the small stack already uses.
+        battle = next(p for p in self.manifest['pages'] if p['id'] == 'battle')
+        for k, rect, action in ((0, gen.HIDDEN_BIG, 'go_moves'), (2, gen.HIDDEN_LEFT, 'cmd_bag'),
+                                (1, gen.HIDDEN_RIGHT, 'cmd_pokemon'), (3, gen.HIDDEN_RUN, 'cmd_run')):
+            taps = [w for w in battle['widgets'] if w.get('on_tap') == action and w.get('rect') == rect]
+            self.assertTrue(taps, (action, rect))
+            for w in taps:
+                self.assertIn(f'lp.bt.cmd{k}.available', w['need_bind'])
+                self.assertTrue(w['need_bind'].startswith('not.lp.cfg.pane'))
+            picked = [w for w in battle['widgets']
+                     if f'lp.bt.cmd{k}.picked' in (w.get('need_bind') or '') and 'not.lp.cfg.pane' in w['need_bind']]
+            self.assertTrue(picked, k)
+        cont = [w for w in battle['widgets'] if w.get('on_tap') == 'battlecontinue'
+               and w.get('rect', [None, None])[:2] == gen.HIDDEN_CONT[:2]]
+        self.assertTrue(cont)
+        self.assertTrue(all('not.lp.cfg.pane' in w['need_bind'] for w in cont))
+        # the quick-ball X button is unconditional either way (owner: "the X quick-ball button stays")
+        ball_taps = [w for w in battle['widgets'] if w.get('on_tap') == 'cmd_ball']
+        self.assertTrue(ball_taps)
+        self.assertTrue(all(w['need_bind'] == 'lp.bt.ball.any' for w in ball_taps))
+        # Regression (found live, harness 2026-11-02): the hidden Continue bar must be drawn after
+        # the hidden busy veil, or the veil swallows every tap on it while a message is waiting.
+        # battle_dims()'s busy rect has no on_tap, so find the hidden busy_veil(0) input blocker
+        # (full width, starts at the body top, hidden while lp.bt.input==1) and require every
+        # hidden-state Continue widget to come later in the page's (painter's order) widget list.
+        veil_indices = [i for i, w in enumerate(battle['widgets'])
+                        if w.get('type') == 'rect' and w.get('input_block') and w.get('hide_bind') == 'lp.bt.input'
+                        and w.get('rect', [None])[0] == 0 and w.get('need_bind') == '!lp.cfg.pane']
+        self.assertTrue(veil_indices)
+        cont_indices = [battle['widgets'].index(w) for w in cont]
+        self.assertTrue(all(ci > vi for ci in cont_indices for vi in veil_indices),
+                        "hidden Continue must be drawn after the hidden busy veil")
+
+    def test_pane_fold_arrow_and_folded_tab_on_both_pages(self):
+        for page_id, pane_w in (('battle', gen.STRIP_W), ('moves', gen.MOVE_PANE_W)):
+            page = next(p for p in self.manifest['pages'] if p['id'] == page_id)
+            arrows = [w for w in page['widgets'] if w.get('on_tap') == 'pane_hide']
+            self.assertTrue(arrows, page_id)
+            self.assertTrue(all(w['need_bind'] == 'lp.bt.pane_arrow' for w in arrows))
+            tabs = [w for w in page['widgets'] if w.get('on_tap') == 'pane_show']
+            self.assertTrue(tabs, page_id)
+            self.assertTrue(all(w['need_bind'] == '!lp.cfg.pane' for w in tabs))
+            # owner: "only show arrow" -- the folded tab carries no tab-name label of its own
+            self.assertFalse(any(w.get('type') == 'label' and w.get('on_tap') == 'pane_show' for w in page['widgets']))
+
+            # exact icon positions, from the same formula battle_pane() uses -- not just a gate
+            # match, since the hidden layout's own (ungated-until-wrapped) Back arrow icon can
+            # coincidentally end up on the same "!lp.cfg.pane" gate as the folded tab's icon.
+            fold_x, fold_y = 24 + pane_w - gen.FOLD_ARROW_W - 12, gen.BODY_Y - 20
+            arrow_rect = [fold_x + (gen.FOLD_ARROW_W - gen.FOLD_ICON_W) // 2,
+                         fold_y + (gen.FOLD_ARROW_H - gen.FOLD_ICON_H) // 2, gen.FOLD_ICON_W, gen.FOLD_ICON_H]
+            tab_rect = [24 + (gen.FOLD_TAB_W - gen.FOLD_ICON_W) // 2,
+                       gen.BODY_Y + (gen.FOLD_TAB_H - gen.FOLD_ICON_H) // 2, gen.FOLD_ICON_W, gen.FOLD_ICON_H]
+            arrow_icon = next(w for w in page['widgets']
+                              if w.get('rect') == arrow_rect and 'cmn_ico_arrow_01' in w.get('src', ''))
+            tab_icon = next(w for w in page['widgets']
+                            if w.get('rect') == tab_rect and 'cmn_ico_arrow_01' in w.get('src', ''))
+            self.assertEqual(arrow_icon['need_bind'], 'lp.bt.pane_arrow')
+            self.assertEqual(tab_icon['need_bind'], '!lp.cfg.pane')
+            self.assertFalse(arrow_icon.get('flip_x'))   # hide: left-pointing fold arrow (the game's ◀)
+            self.assertTrue(tab_icon.get('flip_x'))      # restore: right-pointing
+
+    def test_move_grid_hidden_reuses_todays_move_actions_and_long_press_restores_pane(self):
+        moves = next(p for p in self.manifest['pages'] if p['id'] == 'moves')
+        for k, (gx, gy) in enumerate(gen.GRID_CELLS):
+            taps = [w for w in moves['widgets'] if w.get('on_tap') == f'move{k}'
+                   and w.get('rect', [None, None])[:2] == [gx, gy]]
+            self.assertTrue(taps, k)
+            for w in taps:
+                self.assertEqual(w.get('on_hold'), 'pane_show')
+                self.assertIn(f'lp.bt.m{k}.id', w['need_bind'])
+            picked = [w for w in moves['widgets']
+                     if f'lp.bt.m{k}.picked' in (w.get('need_bind') or '') and 'not.lp.cfg.pane' in w['need_bind']]
+            self.assertTrue(picked, k)
+        back = [w for w in moves['widgets'] if w.get('on_tap') == 'go_battle' and w.get('rect') == gen.HIDDEN_MOVES_BACK]
+        self.assertTrue(back)
+        self.assertTrue(all(w['need_bind'] == '!lp.cfg.pane' for w in back))
+
+    def test_both_themes_render_the_pane_hidden_bag_button(self):
+        # the hidden layout's Bag button (curve-left) must still theme-switch like the small stack's
+        battle = next(p for p in self.manifest['pages'] if p['id'] == 'battle')
+        rows = [w for w in battle['widgets'] if w.get('bind') == 'lp.bt.bag.style'
+               and w.get('rect', [0])[0] == gen.HIDDEN_LEFT[0] and w.get('rect', [0, 0])[1] == gen.HIDDEN_LEFT[1]]
+        self.assertTrue(rows)
+        for row in rows:
+            self.assertNotIn('src', row)
+            self.assertEqual(len(row['src_names']), 4)
 
 
 if __name__ == '__main__':
