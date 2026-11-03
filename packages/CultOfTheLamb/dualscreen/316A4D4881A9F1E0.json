@@ -1,0 +1,23 @@
+{
+ "_game": "Cult of the Lamb 1.5.27",
+ "_build_id": "316A4D4881A9F1E077A07262E917917C",
+ "_layout": "IL2CPP v31: Il2CppClass.static_fields +0xB8 (verified live, docs/re-notes.md). DataManager_TypeInfo @ main+0x713AC50, DataManager.instance @ static_fields+0xE0",
+ "points": {
+  "dm": {"type": "u64", "ptr": ["main+0x713AC50", "0xB8", "0xE0"], "offset": "0x0",
+         "_v": "DataManager instance pointer (0 before the title screen)"},
+  "cult.faith": {"type": "f32", "ptr": ["main+0x713AC50", "0xB8", "0xE0", "0x354"], "offset": "0x0",
+         "_v": "DataManager.CultFaith; CultFaithManager.get_CurrentFaith reads +0x354; MAX_FAITH = 85"},
+  "cult.hunger": {"type": "f32", "ptr": ["main+0x713AC50", "0xB8", "0xE0", "0x340"], "offset": "0x0",
+         "_v": "DataManager.HungerBarCount; HungerBar.get_Count reads +0x340; MAX_HUNGER = 100.0"},
+  "cult.illness": {"type": "f32", "ptr": ["main+0x713AC50", "0xB8", "0xE0", "0x344"], "offset": "0x0",
+         "_v": "DataManager.IllnessBarCount; IllnessBar.get_Count reads +0x344"},
+  "cult.illness_max": {"type": "f32", "ptr": ["main+0x713AC50", "0xB8", "0xE0", "0x348"], "offset": "0x0",
+         "_v": "DataManager.IllnessBarDynamicMax; IllnessBar.get_DynamicMax reads +0x348"},
+  "g.day": {"type": "s32", "ptr": ["main+0x713AC50", "0xB8", "0xE0", "0x610"], "offset": "0x0",
+         "_v": "DataManager.CurrentDayIndex"},
+  "g.phase": {"type": "s32", "ptr": ["main+0x713AC50", "0xB8", "0xE0", "0x614"], "offset": "0x0",
+         "_v": "DataManager+0x614; TimeManager.get_CurrentPhase; DayPhase Dawn=0 Morning=1 Afternoon=2 Dusk=3 Night=4"},
+  "g.time": {"type": "f32", "ptr": ["main+0x713AC50", "0xB8", "0xE0", "0x618"], "offset": "0x0",
+         "_v": "DataManager+0x618; TimeManager.get_CurrentGameTime, game minutes in the day (GAME_MINUTES_PER_DAY = 1200)"}
+ }
+}

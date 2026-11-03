@@ -45,6 +45,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 25 | [Octopath Traveler 0](#octopath-traveler-0) | `01005270232F2000` | 1.0.5 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/octopath-traveler-0-1.0.0) | 🥇<br><a href="https://ko-fi.com/W7W1DAK7T"><img src="https://img.shields.io/badge/TwoBitSprite-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="TwoBitSprite"></a> |
 | 26 | [Pokémon Sword](#pokemon-sword) | `0100ABF008968000` | 1.3.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-sword-1.0.1) | 🥇<br><a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a> |
 | 27 | [Pokémon Shield](#pokemon-shield) | `01008DB008C2C000` | 1.3.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-shield-1.0.1) | 🥇<br><a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a> |
+| 28 | [Cult of the Lamb](#cult-of-the-lamb) | `01002E7016C46000` | 1.5.27, 1.5.28 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/cult-of-the-lamb-1.0.0) | ⭐<br><a href="https://github.com/AlterDigga"><img src="https://img.shields.io/badge/AlterDigga-181717?style=flat-square&logo=github&logoColor=white" alt="AlterDigga"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -862,6 +863,38 @@ The Pokémon Sword companion, built for Shield: Galar's Town Map, your party, Po
 - **Compatibility.** Requires Eden Duo 1.3.2.2 or newer (runtime 22). Korean and Chinese text needs Eden Duo 1.3.3 (runtime 23) and the console's system fonts from your own firmware. Pokémon Sword has its own package; do not install the Shield package for Sword. Other game versions are refused. Tested on the desktop build; Android handheld check pending.
 
 By igawa6. Source: GPL-3.0-or-later. The companion ships no game art and no game text: maps, icons, Pokémon sprites, the font and all game text (names, descriptions, menu and battle words, place names) are read from your own game files; those assets remain the property of their respective owners. Research credits: SysBot.NET and CaptureSight (heap offsets), PKHeX (save and Pokémon data layouts), pkNX and pokedat (game file formats), PKHeX_Raid_Plugin (den locations).
+
+</details>
+
+---
+
+<a id="cult-of-the-lamb"></a>
+
+## Cult of the Lamb
+
+⭐ Contributed by [AlterDigga](https://github.com/AlterDigga).
+
+<details>
+<summary>Screenshots and details</summary>
+
+`01002E7016C46000` · game versions 1.5.27 and 1.5.28 (same build) · companion 1.0.0
+
+| Cult | Dungeon |
+|:---:|:---:|
+| <img src="screenshots/cult-of-the-lamb/cult.png" width="400" alt="Cult of the Lamb: Cult"> | <img src="screenshots/cult-of-the-lamb/dungeon.png" width="400" alt="Cult of the Lamb: Dungeon"> |
+
+Live status of your cult and your current run on the bottom screen. Requires Eden Duo 1.3.2 or newer (runtime 22).
+
+- **Cult.** Faith, hunger, health, the day and its phases, follower counts, dirt, bodies and silo levels.
+- **Problems.** Followers who need attention, with filters; tap a follower to see all their problems.
+- **Quests.** Offered and accepted quests with the game's text, steps, givers and deadlines.
+- **Followers.** Every follower with role, age, traits and current thoughts.
+- **Items.** Your inventory with the game's icons and descriptions; marks items an open quest needs.
+- **Dungeon.** HUD-style hearts, a map of what you have discovered, and your tarot cards. Tap a card, your weapon, curse or relic for its effect, stats and description.
+- **Limits.** Read-only, English text, player 1 only. Unsupported builds are refused. Weapon and curse damage leaves out co-op tarot cards.
+
+The companion ships no game art: icons, images, text and fonts are read from your game files.
+Code: GPL-3.0-or-later. Tested on an AYN Thor.
 
 </details>
 
