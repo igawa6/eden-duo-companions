@@ -377,6 +377,18 @@ struct FontOut {
 bool DecodeFont(Library&, const EdenDsmodHostApi* host, const uint8_t* bytes, size_t size,
                 FontOut& out);
 inline constexpr const char* FontAtlasKey = "module:fe3h:font/latin";
+// The paged atlas of the serif face (manifest font_atlas, with font_page_h = fe3h_font::PageRows):
+// the Latin atlas and the game's four CJK atlases as 52-row bands (fe3h_font.h, PageSourceOf).
+// "fe3h:font/page/<n>" is band n of the virtual atlas, 4096 x 52 RGBA.
+inline constexpr const char* FontPageKey = "module:fe3h:font/page/{p}";
+// The game's language index (msgdata order, -1 = not known yet) the CJK glyphs should follow:
+// the next decode_font adds that language's set (and Korean's, for Hangul). Any thread.
+void SetFontLanguage(Library&, int language);
+// A string of the game's own message data (msgdata: language index, part, index; fe3h_text.h), for
+// finding the game's language (fe3h_language.h). False while the romfs is not readable or for a
+// bad index. Any thread; reads the romfs, so not for a time-critical thread.
+bool GameText(Library&, const EdenDsmodHostApi* host, uint32_t language, uint32_t part,
+              uint32_t index, std::string& out);
 
 // Published image-source strings ("module:fe3h:...").
 std::string PortraitKey(uint32_t pid);

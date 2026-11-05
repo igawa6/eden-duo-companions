@@ -272,7 +272,7 @@ Keep the monastery, your students and the battlefield on the second screen:
 - **Calendar.** Open the calendar from the Academy page and select a day.
 - **Quests and lost items.** Browse the quest log by status, inspect objectives and rewards, and see the lost items you are carrying.
 
-The companion ships no game art: maps, portraits, icons, fonts and text are read from your own game files.
+The companion ships no game art: maps, portraits, icons, fonts and text are read from your own game files. Korean, Japanese and Chinese (Simplified and Traditional) text is drawn with the game's own fonts for those languages.
 
 </details>
 

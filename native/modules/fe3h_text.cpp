@@ -43,18 +43,16 @@ const XlTable* MessageText::Part(uint32_t lang, uint32_t part) {
     const auto key = std::make_pair(lang, part);
     if (const auto it = parts_.find(key); it != parts_.end())
         return it->second.get();
-    auto& slot = parts_[key];
     const auto msg = link_.Entry(MsgDataId);
     const auto l = msg ? fe3h_romfs::PtblChild(msg, lang) : nullptr;
     const auto p = l ? fe3h_romfs::PtblChild(l, part) : nullptr;
     std::vector<uint8_t> bytes;
     if (!p || !p->ReadAll(bytes, uint64_t{16} << 20))
-        return nullptr;
+        return nullptr; // not latched: the romfs may not be readable yet
     auto table = std::make_unique<XlTable>();
     if (!table->Parse(std::move(bytes)))
         return nullptr;
-    slot = std::move(table);
-    return slot.get();
+    return (parts_[key] = std::move(table)).get();
 }
 
 bool MessageText::Get(uint32_t part, uint32_t index, std::string& out, uint32_t lang) {

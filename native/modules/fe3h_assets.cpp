@@ -21,6 +21,7 @@
 #include "fe3h_font.h"
 #include "fe3h_g1t.h"
 #include "fe3h_romfs.h"
+#include "fe3h_text.h"
 #include "fe3h_ui2d.h"
 
 namespace fe3h_assets {
@@ -240,6 +241,18 @@ public:
                   uint32_t& index);
     int WeaponIcon(uint32_t item, uint32_t uses) const; // any thread, never blocks
     bool DecodeFont(const EdenDsmodHostApi* host, std::span<const uint8_t> bytes, FontOut& out);
+    void SetFontLanguage(int language) {
+        font_language_.store(language, std::memory_order_relaxed);
+    }
+    bool GameText(const EdenDsmodHostApi* host, uint32_t language, uint32_t part, uint32_t index,
+                  std::string& out) {
+        std::scoped_lock lock{io_};
+        if (!Ready(host))
+            return false;
+        if (!messages_)
+            messages_ = std::make_unique<fe3h_text::MessageText>(*link_);
+        return messages_->Get(part, index, out, language);
+    }
 
 private:
     struct Pixels {
@@ -298,6 +311,10 @@ private:
     SourcePtr ui_atlas_[UiAtlasLast - UiAtlasFirst + 1];
     std::map<uint32_t, SourcePtr> ui_g1t_;
     SourcePtr font_tex_, stills_, stills_dlc_, faces_dlc_;
+    SourcePtr cjk_tex_[fe3h_font::LangCount]; // LINKDATA 75 / 71 / 74 / 73, KT-gz G1Ts
+    std::atomic<int> font_language_{-1};      // the game's language index, -1 = unknown
+    std::unique_ptr<fe3h_text::MessageText> messages_; // the game's message data (GameText)
+    std::optional<Pixels> FontPage(uint32_t page);
     uint32_t arc_id_{};
     std::vector<uint8_t> arc_; // the last ui2d SARC read (they are read whole, <= 18 MiB)
     std::vector<fe3h_ui2d::SarcFile> arc_files_;
@@ -458,6 +475,12 @@ std::optional<LibraryImpl::Pixels> LibraryImpl::Fetch(std::string_view key) {
     const std::string_view kind = part[0];
     SourcePtr g1t;
     uint32_t tex = 0;
+    if (kind == "font" && part.size() == 3 && part[1] == "page") {
+        uint32_t page;
+        if (!ParseU32(part[2], page))
+            return std::nullopt;
+        return FontPage(page);
+    }
     if (kind == "portrait" && n.size() == 1) {
         g1t = Container(PortraitEntry, portraits_);
         tex = n[0];
@@ -536,6 +559,36 @@ std::optional<LibraryImpl::Pixels> LibraryImpl::Fetch(std::string_view key) {
     if (!g1t)
         return std::nullopt;
     return Tex(*g1t, tex);
+}
+
+// One PageRows-high band of the paged font atlas (fe3h_font.h): rows of the Latin atlas or of a
+// CJK atlas. BC3 is stored linearly in 4x4 blocks, so a band is one contiguous byte range and only
+// the KT-gz chunks covering it are inflated. The last band of an atlas can be shorter than
+// PageRows: the missing blocks are zero (fully transparent).
+std::optional<LibraryImpl::Pixels> LibraryImpl::FontPage(uint32_t page) {
+    fe3h_font::PageSource src;
+    if (!fe3h_font::PageSourceOf(page, src))
+        return std::nullopt;
+    const SourcePtr g1t =
+        src.latin ? Container(fe3h_font::TextureEntry, font_tex_)
+                  : Container(fe3h_font::CjkSets[size_t(src.lang)].texture_entry,
+                              cjk_tex_[size_t(src.lang)]);
+    if (!g1t)
+        return std::nullopt;
+    const auto t = fe3h_g1t::Texture(*g1t, 0);
+    constexpr uint8_t Bc3 = 0x5B;
+    if (!t || t->format != Bc3 || t->width != fe3h_font::AtlasWidth ||
+        t->height != (src.latin ? fe3h_font::AtlasHeight : fe3h_font::CjkAtlasH) ||
+        src.y >= t->height || src.y % 4 != 0 || t->height % 4 != 0)
+        return std::nullopt;
+    const uint64_t block_row_bytes = uint64_t(t->width / 4) * 16; // one row of 4x4 blocks
+    const uint32_t rows = std::min(fe3h_font::PageRows, t->height - src.y);
+    Pixels px{t->format, t->width, fe3h_font::PageRows, {}};
+    if (!g1t->ReadVec(t->data_offset + uint64_t(src.y / 4) * block_row_bytes,
+                      size_t(rows / 4) * block_row_bytes, px.data))
+        return std::nullopt;
+    px.data.resize(size_t(fe3h_font::PageRows / 4) * block_row_bytes, 0);
+    return px;
 }
 
 std::shared_ptr<const Image> LibraryImpl::CacheGet(const std::string& key) {
@@ -2635,15 +2688,32 @@ bool LibraryImpl::DecodeFont(const EdenDsmodHostApi* host, std::span<const uint8
     if (!fe3h_font::ReadGameTables(*host, tables))
         return false;
     std::vector<uint8_t> table;
+    std::vector<fe3h_font::CjkTable> cjk;
     {
         std::scoped_lock lock{io_};
         const SourcePtr e = Ready(host) ? link_->Entry(fe3h_font::CodeTableEntry) : nullptr;
         if (!e || !e->ReadAll(table, uint64_t{1} << 20))
             return false;
+        // The game's language set first (its Han shapes), then Korean for the Hangul no other set
+        // has. A set that cannot be read is skipped: the Latin font works without it.
+        std::vector<fe3h_font::Lang> wanted;
+        fe3h_font::Lang active;
+        if (fe3h_font::LangFromIndex(font_language_.load(std::memory_order_relaxed), active) &&
+            active != fe3h_font::Lang::Kor)
+            wanted.push_back(active);
+        wanted.push_back(fe3h_font::Lang::Kor);
+        for (const auto lang : wanted) {
+            std::vector<uint8_t> codes;
+            const SourcePtr c = link_->Entry(fe3h_font::CjkSets[size_t(lang)].code_entry);
+            if (c && c->ReadAll(codes, uint64_t{1} << 20))
+                cjk.push_back({lang, fe3h_font::DecodeCodeTable(codes)});
+        }
     }
     fe3h_font::Font font;
     if (!fe3h_font::Build(face, tables, fe3h_font::DecodeCodeTable(table), font))
         return false;
+    if (face == fe3h_font::Face::Serif)
+        fe3h_font::AddCjk(font, cjk);
     out.line_height = font.line_height;
     out.first_codepoint = font.first_codepoint;
     out.glyphs.resize(font.glyphs.size());
@@ -2787,6 +2857,15 @@ bool DecodeFont(Library& lib, const EdenDsmodHostApi* host, const uint8_t* bytes
     if (!bytes || size == 0 || size > 4096)
         return false;
     return lib.Impl().DecodeFont(host, std::span<const uint8_t>{bytes, size}, out);
+}
+
+void SetFontLanguage(Library& lib, int language) {
+    lib.Impl().SetFontLanguage(language);
+}
+
+bool GameText(Library& lib, const EdenDsmodHostApi* host, uint32_t language, uint32_t part,
+              uint32_t index, std::string& out) {
+    return lib.Impl().GameText(host, language, part, index, out);
 }
 
 int MinimapIndex(uint32_t stage, bool flag) {

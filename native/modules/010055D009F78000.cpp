@@ -15,12 +15,15 @@
 #include "core/mods/dsmod_module_extensions.h"
 #include "core/mods/modules/dsmod_module_sdk.h"
 #include "fe3h_assets.h"
+#include "fe3h_language.h"
 #include "fe3h_reader.h"
 
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <cmath>
+#include <future>
 #include <mutex>
 #include <string>
 #include <cstdint>
@@ -144,6 +147,88 @@ struct Module {
         return true;
     }
 
+    /// Tick thread: find the language the game runs in and follow it. The language value the game
+    /// keeps (Reader::GameLanguage) is only a hint: the language is the one whose words in the
+    /// romfs message data equal a few words read from the game's memory (fe3h_language.h), which
+    /// cannot be wrong about what the game shows. The CJK glyphs of the font depend on it (Han
+    /// shapes differ per language), so a language found for the first time or changed is handed to
+    /// the asset library and "__font_epoch" counts up: a runtime 18 host then calls decode_font
+    /// again and reloads the atlas pages.
+    /// Console checks: "fe.lang" (the game's value, -1 = unreadable), "fe.lang_det" (the language
+    /// found, -1 = none yet) and "fe.lang_state" (0 nothing yet, 1 working, 2 done, 3 the romfs
+    /// could not be read, tried again later).
+    void WatchLanguage(const EdenDsmodHostApi* h) {
+        using namespace std::chrono_literals;
+        ++language_samples;
+        const int reader_lang = reader.GameLanguage();
+        if (probe.empty() || language_samples % 30 == 0) // a few RAM strings; none before the texts load
+            probe = reader.LanguageProbe();
+        if (language_job.valid() && language_job.wait_for(0s) == std::future_status::ready) {
+            const LanguageResult r = language_job.get();
+            language_state = r.complete ? 2 : 3;
+            if (r.language >= 0) {
+                language_found = r.language;
+                if (r.language != font_language) {
+                    font_language = r.language;
+                    fe3h_assets::SetFontLanguage(*assets, r.language);
+                    ++font_epoch;
+                }
+            }
+            if (!r.complete) { // look again later (the romfs was not readable, or no language yet)
+                language_retry_at = language_samples + 120;
+                job_key.clear();
+            }
+        }
+        const std::string key = probe + '#' + std::to_string(reader_lang);
+        if (!language_job.valid() && (!probe.empty() || reader_lang >= 0) && key != job_key &&
+            language_samples >= language_retry_at) {
+            job_key = key;
+            language_state = 1;
+            language_job = std::async(std::launch::async, [this, reader_lang, p = probe] {
+                return ResolveLanguage(reader_lang, p);
+            });
+        }
+        if (h->publish_i64) {
+            h->publish_i64(h->userdata, "__font_epoch", font_epoch);
+            h->publish_i64(h->userdata, "fe.lang", reader_lang);
+            h->publish_i64(h->userdata, "fe.lang_det", language_found);
+            h->publish_i64(h->userdata, "fe.lang_state", language_state);
+        }
+    }
+
+    struct LanguageResult {
+        int language{-1}; ///< the language found, -1 = none
+        bool complete{};  ///< the language is settled (else tried again later)
+    };
+
+    /// The language of the game: `probe_text` = its words from the game's memory, `hint` = the
+    /// game's own language value or -1. Runs off the tick thread (it reads the romfs).
+    LanguageResult ResolveLanguage(int hint, const std::string& probe_text) const {
+        int language = hint;
+        bool readable = true;
+        if (!probe_text.empty()) {
+            int reads = 0;
+            const int found = fe3h_language::MatchLanguage(
+                probe_text, hint, [&](int lang, std::uint32_t index, std::string& out) {
+                    const bool ok = fe3h_assets::GameText(*assets, &host,
+                                                          static_cast<std::uint32_t>(lang), 1, index, out);
+                    reads += ok ? 1 : 0;
+                    return ok;
+                });
+            if (found >= 0)
+                language = found;
+            else if (reads == 0)
+                readable = false; // the romfs was not readable: try again later
+        }
+        return {language, readable && language >= 0};
+    }
+
+    int font_language{-1};
+    std::int64_t font_epoch{0};
+    std::string probe, job_key; ///< the game's words from its memory; what the last job was for
+    int language_found{-1};
+    int language_state{0};
+    std::uint64_t language_samples{0}, language_retry_at{0};
     std::mutex arrow_mutex;
     std::vector<std::uint8_t> arrow_src;
     std::uint32_t arrow_w{}, arrow_h{}, arrow_side{};
@@ -151,6 +236,8 @@ struct Module {
     EdenDsmodHostApi host; // create()'s host table: decode_font gets no host of its own
     std::unique_ptr<fe3h_assets::Library> assets;
     Fe3hReader::Reader reader;
+    // last: destroyed (and joined) before the library and the host table the job reads
+    std::future<LanguageResult> language_job;
 };
 
 void* Create(const EdenDsmodHostApi* host, const char* config) {
@@ -175,8 +262,11 @@ void Destroy(void* p) {
 void SampleCallback(void* p, const EdenDsmodHostApi* host) {
     static std::atomic_flag reported = ATOMIC_FLAG_INIT;
     try {
-        if (p && host)
-            static_cast<Module*>(p)->reader.Sample(*host);
+        if (p && host) {
+            auto* m = static_cast<Module*>(p);
+            m->reader.Sample(*host);
+            m->WatchLanguage(host);
+        }
     } catch (...) {
         if (!reported.test_and_set() && host && host->log)
             host->log(host->userdata, EDEN_DSMOD_LOG_ERROR, "FE3H DSMod sample callback failed");
