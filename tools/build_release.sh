@@ -166,13 +166,13 @@ fi
 if want lp; then
   # The manifest pins the library hashes; min_runtime 19 because its helper manifest is over 1 MiB.
   # shellcheck disable=SC2046
-  pkg LuminescentPlatinum BrilliantDiamondLuminescentPlatinumDS "${LP_VERSION:-1.0.1}" --min-runtime 19 \
+  pkg LuminescentPlatinum BrilliantDiamondLuminescentPlatinumDS "${LP_VERSION:-1.0.2}" --min-runtime 19 \
     --module "linux-x86_64=$LP_LINUX_SO" --module "android-arm64-v8a=$LP_ANDROID_SO" \
     $(build_ids LuminescentPlatinum)
 fi
 if want lp-pearl; then
   # shellcheck disable=SC2046
-  pkg LuminescentPlatinumPearl ShiningPearlLuminescentPlatinumDS "${LP_PEARL_VERSION:-1.0.1}" --min-runtime 19 \
+  pkg LuminescentPlatinumPearl ShiningPearlLuminescentPlatinumDS "${LP_PEARL_VERSION:-1.0.2}" --min-runtime 19 \
     --module "linux-x86_64=$LP_PEARL_LINUX_SO" --module "android-arm64-v8a=$LP_PEARL_ANDROID_SO" \
     $(build_ids LuminescentPlatinumPearl)
 fi

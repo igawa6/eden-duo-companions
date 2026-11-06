@@ -3011,7 +3011,7 @@ def main():
                     help="game title/profile to generate; vanilla and Luminescent share each edition's package")
     ap.add_argument("--package-dir", type=Path,
                     help="override the generated package directory (defaults to packages/<edition package>)")
-    ap.add_argument("--version", default="1.0.1", help="package release version")
+    ap.add_argument("--version", default="1.0.2", help="package release version")
     ap.add_argument("--lib", action="append", default=[], metavar="PLATFORM=PATH",
                     help="pin a built module (copied to dualscreen/modules/<platform>/), e.g. linux-x86_64=build/0100000011D90000.so")
     args = ap.parse_args()
