@@ -26,8 +26,8 @@ This repository holds the companion source code, packages, documentation and scr
 | 6 | [Animal Crossing: New Horizons](#animal-crossing-new-horizons) | `01006F8002326000` | 3.0.3 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/animal-crossing-new-horizons-1.0.0) | 🥇<br><a href="https://ko-fi.com/W5J3253HW9"><img src="https://img.shields.io/badge/MsMeriBerry-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="MsMeriBerry"></a> |
 | 7 | [Fire Emblem: Three Houses](#fire-emblem-three-houses) | `010055D009F78000` | 1.2.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/fire-emblem-three-houses-1.0.1) | |
 | 8 | [The Binding of Isaac: Afterbirth+ and Repentance DLC](#the-binding-of-isaac-afterbirth-and-repentance-dlc) | `010021C000B6A000` | 1.7.9b | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/the-binding-of-isaac-1.0.2) | 🥇<br><a href="https://ko-fi.com/U3I527XBIL"><img src="https://img.shields.io/badge/Armando_Chacon-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Armando Chacon"></a> |
-| 9 | [Pokémon Brilliant Diamond / Luminescent Platinum](#pokemon-brilliant-diamond-luminescent-platinum) | `0100000011D90000` | 1.3.0 (vanilla or Luminescent Platinum 2.2F) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-luminescent-platinum-1.0.1) | 🗳️<br><a href="https://ko-fi.com/polls/Next-Switch-Game-on-Eden-Duo-M0V127VUYA"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
-| 10 | [Pokémon Shining Pearl / Luminescent Platinum](#pokemon-shining-pearl-luminescent-platinum) | `010018E011D92000` | 1.3.0 (vanilla or Luminescent Platinum 2.2F) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-shining-pearl-1.0.1) | 🗳️<br><a href="https://ko-fi.com/polls/Next-Switch-Game-on-Eden-Duo-M0V127VUYA"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
+| 9 | [Pokémon Brilliant Diamond / Luminescent Platinum](#pokemon-brilliant-diamond-luminescent-platinum) | `0100000011D90000` | 1.3.0 (vanilla or Luminescent Platinum 2.2F) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-luminescent-platinum-1.0.2) | 🗳️<br><a href="https://ko-fi.com/polls/Next-Switch-Game-on-Eden-Duo-M0V127VUYA"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
+| 10 | [Pokémon Shining Pearl / Luminescent Platinum](#pokemon-shining-pearl-luminescent-platinum) | `010018E011D92000` | 1.3.0 (vanilla or Luminescent Platinum 2.2F) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-shining-pearl-1.0.2) | 🗳️<br><a href="https://ko-fi.com/polls/Next-Switch-Game-on-Eden-Duo-M0V127VUYA"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 | 11 | [Crash Team Racing Nitro-Fueled](#crash-team-racing-nitro-fueled) | `0100F9F00C696000` | 1.0.15 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/crash-team-racing-nitro-fueled-1.0.0) | |
 | 12 | [Dragon Quest III HD-2D Remake](#dragon-quest-iii-hd-2d-remake) | `01003E601E324000` | 1.1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/dragon-quest-iii-hd-2d-remake-1.0.0) | 🥇<br><a href="https://ko-fi.com/G0I027XSOG"><img src="https://img.shields.io/badge/jzc-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="jzc"></a> |
 | 13 | [Chained Echoes](#chained-echoes) | `0100C510166F0000` | 1.41 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/chained-echoes-1.0.0) | 🥇<br><a href="https://ko-fi.com/U7U31RLL6S"><img src="https://img.shields.io/badge/Jadesigns-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Jadesigns"></a> |
@@ -318,7 +318,7 @@ The launcher must be updated to 1.7.9b in either edition; unpatched base v0 is n
 
 🗳️ <a href="https://ko-fi.com/polls/Next-Switch-Game-on-Eden-Duo-M0V127VUYA"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a>
 
-`0100000011D90000` (Brilliant Diamond) · game version 1.3.0 (vanilla or Luminescent Platinum 2.2F) · companion 1.0.1
+`0100000011D90000` (Brilliant Diamond) · game version 1.3.0 (vanilla or Luminescent Platinum 2.2F) · companion 1.0.2
 
 | Map | Party | Battle |
 |:---:|:---:|:---:|
@@ -351,7 +351,7 @@ Limitations:
 
 🗳️ <a href="https://ko-fi.com/polls/Next-Switch-Game-on-Eden-Duo-M0V127VUYA"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a>
 
-`010018E011D92000` · game version 1.3.0 (vanilla or Luminescent Platinum 2.2F) · companion 1.0.1
+`010018E011D92000` · game version 1.3.0 (vanilla or Luminescent Platinum 2.2F) · companion 1.0.2
 
 | Map | Party | Pokétch |
 |:---:|:---:|:---:|
