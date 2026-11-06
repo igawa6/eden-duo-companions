@@ -14,7 +14,7 @@ bool LocaleMatches(const NativeFonts &n) {
       "regionCN/CNzh", "regionTW/TWzh", "regionKR/KRko"};
   for (size_t i = 0; i < roots.size(); ++i)
     if (n.locale_flag == (uint32_t(1) << i))
-      return i >= 1 && i <= 11 && n.message_root == roots[i];
+      return i <= 11 && n.message_root == roots[i];
   return false;
 }
 bool Usable(const std::shared_ptr<const NativeFonts> &n) {
@@ -27,7 +27,8 @@ bool ReadFile(const ResourceReadAssetFn &read, std::string_view path,
   if (!read)
     return false;
   size_t size = read(path, 0, nullptr, 0);
-  if (!size || size > 1024 * 1024)
+  // Regional Heading fonts reach 2.1 MB (regionCN); keep a bound.
+  if (!size || size > 4 * 1024 * 1024)
     return false;
   bytes.resize(size);
   return read(path, 0, bytes.data(), bytes.size()) == size;

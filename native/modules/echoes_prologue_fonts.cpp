@@ -129,7 +129,7 @@ bool PrologueBodyAtlas(const NativeFonts& native,const ReadAssetFn& read,std::sp
     if(result.first_codepoint>Alias || Alias+4-result.first_codepoint>16384 || result.image.w!=1024 || result.image.h<=0 || result.image.h>4096-int(cap)-2)return false;
     const int row=result.image.h+1;acnh::Image image(1024,result.image.h+int(cap)+2);
     std::memcpy(image.rgba.data(),result.image.rgba.data(),result.image.rgba.size());
-    result.glyphs.resize(Alias+4-result.first_codepoint);int x=1;
+    result.glyphs.resize(std::max<size_t>(result.glyphs.size(),Alias+4-result.first_codepoint));int x=1;
     for(size_t i=0;i<icons.size();++i) {
         const auto& src=icons[i];const int width=std::max(1,int(std::lround(double(src.w)*cap/src.h)));
         if(width>256 || x+width>=1024)return false;

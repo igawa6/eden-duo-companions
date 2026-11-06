@@ -151,7 +151,7 @@ int main() {
     if (fail)
       return 0;
     if (oversize && !out)
-      return 1024 * 1024 + 1;
+      return 4 * 1024 * 1024 + 1;
     auto bytes = File(root / std::string(path));
     if (!out && !n)
       return bytes.size();
@@ -366,6 +366,48 @@ int main() {
   worker.join();
   Check(!result && !resources.Snapshot());
   Check(resources.EnsureReady());
+  // Every Standard-font root reaches readiness from its own message root and
+  // regional multi-sheet Heading font; Chinese and Korean stay unavailable.
+  constexpr std::array<std::string_view, 15> roots{
+      "regionJP/JPja", "regionUS/USen", "regionUS/USfr", "regionUS/USes",
+      "regionUS/USpt", "regionEU/EUen", "regionEU/EUfr", "regionEU/EUes",
+      "regionEU/EUde", "regionEU/EUit", "regionEU/EUnl", "regionEU/EUru",
+      "regionCN/CNzh", "regionTW/TWzh", "regionKR/KRko"};
+  for (size_t i = 0; i < roots.size(); ++i) {
+    if (i == 1)
+      continue;
+    if (i <= 11 && !std::filesystem::exists(root / std::string(roots[i]) /
+                                            "message/glossary/CopyableActor.msbt")) {
+      std::cout << "SKIP " << roots[i] << " (messages absent from ECHOES_ROMFS)\n";
+      continue;
+    }
+    auto locale = std::make_shared<echoes::NativeFonts>(*native);
+    locale->locale_flag = uint32_t(1) << i;
+    locale->message_root = std::string(roots[i]);
+    echoes::Resources regional(read);
+    regional.SetNativeFonts(locale);
+    const bool ok = regional.EnsureReady();
+    const auto snapshot = regional.Snapshot();
+    std::cout << roots[i] << ": " << regional.LastBuildPhase();
+    if (snapshot)
+      std::cout << ", body pages " << snapshot->body.image.h / 512
+                << ", heading names " << snapshot->heading_echo_keys.size()
+                << ", inspection " << snapshot->inspection_echo_text.size()
+                << "/" << snapshot->inspection_automaton_text.size()
+                << ", prologue " << snapshot->prologue_text.size()
+                << ", locations " << snapshot->locations.size()
+                << ", ui " << snapshot->heading_ui_keys.size() << "/" << snapshot->ui.size();
+    std::cout << '\n';
+    if (i > 11) {
+      Check(!ok && !snapshot);
+      continue;
+    }
+    Check(ok && snapshot && snapshot->echoes.size() == 128 &&
+          snapshot->message_root == roots[i] && !snapshot->body.image.Empty() &&
+          !snapshot->heading.sheet.Empty() &&
+          !snapshot->heading_echo_keys.empty() &&
+          !snapshot->inspection_echo_text.empty());
+  }
   const char *segments = std::getenv("ECHOES_SEGMENTS");
   if (segments) {
     const auto text = File(std::filesystem::path(segments) / "text.bin");

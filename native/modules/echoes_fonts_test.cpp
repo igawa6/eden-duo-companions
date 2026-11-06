@@ -101,7 +101,7 @@ int main() {
     }
     std::vector<uint32_t> huge(8193, 65);
     Check(!echoes::BodyAtlas(native, huge, atlas));
-    std::array<uint32_t, 2> dense{32, 0x10000};
+    std::array<uint32_t, 2> dense{32, 0x10020};
     Check(!echoes::BodyAtlas(native, dense, atlas));
     Check(echoes::BodyAtlas(native, cps, atlas, 22));
     auto broad = cps;
@@ -146,5 +146,48 @@ int main() {
     std::cout << "Real original Heading decoded and composed\n";
   } else
     std::cout << "SKIP real Heading (ECHOES_HEADING unset)\n";
+  // Private copies of every regional <root>/common/ui/Heading.bffnt, named
+  // region<XX>_common_ui_Heading.bffnt.bin. Sheets are 1024x1024 BNTX layers.
+  if (const char *dir = std::getenv("ECHOES_HEADING_DIR")) {
+    struct Region {
+      const char *name;
+      uint32_t sheets;
+    };
+    for (auto [name, sheets] : {Region{"US", 1}, Region{"EU", 2}, Region{"JP", 2},
+                                Region{"KR", 2}, Region{"TW", 3}, Region{"CN", 4}}) {
+      auto bytes = File((std::string(dir) + "/region" + name +
+                         "_common_ui_Heading.bffnt.bin").c_str());
+      Check(echoes::ParseHeading(bytes, heading));
+      Check(heading.sheet.w == 1024 && heading.sheet.h == int(1024 * sheets) &&
+            !heading.glyphs.empty());
+      // The glyph lowest on the stacked sheets lies on the last sheet.
+      auto last = heading.glyphs.begin();
+      for (auto at = heading.glyphs.begin(); at != heading.glyphs.end(); ++at)
+        if (at->second.y > last->second.y && at->second.w)
+          last = at;
+      Check(last->second.y >= 1024 * (sheets - 1) &&
+            last->second.y + last->second.h <= heading.sheet.h);
+      std::string text;
+      uint32_t cp = last->first;
+      if (cp < 0x80)
+        text += char(cp);
+      else if (cp < 0x800)
+        text += {char(0xc0 | cp >> 6), char(0x80 | (cp & 63))};
+      else
+        text += {char(0xe0 | cp >> 12), char(0x80 | (cp >> 6 & 63)),
+                 char(0x80 | (cp & 63))};
+      Check(cp < 0x10000 &&
+            echoes::RenderHeading(heading, text, {255, 255, 255, 255}, 400, image));
+      size_t ink = 0;
+      for (size_t p = 3; p < image.rgba.size(); p += 4)
+        ink += image.rgba[p] != 0;
+      Check(ink > 20);
+      auto bad = bytes;
+      bad[0x3e] = uint8_t(sheets + 1);
+      Check(!echoes::ParseHeading(bad, heading));
+    }
+    std::cout << "All regional Heading fonts decoded\n";
+  } else
+    std::cout << "SKIP regional Heading fonts (ECHOES_HEADING_DIR unset)\n";
   std::cout << checks << " font rendering checks passed\n";
 }

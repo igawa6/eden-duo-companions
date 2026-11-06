@@ -20,7 +20,7 @@
 namespace echoes {
 namespace {
 constexpr size_t PixelBudget = 16 * 1024 * 1024;
-constexpr uint32_t AtlasWidth = 1024, PageHeight = 512, MaxDense = 16384;
+constexpr uint32_t AtlasWidth = 1024, PageHeight = 512, MaxDense = 65536;
 bool Scalar(uint32_t cp) {
   return cp <= 0x10ffff && !(cp >= 0xd800 && cp <= 0xdfff);
 }
@@ -189,14 +189,19 @@ bool ParseHeading(std::span<const uint8_t> d, HeadingFont &out) {
   if (!block(Le32(d, finf + 20), "TGLP", 32, t, te))
     return false;
   uint32_t cellw = d[t + 8], cellh = d[t + 9], sheets = d[t + 10],
-           baseline = Le16(d, t + 16), cols = Le16(d, t + 20),
-           rows = Le16(d, t + 22), sw = Le16(d, t + 24), sh = Le16(d, t + 26),
-           data = Le32(d, t + 28);
-  if (!cellw || !cellh || sheets != 1 || !cols || !rows ||
-      cols * rows > 65536 || !sw || !sh || sw > 4096 || sh > 4096 ||
-      size_t(sw) * sh * 4 > PixelBudget || data < t + 32 || data >= te ||
-      baseline > cellh || cols * (cellw + 1) + 1 > sw ||
-      rows * (cellh + 1) + 1 > sh)
+           sheet_size = Le32(d, t + 12), baseline = Le16(d, t + 16),
+           cols = Le16(d, t + 20), rows = Le16(d, t + 22), sw = Le16(d, t + 24),
+           sh = Le16(d, t + 26), data = Le32(d, t + 28);
+  // Regional fonts hold their glyphs on several sheets (BNTX array layers);
+  // glyph index / (cols * rows) selects the sheet. Sheets stack vertically.
+  // Cells start one pixel in; the last column may end at the sheet edge.
+  if (!cellw || !cellh || !sheets || !cols || !rows ||
+      cols * rows * sheets > 65536 || !sw || !sh || sw > 4096 ||
+      sh * sheets > 4096 || size_t(sw) * sh * sheets * 4 > PixelBudget ||
+      data < t + 32 || data >= te || !sheet_size ||
+      uint64_t(sheet_size) * sheets > te - data || baseline > cellh ||
+      cols * (cellw + 1) > sw || rows * (cellh + 1) > sh ||
+      acnh::BntxLayers(d.data() + data, te - data) != sheets)
     return false;
   struct Width {
     int8_t left;
@@ -226,7 +231,7 @@ bool ParseHeading(std::span<const uint8_t> d, HeadingFont &out) {
   seen.clear();
   ptr = Le32(d, finf + 28);
   auto add = [&](uint32_t cp, uint32_t index) {
-    return index == 0xffff || (Scalar(cp) && index < cols * rows &&
+    return index == 0xffff || (Scalar(cp) && index < cols * rows * sheets &&
                                cmap.emplace(cp, uint16_t(index)).second);
   };
   for (size_t count = 0; ptr; ++count) {
@@ -275,21 +280,24 @@ bool ParseHeading(std::span<const uint8_t> d, HeadingFont &out) {
   result.line_feed = Le16(d, finf + 12);
   if (!result.line_feed || result.line_feed > 1024)
     return false;
-  if (!acnh::BntxDecodeAny(d.data() + data, te - data, {}, result.sheet) ||
-      result.sheet.w != int(sw) || result.sheet.h != int(sh))
-    return false;
-  // Nintendo font sheet rows are stored bottom-up; glyph coordinates are
-  // top-down.
-  for (uint32_t y = 0; y < sh / 2; ++y)
-    for (uint32_t x = 0; x < sw * 4; ++x)
-      std::swap(result.sheet.rgba[size_t(y) * sw * 4 + x],
-                result.sheet.rgba[size_t(sh - 1 - y) * sw * 4 + x]);
+  result.sheet = acnh::Image(int(sw), int(sh * sheets));
+  for (uint32_t layer = 0; layer < sheets; ++layer) {
+    acnh::Image sheet;
+    if (!acnh::BntxDecodeLayer(d.data() + data, te - data, layer, sheet) ||
+        sheet.w != int(sw) || sheet.h != int(sh))
+      return false;
+    // Nintendo font sheet rows are stored bottom-up; glyph coordinates are
+    // top-down.
+    for (uint32_t y = 0; y < sh; ++y)
+      std::memcpy(result.sheet.At(0, int(layer * sh + y)),
+                  sheet.rgba.data() + size_t(sh - 1 - y) * sw * 4, size_t(sw) * 4);
+  }
   for (const auto &[cp, index] : cmap) {
     auto it = widths.find(index);
     Width w = it == widths.end() ? defaults : it->second;
-    uint32_t gx = (index % cols) * (cellw + 1) + 1,
-             gy = (index / cols) * (cellh + 1) + 1;
-    if (w.ink > cellw || gx + w.ink > sw || gy + cellh > sh)
+    uint32_t cell = index % (cols * rows), gx = (cell % cols) * (cellw + 1) + 1,
+             gy = index / (cols * rows) * sh + (cell / cols) * (cellh + 1) + 1;
+    if (w.ink > cellw || gx + w.ink > sw || gy + cellh > sh * sheets)
       return false;
     result.glyphs[cp] = {uint16_t(gx),    uint16_t(gy), w.ink,
                          uint16_t(cellh), w.left,       int16_t(baseline),

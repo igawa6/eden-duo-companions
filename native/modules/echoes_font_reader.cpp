@@ -59,7 +59,9 @@ bool GetLocale(const ReadFn &r, uint64_t b, Locale &l) {
   for (size_t i = 0; i < roots.size(); ++i)
     if (l.flag == (uint32_t(1) << i)) {
       l.root = roots[i];
-      l.supported = i >= 1 && i <= 11;
+      // Japanese, US and EU roots use the Standard face as their primary
+      // shared font; Chinese and Korean need their own native faces.
+      l.supported = i <= 11;
       return true;
     }
   return false;

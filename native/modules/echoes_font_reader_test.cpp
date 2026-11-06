@@ -179,7 +179,7 @@ int main() {
     Memory m;
     m.U32(Locale + 0x20, uint32_t(1) << i);
     auto s = m.Run();
-    bool supported = i >= 1 && i <= 11;
+    bool supported = i <= 11;
     Check(s.locale_valid && s.message_root == roots[i] &&
           s.body_font_supported == supported &&
           s.standard_font_valid == supported &&
