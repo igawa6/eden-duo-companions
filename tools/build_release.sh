@@ -153,7 +153,7 @@ if want acnh; then
 fi
 if want fe3h; then
   # shellcheck disable=SC2046
-  pkg FireEmblemThreeHouses FireEmblemThreeHousesDS "${FE3H_VERSION:-1.0.0}" \
+  pkg FireEmblemThreeHouses FireEmblemThreeHousesDS "${FE3H_VERSION:-1.0.1}" \
     --module "android-arm64-v8a=$FE3H_ANDROID_SO" --module "linux-x86_64=$FE3H_LINUX_SO" \
     $(build_ids FireEmblemThreeHouses)
 fi
