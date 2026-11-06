@@ -12,6 +12,7 @@
 #   01003E601E324000-DragonQuest3HD2DDS-<ver>.dsmod.zip
 #   0100C510166F0000-ChainedEchoesDS-<ver>.dsmod.zip
 #   0100DCD01525A000-Persona3PortableDS-<ver>.dsmod.zip
+#   01008CF01BAAC000-EchoesOfWisdom-<ver>.dsmod.zip
 #
 # usage: tools/build_release.sh [out dir]            (default: dist)
 #
@@ -34,9 +35,10 @@
 #   P3P_LINUX_SO / P3P_ANDROID_SO       Persona 3 Portable (dsmod-p3p)
 #   OT0_LINUX_SO / OT0_ANDROID_SO       Octopath Traveler 0 (dsmod-ot0, opt-in GAMES=ot0)
 #   COTL_LINUX_SO / COTL_ANDROID_SO     Cult of the Lamb (dsmod-cotl, opt-in GAMES=cotl)
+#   ECHOES_LINUX_SO / ECHOES_ANDROID_SO The Legend of Zelda: Echoes of Wisdom (dsmod-echoes, opt-in GAMES=echoes)
 # Versions default to each package's current release; override with P5R_VERSION, DREAD_VERSION,
 # LA_VERSION, MK8D_VERSION, WONDER_VERSION, LP_VERSION, LP_PEARL_VERSION, CTR_VERSION, DQ3_VERSION,
-# CE_VERSION, P3P_VERSION; OT0_VERSION defaults to 1.0.0 and COTL_VERSION to 1.1.0.
+# CE_VERSION, P3P_VERSION, ECHOES_VERSION; OT0_VERSION defaults to 1.0.0 and COTL_VERSION to 1.1.0.
 # GAMES selects which archives to build (default: "p5r dread la mk8d wonder acnh fe3h isaac
 # lp lp-pearl ctr dq3 ce p3p"); only the selected
 # games' modules are required.
@@ -91,6 +93,9 @@ if want ot0; then
 fi
 if want cotl; then
   : "${COTL_LINUX_SO:?set COTL_LINUX_SO}" "${COTL_ANDROID_SO:?set COTL_ANDROID_SO}"
+fi
+if want echoes; then
+  : "${ECHOES_LINUX_SO:?set ECHOES_LINUX_SO}" "${ECHOES_ANDROID_SO:?set ECHOES_ANDROID_SO}"
 fi
 PY=${PYTHON:-python3}
 export PYTHONDONTWRITEBYTECODE=1
@@ -212,5 +217,11 @@ if want cotl; then
   pkg CultOfTheLamb CultOfTheLambDS "${COTL_VERSION:-1.1.0}" --min-runtime 22 \
     --module "linux-x86_64=$COTL_LINUX_SO" --module "android-arm64-v8a=$COTL_ANDROID_SO" \
     --build-id 316A4D4881A9F1E077A07262E917917C00000000000000000000000000000000
+fi
+if want echoes; then
+  # shellcheck disable=SC2046
+  pkg EchoesOfWisdom EchoesOfWisdom "${ECHOES_VERSION:-1.0.1}" --min-runtime 22 \
+    --module "linux-x86_64=$ECHOES_LINUX_SO" --module "android-arm64-v8a=$ECHOES_ANDROID_SO" \
+    $(build_ids EchoesOfWisdom)
 fi
 (cd "$OUT" && sha256sum ./*.dsmod.zip)
