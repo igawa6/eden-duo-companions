@@ -881,9 +881,9 @@ By igawa6. Source: GPL-3.0-or-later. The companion ships no game art and no game
 
 `01002E7016C46000` · game versions 1.5.27 and 1.5.28 (same build) · companion 1.1.0
 
-| Cult | Dungeon |
-|:---:|:---:|
-| <img src="screenshots/cult-of-the-lamb/cult.png" width="400" alt="Cult of the Lamb: Cult"> | <img src="screenshots/cult-of-the-lamb/dungeon.png" width="400" alt="Cult of the Lamb: Dungeon"> |
+| Cult | Followers | Dungeon |
+|:---:|:---:|:---:|
+| <img src="screenshots/cult-of-the-lamb/cult.png" width="300" alt="Cult of the Lamb: Cult"> | <img src="screenshots/cult-of-the-lamb/followers.png" width="300" alt="Cult of the Lamb: Followers"> | <img src="screenshots/cult-of-the-lamb/dungeon.png" width="300" alt="Cult of the Lamb: Dungeon"> |
 
 Live status of your cult and your current run on the bottom screen, and follower commands by touch. Requires Eden Duo 1.3.2 or newer (runtime 22).
 
