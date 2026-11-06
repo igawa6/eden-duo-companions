@@ -311,6 +311,43 @@ class ManifestTests(unittest.TestCase):
         self.assertTrue(all(ci > vi for ci in cont_indices for vi in veil_indices),
                         "hidden Continue must be drawn after the hidden busy veil")
 
+    def test_safari_text_sits_inside_its_art(self):
+        # 1.0.2 (owner upload 2026-11-07): the Safari buttons' centred labels were anchored at the
+        # button's left edge (half outside the art), and the Safari Ball window's text ran past
+        # its right border. Every label must lie inside the art it belongs to.
+        battle = next(p for p in self.manifest['pages'] if p['id'] == 'battle')
+        ws = battle['widgets']
+        for act in ('cmd_safari_ball', 'cmd_safari_bait', 'cmd_safari_mud', 'cmd_safari_run'):
+            taps = [w for w in ws if w.get('type') == 'rect' and w.get('on_tap') == act]
+            labels = [w for w in ws if w.get('type') == 'label' and w.get('bind_text') == f'lp.t.{act}']
+            self.assertEqual(len(taps), 2, act)  # pane shown + pane hidden layouts
+            self.assertEqual(len(labels), 2, act)
+            for tap in taps:
+                x, y, w, h = tap['rect']
+                lab = next(l for l in labels if l['rect'][1] == y)
+                self.assertEqual(lab.get('align'), 'center', act)
+                self.assertEqual(lab['rect'][0], x + w // 2, act)  # anchored at the button centre
+                half = lab['wrap_width'] / 2
+                self.assertGreaterEqual(lab['rect'][0] - half, x + 24, act)
+                self.assertLessEqual(lab['rect'][0] + half, x + w - 24, act)
+        # the window: both lines start after the ball circle (18..113 at 1.5x) and end before
+        # the window's darker right end (its last 60 px); the count line is the module's
+        # composed text (the game's own "Remaining: {0}" with the number in the tag's place)
+        x0, y0, ww, wh = 0, gen.SAFARI_WIN_Y, gen.SAFARI_WIN_W, gen.SAFARI_WIN_H
+        lines = [w for w in ws if w.get('type') == 'label'
+                 and w.get('bind_text') in ('lp.t.safari_balls_title', 'lp.bt.safari.text')]
+        self.assertEqual(sorted(w['bind_text'] for w in lines), ['lp.bt.safari.text', 'lp.t.safari_balls_title'])
+        for lab in lines:
+            lx, ly = lab['rect'][:2]
+            self.assertGreaterEqual(lx, x0 + 113 + 16)
+            self.assertLessEqual(lx + lab['wrap_width'], x0 + ww - 60)
+            self.assertTrue(lab['fit_text'] and lab['max_lines'] == 1)
+            self.assertGreaterEqual(ly, y0 + 24)
+            self.assertLessEqual(ly + lab['text_scale'] * 5, y0 + wh - 24)
+        self.assertFalse([w for w in ws if w.get('bind') == 'lp.bt.safari.balls'])  # no separate number
+        # the window ends above the first Safari button of either layout and its cursor brackets
+        self.assertLessEqual(y0 + wh, min(gen.CMD_Y0, gen.HIDDEN_BIG[1]) - 10)
+
     def test_pane_fold_arrow_and_folded_tab_on_both_pages(self):
         for page_id, pane_w in (('battle', gen.STRIP_W), ('moves', gen.MOVE_PANE_W)):
             page = next(p for p in self.manifest['pages'] if p['id'] == page_id)

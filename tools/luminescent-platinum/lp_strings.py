@@ -69,11 +69,11 @@ LABEL_KEYS = [
     ("cmd_safari_bait", "Bait", "ss_btl_app", "msg_ui_btl_SafariCommnadEsaMsg"),
     ("cmd_safari_mud", "Mud", "ss_btl_app", "msg_ui_btl_SafariCommnadDoroMsg"),
     ("cmd_safari_run", "Run", "ss_btl_app", "msg_ui_btl_SafariCommandEscapeMsg"),
-    # BUISafariBall's own count label (the native top-screen window this change parks and the
-    # companion's Safari Ball window, owner decision #5, both borrow). Confirmed live-decoded: a
-    # "Remaining: " prefix, not a combined "{0} left" template -- matches this implementation's
-    # split label-then-value layout (safari_ball_window() in gen_manifest.py) exactly.
-    ("safari_balls_label", "Remaining: ", "ss_btl_app", "msg_ui_btl_SafariNokoriMsg"),
+    # The native Safari Ball window (BUISafariBall), both lines: its title and the count line. The
+    # count line's number is a digit tag inside the text ("Remaining: {0}", ko "{0}개 남음",
+    # zh-Hans "剩余 {0}个"); lp_assets keeps the tag's place as {n} and the module fills it in.
+    ("safari_balls_title", "Safari Balls", "ss_btl_app", "msg_ui_btl_SafariBallMsg"),
+    ("safari_balls_label", "Remaining: {n}", "ss_btl_app", "msg_ui_btl_SafariNokoriMsg"),
     ("ability", "Ability", "ss_btl_app", "msg_ui_btl_wazainfo_tokusei"),
     ("power", "Power", "ss_btl_app", "msg_ui_btl_wazainfo_03"),
     ("accuracy", "Accuracy", "ss_btl_app", "msg_ui_btl_wazainfo_02"),

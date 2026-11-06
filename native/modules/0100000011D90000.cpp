@@ -1963,6 +1963,10 @@ private:
         I64("lp.bt.safari", snap.action_safari ? 1 : 0);
         I64("lp.bt.safari.balls", snap.safari_balls); // -1 when unread; the manifest's Safari Ball
                                                        // window gates its count label on >= 0
+        // the game's own count line, the number where its digit tag sits ("Remaining: 30")
+        Text("lp.bt.safari.text", snap.safari_balls >= 0
+                                      ? F(K::safari_balls_label, {{"n", std::to_string(snap.safari_balls)}})
+                                      : std::string{});
         for (int k = 0; k < 4; ++k)
             I64("lp.bt.cmd" + std::to_string(k) + ".available", k <= (snap.action_max - snap.action_min));
         I64("lp.bt.ball.focus", snap.ball.focus ? 1 : 0);

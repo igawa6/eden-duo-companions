@@ -497,11 +497,12 @@ def command_button(r, idx, key, scale, on_tap, min_scale=6, series=1):
                 name.replace("module:lp:", "module:lp:classic/", 1) for name in names])
     # series 1 leaves room for the body's own icon end (the label sits left of it); series 2's
     # bodies are icon-less (no notch to avoid), so the label centres across the whole button
-    # (task: "icon-less command button art with centred labels", mockup d).
+    # (task: "icon-less command button art with centred labels", mockup d). A centred label is
+    # anchored at its centre x (not its left edge), and keeps clear of the frame on both sides.
     if series == 1:
         label_x, label_w, align = x + int(h * 0.25), int(w - h * (100/78 + 0.25) - 12), None
     else:
-        label_x, label_w, align = x + 12, w - 24, "center"
+        label_x, label_w, align = x + w // 2, w - 48, "center"
     out = (sliced([x + 6, y + 8, w, h], ui("sharedui", "btl_bt_command_01_shadow"),
                    (44, 40), [12, 12, 12, 12], h / 78, color="#C0FFFFFF") + body + [
         rect([x, y, w, h], "#00000000", on_tap=on_tap),
@@ -1825,6 +1826,15 @@ SAFARI_HIDDEN_SPECS = [(0, HIDDEN_BIG, 1, "cmd_safari_ball", "cmd_safari_ball", 
                        (2, HIDDEN_RIGHT, 3, "cmd_safari_mud", "cmd_safari_mud", 9, 6),
                        (3, HIDDEN_RUN, 4, "cmd_safari_run", "cmd_safari_run", 9, 5)]
 HIDDEN_CONT = [452, 958, 336, 80]      # Continue, directly under Run
+# the Safari Ball window at the native top screen's size (btl_pl_safari_01 at 1.5x, 535 wide as
+# measured on a live capture): its text column starts after the ball circle and ends before the
+# window's darker right end (the last 40 source px)
+SAFARI_WIN_W, SAFARI_WIN_H = 535, 159
+# 16 px above the body top, so it also clears the cursor brackets (10 px out) of the pane-hidden
+# layout's big Ball button (HIDDEN_BIG starts at 396)
+SAFARI_WIN_Y = BODY_Y - 16
+SAFARI_TEXT_X = 135
+SAFARI_TEXT_W = SAFARI_WIN_W - 60 - 10 - SAFARI_TEXT_X
 # the fold arrow (hide, top-right of the card's tab row) and the folded tab (restore, the card's
 # old top-left): cmn_ico_arrow_01 is a tall narrow chevron (~1:2), not square
 # Owner 2026-11-03: the arrow was too big and butted against the tab row's own label ("Field" in
@@ -2405,21 +2415,23 @@ def hidden_continue_bar():
 def safari_ball_window(x, y):
     """The top-screen Safari Ball count window (BUISafariBall, companions #10 fix (b)), owner
     decision #5: "the Safari Ball window (ball count) replaces the own-Pokémon card on the bottom".
-    Real sprite sizes checked against the romfs (lp-unity-tool sprite): btl_pl_safari_01 176x106
-    (a green pill with a light circular inset on the left for the ball), btl_img_safariball_01
-    44x44 (25% of the window's width -- scaled the same here). Shown whenever lp.bt.safari (both
-    pane states: there is no own-Pokémon detail to fold away in Safari, so this does not follow
-    lp.cfg.pane the way the tabbed card does -- see page_battle()). Flush left, as REVIEW.md
-    describes the native window and reporter capture."""
-    w, h = 352, 212
-    out = sliced([x, y, w, h], ui("sharedui", "btl_pl_safari_01"), (176, 106), [24, 24, 24, 24], w/176)
-    icon = round(w * 44/176)
-    out += [img([x + round(w*0.14), y + (h-icon)//2, icon, icon], ui("sharedui", "btl_img_safariball_01")),
-            label([x + round(w*0.52), y + round(h*0.22), w - round(w*0.52) - 16, 0],
-                  bind_text=t("safari_balls_label"), scale=5, color=WHITE, outline=CMD_OUTLINE, outline_px=3,
-                  fit_text=True, text_min_scale=3, wrap_width=w - round(w*0.52) - 16, max_lines=1),
-            value([x + w - 20, y + round(h*0.48), 0, 0], "lp.bt.safari.balls", scale=9, color=WHITE,
-                  outline=CMD_OUTLINE, outline_px=4, align="right", need_bind="lp.bt.safari.balls.ok")]
+    Drawn as the game draws it (live capture 2026-11-07, BD 1.3.0 + LP 2.2F): btl_pl_safari_01
+    (176x106) at the UI's 1.5x, stretched between the ball circle and the right end to 535 px,
+    flush with the screen's left edge, btl_img_safariball_01 (44x44) in the circle, and two white
+    lines left-aligned after it: the title ("Safari Balls") and the game's count line, whose number
+    sits where the message's digit tag is ("Remaining: 30", ko "30개 남음"; the module fills it in,
+    lp.bt.safari.text). Shown whenever lp.bt.safari (both pane states: there is no own-Pokémon
+    detail to fold away in Safari, so this does not follow lp.cfg.pane the way the tabbed card
+    does -- see page_battle())."""
+    w, h = SAFARI_WIN_W, SAFARI_WIN_H
+    out = sliced([x, y, w, h], ui("sharedui", "btl_pl_safari_01"), (176, 106), [80, 24, 40, 24], 1.5)
+    tx, room = x + SAFARI_TEXT_X, SAFARI_TEXT_W
+    out += [img([x + 32, y + 44, 66, 66], ui("sharedui", "btl_img_safariball_01")),
+            label([tx, y + 38, room, 0], bind_text=t("safari_balls_title"), scale=7, color=WHITE,
+                  fit_text=True, text_min_scale=5, wrap_width=room, max_lines=1),
+            label([tx, y + 84, room, 0], bind_text="lp.bt.safari.text", scale=7, color=WHITE,
+                  fit_text=True, text_min_scale=5, wrap_width=room, max_lines=1,
+                  need_bind="lp.bt.safari.balls.ok", _fit=["safari_balls_label"])]
     return out
 
 
@@ -2520,7 +2532,7 @@ def page_battle():
     w += gated_group(busy_veil(24 + STRIP_W), "lp.cfg.pane_card")
     w += gated_group(busy_veil(0), "!lp.cfg.pane_card")
     w += pane
-    w += gated_group(safari_ball_window(24, BODY_Y), "lp.bt.safari")
+    w += gated_group(safari_ball_window(0, SAFARI_WIN_Y), "lp.bt.safari")
     w += battle_status()
     # the Bag/switch overlays sit beside the wide card when it is actually showing; centred (equal
     # margins) otherwise, including Safari (owner mapping: x -> centred when hidden)

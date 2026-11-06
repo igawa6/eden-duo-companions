@@ -144,6 +144,7 @@ struct FakeMemoryHost {
     std::uint64_t tick = 0;
     std::map<std::string, std::int64_t> ints; // Safari tests read these back; the park/restore
                                                // tests above only inspect raw memory bytes
+    std::map<std::string, std::string> texts;
 };
 
 EdenDsmodHostApi MakeMemoryHost(FakeMemoryHost& h) {
@@ -166,7 +167,7 @@ EdenDsmodHostApi MakeMemoryHost(FakeMemoryHost& h) {
         return static_cast<FakeMemoryHost*>(p)->mem.Write(a, in, n) ? EDEN_DSMOD_TRUE : EDEN_DSMOD_FALSE;
     };
     api.publish_i64 = [](void* p, const char* name, std::int64_t v) { static_cast<FakeMemoryHost*>(p)->ints[name] = v; };
-    api.publish_text = [](void*, const char*, const char*) {};
+    api.publish_text = [](void* p, const char* name, const char* v) { static_cast<FakeMemoryHost*>(p)->texts[name] = v; };
     api.read_romfs = [](void*, const char*, std::uint64_t, void*, size_t) -> size_t { return 0; };
     api.get_i64 = [](void*, const char*, std::int64_t fallback) { return fallback; };
     api.get_f64 = [](void*, const char*, double fallback) { return fallback; };
@@ -319,6 +320,20 @@ void TestSafariCommands() {
         for (int k = 0; k < 4; ++k)
             assert(h.ints.at("lp.bt.cmd" + std::to_string(k) + ".available") == 1); // 5..8 is 4 wide too
         assert(h.ints.at("lp.bt.cmd.index") == 0); // relative: native CurrentIndex(5) - action_min(5)
+        // no PlayerWork class statics yet: the count line stays empty (the window's need_bind)
+        assert(h.ints.at("lp.bt.safari.balls") == -1);
+        assert(h.texts.at("lp.bt.safari.text").empty());
+        // PlayerWork.SafariBallNum (a class static): the game's count line with the number in
+        // the digit tag's place (no romfs here, so the English row: "Remaining: {n}")
+        constexpr std::uint64_t Main = 0x80000000, pw_klass = 0x100A000, pw_statics = 0x100B000;
+        h.mem.W64(Main + lp_live::off::PlayerWorkClassTypeInfo, pw_klass);
+        h.mem.W64(pw_klass + lp_live::off::KlassStatics, pw_statics);
+        h.mem.W32(pw_statics + lp_live::off::PwSafariBallNum, 30);
+        ++h.tick;
+        api->sample(m, &host);
+        api->tick(m, &host);
+        assert(h.ints.at("lp.bt.safari.balls") == 30);
+        assert(h.texts.at("lp.bt.safari.text") == "Remaining: 30");
         // Out of range for this battle's live bounds: refused, including adjacent normal-mode
         // values. (Checked first, in the same instance: refusals never consume the one-drive-at-
         // a-time slot, so they do not disturb the in-range checks below.)

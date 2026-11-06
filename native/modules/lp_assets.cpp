@@ -77,6 +77,20 @@ lp_lang::LabelMap ReadLabels(lp_unity::Reader& unity, std::string_view bundle, s
             for (const auto& word : words->items) {
                 if (const auto* str = word.Get("str"))
                     text += str->AsString();
+                // The Safari Ball count (msg_ui_btl_SafariNokoriMsg, "Remaining: {0}", "{0}개 남음")
+                // places its number by a digit tag (group 2): keep that place as {n}.
+                if (object.ends_with("_ss_btl_app")) {
+                    const auto* pattern = word.Get("patternID");
+                    const auto* index = word.Get("tagIndex");
+                    const auto* tags = label.Get("tagDataArray");
+                    const auto at = index ? index->AsInt(-1) : -1;
+                    if (pattern && pattern->AsInt() == 5 && tags && at >= 0 &&
+                        static_cast<std::size_t>(at) < tags->items.size()) {
+                        const auto* group = tags->items[static_cast<std::size_t>(at)].Get("groupID");
+                        if (group && group->AsInt() == 2)
+                            text += "{n}";
+                    }
+                }
                 // SetupCurrentTownmapGuideMessage registers native name slots 1 (rival)
                 // and 2 (supporter). Word tagIndex indexes tagDataArray, not the name slot.
                 if (object.ends_with("_ss_xmenu_timeline")) {
