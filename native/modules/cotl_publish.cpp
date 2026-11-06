@@ -131,6 +131,7 @@ void PublishFollowers(Publisher& p, const GameSnapshot& s, const Terms& terms) {
         const Follower& f = *order[i];
         const std::string n = std::to_string(i);
         p.Text("fol.name" + n, f.name);
+        p.Text("fol.pic" + n, PortraitKey(f.skin, f.tints));
         p.I64("fol.level" + n, f.level);
         p.Text("fol.role" + n, terms.Role(f.role));
         p.I64("fol.sat" + n, Pct(f.satiation));
@@ -149,7 +150,22 @@ void PublishSelectedFollower(Publisher& p, const GameSnapshot& s, const Terms& t
     }
     const Follower& f = *order[static_cast<size_t>(index)];
     p.Text("fol.sel_name", f.name);
+    p.Text("fol.sel_pic", PortraitKey(f.skin, f.tints));
     p.Text("fol.sel_detail", Detail(f, terms));
+    // Large card in the follower window
+    p.I64("fol.sel_level", f.level);
+    p.Text("fol.sel_role", terms.Role(f.role));
+    p.I64("fol.sel_sat", Pct(f.satiation));
+    p.I64("fol.sel_loyal", Pct(f.adoration));
+    p.I64("fol.sel_ill", Pct(f.illness));
+    p.I64("fol.sel_happy", Pct(f.happiness));
+    p.I64("fol.sel_group", static_cast<int64_t>(f.group));
+    p.I64("fol.sel_age", f.age);
+    std::string traits;
+    for (const int32_t t : f.traits) {
+        traits += (traits.empty() ? "" : "\n") + terms.Trait(t);
+    }
+    p.Text("fol.sel_traits", traits);
     // Thoughts for the Thoughts window
     p.I64("fol.th_count", static_cast<int64_t>(f.thoughts.size()));
     for (size_t i = 0; i < f.thoughts.size(); ++i) {
@@ -263,7 +279,7 @@ void PublishInventory(Publisher& p, const GameSnapshot& s, const Terms& terms, i
 namespace {
 
 // Hearts as on the HUD in half hearts: red (with empty containers), spirit (with empty), then blue,
-// schwarz, Feuer, Eis. Ergebnis: "<art>_<full|half|empty>"
+// black, fire, ice. Result: "<kind>_<full|half|empty>"
 std::vector<std::string> HeartSlots(const Run& r) {
     std::vector<std::string> out;
     const auto add = [&](const char* kind, float hp, float max) {
@@ -326,6 +342,10 @@ void PublishSelectedGear(Publisher& p, const Run& r, const Terms& terms, int64_t
         }
     }
     p.I64("run.sel_open", 1);
+    p.I64("run.sel_tarot", 0);
+    p.Text("run.sel_pic", selected == kRunSelWeapon ? "module:cotl:equip/" + std::to_string(r.weapon)
+                          : selected == kRunSelCurse ? "module:cotl:equip/" + std::to_string(r.curse)
+                                                     : "module:cotl:relic/" + std::to_string(r.relic));
     p.Text("run.sel_name", name);
     p.Text("run.sel_stats", stats);
     p.Text("run.sel_text", text);
@@ -369,6 +389,8 @@ void PublishRun(Publisher& p, const GameSnapshot& s, const Terms& terms, int64_t
         p.Text("run.tarot_icon" + n, "module:cotl:tarot/" + std::to_string(card));
         if (selected == static_cast<int64_t>(i)) {
             p.I64("run.sel_open", 1);
+            p.I64("run.sel_tarot", 1); // large card image in the window
+            p.Text("run.sel_pic", "module:cotl:tarot/" + std::to_string(card));
             p.Text("run.sel_name", name);
             p.Text("run.sel_text", terms.TarotText(card));
         }
@@ -434,6 +456,56 @@ void PublishCult(Publisher& p, const GameSnapshot& s) {
     p.I64("cult.fert", s.fertiliser_stored);
     p.I64("cult.fert_cap", s.fertiliser_capacity);
     p.I64("cult.has_fert", s.fertiliser_capacity > 0 ? 1 : 0);
+}
+
+namespace {
+// Status line when idle: why buttons are grey. With one button the reason alone, otherwise for each button
+// its name in front; whatever no longer fits in the line is dropped.
+std::string LockedMessage(const std::vector<ActionRow>& rows) {
+    constexpr size_t kMessageChars = 56;
+    std::string out;
+    for (const ActionRow& row : rows) {
+        if (row.enabled()) {
+            continue;
+        }
+        if (rows.size() == 1) {
+            return ActionMessage(row.locked);
+        }
+        const std::string part = std::string(row.name) + ": " + ActionMessage(row.locked);
+        if (out.size() + 2 + part.size() > kMessageChars) {
+            break;
+        }
+        out += (out.empty() ? "" : ", ") + part;
+    }
+    return out;
+}
+} // namespace
+
+void PublishActions(Publisher& p, bool available, const ActionStatus& status,
+                    const std::vector<ActionRow>& rows) {
+    p.I64("act.available", available ? 1 : 0);
+    if (!available) {
+        return;
+    }
+    p.I64("act.state", static_cast<int64_t>(status.state));
+    std::string message = ActionMessage(status);
+    if (message.empty()) {
+        message = LockedMessage(rows);
+    }
+    p.Text("act.message", message);
+    const size_t shown = std::min(rows.size(), static_cast<size_t>(kActionSlots));
+    p.I64("act.count", static_cast<int64_t>(shown));
+    // The slots in the window are fixed: set the free ones to 0 explicitly, or a stale value would remain
+    for (size_t i = 0; i < static_cast<size_t>(kActionSlots); ++i) {
+        const std::string n = std::to_string(i);
+        const bool used = i < shown;
+        p.I64("act.enabled" + n, used && rows[i].enabled() ? 1 : 0);
+        p.I64("act.locked" + n, used && !rows[i].enabled() ? 1 : 0);
+        if (used) {
+            p.Text("act.name" + n, rows[i].name);
+            p.I64("act.command" + n, rows[i].command);
+        }
+    }
 }
 
 } // namespace cotl

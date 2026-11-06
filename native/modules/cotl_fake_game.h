@@ -23,6 +23,18 @@ struct FollowerSpec {
     int32_t level = 1;
     float satiation = 50, faith = 50, illness = 0, happiness = 50, adoration = 0;
     std::vector<int32_t> traits = {};
+    std::string skin = {}; // FollowerInfo.SkinName, empty = null
+    int32_t skin_colour = 0;
+};
+
+// WorshipperData.SkinAndData: skin names and colour sets (per set, slot → colour)
+struct SlotColourSpec {
+    std::string slot;
+    std::array<float, 4> rgba;
+};
+struct SkinDataSpec {
+    std::vector<std::string> skins;
+    std::vector<std::vector<SlotColourSpec>> sets;
 };
 
 class Game {
@@ -36,6 +48,9 @@ public:
         SetFollowers({});
         SetIdList(0xDC8, {}); // Followers_Imprisoned_IDs
         SetIdList(0xDD8, {}); // Followers_OnMissionary_IDs
+        // Like DataManager..ctor (0x223C88C): LastHolidayDeclared, LastNudismDeclared, LastFastDeclared
+        // are at -float.MaxValue, so never declared
+        for (const uint64_t field : {0x35Cu, 0x364u, 0x374u}) g.PutF32(kDataManager + field, -3.4028235e38f);
     }
 
     // Followers @0xCE0; FollowerInfo objects from 0x200000, 0x1000 apart.
@@ -55,10 +70,54 @@ public:
             g.PutF32(o + 0x128, f.adoration);
             g.PutU64(o + 0x1E8, o + 0x900);
             g.PutIntList(o + 0x900, o + 0xA00, f.traits);
+            if (!f.skin.empty()) {
+                g.PutU64(o + 0x58, o + 0xB00);
+                g.PutString(o + 0xB00, f.skin);
+            }
+            g.PutS32(o + 0x50, f.skin_colour);
             objs.push_back(o);
         }
         g.PutU64(kDataManager + 0xCE0, 0x180000);
         g.PutRefList(0x180000, 0x181000, objs);
+    }
+
+    // WorshipperData._Instance (static @0) with Characters @0x30; objects from 0xD20000, 0x8000 each
+    void SetWorshipperData(const std::vector<SkinDataSpec>& chars) {
+        g.PutU64(kMain + 0x71434D8, 0xD10000);
+        g.PutU64(0xD10000 + 0xB8, 0xD11000);
+        g.PutU64(0xD11000, 0xD12000);
+        g.PutU64(0xD12000 + 0x30, 0xD13000);
+        std::vector<uint64_t> objs;
+        for (size_t i = 0; i < chars.size(); ++i) {
+            const uint64_t o = 0xD20000 + i * 0x8000;
+            std::vector<uint64_t> skins, sets;
+            for (size_t j = 0; j < chars[i].skins.size(); ++j) {
+                const uint64_t cs = o + 0x400 + j * 0x100;
+                g.PutU64(cs + 0x10, cs + 0x40);
+                g.PutString(cs + 0x40, chars[i].skins[j]);
+                skins.push_back(cs);
+            }
+            for (size_t k = 0; k < chars[i].sets.size(); ++k) {
+                const uint64_t set = o + 0x2000 + k * 0x1000;
+                std::vector<uint64_t> entries;
+                for (size_t m = 0; m < chars[i].sets[k].size(); ++m) {
+                    const uint64_t e = set + 0x400 + m * 0x80;
+                    g.PutU64(e + 0x10, e + 0x30);
+                    g.PutString(e + 0x30, chars[i].sets[k][m].slot);
+                    for (int c = 0; c < 4; ++c) g.PutF32(e + 0x18 + c * 4, chars[i].sets[k][m].rgba[c]);
+                    entries.push_back(e);
+                }
+                g.PutU64(set + 0x10, set + 0x100);
+                g.PutRefList(set + 0x100, set + 0x200, entries);
+                sets.push_back(set);
+            }
+            g.PutU64(o + 0x20, o + 0x100);
+            g.PutRefList(o + 0x100, o + 0x200, skins);
+            g.PutU64(o + 0x28, o + 0x1000);
+            g.PutRefList(o + 0x1000, o + 0x1100, sets);
+            objs.push_back(o);
+        }
+        g.PutRefList(0xD13000, 0xD14000, objs);
     }
 
     void SetIdList(uint64_t field, const std::vector<int32_t>& ids) {
@@ -317,9 +376,15 @@ public:
     }
 
     // DataManager.BaseStructures (0xD18): StructuresData from 0xB10000, inventory from 0xB80000
+    struct ItemSpec {
+        int32_t type;
+        int32_t quantity = 1;
+        int32_t reserved = 0;
+    };
     struct StructureSpec {
         int32_t type;
         std::vector<int32_t> quantities;
+        std::vector<ItemSpec> items; // after the quantities, with its own ITEM_TYPE
     };
 
     void SetBaseStructures(const std::vector<StructureSpec>& ss) {
@@ -330,8 +395,15 @@ public:
             std::vector<uint64_t> items;
             for (size_t k = 0; k < ss[i].quantities.size(); ++k) {
                 const uint64_t it = 0xB80000 + i * 0x1000 + k * 0x40;
-                g.PutS32(it + 0x10, 9); // ITEM_TYPE egal
+                g.PutS32(it + 0x10, 9); // ITEM_TYPE irrelevant
                 g.PutS32(it + 0x14, ss[i].quantities[k]);
+                items.push_back(it);
+            }
+            for (size_t k = 0; k < ss[i].items.size(); ++k) {
+                const uint64_t it = 0xB80000 + i * 0x1000 + (ss[i].quantities.size() + k) * 0x40;
+                g.PutS32(it + 0x10, ss[i].items[k].type);
+                g.PutS32(it + 0x14, ss[i].items[k].quantity);
+                g.PutS32(it + 0x18, ss[i].items[k].reserved);
                 items.push_back(it);
             }
             const uint64_t list = 0xB40000 + i * 0x1000;

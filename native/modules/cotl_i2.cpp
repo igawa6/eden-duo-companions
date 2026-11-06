@@ -71,7 +71,7 @@ private:
     bool ok_ = true;
 };
 
-constexpr size_t kMonoBehaviourNameAt = 28; // m_GameObject PPtr, m_Enabled (ausgerichtet), m_Script PPtr
+constexpr size_t kMonoBehaviourNameAt = 28; // m_GameObject PPtr, m_Enabled (aligned), m_Script PPtr
 constexpr int32_t kMaxTerms = 200000;
 constexpr int32_t kMaxLanguages = 64;
 
@@ -91,7 +91,7 @@ void Bools(Cursor& c, int count) {
 // LanguageSourceAsset.mSource (I2.Loc.LanguageSourceData). Field order from dump.cs, without the
 // [NonSerialized] fields mIsGlobalSource and TermData.Description: Il2CppDumper does not show the flag,
 // the data in resources.assets does not contain them (hex dump).
-// Ebenso fehlt LanguageData.Compressed.
+// LanguageData.Compressed is missing as well.
 std::optional<I2Table> Parse(const std::vector<uint8_t>& raw) {
     Cursor c(raw, kMonoBehaviourNameAt);
     c.Str(); // m_Name

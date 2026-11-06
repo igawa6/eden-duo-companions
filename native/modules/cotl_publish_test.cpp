@@ -111,6 +111,23 @@ TEST(publish_selected_follower_uses_list_order) {
     CHECK_EQ(p.text["fol.sel_detail"], std::string("Level 1 - Worker - Age 23\nTraits: Skeptical, Obedient"));
 }
 
+// Large card in the follower window (tarot style): same values as the list row
+TEST(publish_selected_follower_card_values) {
+    GameSnapshot s;
+    s.followers = {F(1, "Prisoner", FollowerGroup::Prisoner), F(3, "Home")};
+    FakePublisher p;
+    cotl::PublishSelectedFollower(p, s, kTerms, 1);
+    CHECK_EQ(p.i64["fol.sel_level"], int64_t{1});
+    CHECK_EQ(p.text["fol.sel_role"], std::string("Worker"));
+    CHECK_EQ(p.i64["fol.sel_sat"], int64_t{80});
+    CHECK_EQ(p.i64["fol.sel_loyal"], int64_t{38});
+    CHECK_EQ(p.i64["fol.sel_ill"], int64_t{73});
+    CHECK_EQ(p.i64["fol.sel_happy"], int64_t{20});
+    CHECK_EQ(p.i64["fol.sel_group"], int64_t{2});
+    CHECK_EQ(p.i64["fol.sel_age"], int64_t{23});
+    CHECK_EQ(p.text["fol.sel_traits"], std::string("Skeptical\nObedient"));
+}
+
 TEST(publish_selected_follower_out_of_range_publishes_nothing) {
     GameSnapshot s;
     s.followers = {F(1, "A")};
@@ -283,6 +300,9 @@ TEST(publish_run_selected_tarot_text) {
     cotl::PublishRun(p, s, terms, 0);
     CHECK_EQ(p.text["run.sel_name"], std::string("The Hearts+"));
     CHECK_EQ(p.text["run.sel_text"], std::string("Gain half a heart."));
+    // Large card image in the window
+    CHECK_EQ(p.text["run.sel_pic"], "module:cotl:tarot/" + std::to_string(hearts));
+    CHECK_EQ(p.i64["run.sel_tarot"], int64_t{1});
 }
 
 namespace {
@@ -370,6 +390,8 @@ TEST(publish_run_selected_gear) {
     CHECK_EQ(w.text["run.sel_stats"], std::string("Damage: 2.7    Speed: 1.5"));
     CHECK_EQ(w.text["run.sel_text"], std::string("Sample weapon text."));
     CHECK_EQ(w.text["run.sel_lore"], std::string("Sample weapon lore."));
+    CHECK_EQ(w.text["run.sel_pic"], "module:cotl:equip/" + std::to_string(s.run->weapon));
+    CHECK_EQ(w.i64["run.sel_tarot"], int64_t{0});
 
     FakePublisher r;
     cotl::PublishRun(r, s, terms, cotl::kRunSelRelic);
@@ -377,6 +399,7 @@ TEST(publish_run_selected_gear) {
     CHECK_EQ(r.text["run.sel_stats"], std::string("Charge Speed: Average"));
     CHECK_EQ(r.text["run.sel_text"], std::string("Sample relic text."));
     CHECK_EQ(r.text["run.sel_lore"], std::string("Sample relic lore."));
+    CHECK_EQ(r.text["run.sel_pic"], "module:cotl:relic/" + std::to_string(s.run->relic));
 }
 
 TEST(publish_run_gear_window_only_when_equipped) {
@@ -428,7 +451,7 @@ TEST(publish_map_rooms_and_doors) {
     cotl::Room a, b, c;
     a.x = 0; a.y = 0; a.discovered = a.visited = true; a.doors = {false, true, false, false};
     b.x = 1; b.y = 0; b.discovered = true; b.kind = cotl::RoomKind::Boss; b.doors = {false, false, false, true};
-    c.x = 0; c.y = 1; // unentdeckt
+    c.x = 0; c.y = 1; // undiscovered
     s.run->rooms = {a, b, c};
     FakePublisher p;
     cotl::PublishMap(p, s);
@@ -501,7 +524,7 @@ TEST(publish_run_heart_slots_like_hud) {
     run.hp_red_max = 6;
     run.hp_spirit = 2;
     run.hp_spirit_max = 4; // 1 full, 1 empty
-    run.hp_blue = 3;       // 1 voll, 1 halb
+    run.hp_blue = 3;       // 1 full, 1 half
     run.hp_black = 2;
     run.hp_fire = 1;
     s.run = run;
@@ -614,7 +637,7 @@ TEST(inventory_selection_follows_item_when_list_changes) {
     CHECK_EQ(before, int64_t{1});
     s.items = {{20, 5}, {1, 12}};
     CHECK_EQ(cotl::InventoryRowOf(s, *type), before);
-    s.items = {{20, 5}}; // aufgebraucht
+    s.items = {{20, 5}}; // used up
     CHECK_EQ(cotl::InventoryRowOf(s, *type), int64_t{-1});
     CHECK(!cotl::InventoryTypeAt(s, 500).has_value());
 }
@@ -662,4 +685,19 @@ TEST(publish_loaded_only_with_save_or_progress) {
     FakePublisher c;
     cotl::PublishCult(c, old);
     CHECK_EQ(c.i64["g.loaded"], int64_t{1});
+}
+
+// Image per row and in the window: image key of the head, empty without a known skin
+TEST(publish_followers_portraits) {
+    GameSnapshot s;
+    s.followers = {F(1, "Cat"), F(2, "Nobody")};
+    s.followers[0].skin = "Cat";
+    s.followers[0].tints = {{"HEAD_SKIN_TOP", 0xFF8000FF}};
+    FakePublisher p;
+    cotl::PublishFollowers(p, s, kTerms);
+    CHECK_EQ(p.text["fol.pic0"], std::string("module:cotl:follower/Cat;HEAD_SKIN_TOP=FF8000FF"));
+    CHECK_EQ(p.text["fol.pic1"], std::string());
+    FakePublisher sel;
+    cotl::PublishSelectedFollower(sel, s, kTerms, 0);
+    CHECK_EQ(sel.text["fol.sel_pic"], std::string("module:cotl:follower/Cat;HEAD_SKIN_TOP=FF8000FF"));
 }

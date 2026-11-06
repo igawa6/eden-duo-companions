@@ -1,7 +1,8 @@
 # Cult of the Lamb tools
 
 Scripts for the Cult of the Lamb companion (`01002E7016C46000`). The module is
-`native/modules/01002E7016C46000.cpp` with the `cotl_*` files next to it. It only reads the game.
+`native/modules/01002E7016C46000.cpp` with the `cotl_*` files next to it. It reads the game, and
+follower commands run in a small guest helper, `native/helper/cotl/action_tick.c`.
 
 ## Compatibility and validation
 
@@ -22,6 +23,9 @@ Scripts for the Cult of the Lamb companion (`01002E7016C46000`). The module is
 | `menu_lists.py` | `cotl_inventory_menu_1_5_27.inc` from `InventoryMenu..ctor`. |
 | `room_icons.py` | `cotl_room_icons_1_5_27.inc`: room prefab to `MapIcon` sprite. |
 | `spine_skins.py`, `tarot_regions.py` | `cotl_tarot_regions_1_5_27.inc`: tarot card to its region in `WeaponCard.atlas`. |
+| `spine_portraits.py` | `cotl_follower_parts_1_5_27.inc`: the parts of a follower picture from `Follower.skel` and `Follower.atlas`. |
+| `gen_action_helper.py` | Compiles the guest helper and writes its format-2 load plan under `packages/CultOfTheLamb/dualscreen/guest/`. Pass the game's `main` with `--verify-image`; it stops if the hook bytes do not match. Needs the Android NDK (`COTL_DEPS`). |
+| `gen_ui_art.py` | The button frames and icons in `packages/CultOfTheLamb/dualscreen/ui/`, drawn from patterns in code. |
 
 The generated tables hold only code identifiers and file names. The fuller reverse-engineering
 notes, in German, are in
@@ -34,6 +38,14 @@ ctest --test-dir <build-directory> -R '^dsmod-cotl-module$' --output-on-failure
 ```
 
 Set `COTL_ROMFS` to your own merged romfs to run the tests that read real game files as well.
+
+```bash
+PYTHONPATH=<unicorn> python3 tools/cotl/test_action_helper.py   # guest helper under Unicorn
+python3 tools/cotl/test_gen_ui_art.py
+```
+
+`test_action_helper.py` runs the helper against stand-ins for the game functions. Set `COTL_MAIN`
+to your own `main` to check the hook against it as well.
 
 ## Notes
 
@@ -56,3 +68,10 @@ Set `COTL_ROMFS` to your own merged romfs to run the tests that read real game f
   `PlayerSpells.GetCurseDamageMultiplier`. Co-op tarot cards and
   `IsCorruptedPositiveEffectNegated` are not replicated. `EquipmentManager` loads its weapon and
   curse tables when an item is equipped, so stats appear only once that has happened.
+- **Follower commands.** The guest helper hooks `PlayerFarming.Update`. The module writes one
+  request at a time into a 4 KiB mailbox; the helper checks it against the game state (base only,
+  no menu or dialogue, the follower free and the command on offer), walks the Lamb over and runs
+  the command through the game's own command handler, then reports the result. The module offers
+  the same command list as the game's command wheel and greys out the rest with the game's reason.
+- **Follower pictures.** Composed from the `Follower` Spine skins with each follower's outfit and
+  colours, like the game's follower portraits.

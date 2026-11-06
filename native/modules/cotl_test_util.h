@@ -78,6 +78,9 @@ public:
         if (on_read) {
             on_read(addr);
         }
+        if (addr == unreadable) {
+            return false;
+        }
         for (const auto& [base, bytes] : regions_) {
             if (addr >= base && addr + n <= base + bytes.size()) {
                 std::memcpy(out, bytes.data() + (addr - base), n);
@@ -86,6 +89,8 @@ public:
         }
         return false;
     }
+
+    uint64_t unreadable = 0; // reading exactly this address fails
 
     void Put(uint64_t addr, const void* data, size_t n) {
         auto& region = Region(addr, n);

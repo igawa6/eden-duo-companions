@@ -57,7 +57,7 @@ public:
     // English text of any term; nullopt without a table or term
     std::optional<std::string> Raw(std::string_view term) const;
 
-    // Code-Bezeichner eines Enum-Werts ("TraitType", 3 → "DesensitisedToDeath");
+    // Code identifier of an enum value ("TraitType", 3 → "DesensitisedToDeath");
     // unknown value: "#<value>".
     static std::string EnumName(std::string_view enum_name, int32_t v);
 

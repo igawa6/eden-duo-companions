@@ -3,6 +3,7 @@
 
 #include "cotl_icons.h"
 
+#include "cotl_follower_portrait.h"
 #include "cotl_spine_atlas.h"
 
 #include <algorithm>
@@ -20,16 +21,18 @@ constexpr std::string_view kBundleRoot = "Data/StreamingAssets/aa/Switch/";
 constexpr int32_t kClassMonoBehaviour = 114;
 constexpr int32_t kClassTexture2D = 28;
 constexpr int32_t kClassSpriteAtlas = 687078895;
-constexpr size_t kMonoBehaviourNameAt = 28; // m_GameObject PPtr, m_Enabled (ausgerichtet), m_Script
+constexpr size_t kMonoBehaviourNameAt = 28; // m_GameObject PPtr, m_Enabled (aligned), m_Script
 constexpr int32_t kMaxEntries = 4096;
 constexpr uint32_t kMaxDataObjectBytes = 64 * 1024;
 constexpr size_t kCachedTextures = 3;
 constexpr uint32_t kMaxOwnTextureBytes = 32u << 20;
+constexpr uint64_t kMaxFollowerTextureBytes = 16u << 20; // 4096² ASTC 8×8: 4 MiB
 // Spine atlases (MonoBehaviour "<name>_Atlas", TextAsset and texture in the same file)
 constexpr std::string_view kSpineBundle = "4cccbc033ad47e0c563830268671f0cd.bundle";
 // Map icons (atlas MapIcons, sprites with TypeTree): room icons, player figure
 constexpr std::string_view kMapIconsBundle = "f2a159f385d211425a4c13127a7d127b.bundle";
 constexpr int32_t kClassSprite = 213;
+constexpr int32_t kAstc8x8 = 51, kAstc12x12 = 53; // Unity TextureFormat
 
 // TarotCards.Card to the card front region in WeaponCard.atlas
 const std::map<int32_t, std::string_view>& TarotRegions() {
@@ -251,36 +254,52 @@ std::optional<ce_unity::Image> CropUnityRect(const ce_unity::Image& tex, float x
     return out;
 }
 
-std::optional<ce_unity::Image> DecodeSwitchSprite(std::span<const uint8_t> data,
-                                                  const ce_unity::TextureInfo& tex,
-                                                  const ce_unity::AstcDecoder& astc, float x, float y,
-                                                  float w, float h) {
-    constexpr int32_t kAstc12x12 = 53;
-    constexpr uint32_t kBlock = 12, kBlockBytes = 16;
-    if (tex.format != kAstc12x12 || tex.platform_blob.size() < 12 || !astc) {
+std::optional<LinearAstc> DeswizzleSwitchAstc(std::span<const uint8_t> data, const ce_unity::TextureInfo& tex) {
+    constexpr uint32_t kBlockBytes = 16;
+    uint32_t block = 0;
+    if (tex.format == kAstc12x12) {
+        block = 12;
+    } else if (tex.format == kAstc8x8) {
+        block = 8;
+    }
+    if (block == 0 || tex.platform_blob.size() < 12 || tex.width <= 0 || tex.height <= 0) {
         return std::nullopt;
     }
     const uint32_t shift = tex.platform_blob[8];
-    const auto ix = static_cast<int64_t>(std::lround(x));
-    const auto iy = static_cast<int64_t>(std::lround(y));
-    const auto iw = static_cast<int64_t>(std::lround(w));
-    const auto ih = static_cast<int64_t>(std::lround(h));
-    if (shift >= 8 || ix < 0 || iy < 0 || iw <= 0 || ih <= 0 || ix + iw > tex.width || iy + ih > tex.height) {
+    if (shift >= 8) {
         return std::nullopt;
     }
     // Tegra blocks: GOBs 4 ASTC blocks wide, blocks 8 x GOBs-per-block high. Even 1 GOB per block
     // is swizzled here (ce_unity::DecodeTextureData treats it as linear and limits the size).
     const uint32_t gobs = 1u << shift;
-    const uint32_t row_blocks = ((static_cast<uint32_t>(tex.width) + kBlock * 4 - 1) / (kBlock * 4)) * 4;
-    const uint32_t col_blocks =
-        ((static_cast<uint32_t>(tex.height) + kBlock * 8 * gobs - 1) / (kBlock * 8 * gobs)) * 8 * gobs;
-    const uint64_t bytes = uint64_t{row_blocks} * col_blocks * kBlockBytes;
+    LinearAstc out;
+    out.block = block;
+    out.width = tex.width;
+    out.height = tex.height;
+    out.row_blocks = ((static_cast<uint32_t>(tex.width) + block * 4 - 1) / (block * 4)) * 4;
+    out.col_blocks = ((static_cast<uint32_t>(tex.height) + block * 8 * gobs - 1) / (block * 8 * gobs)) * 8 * gobs;
+    const uint64_t bytes = uint64_t{out.row_blocks} * out.col_blocks * kBlockBytes;
     if (bytes > data.size()) {
         return std::nullopt;
     }
-    const auto linear = ce_unity::SwitchDeswizzle(data.first(static_cast<size_t>(bytes)), row_blocks * kBlock,
-                                                  col_blocks * kBlock, kBlock, kBlock, gobs);
-    if (linear.size() != bytes) {
+    out.blocks = ce_unity::SwitchDeswizzle(data.first(static_cast<size_t>(bytes)), out.row_blocks * block,
+                                           out.col_blocks * block, block, block, gobs);
+    if (out.blocks.size() != bytes) {
+        return std::nullopt;
+    }
+    return out;
+}
+
+std::optional<ce_unity::Image> DecodeLinearRect(const LinearAstc& lin, const ce_unity::AstcDecoder& astc,
+                                                float x, float y, float w, float h) {
+    constexpr uint32_t kBlockBytes = 16;
+    const uint32_t kBlock = lin.block;
+    const auto ix = static_cast<int64_t>(std::lround(x));
+    const auto iy = static_cast<int64_t>(std::lround(y));
+    const auto iw = static_cast<int64_t>(std::lround(w));
+    const auto ih = static_cast<int64_t>(std::lround(h));
+    if (!astc || kBlock == 0 || ix < 0 || iy < 0 || iw <= 0 || ih <= 0 || ix + iw > lin.width ||
+        iy + ih > lin.height) {
         return std::nullopt;
     }
     // Decode only the blocks of the section (large textures would exceed memory otherwise)
@@ -292,7 +311,8 @@ std::optional<ce_unity::Image> DecodeSwitchSprite(std::span<const uint8_t> data,
     std::vector<uint8_t> blocks(size_t{nx} * ny * kBlockBytes);
     for (uint32_t r = 0; r < ny; ++r) {
         std::memcpy(blocks.data() + size_t{r} * nx * kBlockBytes,
-                    linear.data() + ((size_t{by0} + r) * row_blocks + bx0) * kBlockBytes, size_t{nx} * kBlockBytes);
+                    lin.blocks.data() + ((size_t{by0} + r) * lin.row_blocks + bx0) * kBlockBytes,
+                    size_t{nx} * kBlockBytes);
     }
     std::vector<uint8_t> rgba;
     if (!astc(blocks.data(), blocks.size(), nx * kBlock, ny * kBlock, kBlock, kBlock, rgba) ||
@@ -313,6 +333,17 @@ std::optional<ce_unity::Image> DecodeSwitchSprite(std::span<const uint8_t> data,
     return out;
 }
 
+std::optional<ce_unity::Image> DecodeSwitchSprite(std::span<const uint8_t> data,
+                                                  const ce_unity::TextureInfo& tex,
+                                                  const ce_unity::AstcDecoder& astc, float x, float y,
+                                                  float w, float h) {
+    if (tex.format != kAstc12x12 || !astc) {
+        return std::nullopt;
+    }
+    const auto lin = DeswizzleSwitchAstc(data, tex);
+    return lin ? DecodeLinearRect(*lin, astc, x, y, w, h) : std::nullopt;
+}
+
 ce_unity::AstcDecoder MakeTiledAstcDecoder(void* userdata, EdenDsmodAstcDecoder decode,
                                            size_t max_tile_bytes, uint32_t max_width) {
     if (decode == nullptr) {
@@ -325,7 +356,7 @@ ce_unity::AstcDecoder MakeTiledAstcDecoder(void* userdata, EdenDsmodAstcDecoder 
             return false;
         }
         const size_t bx = (w + bw - 1) / bw; // blocks per row
-        const size_t by = (h + bh - 1) / bh; // Blockzeilen
+        const size_t by = (h + bh - 1) / bh; // block rows
         if (size < bx * by * 16) {
             return false;
         }
@@ -363,6 +394,14 @@ ce_unity::AstcDecoder MakeTiledAstcDecoder(void* userdata, EdenDsmodAstcDecoder 
         return true;
     };
 }
+
+struct IconLoader::FollowerPage {
+    SpineAtlas atlas;
+    LinearAstc lin;
+    float scale = 1; // texture pixels per atlas pixel (Switch: 4096 instead of 8192)
+    std::map<std::string, ce_unity::Image, std::less<>> regions;
+    std::map<std::string, bool, std::less<>> missing;
+};
 
 IconLoader::IconLoader(ce_unity::RangeReader romfs, ce_unity::AstcDecoder astc)
     : romfs_(std::move(romfs)), astc_(astc),
@@ -657,6 +696,157 @@ std::optional<ce_unity::Image> IconLoader::LoadMapIcon(const std::string& sprite
         }
     }
     return LoadLocated(loc, "map icon " + sprite);
+}
+
+
+IconLoader::FollowerPage* IconLoader::EnsureFollowerPage() {
+    if (follower_) {
+        return follower_.get();
+    }
+    const std::string bundle(kSpineBundle);
+    const auto asset = bundles_->ReadObjectByName(bundle, "Follower_Atlas", kClassMonoBehaviour);
+    const auto* text_id = asset ? asset->Path("atlasFile.m_PathID") : nullptr;
+    const auto* mats = asset ? asset->Get("materials") : nullptr;
+    const auto text = text_id ? bundles_->ReadObject(bundle, text_id->AsInt()) : std::nullopt;
+    const auto* mat_id = mats && !mats->items.empty() ? mats->items[0].Get("m_PathID") : nullptr;
+    const auto mat = mat_id ? bundles_->ReadObject(bundle, mat_id->AsInt()) : std::nullopt;
+    const auto* envs = mat ? mat->Path("m_SavedProperties.m_TexEnvs") : nullptr;
+    if (!text || !text->Get("m_Script") || envs == nullptr) {
+        last_error_ = "follower atlas missing";
+        return nullptr;
+    }
+    int64_t tex_id = 0;
+    for (const auto& env : envs->items) { // [Name, UnityTexEnv]
+        if (env.items.size() == 2 && env.items[0].AsString() == "_MainTex") {
+            if (const auto* t = env.items[1].Path("m_Texture.m_PathID")) {
+                tex_id = t->AsInt();
+            }
+        }
+    }
+    const auto tv = tex_id != 0 ? bundles_->ReadObject(bundle, tex_id) : std::nullopt;
+    if (!tv) {
+        last_error_ = "follower texture missing";
+        return nullptr;
+    }
+    ce_unity::TextureInfo tex;
+    const auto geti = [&](std::string_view k) {
+        const auto* x = tv->Get(k);
+        return x ? static_cast<int32_t>(x->AsInt()) : 0;
+    };
+    tex.width = geti("m_Width");
+    tex.height = geti("m_Height");
+    tex.format = geti("m_TextureFormat");
+    if (const auto* blob = tv->Get("m_PlatformBlob")) {
+        if (blob->kind == ce_unity::Value::Kind::Bytes) {
+            tex.platform_blob.assign(blob->s.begin(), blob->s.end());
+        } else {
+            for (const auto& b : blob->items) {
+                tex.platform_blob.push_back(static_cast<uint8_t>(b.AsInt()));
+            }
+        }
+    }
+    const auto* sd = tv->Get("m_StreamData");
+    const auto* s_off = sd ? sd->Get("offset") : nullptr;
+    const auto* s_size = sd ? sd->Get("size") : nullptr;
+    const auto* s_path = sd ? sd->Get("path") : nullptr;
+    const auto b = bundles_->OpenBundle(bundle);
+    const auto* node = b && s_path ? b->FindNode(s_path->AsString()) : nullptr;
+    const uint64_t off = s_off ? static_cast<uint64_t>(s_off->AsInt()) : 0;
+    const uint64_t size = s_size ? static_cast<uint64_t>(s_size->AsInt()) : 0;
+    if (node == nullptr || size == 0 || size > kMaxFollowerTextureBytes || off > node->size ||
+        size > node->size - off) {
+        last_error_ = "follower texture data missing";
+        return nullptr;
+    }
+    std::vector<uint8_t> data(static_cast<size_t>(size));
+    if (!b->Read(node->offset + off, data.data(), data.size())) {
+        last_error_ = "follower texture read failed";
+        return nullptr;
+    }
+    auto lin = DeswizzleSwitchAstc(data, tex);
+    auto page = std::make_unique<FollowerPage>();
+    page->atlas = ParseSpineAtlas(text->Get("m_Script")->AsString());
+    if (!lin || page->atlas.page_w <= 0) {
+        last_error_ = "follower texture format " + std::to_string(tex.format);
+        return nullptr;
+    }
+    page->scale = static_cast<float>(lin->width) / static_cast<float>(page->atlas.page_w);
+    page->lin = std::move(*lin);
+    follower_ = std::move(page);
+    return follower_.get();
+}
+
+const ce_unity::Image* IconLoader::FollowerRegion(FollowerPage& page, std::string_view region) {
+    if (const auto it = page.regions.find(region); it != page.regions.end()) {
+        return &it->second;
+    }
+    if (page.missing.find(region) != page.missing.end()) {
+        return nullptr;
+    }
+    const auto r = page.atlas.regions.find(std::string(region));
+    std::optional<ce_unity::Image> framed;
+    if (r != page.atlas.regions.end()) {
+        // Round the occupied area like CropRegion, decode it as its own image, then rotate back
+        const float s = page.scale;
+        const auto sc = [s](int v) { return static_cast<int>(static_cast<float>(v) * s + 0.5f); };
+        const SpineRegion& sr = r->second;
+        // Values from the atlas file: only within the page (protects frame size and sums)
+        const int pw = page.atlas.page_w, ph = page.atlas.page_h;
+        const bool sane = sr.x >= 0 && sr.y >= 0 && sr.w > 0 && sr.h > 0 && sr.w <= pw && sr.h <= ph &&
+                          sr.x <= pw && sr.y <= ph && sr.orig_w >= 0 && sr.orig_h >= 0 &&
+                          sr.orig_w <= pw && sr.orig_h <= ph;
+        const int rx = sane ? sc(sr.x) : 0, ry = sane ? sc(sr.y) : 0, rw = sane ? sc(sr.w) : 0,
+                  rh = sane ? sc(sr.h) : 0;
+        const int aw = sr.rotate ? rh : rw, ah = sr.rotate ? rw : rh;
+        const bool inside = sane && rx + aw <= static_cast<int>(page.lin.width) &&
+                            ry + ah <= static_cast<int>(page.lin.height);
+        const auto patch = !inside ? std::nullopt : DecodeLinearRect(page.lin, astc_, static_cast<float>(rx),
+                                            static_cast<float>(page.lin.height - (ry + ah)),
+                                            static_cast<float>(aw), static_cast<float>(ah));
+        SpineRegion local = sr;
+        local.x = local.y = 0;
+        const auto crop = patch ? CropRegion(*patch, local, s) : std::nullopt;
+        if (crop) {
+            // Into the original frame (Spine: offset from the bottom left)
+            ce_unity::Image f;
+            f.width = static_cast<uint32_t>(std::max(sc(sr.orig_w), rw));
+            f.height = static_cast<uint32_t>(std::max(sc(sr.orig_h), rh));
+            f.rgba.assign(size_t{f.width} * f.height * 4, 0);
+            BlitOver(f, *crop, sc(sr.off_x), sc(sr.orig_h - sr.off_y - sr.h));
+            framed = std::move(f);
+        }
+    }
+    if (!framed) {
+        page.missing.emplace(std::string(region), true);
+        return nullptr;
+    }
+    return &page.regions.emplace(std::string(region), std::move(*framed)).first->second;
+}
+
+std::optional<ce_unity::Image> IconLoader::LoadFollower(const std::string& arg) {
+    const auto spec = ParsePortraitArg(arg);
+    const auto parts = spec ? PortraitParts(spec->skin) : std::vector<const PortraitPart*>{};
+    std::lock_guard lock(mutex_);
+    if (parts.empty()) {
+        last_error_ = "no portrait parts for skin";
+        return std::nullopt;
+    }
+    if (!follower_error_.empty()) {
+        last_error_ = follower_error_;
+        return std::nullopt;
+    }
+    FollowerPage* page = EnsureFollowerPage();
+    if (page == nullptr) {
+        follower_error_ = last_error_.empty() ? "follower page unavailable" : last_error_;
+        return std::nullopt;
+    }
+    auto img = ComposePortrait(
+        parts, [&](std::string_view region) { return FollowerRegion(*page, region); }, page->scale,
+        spec->tints);
+    if (!img) {
+        last_error_ = "follower portrait regions missing";
+    }
+    return img;
 }
 
 std::optional<ce_unity::Image> IconLoader::LoadHeart(const std::string& kind, const std::string& state) {

@@ -26,7 +26,7 @@ struct Bytes {
     }
 };
 
-// MonoBehaviour-Kopf: m_GameObject PPtr, m_Enabled (ausgerichtet), m_Script PPtr = 28 Byte
+// MonoBehaviour header: m_GameObject PPtr, m_Enabled (aligned), m_Script PPtr = 28 bytes
 Bytes MonoHeader(const std::string& name) {
     Bytes x;
     x.b.assign(28, 0);
