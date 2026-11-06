@@ -28,6 +28,7 @@
 
 #include "core/mods/dsmod_module_abi.h"
 #include "sw_lang.h"
+#include "sw_species_types.h"
 #include "sw_strings.h"
 #include "sw_text.h"
 
@@ -71,10 +72,13 @@ inline bool Decode(const std::uint8_t* r, Record& out) {
     return true;
 }
 
-inline bool ReadRecord(const EdenDsmodHostApi& host, std::uint16_t species, Record& out) {
+// `form` selects the form's own record (base stats and abilities differ for regional forms).
+inline bool ReadRecord(const EdenDsmodHostApi& host, std::uint16_t species, std::uint8_t form, Record& out) {
     if (!host.read_romfs || species < 1 || species > kMaxSpecies) return false;
+    std::uint16_t index = 0;
+    if (!sw_species_types::FormRecordIndex(host, species, form, index)) return false;
     std::uint8_t buf[kRecordSize]{};
-    if (host.read_romfs(host.userdata, kPersonalPath, static_cast<std::uint64_t>(species) * kRecordSize, buf,
+    if (host.read_romfs(host.userdata, kPersonalPath, static_cast<std::uint64_t>(index) * kRecordSize, buf,
                         kRecordSize) != kRecordSize)
         return false;
     return Decode(buf, out);

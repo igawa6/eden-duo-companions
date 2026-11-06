@@ -53,7 +53,15 @@ inline u32 ReadU32LE(const u8* p) {
 struct EntryState {
     bool seen = false;
     bool caught = false;
+    // The form value the game's own Pokédex shows for this entry (PKHeX Zukan8 DisplayFormID,
+    // bits 15..27 of the caught word). Use DisplayForm() for the personal-table form.
+    u16 display_form_raw = 0;
 };
+
+/// Alcremie (869) stores form * 7 + decoration (PKHeX Zukan8.SetDex); every other species the form.
+inline u16 DisplayForm(u16 species, u16 display_form_raw) {
+    return species == 869 ? static_cast<u16>(display_form_raw / 7) : display_form_raw;
+}
 
 /// Decodes entry `index` (0-based) from a dex block already in `data`/`data_size` (one of
 /// sw_addresses.h's dex.* reads). Out-of-range index returns {false, false} rather than reading
@@ -70,6 +78,7 @@ inline EntryState DecodeEntry(const u8* data, std::size_t data_size, std::size_t
     }
     const u32 caught_word = ReadU32LE(data + off + kOfsCaught);
     e.caught = (caught_word & 1u) != 0;
+    e.display_form_raw = static_cast<u16>((caught_word >> 15) & 0x1FFFu);
     return e;
 }
 

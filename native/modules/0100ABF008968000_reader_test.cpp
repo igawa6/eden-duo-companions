@@ -136,6 +136,10 @@ struct FakeHost {
     // type-only tests) -- base_hp/growth default to 0, which a type-only test never reads.
     struct PersonalRec {
         unsigned char t1 = 0, t2 = 0, base_hp = 0, growth = 0;
+        // Form table (+0x1E first extra-form record, +0x20 form count); form rows are entries of
+        // this same map at their own record index.
+        std::uint16_t first_form = 0;
+        unsigned char form_count = 0;
     };
     std::map<int, PersonalRec> personal;
     // Generic plain-file romfs stand-ins (path -> whole-file bytes), e.g. wazaname.dat for the
@@ -215,6 +219,9 @@ std::size_t FakeReadRomfs(void* ud, const char* path, std::uint64_t offset, void
         rec[sw_species_types::kTypeOffset + 1] = it->second.t2;
         rec[0x00] = it->second.base_hp;
         rec[0x15] = it->second.growth;
+        rec[sw_species_types::kFormStatsOffset] = static_cast<unsigned char>(it->second.first_form);
+        rec[sw_species_types::kFormStatsOffset + 1] = static_cast<unsigned char>(it->second.first_form >> 8);
+        rec[sw_species_types::kFormCountOffset] = it->second.form_count;
         std::memcpy(out, rec + field_off, size);
         return size;
     }
@@ -1405,6 +1412,144 @@ void TestBattleReaderInWildBattle() {
               "battle; move identity comes straight from the live struct's own move_id (PP, type "
               "disc and effectiveness all fail closed independently when unresolved); a move_id=0 "
               "slot with stray PP bytes is correctly NOT ready");
+}
+
+// Regional forms (owner 2026-11-07, live: Galarian Stunfisk read as Ground/Electric, so Max
+// Mindstorm showed "Effective" while the top screen said "Not very effective"). Types come from
+// the form's own personal record (species row +0x1E first form record, +0x20 form count), on
+// both variants. The type ids are the real ones; the records are synthetic.
+void AddRegionalFormPersonal(FakeHost& fake) {
+    using R = FakeHost::PersonalRec;
+    const auto species = [&](int id, unsigned char t1, unsigned char t2, std::uint16_t first, unsigned char count) {
+        fake.personal[id] = R{t1, t2, 50, 0, first, count};
+    };
+    const auto form_row = [&](int index, unsigned char t1, unsigned char t2) {
+        fake.personal[index] = R{t1, t2, 50, 0, 0, 0};
+    };
+    species(618, 4, 12, 1021, 2);  form_row(1021, 4, 8);   // Stunfisk: Ground/Electric, Galar Ground/Steel
+    species(263, 0, 0, 967, 2);    form_row(967, 16, 0);   // Zigzagoon: Normal, Galar Dark/Normal
+    species(222, 10, 5, 966, 2);   form_row(966, 7, 7);    // Corsola: Water/Rock, Galar Ghost
+    species(110, 3, 3, 933, 2);    form_row(933, 3, 17);   // Weezing: Poison, Galar Poison/Fairy
+    species(122, 13, 17, 934, 2);  form_row(934, 14, 13);  // Mr. Mime: Psychic/Fairy, Galar Ice/Psychic
+    species(555, 9, 9, 1011, 4);                           // Darmanitan: Fire
+    form_row(1011, 9, 13); form_row(1012, 14, 14); form_row(1013, 14, 9); // Zen, Galar, Galar Zen
+    species(892, 1, 16, 1188, 2);  form_row(1188, 1, 10);  // Urshifu: Single Strike, Rapid Strike
+    species(898, 13, 11, 1190, 3); form_row(1191, 13, 7);  // Calyrex: Shadow Rider is form 2
+    species(849, 12, 3, 0, 2);                             // Toxtricity: forms share the species row
+    species(80, 10, 13, 926, 3);   fake.personal[926] = R{0, 0, 0, 0, 0, 0}; // Slowbro form 1: unused row
+}
+
+void TestRegionalFormTypes() {
+    FakeHost fake;
+    AddRegionalFormPersonal(fake);
+    const EdenDsmodHostApi host = MakeHostApi(fake);
+    struct Case { std::uint16_t species; std::uint8_t form; int t1, t2; };
+    const Case cases[] = {
+        {618, 0, 4, 12}, {618, 1, 4, 8}, {263, 1, 16, 0}, {222, 1, 7, 7}, {110, 1, 3, 17},
+        {122, 1, 14, 13}, {555, 1, 9, 13}, {555, 2, 14, 14}, {555, 3, 14, 9}, {892, 1, 1, 10},
+        {898, 2, 13, 7}, {849, 1, 12, 3},
+    };
+    for (const auto& c : cases) {
+        std::uint8_t t1 = 0xFF, t2 = 0xFF;
+        assert(sw_species_types::GetTypes(host, c.species, c.form, t1, t2));
+        assert(t1 == c.t1 && t2 == c.t2);
+    }
+    std::uint16_t index = 0;
+    assert(sw_species_types::FormRecordIndex(host, 555, 3, index) && index == 1013);
+    assert(sw_species_types::FormRecordIndex(host, 849, 1, index) && index == 849);
+    std::uint8_t t1 = 0xEE, t2 = 0xEE;
+    // Past the form count, an unused form row, and an unknown species: no types, never the base form's.
+    assert(!sw_species_types::GetTypes(host, 618, 2, t1, t2));
+    assert(!sw_species_types::GetTypes(host, 80, 1, t1, t2));
+    assert(!sw_species_types::GetTypes(host, 4, 1, t1, t2));
+    assert(t1 == 0xEE && t2 == 0xEE);
+    std::puts("sw_species_types: Galarian, Zen, Rapid Strike and Shadow Rider forms read their own "
+              "personal rows; cosmetic forms share the species row; bad forms fail closed");
+}
+
+void SetFoeForm(FakeHost& fake, std::uint8_t form) {
+    const auto* a_own = sw_addresses::Find("battle.own_mon");
+    for (auto& r : fake.regions)
+        if (r.base == fake.heap_begin + a_own->sysbot_offset) {
+            r.data[sw_battle::kFoeOffset + sw_battle::kFormOffset] = form;
+            return;
+        }
+    assert(false && "battle region not found -- call AddBattleFixture first");
+}
+
+void TestBattleRegionalFormFoeMatchups() {
+    for (const std::uint8_t form : {std::uint8_t{1}, std::uint8_t{0}, std::uint8_t{2}}) {
+        FakeHost fake = BuildFixture(/*corrupt_checksum=*/false);
+        AddRegionalFormPersonal(fake);
+        // Galarian Corsola (Ghost) vs Corsola (Water/Rock): the own Electric move is neutral
+        // against the Galarian form and super effective against the base form.
+        AddBattleFixture(fake, 0xFFFFFFFFu, 200, 356, /*foe_species=*/222, 40, 60, 90);
+        SetFoeForm(fake, form);
+        const EdenDsmodHostApi host = MakeHostApi(fake);
+        sw_reader::Reader reader;
+        AddLiveParty(fake);
+        PrimeWorldEntered(fake, host, reader);
+        SetCurrentScreen(fake, 0xFFFFFFFFu);
+        reader.Sample(host);
+        assert(fake.ints.at("sw.battle.foe.ready") == 1 && fake.ints.at("sw.battle.foe.species") == 222);
+        if (form == 1) {
+            assert(fake.ints.at("sw.battle.foe.types_ready") == 1);
+            assert(fake.ints.at("sw.battle.foe.type1") == 7 && fake.ints.at("sw.battle.foe.mono_type") == 1);
+            assert(fake.ints.at("sw.battle.foe.immune_count") == 2); // Normal, Fighting
+            assert(fake.ints.at("sw.battle.own.move2.effectiveness_ready") == 1);
+            assert(fake.texts.at("sw.battle.own.move2.effectiveness_multiplier") == "\xc3\x97\x31");
+        } else if (form == 0) {
+            assert(fake.ints.at("sw.battle.foe.type1") == 10 && fake.ints.at("sw.battle.foe.type2") == 5);
+            assert(fake.ints.at("sw.battle.own.move2.effectiveness_ready") == 1);
+            assert(fake.texts.at("sw.battle.own.move2.effectiveness_multiplier") == "\xc3\x97\x32");
+        } else {
+            // A form Corsola does not have: no board and no effectiveness, never the base form's.
+            assert(fake.ints.at("sw.battle.foe.types_ready") == 0);
+            assert(fake.ints.at("sw.battle.own.move2.effectiveness_ready") == 0);
+        }
+    }
+    std::puts("sw_reader: the battle foe's form (+0x33D) drives its type board and every move's "
+              "effectiveness (Galarian Corsola neutral, Corsola super effective, unknown form withheld)");
+}
+
+void TestDexDetailShowsDisplayedForm() {
+    for (const std::uint16_t display : {std::uint16_t{1}, std::uint16_t{0}, std::uint16_t{5}}) {
+        FakeHost fake = BuildFixture(false);
+        auto& personal = fake.dat_files[sw_dex_index::kPersonalTablePath];
+        personal.resize(1192 * sw_dex_index::kRecordSize);
+        const std::size_t stunfisk = 618 * sw_dex_index::kRecordSize, galar = 1021 * sw_dex_index::kRecordSize;
+        PutU16(personal, stunfisk + sw_dex_index::kGalarOfs, 1);
+        const unsigned char base[6]{109, 66, 84, 32, 81, 99}, galar_base[6]{109, 81, 99, 32, 66, 84};
+        for (int i = 0; i < 6; ++i) { personal[stunfisk + i] = base[i]; personal[galar + i] = galar_base[i]; }
+        personal[stunfisk + 6] = 4; personal[stunfisk + 7] = 12; // Ground/Electric
+        personal[galar + 6] = 4; personal[galar + 7] = 8;        // Ground/Steel
+        PutU16(personal, stunfisk + sw_species_types::kFormStatsOffset, 1021);
+        personal[stunfisk + sw_species_types::kFormCountOffset] = 2;
+        for (const char* anchor : {"dex.galar", "dex.isle_of_armor", "dex.crown_tundra"}) {
+            const auto* a = sw_addresses::Find(anchor);
+            std::vector<unsigned char> raw(a->size, 0);
+            if (std::strcmp(anchor, "dex.galar") == 0) {
+                raw[0] = 3;                                       // seen, both forms
+                PutU32(raw, sw_zukan::kOfsCaught, 1u | static_cast<std::uint32_t>(display) << 15);
+            }
+            fake.regions.push_back({fake.heap_begin + a->sysbot_offset, std::move(raw)});
+        }
+        const EdenDsmodHostApi host = MakeHostApi(fake);
+        sw_reader::Reader reader;
+        for (int i = 0; i < 25; ++i) reader.Sample(host);
+        assert(fake.ints.at("sw.dex.detail.ready") == 1 && fake.ints.at("sw.dex.detail.species") == 618);
+        // Form 5 is past Stunfisk's form count: the entry shows the base form.
+        const bool galarian = display == 1;
+        assert(fake.ints.at("sw.dex.detail.form") == (galarian ? 1 : 0));
+        assert(fake.ints.at("sw.dex.detail.types_ready") == 1);
+        assert(fake.ints.at("sw.dex.detail.type1") == 4);
+        assert(fake.ints.at("sw.dex.detail.type2") == (galarian ? 8 : 12));
+        assert(fake.ints.at("sw.dex.detail.info_ready") == 1);
+        assert(fake.ints.at("sw.dex.detail.bs1") == (galarian ? 81 : 66)); // Attack
+    }
+    assert(sw_zukan::DisplayForm(869, 7 * 3 + 4) == 3 && sw_zukan::DisplayForm(618, 1) == 1); // Alcremie
+    std::puts("sw_reader: the Pokedex detail shows the game's displayed form (Galarian Stunfisk "
+              "types and base stats), and the base form for a form the species does not have");
 }
 
 // BATTLE AUTO-SWITCH RELIABILITY FIX (2026-10-25 task): reproduces the exact failure mode that
@@ -3891,6 +4036,9 @@ void RunAll() {
     TestMisc8OutOfRangeFailsClosed();
     TestSpeciesTypesMissingRomfsFailsClosed();
     TestBattleReaderInWildBattle();
+    TestRegionalFormTypes();
+    TestBattleRegionalFormFoeMatchups();
+    TestDexDetailShowsDisplayedForm();
     SWORD_ONLY(TestBattleBallIdentityPagingAndViewReset());
     SWORD_ONLY(TestNativeBattleMenuFsmClassification());
     TestInBattleStickyAcrossUnclassifiedTick();

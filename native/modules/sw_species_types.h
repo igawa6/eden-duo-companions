@@ -6,12 +6,12 @@
 // `romfs:/bin/pml/personal/personal_total.bin`: 1192 fixed 0xB0 (176)-byte PersonalInfoSWSH
 // records (confirmed empirically this cycle: 209792 bytes / 176 == 1192 exactly, matching the
 // known Gen 8 SWSH personal-table entry count), indexed directly by national dex number for
-// every base-form species (no form remap needed for 1..898, the range sw_pk8::species_in_range
-// already accepts). Type1/Type2 live at +0x06/+0x07 of each record; confirmed against eight
-// species spanning the whole table (Bulbasaur Grass/Poison, Charmander Fire, Charizard
-// Fire/Flying, Squirtle Water, Pikachu Electric, Snorlax Normal, Mewtwo Psychic, Gardevoir
-// Psychic/Fairy, Grookey Grass, Zacian Fairy, Zamazenta Fighting, Eternatus Poison/Dragon,
-// Calyrex Psychic/Grass) -- every one matched the real Pokémon exactly. A mono-type species
+// every base-form species (1..898, the range sw_pk8::species_in_range already accepts); other
+// forms through FormRecordIndex() below. Type1/Type2 live at +0x06/+0x07 of each record;
+// confirmed against eight species spanning the whole table (Bulbasaur Grass/Poison, Charmander
+// Fire, Charizard Fire/Flying, Squirtle Water, Pikachu Electric, Snorlax Normal, Mewtwo Psychic,
+// Gardevoir Psychic/Fairy, Grookey Grass, Zacian Fairy, Zamazenta Fighting, Eternatus
+// Poison/Dragon, Calyrex Psychic/Grass) -- every one matched the real Pokémon exactly. A mono-type species
 // stores the same id in both bytes (the game's own "no second type" convention), so a caller
 // never needs a separate "has second type" flag.
 //
@@ -97,22 +97,55 @@ inline bool TypeImageSource(int personal_type_id, bool label, char* out, std::si
     return n > 0 && static_cast<std::size_t>(n) < out_size;
 }
 
-/// Reads a species' Type1/Type2 (personal-table ids, 0..17) straight from the player's own
-/// romfs. Fails closed (returns false, leaves type1/type2 untouched) on a missing host function,
-/// an out-of-range species, a short read, or an out-of-range type byte -- never guesses.
-inline bool GetTypes(const EdenDsmodHostApi& host, u16 species, u8& type1, u8& type2) {
+// Regional and battle forms have their own personal records (PKHeX PersonalTable.GetFormIndex,
+// checked against both 1.3.2 personal_total.bin files): the species row's u16 at +0x1E is the
+// first extra-form record and the byte at +0x20 the form count; form f > 0 lives at
+// first + f - 1. Galarian Stunfisk (618/1) is Ground/Steel while 618/0 is Ground/Electric, so a
+// species-only lookup gets matchups wrong for every regional form. A first-form index of 0 means
+// the forms are cosmetic and share the species row.
+constexpr std::size_t kFormStatsOffset = 0x1E; // u16 first extra-form record
+constexpr std::size_t kFormCountOffset = 0x20; // u8 form count (0 = species absent from the game)
+
+/// Personal record index of (species, form). Form 0 is the species row itself. Fails closed on a
+/// form at or past the species' form count (a misread form byte must not fall back silently).
+inline bool FormRecordIndex(const EdenDsmodHostApi& host, u16 species, u8 form, u16& index) {
     if (!host.read_romfs) return false;
     if (species < 1 || species > kMaxKnownSpecies) return false;
+    if (form == 0) {
+        index = species;
+        return true;
+    }
+    u8 buf[3]{};
+    const std::uint64_t offset = static_cast<std::uint64_t>(species) * kRecordSize + kFormStatsOffset;
+    if (host.read_romfs(host.userdata, kPersonalTablePath, offset, buf, sizeof buf) != sizeof buf) return false;
+    const u16 first = static_cast<u16>(buf[0] | (buf[1] << 8));
+    const u8 count = buf[2];
+    if (form >= count) return false;
+    index = first == 0 ? species : static_cast<u16>(first + form - 1);
+    return true;
+}
 
-    u8 buf[2]{};
-    const std::uint64_t offset =
-        static_cast<std::uint64_t>(species) * kRecordSize + kTypeOffset;
-    const std::size_t got = host.read_romfs(host.userdata, kPersonalTablePath, offset, buf, 2);
-    if (got != 2) return false;
-    if (buf[0] >= kPersonalTypeCount || buf[1] >= kPersonalTypeCount) return false;
+/// Reads the Type1/Type2 (personal-table ids, 0..17) of one species form straight from the
+/// player's own romfs. Fails closed (returns false, leaves type1/type2 untouched) on a missing
+/// host function, an out-of-range species or form, a short read, an empty form record, or an
+/// out-of-range type byte -- never guesses and never substitutes the base form's types.
+inline bool GetTypes(const EdenDsmodHostApi& host, u16 species, u8 form, u8& type1, u8& type2) {
+    u16 index = 0;
+    if (!FormRecordIndex(host, species, form, index)) return false;
 
-    type1 = buf[0];
-    type2 = buf[1];
+    u8 buf[kTypeOffset + 2]{}; // base stats (+0x00..+0x05) and both types
+    const std::uint64_t offset = static_cast<std::uint64_t>(index) * kRecordSize;
+    if (index == species) {
+        if (host.read_romfs(host.userdata, kPersonalTablePath, offset + kTypeOffset, buf + kTypeOffset, 2) != 2)
+            return false;
+    } else {
+        if (host.read_romfs(host.userdata, kPersonalTablePath, offset, buf, sizeof buf) != sizeof buf) return false;
+        if (buf[0] == 0) return false; // a form record the game does not use (all zero)
+    }
+    if (buf[kTypeOffset] >= kPersonalTypeCount || buf[kTypeOffset + 1] >= kPersonalTypeCount) return false;
+
+    type1 = buf[kTypeOffset];
+    type2 = buf[kTypeOffset + 1];
     return true;
 }
 

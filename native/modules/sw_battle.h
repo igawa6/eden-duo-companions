@@ -41,6 +41,9 @@ using u16 = std::uint16_t;
 constexpr int kMoveSlots = 4;
 constexpr std::uint64_t kFoeOffset = 0x5B80;    // foe_mon = own_mon + kFoeOffset
 constexpr std::size_t kStructBytes = 0x350;      // covers every field below with margin
+// Form byte. Live evidence: the Partner Cap Pikachu lead (PK8 form 7) reads 7 here, a wild
+// Mudbray 0 (20261025-battle-root dumps), and see the form-aware type check in the reader test.
+constexpr std::size_t kFormOffset = 0x33D;
 
 // Same bound sw_pk8::kMaxKnownSpeciesSwSh uses -- the highest species id this title can produce.
 constexpr u16 kMaxKnownSpecies = 898;
@@ -56,6 +59,10 @@ struct Mon {
     u16 max_hp = 0;
     u16 cur_hp = 0;
     u8 level = 0;
+    // Form id (+0x33D), the same numbering as PK8 +0x24 and the personal table's form index:
+    // Galarian Stunfisk = 1, Urshifu Rapid Strike = 1, Darmanitan Galar Zen = 3. Type lookups
+    // must use (species, form), never species alone (sw_species_types::GetTypes).
+    u8 form = 0;
     Move moves[kMoveSlots]{};
     // True only once every field above passes the sanity bounds below -- a caller must never
     // publish a Mon with valid == false (MODULE_GUIDE.md section 6: "No heuristics", fail closed).
@@ -78,6 +85,7 @@ inline Mon Decode(const u8* buf) {
     m.max_hp = Rd16(buf + 0x72);
     m.cur_hp = Rd16(buf + 0x74);
     m.level = buf[0x7C];
+    m.form = buf[kFormOffset];
     for (int i = 0; i < kMoveSlots; ++i) {
         const std::size_t base = 0x2D8 + static_cast<std::size_t>(i) * 0x1C;
         m.moves[i].pp_current = buf[base];

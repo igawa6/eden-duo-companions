@@ -15,6 +15,7 @@
 #include "sw_build.h"
 #include "sw_helper_mailbox.h"
 #include "sw_dex_index.h"
+#include "sw_dex_info.h"
 #include "sw_evolution.h"
 #include "sw_item_pouch.h"
 #include "sw_effectiveness_text.h"
@@ -45,6 +46,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <map>
 #include <sstream>
 #include <string>
@@ -1690,6 +1692,64 @@ void TestDirectBattleSelectedCommandResetAndDeadAliases() {
 
 } // namespace
 
+// Regional and battle forms against the real personal tables (Sword: SW_ROMFS_DIR; Shield:
+// SHIELD_ROMFS_DIR when set): each form reads its own row, so Galarian Stunfisk is Ground/Steel
+// and never the base Ground/Electric. Type ids: personal-table order (sw_species_types.h).
+void TestRegionalFormTypesRealPersonal() {
+    struct Case { std::uint16_t species; std::uint8_t form; int t1, t2; };
+    static constexpr Case kCases[] = {
+        // Galarian forms
+        {52, 2, 8, 8}, {77, 1, 13, 13}, {78, 1, 13, 17}, {79, 1, 13, 13}, {80, 2, 3, 13},
+        {199, 1, 3, 13}, {83, 1, 1, 1}, {110, 1, 3, 17}, {122, 1, 14, 13}, {222, 1, 7, 7},
+        {263, 1, 16, 0}, {264, 1, 16, 0}, {554, 1, 14, 14}, {555, 2, 14, 14}, {555, 3, 14, 9},
+        {562, 1, 4, 7}, {618, 1, 4, 8}, {144, 1, 13, 2}, {145, 1, 1, 2}, {146, 1, 16, 2},
+        // their base forms, and Darmanitan's Zen Mode
+        {618, 0, 4, 12}, {222, 0, 10, 5}, {263, 0, 0, 0}, {555, 0, 9, 9}, {555, 1, 9, 13},
+        // Alolan forms in Sword/Shield
+        {26, 1, 12, 13}, {27, 1, 14, 8}, {28, 1, 14, 8}, {37, 1, 14, 14}, {38, 1, 14, 17},
+        {50, 1, 4, 8}, {51, 1, 4, 8}, {52, 1, 16, 16}, {53, 1, 16, 16}, {103, 1, 11, 15}, {105, 1, 9, 7},
+        // Rotom appliances
+        {479, 1, 12, 9}, {479, 2, 12, 10}, {479, 3, 12, 14}, {479, 4, 12, 2}, {479, 5, 12, 11},
+        // same-type forms and legendaries
+        {849, 1, 12, 3}, {876, 1, 13, 0}, {892, 0, 1, 16}, {892, 1, 1, 10}, {898, 1, 13, 14},
+        {898, 2, 13, 7}, {800, 1, 13, 8}, {800, 2, 13, 7}, {888, 1, 17, 8}, {889, 1, 1, 8},
+        {25, 7, 12, 12},
+    };
+    const char* shield = std::getenv("SHIELD_ROMFS_DIR");
+    std::vector<unsigned char> shield_personal;
+    if (shield && *shield) {
+        std::ifstream f(std::string(shield) + "/bin/pml/personal/personal_total.bin", std::ios::binary);
+        shield_personal.assign(std::istreambuf_iterator<char>(f), {});
+        assert(!shield_personal.empty());
+    }
+    static const std::vector<unsigned char>* table = nullptr;
+    EdenDsmodHostApi host{};
+    host.read_romfs = [](void*, const char* path, std::uint64_t offset, void* out, std::size_t size) -> std::size_t {
+        if (std::strcmp(path, sw_species_types::kPersonalTablePath) != 0 || offset > table->size() ||
+            size > table->size() - offset) return 0;
+        if (out) std::memcpy(out, table->data() + offset, size);
+        return size;
+    };
+    int variants = 0;
+    for (const auto* personal : {&g_real.personal, &shield_personal}) {
+        if (personal->empty()) continue;
+        table = personal;
+        for (const auto& c : kCases) {
+            std::uint8_t t1 = 0xFF, t2 = 0xFF;
+            assert(sw_species_types::GetTypes(host, c.species, c.form, t1, t2));
+            assert(t1 == c.t1 && t2 == c.t2);
+        }
+        std::uint8_t t1 = 0, t2 = 0;
+        assert(!sw_species_types::GetTypes(host, 618, 2, t1, t2)); // past Stunfisk's form count
+        sw_dex_info::Record base, galar;
+        assert(sw_dex_info::ReadRecord(host, 618, 0, base) && sw_dex_info::ReadRecord(host, 618, 1, galar));
+        assert(base.base[1] == 66 && galar.base[1] == 81); // Attack: Stunfisk 66, Galarian Stunfisk 81
+        ++variants;
+    }
+    std::printf("sw_species_types: %zu regional/battle forms read their own types from the real "
+                "personal table (%s)\n", std::size(kCases), variants == 2 ? "Sword and Shield" : "Sword");
+}
+
 int main(int argc, char** argv) {
     // --private-data: only the checks against real bytes (a private save's blocks and the
     // player's romfs, sw_test_fixtures.h); skipped (exit 77) when those are not set up.
@@ -1700,6 +1760,7 @@ int main(int argc, char** argv) {
         TestDecodeLiveStoredAgainstRealBytes();
         TestComputeMaxHpMatchesSaveMirror();
         TestPartySummaryStatsAndMatchups();
+        TestRegionalFormTypesRealPersonal();
         TestMoveDataDecode();
         TestBagPouchDecode();
         TestZukanDexCounts();

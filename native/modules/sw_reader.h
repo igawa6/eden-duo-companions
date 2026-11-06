@@ -971,10 +971,34 @@ private:
         if (species_recs_.empty()) species_recs_.resize(sw_species_types::kMaxKnownSpecies + 1);
         return &species_recs_[species];
     }
-    bool CachedTypes(const EdenDsmodHostApi& host, std::uint16_t species, std::uint8_t& t1, std::uint8_t& t2) {
+    // Types are per (species, form): regional/battle forms have their own personal records.
+    struct FormTypesRec {
+        std::uint32_t key = 0; // species * 256 + form, form > 0
+        bool ok = false;
+        std::uint8_t t1 = 0, t2 = 0;
+    };
+    std::vector<FormTypesRec> form_types_;
+    bool CachedTypes(const EdenDsmodHostApi& host, std::uint16_t species, std::uint8_t form, std::uint8_t& t1,
+                     std::uint8_t& t2) {
+        if (form != 0) {
+            const std::uint32_t key = static_cast<std::uint32_t>(species) * 256 + form;
+            auto it = std::find_if(form_types_.begin(), form_types_.end(),
+                                   [&](const FormTypesRec& r) { return r.key == key; });
+            if (it == form_types_.end()) {
+                FormTypesRec r;
+                r.key = key;
+                r.ok = sw_species_types::GetTypes(host, species, form, r.t1, r.t2);
+                form_types_.push_back(r);
+                it = form_types_.end() - 1;
+            }
+            if (!it->ok) return false;
+            t1 = it->t1;
+            t2 = it->t2;
+            return true;
+        }
         SpeciesRec* r = SpeciesSlot(species);
         if (!r) return false;
-        if (r->types == 0) r->types = sw_species_types::GetTypes(host, species, r->t1, r->t2) ? 1 : -1;
+        if (r->types == 0) r->types = sw_species_types::GetTypes(host, species, 0, r->t1, r->t2) ? 1 : -1;
         if (r->types != 1) return false;
         t1 = r->t1;
         t2 = r->t2;
@@ -1162,6 +1186,7 @@ private:
     bool dex_info_tables_attempted_ = false;
     int dex_detail_tab_ = 0;
     std::uint16_t dex_info_species_ = 0;
+    std::uint8_t dex_info_form_ = 0;
     bool dex_info_ok_ = false;
     sw_dex_info::Record dex_info_{};
     void EnsureDexInfoTables(const EdenDsmodHostApi& host) {
@@ -1172,11 +1197,12 @@ private:
         sw_dex_info::LoadDat(host, sw_lang::MessagePath(sw_dex_info::kWeightFile).c_str(), dex_weight_);
         sw_dex_info::LoadDat(host, sw_lang::MessagePath(sw_dex_info::kAbilityFile).c_str(), dex_ability_names_);
     }
-    void PublishDexInfo(const EdenDsmodHostApi& host, std::uint16_t species) {
+    void PublishDexInfo(const EdenDsmodHostApi& host, std::uint16_t species, std::uint8_t form) {
         EnsureDexInfoTables(host);
-        if (species != dex_info_species_) {
+        if (species != dex_info_species_ || form != dex_info_form_) {
             dex_info_species_ = species;
-            dex_info_ok_ = sw_dex_info::ReadRecord(host, species, dex_info_);
+            dex_info_form_ = form;
+            dex_info_ok_ = sw_dex_info::ReadRecord(host, species, form, dex_info_);
         }
         const auto T = [&](const char* k, const std::string& v) {
             if (host.publish_text) PubT(host, k, v.c_str());
@@ -1486,10 +1512,11 @@ private:
         return -1;
     }
 
-    void PublishWeaknessBoard(const EdenDsmodHostApi& host, const char* key_prefix, std::uint16_t species) {
+    void PublishWeaknessBoard(const EdenDsmodHostApi& host, const char* key_prefix, std::uint16_t species,
+                              std::uint8_t form) {
         char key[72];
         std::uint8_t t1 = 0, t2 = 0;
-        const bool types_ok = CachedTypes(host, species, t1, t2);
+        const bool types_ok = CachedTypes(host, species, form, t1, t2);
         std::snprintf(key, sizeof key, "%s.types_ready", key_prefix);
         if (host.publish_i64) PubI(host, key, types_ok ? 1 : 0);
         if (!types_ok) return;
@@ -1871,7 +1898,7 @@ private:
         PubT(host, (k + "icon_src").c_str(), kEggIconSrc);
     }
 
-    void PublishPartySlot(const EdenDsmodHostApi& host, int i, std::uint16_t species, int level,
+    void PublishPartySlot(const EdenDsmodHostApi& host, int i, std::uint16_t species, std::uint8_t form, int level,
                           std::uint16_t max_hp, int current_hp /* -1 = not known */, std::uint32_t status,
                           const std::string& nickname = {}, bool shiny = false) {
         char key[40];
@@ -1922,7 +1949,7 @@ private:
         PublishIcon(host, key, species);
         PublishStatusIcon(host, key, status, current_hp >= 0 ? static_cast<std::uint16_t>(current_hp) : 0,
                           current_hp >= 0 ? max_hp : 0);
-        PublishWeaknessBoard(host, key, species);
+        PublishWeaknessBoard(host, key, species, form);
     }
 
     // Pokemon page row (owner Thor 2026-10-31): held item name/icon and "cur/max" HP per member.
@@ -1979,7 +2006,7 @@ private:
                 if (m.egg) { PublishEggSlot(host, i); continue; }
                 level_sum += m.level;
                 ++level_n;
-                PublishPartySlot(host, i, m.species, m.level, m.max_hp, -1, 0, m.nickname,
+                PublishPartySlot(host, i, m.species, m.form, m.level, m.max_hp, -1, 0, m.nickname,
                                  sw_pk8::IsShiny(m.pid, m.tid, m.sid));
             }
             // The save mirror has no current HP: average level only, "able" unknown.
@@ -2133,7 +2160,7 @@ private:
                 level_sum += level;
                 ++level_n;
                 if (m.current_hp > 0) ++able;
-                PublishPartySlot(host, i, m.species, level, max_hp, m.current_hp, m.status, m.nickname,
+                PublishPartySlot(host, i, m.species, m.form, level, max_hp, m.current_hp, m.status, m.nickname,
                                  sw_pk8::IsShiny(m.pid, m.tid, m.sid));
                 PublishLivePartyMoves(host, i, m);
                 PublishPartySlotExtras(host, i, m, max_hp);
@@ -2447,7 +2474,7 @@ private:
         else if (sel_row < 0 || sel_row >= row_count) sel_row = 0;
         if (host.publish_i64) PubI(host, "sw.dex.sel_row", sel_row);
 
-        std::uint16_t detail_species = 0;
+        std::uint16_t detail_species = 0, detail_form_raw = 0;
         bool detail_seen = false, detail_caught = false;
         // Same as the Bag rows: nothing past row_count (the repeat is bound to row_count).
         for (int i = 0; i < row_count && i < kMaxDexRows; ++i) {
@@ -2470,6 +2497,7 @@ private:
                 detail_species = species;
                 detail_seen = st.seen;
                 detail_caught = st.caught;
+                detail_form_raw = st.display_form_raw;
             }
 
             // Spoiler rule: an unseen entry publishes nothing beyond number/seen/caught above --
@@ -2504,7 +2532,14 @@ private:
         }
         PubI(host, "sw.dex.detail.info_ready", 0);
         if (!detail_ok) return;
-        PublishDexInfo(host, detail_species);
+        // The entry shows the form the game's own Pokédex displays (Galarian Stunfisk, ...); a
+        // form value this species' personal data does not have shows the base form.
+        const std::uint16_t display_form = sw_zukan::DisplayForm(detail_species, detail_form_raw);
+        std::uint8_t detail_form = display_form <= 0xFF ? static_cast<std::uint8_t>(display_form) : 0;
+        std::uint8_t probe1 = 0, probe2 = 0;
+        if (detail_form != 0 && !CachedTypes(host, detail_species, detail_form, probe1, probe2)) detail_form = 0;
+        PubI(host, "sw.dex.detail.form", detail_form);
+        PublishDexInfo(host, detail_species, detail_form);
         PubI(host, "sw.dex.detail.species", detail_species);
 
         char no_text[16];
@@ -2527,7 +2562,7 @@ private:
 
         // Types + weakness/immunity board, reusing the Pokémon page's own helper (same fields:
         // type1/2, type1/2_src, type1/2_label_src, weak<j>/immune<j> discs).
-        PublishWeaknessBoard(host, "sw.dex.detail", detail_species);
+        PublishWeaknessBoard(host, "sw.dex.detail", detail_species, detail_form);
 
         std::string flavor;
         if (dex_flavor_ready_ && sw_dex_text::FlavorText(dex_flavor_, detail_species, flavor) &&
@@ -3717,7 +3752,8 @@ private:
             if (pid < 0 || pid > 5) continue;
             const auto& m = members[static_cast<std::size_t>(pid)];
             if (!m.valid || BattleMemberIsEgg(pid, m)) continue;
-            icon_sig = HashValue(static_cast<std::uint64_t>(n) << 32 | m.species, icon_sig);
+            icon_sig = HashValue(static_cast<std::uint64_t>(n) << 32 | static_cast<std::uint64_t>(m.form) << 16 | m.species,
+                                 icon_sig);
             bench_pids[static_cast<std::size_t>(n)] = pid;
             ++n;
         }
@@ -3729,6 +3765,7 @@ private:
                 std::snprintf(key, sizeof key, "sw.battle.bench.%d", i);
                 const int bpid = bench_pids[static_cast<std::size_t>(i)];
                 const auto species = members[static_cast<std::size_t>(bpid)].species;
+                const auto form = members[static_cast<std::size_t>(bpid)].form;
                 PublishIcon(host, key, species);
                 // Field tab party list (owner dev.23 4e): name (nickname), native type labels.
                 std::string name;
@@ -3737,7 +3774,7 @@ private:
                     PubT(host, pk, name.c_str());
                 }
                 std::uint8_t t1 = 0, t2 = 0;
-                const bool types_ok = CachedTypes(host, species, t1, t2);
+                const bool types_ok = CachedTypes(host, species, form, t1, t2);
                 char src[160]{};
                 std::snprintf(pk, sizeof pk, "%s.types_ready", key);
                 if (host.publish_i64) PubI(host, pk, types_ok ? 1 : 0);
@@ -4183,8 +4220,10 @@ private:
         PublishRaidMon(host, "sw.battle.raid.own", 0, raid.participants[0]);
         PublishRaidMon(host, "sw.battle.raid.boss", 1, raid.participants[4]);
         const auto boss_species = raid.participants[4].mon.species;
-        Taped(raid_boss_board_tape_, boss_species, host, [&] { // species-only: no HP/PP in this board
-            PublishWeaknessBoard(host, "sw.battle.raid.boss", boss_species);
+        const auto boss_form = raid.participants[4].mon.form;
+        // species + form only: no HP/PP in this board
+        Taped(raid_boss_board_tape_, static_cast<std::uint64_t>(boss_species) << 8 | boss_form, host, [&] {
+            PublishWeaknessBoard(host, "sw.battle.raid.boss", boss_species, boss_form);
         });
         for (int i = 0; i < sw_battle_raid::kAllies; ++i) {
             char ally_prefix[32];
@@ -4917,7 +4956,7 @@ private:
         const bool own_ok = own_read && own.valid;
         const bool foe_ok = foe_read && foe.valid;
         PublishSwitchSuggestions(host, native_party && !raid.active, members, order, order_n,
-                                 foe, foe_ok, foe_raw[0x33D]);
+                                 foe, foe_ok, foe.form);
         PublishBattleBall(host, in_battle);
         if (own_ok) battle_own_actor_ = raid.ready ? raid.participants[0].address : regular_actor;
         std::array<std::uint16_t, 4> current_moves{};
@@ -5002,10 +5041,10 @@ private:
         PublishBattleStats(host, "sw.battle.foe", foe_raw.data(), foe_ok && !raid.ready, foe_shown);
         bool foe_types_ready = false;
         sw_species_types::u8 foe_type1 = 0, foe_type2 = 0;
-        if (foe_ok) foe_types_ready = CachedTypes(host, foe.species, foe_type1, foe_type2);
+        if (foe_ok) foe_types_ready = CachedTypes(host, foe.species, foe.form, foe_type1, foe_type2);
         if (foe_ok) {
             sw_species_types::u8 own_type1 = 0, own_type2 = 0;
-            const bool own_types_ready = own_ok && CachedTypes(host, own.species, own_type1, own_type2);
+            const bool own_types_ready = own_ok && CachedTypes(host, own.species, own.form, own_type1, own_type2);
             PublishFoeMoves(host, foe, true, own_types_ready, own_type1, own_type2);
         }
 
@@ -5047,8 +5086,9 @@ private:
                                   static_cast<std::uint16_t>(std::max(own_shown, 0)), own.max_hp);
             }
             PublishBattleBench(host, members, order, order_n, bench_from);
-            Taped(own_board_tape_, own.species, host, [&] { // Own tab of the matchup card
-                PublishWeaknessBoard(host, "sw.battle.ownb", own.species);
+            // Own tab of the matchup card; a form change (Zen Mode, ...) redraws it.
+            Taped(own_board_tape_, static_cast<std::uint64_t>(own.species) << 8 | own.form, host, [&] {
+                PublishWeaknessBoard(host, "sw.battle.ownb", own.species, own.form);
             });
 
             for (int i = 0; i < sw_battle::kMoveSlots; ++i) {
@@ -5289,8 +5329,8 @@ private:
             // Matchup card: the foe's own types + what it's weak/immune to (personal data, same
             // helper the Pokémon page's weakness board uses) -- real data, no move-type guess
             // needed for this half of the card.
-            Taped(foe_board_tape_, foe.species, host, [&] {
-                PublishWeaknessBoard(host, "sw.battle.foe", foe.species);
+            Taped(foe_board_tape_, static_cast<std::uint64_t>(foe.species) << 8 | foe.form, host, [&] {
+                PublishWeaknessBoard(host, "sw.battle.foe", foe.species, foe.form);
                 PublishIcon(host, "sw.battle.foe", foe.species);
             });
         }
