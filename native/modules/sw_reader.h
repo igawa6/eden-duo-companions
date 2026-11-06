@@ -200,8 +200,13 @@ public:
         field_stable_ticks_ = 0;
         reload_nonfield_ticks_ = 0;
         confirmed_zone_name_.clear();
+        screen_sentinel_battle_ = false;
+        last_phase_battle_ = false;
+        phase_battle_edges_ = 0;
         battle_hint_ = false;
         helper_seen_ = false;
+        field_frames_ = battle_end_field_frames_ = 0;
+        battle_silent_ticks_ = 0;
         battle_client_ = 0;
         battle_command_waiting_ = false;
         SetBattleScreen(0);
@@ -590,6 +595,17 @@ public:
     // installed and has spoken this boot (then `alive` alone decides when a battle ends),
     // `client` = the beating battle client object (0 = unknown).
     void SetBattleHint(bool alive, bool helper, u64 client) {
+        // An emulation stall in battle (no battle beat AND no field frame since the last beat,
+        // under kBattleStallTicks): the battle and its client are still there. Keep the client and
+        // the battle page's own state (move page, inspected move, Dynamax preview) instead of
+        // resetting them -- desktop 2026-11-07: the native Dynamax toggle's asset load silenced the
+        // beat, the bottom fell back to the command page and dropped the Max moves.
+        if (!alive && battle_client_ && phase_ == Phase::kBattle && helper_seen_ &&
+            field_frames_ - battle_end_field_frames_ < kBattleEndFieldFrames &&
+            battle_silent_ticks_ < kBattleStallTicks) {
+            battle_hint_ = false;
+            return;
+        }
         if (alive && (!battle_hint_ || client != battle_client_)) ++battle_epoch_; // a new battle
         if (!alive || client != battle_client_) { SetBattleScreen(0); battle_inspect_actor_ = 0; }
         if (!alive || client != battle_client_) battle_command_waiting_ = false;
@@ -598,12 +614,16 @@ public:
         helper_seen_ = helper_seen_ || helper;
         battle_client_ = alive ? client : 0;
     }
+    // The guest helper's field frames seen so far this session (FieldStatus::frames, module-owned).
+    void SetFieldFrames(std::uint64_t frames) { field_frames_ = frames; }
     // Field actions (2026-10-26): the Bag page's selected item (0 = none) and its live count, the
     // live Repel record, and whether this tick classified the game as in the field.
     int bag_sel_item() const { return bag_sel_item_id_; }
     int bag_sel_count() const { return bag_sel_item_count_; }
     int repel_steps() const { return repel_steps_; }
     bool in_battle_phase() const { return phase_ == Phase::kBattle; }
+    // The battle client of this battle, held through an emulation stall (SetBattleHint); 0 = none.
+    u64 battle_client() const { return battle_client_; }
     bool in_title_or_loading() const { return phase_ == Phase::kTitle || phase_ == Phase::kLoading; }
 
     // Companion language (sw_lang.h): the @settings "lang" choice, read by the module each tick.
@@ -984,6 +1004,9 @@ private:
     sw_helper::BattleView battle_view_{};
     bool battle_hint_ = false;
     bool helper_seen_ = false;
+    std::uint64_t field_frames_ = 0;            // FieldStatus::frames (SetFieldFrames)
+    std::uint64_t battle_end_field_frames_ = 0; // field_frames_ at the battle beat's last tick
+    int battle_silent_ticks_ = 0;
     u64 battle_client_ = 0;
     // Bumped at every battle start (a new beating client, or in_battle rising): per-battle caches key on it.
     std::uint64_t battle_epoch_ = 0;
@@ -1045,6 +1068,8 @@ private:
 
     void EnterBattle() {
         phase_ = Phase::kBattle;
+        battle_silent_ticks_ = 0;
+        battle_end_field_frames_ = field_frames_;
         battle_tab_ = 0;
         SetBattleScreen(0);
         battle_ball_count_ = 0;
@@ -3296,7 +3321,9 @@ private:
     //              itself debounced -- it already went through ReadStable's own torn-read
     //              double-check). CurrentScreen is NOT consulted for this edge at all any more --
     //              it cannot be, see above.
-    //   kLoading -> kBattle instantly on the battle sentinel (0xFFFFFFFF); -> kField once BOTH
+    //   (Battle signal: the guest helper's battle beat once the helper has spoken this boot, the
+    //   CurrentScreen sentinel only without a helper -- see is_battle below.)
+    //   kLoading -> kBattle instantly on the battle signal; -> kField once BOTH
     //              party and zone are valid AND EITHER the field sentinel (0xFFFF5127) is read,
     //              OR -- the owner's explicit "timeout fallback so loading can NEVER stick" --
     //              party+zone have been continuously valid, with no battle/overlay sentinel seen,
@@ -3314,7 +3341,7 @@ private:
     //              something other than the field sentinel for more than `kReloadTriggerTicks`
     //              (300ms) AND party/zone no longer confirm the same place. A normal town's
     //              unnamed camera remains in field; it is not a menu/reload signal.
-    //              -> kBattle on the battle sentinel;
+    //              -> kBattle on the battle signal;
     //              -> kMenu on the overlay bucket (checked AFTER the zone-change/reload checks,
     //              so a Fly opened from the Town Map is read as a reload, not swallowed as "just
     //              menu").
@@ -3333,6 +3360,13 @@ private:
     static constexpr int kFieldStableTicks = 120;     // 2 s @ 60 Hz -- owner's timeout fallback
     static constexpr int kReloadTriggerTicks = 18;    // 300 ms @ 60 Hz -- owner's reload trigger
     static constexpr int kBattleEndTicks = 30;        // 0.5 s after the helper's battle beat stopped
+    // ... and only once the guest has run the field for a few frames since (field hook beats):
+    // an emulation stall (shader build, a slow device's hitch) silences the battle beat too, and
+    // must not flip the page to the field mid-battle (desktop 2026-11-07: battle -> map -> battle
+    // ~1 s, every 30-60 s, on a slow GPU). A battle that ends where no field frame shows up within
+    // kBattleStallTicks still ends (never stuck on the battle page).
+    static constexpr std::uint64_t kBattleEndFieldFrames = 3;
+    static constexpr int kBattleStallTicks = 300;     // 5 s of a silent battle beat
 
     bool AnyLivePartySlotValid() const {
         for (const auto& slot : live_party_cache_)
@@ -3355,7 +3389,15 @@ private:
             // command menu up on 2026-10-26.
             // With no Pokemon there is no battle: on a new game CurrentScreen read the battle
             // sentinel outdoors (owner Thor 2026-10-31: dimmed battle page outside at the start).
-            const bool is_battle = (screen == 0xFFFFFFFFu && !live_party_empty_) || battle_hint_;
+            // The sentinel is not battle-specific with a party either (Shield owner 2026-11-07,
+            // early game after Hop's battle near Magnolia's house: the field kept reading
+            // 0xFFFFFFFF, field -> battle on the sentinel, battle -> field 30 ticks after the
+            // absent helper beat, repeating every ~0.52 s). Once the guest helper has spoken
+            // this boot, the battle client's own beat is the ONLY battle entry/exit signal; the
+            // sentinel decides only without a helper (legacy).
+            const bool sentinel_battle = screen == 0xFFFFFFFFu && !live_party_empty_;
+            const bool is_battle = helper_seen_ ? battle_hint_ : sentinel_battle;
+            screen_sentinel_battle_ = sentinel_battle;
             const bool is_field_sentinel = (screen == 0xFFFF5127u);
             const bool is_overlay = (screen == 0xFF000000u || screen == 0xFFFFCF63u || screen == 0xFF262626u);
             // zone_cache_ready_/zone_cache_ (SampleLocation) and live_party_cache_
@@ -3454,13 +3496,20 @@ private:
                     if (helper_seen_) {
                         if (battle_hint_) {
                             battle_end_ticks_ = 0;
+                            battle_silent_ticks_ = 0;
+                            battle_end_field_frames_ = field_frames_;
                             field_stable_ticks_ = 0;
-                        } else if (is_field_sentinel) {
+                            break;
+                        }
+                        ++battle_silent_ticks_;
+                        const bool field_ran = field_frames_ - battle_end_field_frames_ >= kBattleEndFieldFrames ||
+                                               battle_silent_ticks_ >= kBattleStallTicks;
+                        if (is_field_sentinel && field_ran) {
                             phase_ = Phase::kField;
                             if (zone_valid) confirmed_zone_name_ = zone_cache_;
                             field_stable_ticks_ = 0;
                         } else if (party_valid && zone_valid) {
-                            if (++battle_end_ticks_ >= kBattleEndTicks) {
+                            if (++battle_end_ticks_ >= kBattleEndTicks && field_ran) {
                                 phase_ = Phase::kField;
                                 confirmed_zone_name_ = zone_cache_;
                                 field_stable_ticks_ = 0;
@@ -3528,6 +3577,9 @@ private:
                     break;
             }
             phase_known_ = true;
+            const bool now_battle = phase_ == Phase::kBattle;
+            if (now_battle != last_phase_battle_) ++phase_battle_edges_;
+            last_phase_battle_ = now_battle;
         }
         // else: a failed read -- keep whatever `phase_` already holds and republish it below
         // (same sticky-republish rule as this function's original in_battle logic; see the file
@@ -3554,6 +3606,12 @@ private:
             // (see its own comment) and does not depend on this, but it is cheap to keep publishing
             // for any other consumer (tests, tools) already reading this key.
             PubI(host, "sw.state.in_battle", phase_ == Phase::kBattle ? 1 : 0);
+            // Diagnostics (a Thor log / harness `value` read): the raw battle-sentinel reading,
+            // the helper's battle beat, and the number of field<->battle edges this session.
+            PubI(host, "sw.state.screen_battle", screen_sentinel_battle_ ? 1 : 0);
+            PubI(host, "sw.state.helper_seen", helper_seen_ ? 1 : 0);
+            PubI(host, "sw.state.battle_hint", battle_hint_ ? 1 : 0);
+            PubI(host, "sw.state.battle_edges", phase_battle_edges_);
         }
         // Before the first successful classification this boot, nothing is published at all --
         // `sw.state.ready` (the page_binds "ready_bind") correctly stays unset, matching the
@@ -3568,6 +3626,9 @@ private:
     // before any page_bind has ever armed, with no edge needed.
     Phase phase_ = Phase::kTitle;
     bool phase_known_ = false;
+    bool screen_sentinel_battle_ = false; // this tick's CurrentScreen read the battle sentinel
+    bool last_phase_battle_ = false;
+    std::int64_t phase_battle_edges_ = 0; // field<->battle phase edges this session (diagnostics)
     bool boot_load_ = false;          // kLoading entered from kTitle (not a location change)
     int field_stable_ticks_ = 0;      // kLoading's "party+zone stable" timeout counter
     int reload_nonfield_ticks_ = 0;   // kField's "CurrentScreen drifted off the sentinel" counter
@@ -4484,6 +4545,10 @@ private:
         PubI(host, "sw.battle.native.menu", static_cast<int>(native_cursor_.menu));
         PubI(host, "sw.battle.native.command", native_cursor_.command);
         PubI(host, "sw.battle.native.move", native_cursor_.move);
+        PubI(host, "sw.battle.native.max_list", native_cursor_.menu == sw_battle_cursor::Menu::Fight ? native_cursor_.max_list : -1);
+        PubI(host, "sw.battle.native.dmax_cell", native_cursor_.menu == sw_battle_cursor::Menu::Fight && native_cursor_.dmax_cell ? 1 : 0);
+        PubI(host, "sw.battle.native.raw_slot", native_cursor_.raw_slot);
+        PubI(host, "sw.battle.native.raw_grid", native_cursor_.raw_grid);
         PubI(host, "sw.battle.native_command_waiting", battle_command_waiting_ ? 1 : 0);
         PubI(host, "sw.battle.native_window_ready", window_ready ? 1 : 0);
         if (native_balls) native_bag = false;   // the quick-ball picker, not the full Bag

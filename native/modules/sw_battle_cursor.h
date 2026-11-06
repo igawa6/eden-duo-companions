@@ -80,6 +80,15 @@ struct Snapshot {
     int cells = -1;             // Command: visible native cells (bit = cursor index), -1 unknown
     std::uint64_t ui = 0;       // the battle UI root that answered (diagnostics)
     std::uint64_t ui_offset = 0;
+    // Fight: the native Dynamax selection (move view +0x61D: the Max-move list is the active
+    // list, i.e. the top shows Max moves -- toggled by the native Dynamax button, or the
+    // Pokemon is already Dynamaxed), -1 unknown. `move_grid` is the raw grid index (move rows =
+    // odd cells, row * 2 + 1; `dmax_cell` = the cursor rests on the even column, the Dynamax
+    // button L_GButton_00 beside the list).
+    int max_list = -1;
+    int move_grid = -1;
+    bool dmax_cell = false;
+    int raw_slot = -1, raw_grid = -1; // diagnostics: move view +0x678 / grid index as read
 };
 
 // Native quick-ball picker (X on the command menu, live-found 2026-10-31 dev24, label battle,
@@ -441,8 +450,10 @@ Snapshot Sample(Read&& read, std::uint64_t main_base, std::uint64_t client) {
     std::uint64_t mv = 0;
     std::uint32_t slot_index = 0;
     if (!ptr(begin + kMoveViewIndex * 8, mv) || !vt(mv, kMoveViewVtable) ||
-        !read(mv + 0x678, &slot_index, sizeof slot_index) || slot_index > 3)
+        !read(mv + 0x678, &slot_index, sizeof slot_index))
         return out;
+    out.raw_slot = static_cast<int>(slot_index & 0xFF);
+    if (slot_index > 3) return out;
     // Cross-check against the active list's own cursor: move rows sit in column 1 of a 2-column
     // grid (index = row * 2 + 1).
     std::uint8_t max_list = 0;
@@ -452,8 +463,13 @@ Snapshot Sample(Read&& read, std::uint64_t main_base, std::uint64_t client) {
         !vt(list, kListVtable) || !ptr(list + 0x408, cursor) || !vt(cursor, kCursorVtable) ||
         !read(cursor + 8, grid, sizeof grid) || grid[1] == 0 || grid[1] > 4)
         return out;
+    out.raw_grid = static_cast<int>(grid[0] & 0xFF);
+    out.max_list = max_list ? 1 : 0;
     if (grid[0] / grid[1] != slot_index) return out;
     out.menu = Menu::Fight;
+    out.max_list = max_list ? 1 : 0;
+    out.move_grid = static_cast<int>(grid[0]);
+    out.dmax_cell = grid[1] == 2 && grid[0] % 2 == 0;
     out.move = static_cast<int>(slot_index);
     out.cursor = cursor;
     out.move_view = mv;

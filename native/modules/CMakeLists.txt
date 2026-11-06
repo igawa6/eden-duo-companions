@@ -1283,6 +1283,18 @@ if(BUILD_TESTING AND NOT ANDROID)
     dsmod_add_test(dsmod-pokemon-shield-route KEEP_ASSERTS
         SOURCES sw_route_test.cpp
         COMPILE_DEFINITIONS SW_VARIANT_SHIELD=1)
+    # The shared readers / phase machine, the native battle cursor and the guest-helper protocol on
+    # the Shield record (its own main offsets), so a fix is proven on both variants.
+    dsmod_add_test(dsmod-pokemon-shield-reader-live KEEP_ASSERTS
+        SOURCES 0100ABF008968000_reader_test.cpp
+        COMPILE_DEFINITIONS SW_VARIANT_SHIELD=1)
+    dsmod_add_test(dsmod-pokemon-shield-battle-cursor KEEP_ASSERTS
+        SOURCES sw_battle_cursor_test.cpp
+        COMPILE_DEFINITIONS SW_VARIANT_SHIELD=1)
+    dsmod_add_test(dsmod-pokemon-shield-helper KEEP_ASSERTS
+        SOURCES sw_helper_mailbox_test.cpp
+        INCLUDE_DIRECTORIES "${EDEN_NLOHMANN_JSON_INCLUDE_DIR}"
+        COMPILE_DEFINITIONS SW_VARIANT_SHIELD=1)
     if(Python3_FOUND)
         add_test(NAME dsmod-pokemon-shield-sigscan-main
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-sword/test_sigscan.py" --main --variant shield)
@@ -1298,7 +1310,7 @@ endif()
 # Encounter readers are shared by the reader tests and each variant's route tests.
 if(BUILD_TESTING AND NOT ANDROID)
     foreach(target dsmod-pokemon-sword-reader-test dsmod-pokemon-sword-reader-live-test
-                   dsmod-pokemon-sword-route-test dsmod-pokemon-shield-route-test
+                   dsmod-pokemon-shield-reader-live-test dsmod-pokemon-sword-route-test dsmod-pokemon-shield-route-test
                    dsmod-pokemon-sword-font-test sw-font-metrics-tool)
         target_link_libraries(${target} PRIVATE sw-archive-lz4)
     endforeach()

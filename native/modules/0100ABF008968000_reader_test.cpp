@@ -1093,6 +1093,11 @@ void AddBattleFixture(FakeHost& fake, std::uint32_t current_screen, std::uint16_
 // Overwrites an already-fixtured CurrentScreen region in place (same address AddBattleFixture
 // wrote it at) -- simulates the game's own value changing between two Sample() ticks on one
 // persistent Reader, the way a real emulator session would.
+// The guest helper's field hook beating a few frames (FieldStatus::frames): with the helper, a
+// battle ends only once the field runs again, not on a silent battle beat alone (a stall).
+std::uint64_t g_field_frames = 0;
+void FieldRan(sw_reader::Reader& reader) { reader.SetFieldFrames(g_field_frames += 10); }
+
 void SetCurrentScreen(FakeHost& fake, std::uint32_t value) {
     const auto* a_cs = sw_addresses::Find("location.current_screen");
     assert(a_cs && a_cs->verified);
@@ -1283,8 +1288,11 @@ void TestBattleBallIdentityPagingAndViewReset() {
     assert(fake.ints.at("sw.battle.ball.empty") == 1);
     PutU32(setup_region->data, 0, 0); sample();
     reader.SetBattleScreen(2); assert(reader.battle_screen() == 2);
-    reader.SetBattleHint(false, true, 0); // session/client ownership lost: forget the subview immediately
-    assert(reader.battle_screen() == 0 && reader.battle_ball_id() == 0);
+    reader.SetBattleHint(false, true, 0); // a silent beat, no field frame: an emulation stall keeps it
+    assert(reader.battle_screen() == 2 && reader.battle_client() == client);
+    FieldRan(reader);
+    reader.SetBattleHint(false, true, 0); // the battle is over (field runs): forget the subview immediately
+    assert(reader.battle_screen() == 0 && reader.battle_ball_id() == 0 && reader.battle_client() == 0);
     reader.ResetSession();
     assert(reader.battle_screen() == 0 && !reader.battle_has_balls() && reader.battle_ball_id() == 0);
     std::puts("sw_reader: ball native-ID selection survives reorder/removal before it, depletion closes, view/client/session reset");
@@ -1498,6 +1506,7 @@ void TestBattleHintFromHelperAndBattleView() {
     assert(sw_helper::CheckFight(st, v, 2) == sw_helper::Refusal::NoPp);
     assert(sw_helper::CheckFight(st, v, 3) == sw_helper::Refusal::NoMove);
 
+    FieldRan(reader); // the guest runs the field again (battle over, not a stall)
     reader.SetBattleHint(false, true, 0);
     SetCurrentScreen(fake, 0xFFFF5127u); // back to the field
     reader.Sample(host);
@@ -1914,6 +1923,7 @@ void TestDmaxPreviewPreservesNativeActionIdentity() {
     assert(!reader.battle_dmax_active());
     assert(fake.ints.at("sw.battle.own.move2.preview_ready") == 0);
     party_region->data[0x30] = 1;
+    FieldRan(reader); // the guest runs the field again (battle over, not a stall)
     reader.SetBattleHint(false, true, 0); SetCurrentScreen(fake, 0xFFFF5127u); reader.Sample(host);
     assert(!reader.battle_dmax_active() && reader.battle_own_actor() == 0);
     reader.SetBattleHint(true, true, client); SetCurrentScreen(fake, 0xFFFFFFFFu);
@@ -2873,6 +2883,7 @@ void TestWildShinyCachedPerBattle() {
     reader.Sample(host);
     assert(fake.ints.at("sw.battle.foe.species") == 150 && fake.ints.at("sw.battle.foe.shiny") == 1);
     // the battle ends; the next one (same client address, same Mewtwo Lv.70 200 HP) is not shiny
+    FieldRan(reader); // the guest runs the field again (battle over, not a stall)
     reader.SetBattleHint(false, true, 0);
     SetCurrentScreen(fake, 0xFFFF5127u);
     reader.Sample(host);
@@ -2986,6 +2997,7 @@ void TestBattleContinuityActiveAndBench() {
     assert(fake.ints.at("sw.battle.own.ready") == 1);
 
     // Battle over: the beat stops. No field sentinel (a town): party+zone valid for 30 ticks.
+    FieldRan(reader); // the guest runs the field again (battle over, not a stall)
     reader.SetBattleHint(false, false, 0); // helper stays "seen" for this boot
     SetCurrentScreen(fake, 0x00000000u);
     for (int i = 0; i < 29; ++i) reader.Sample(host);
@@ -3279,6 +3291,125 @@ void TestPhaseTownCameraDoesNotRepeatFieldPageEdges() {
     reader.Sample(host);
     AssertPhase(fake, false, true, false, false, false);
     std::puts("sw_reader: confirmed town cameras and native menu open/close preserve field-page selection");
+}
+
+// Shield owner 2026-11-07 (Eden Duo 1.3.4, Thor; early game after Hop's battle near Magnolia's
+// house): the bottom blinked map <-> empty battle page every ~0.52 s in the field. The eden log
+// shows 127 pairs `field_page -> map` / `d.state.command -> battle`, map -> battle within 2 ticks
+// and battle -> map after 0.5 s: CurrentScreen read the 0xFFFFFFFF battle sentinel in the field
+// (with a party), kField entered kBattle on it, kBattle left after kBattleEndTicks (30) without
+// the helper's battle beat, and kField re-entered on the next tick. With the guest helper present
+// (field hook beating, no battle client), the sentinel alone must never be a battle: no edge at
+// all, field page every tick, through a fresh boot's load too; a real battle (the beat) still
+// enters at once and leaves 30 ticks after the beat stops, and stays out.
+void TestPhaseHelperFieldBattleSentinelNeverOscillates() {
+    FakeHost fake = BuildFixture(false);
+    AddLiveParty(fake);
+    AddBattleFixture(fake, 0xFFFF5127u, 200, 356, 25, 55, 40, 120);
+    const EdenDsmodHostApi host = MakeHostApi(fake);
+    sw_reader::Reader reader;
+    reader.SetBattleHint(false, true, 0); // the helper has spoken (field hook), no battle client
+    PrimeWorldEntered(fake, host, reader);
+    AssertPhase(fake, false, false, true, false, false);
+    SetCurrentScreen(fake, 0xFFFFFFFFu); // the early-game field reading
+    for (int i = 0; i < 600; ++i) { // 10 s: the old classifier flipped ~19 times here
+        reader.SetBattleHint(false, true, 0);
+        reader.Sample(host);
+        AssertPhase(fake, false, false, true, false, false);
+        assert(fake.ints.at("sw.state.screen_battle") == 1);
+        assert(fake.ints.at("sw.state.battle_edges") == 0);
+    }
+    // A real battle: the battle client beats. Entry at once, exit 30 ticks after the beat, while
+    // CurrentScreen keeps reading the sentinel throughout.
+    const std::uint64_t client = 0x21'9532'EE60ull;
+    reader.SetBattleHint(true, true, client);
+    reader.Sample(host);
+    AssertPhase(fake, false, false, false, true, false);
+    for (int i = 0; i < 90; ++i) { reader.SetBattleHint(true, true, client); reader.Sample(host); }
+    AssertPhase(fake, false, false, false, true, false);
+    FieldRan(reader); // the guest runs the field again (battle over, not a stall)
+    reader.SetBattleHint(false, true, 0);
+    for (int i = 0; i < 29; ++i) reader.Sample(host);
+    AssertPhase(fake, false, false, false, true, false);
+    reader.Sample(host);
+    AssertPhase(fake, false, false, true, false, false);
+    for (int i = 0; i < 600; ++i) {
+        reader.SetBattleHint(false, true, 0);
+        reader.Sample(host);
+        AssertPhase(fake, false, false, true, false, false);
+    }
+    assert(fake.ints.at("sw.state.battle_edges") == 2); // one battle: in, out -- nothing else
+    // A fresh boot straight into that field reading (the log's loading -> battle at 192.4 s):
+    // loading resolves to field by the stability timeout, never to battle.
+    sw_reader::Reader boot;
+    boot.SetBattleHint(false, true, 0);
+    SetZoneName(fake, "");
+    boot.Sample(host); // title
+    SetZoneName(fake, "Route 2");
+    for (int i = 0; i < kFieldStableTicks + 60; ++i) {
+        boot.SetBattleHint(false, true, 0);
+        boot.Sample(host);
+        assert(fake.ints.at("sw.state.battle") == 0);
+    }
+    AssertPhase(fake, false, false, true, false, false);
+    assert(fake.ints.at("sw.state.battle_edges") == 0);
+    // Without a helper (not installed): the sentinel stays the legacy battle signal.
+    sw_reader::Reader legacy;
+    SetZoneName(fake, "Wyndon");
+    PrimeWorldEntered(fake, host, legacy);
+    SetCurrentScreen(fake, 0xFFFFFFFFu);
+    legacy.Sample(host);
+    AssertPhase(fake, false, false, false, true, false);
+    std::puts("sw_reader: with the guest helper the CurrentScreen battle sentinel in the field never "
+              "enters battle (no map/battle oscillation, Shield owner 2026-11-07); the helper's beat "
+              "enters/leaves once");
+}
+
+// Desktop 2026-11-07 (slow GPU, Battle Tower): the battle page fell to the map for ~1 s every
+// 30-60 s mid-battle -- the game stalled, the battle beat went silent past its window, and the
+// 30-tick exit fired. A silent battle beat with no field frames is a stall, not the end of the
+// battle; the field frames (or 5 s of silence) end it.
+void TestPhaseBattleStallKeepsBattle() {
+    FakeHost fake = BuildFixture(false);
+    AddLiveParty(fake);
+    AddBattleFixture(fake, 0xFFFF5127u, 200, 356, 25, 55, 40, 120);
+    const EdenDsmodHostApi host = MakeHostApi(fake);
+    sw_reader::Reader reader;
+    reader.SetBattleHint(false, true, 0);
+    PrimeWorldEntered(fake, host, reader);
+    const std::uint64_t client = 0x21'9532'EE60ull;
+    SetCurrentScreen(fake, 0);
+    reader.SetBattleHint(true, true, client);
+    reader.Sample(host);
+    AssertPhase(fake, false, false, false, true, false);
+    reader.SetBattleScreen(1); // the move page is up
+    reader.SetBattleHint(false, true, 0); // stall: no battle beat, no field frame either
+    for (int i = 0; i < 299; ++i) {
+        reader.SetBattleHint(false, true, 0);
+        reader.Sample(host);
+        AssertPhase(fake, false, false, false, true, false);
+        assert(reader.battle_client() == client && reader.battle_screen() == 1); // page state kept
+    }
+    reader.SetBattleHint(true, true, client); // the game resumes the battle
+    reader.Sample(host);
+    AssertPhase(fake, false, false, false, true, false);
+    assert(fake.ints.at("sw.state.battle_edges") == 1);
+    reader.SetBattleHint(false, true, 0); // a stall that never ends: out after 5 s, never stuck
+    for (int i = 0; i < 299; ++i) reader.Sample(host);
+    AssertPhase(fake, false, false, false, true, false);
+    reader.Sample(host);
+    AssertPhase(fake, false, false, true, false, false);
+    // A real end: the field runs -> out after the 30 ticks as before.
+    reader.SetBattleHint(true, true, client);
+    reader.Sample(host);
+    FieldRan(reader);
+    reader.SetBattleHint(false, true, 0);
+    for (int i = 0; i < 29; ++i) reader.Sample(host);
+    AssertPhase(fake, false, false, false, true, false);
+    reader.Sample(host);
+    AssertPhase(fake, false, false, true, false, false);
+    std::puts("sw_reader: an emulation stall (silent battle beat, no field frames) keeps the battle "
+              "page; field frames or 5 s of silence end the battle");
 }
 
 // Defensive backstop: kLoading itself must ALSO be able to recover to menu from zone+party
@@ -3733,8 +3864,15 @@ void TestRouteListPipeline() {
               "floors post-game levels and names species in the companion language");
 }
 
+// The Shield twin (dsmod-pokemon-shield-reader-live, SW_VARIANT_SHIELD=1) runs every test on the
+// Shield record except the few whose fake memory is laid out at Sword 1.3.2's literal main offsets.
+#if defined(SW_VARIANT_SHIELD)
+#define SWORD_ONLY(call) ((void)0)
+#else
+#define SWORD_ONLY(call) call
+#endif
 void RunAll() {
-    TestBattleGauge();
+    SWORD_ONLY(TestBattleGauge());
     TestLivePartyCountIsByte();
     TestDexInfoRecord();
     TestFullPipelineAgainstLiveVerifiedValues();
@@ -3753,8 +3891,8 @@ void RunAll() {
     TestMisc8OutOfRangeFailsClosed();
     TestSpeciesTypesMissingRomfsFailsClosed();
     TestBattleReaderInWildBattle();
-    TestBattleBallIdentityPagingAndViewReset();
-    TestNativeBattleMenuFsmClassification();
+    SWORD_ONLY(TestBattleBallIdentityPagingAndViewReset());
+    SWORD_ONLY(TestNativeBattleMenuFsmClassification());
     TestInBattleStickyAcrossUnclassifiedTick();
     TestBattleHintFromHelperAndBattleView();
     TestBattleContinuityActiveAndBench();
@@ -3767,13 +3905,13 @@ void RunAll() {
     TestTargetSelectHoldsThroughReadFailures();
     TestBattleTwoFoePartiesUnknownModeFailsClosed();
     TestWildShinyCachedPerBattle();
-    TestNativeRaidRosterAndPublishPipeline();
+    SWORD_ONLY(TestNativeRaidRosterAndPublishPipeline());
     TestDmaxPreviewPreservesNativeActionIdentity();
     TestDexDiscoveryDoesNotRevealUnknownStagesOrDlcTotals();
     TestBattleFieldDecodeAndNativeEnumMap();
     TestBattleFieldPointerAndPublishPipeline();
     TestLivePartyMovesForPpMedicinePicker();
-    TestOverworldWeatherPositionAndBikePipeline();
+    SWORD_ONLY(TestOverworldWeatherPositionAndBikePipeline());
     TestNativeMapGeometryAndHash();
     TestPhaseTitleIgnoresCurrentScreenUntilZoneValid();
     TestPhaseTitleToLoadToFieldViaFieldSentinel();
@@ -3783,6 +3921,8 @@ void RunAll() {
     TestPhaseCurrentScreenNonFieldTimeoutGoesToLoadingOnlyWhenZoneIsNotConfirmed();
     TestPhaseMenuOverlayFromFieldIsNotMisreadAsReload();
     TestPhaseTownCameraDoesNotRepeatFieldPageEdges();
+    TestPhaseHelperFieldBattleSentinelNeverOscillates();
+    TestPhaseBattleStallKeepsBattle();
     TestPhaseLoadingItselfRecoversFromZonePartyValidityAlone();
     TestPhaseBattleInstantToggleAndStickyThroughOneUnclassifiedTick();
     TestBattleReaderOutsideBattleFailsClosed();
@@ -3791,7 +3931,7 @@ void RunAll() {
     TestDensHiddenForZoneWithNoActiveDens();
     TestDensAndRegionOmittedForUnmappedZone();
     TestZoneTagMismatchFailsClosedAndHidesDens();
-    TestRouteListPipeline();
+    SWORD_ONLY(TestRouteListPipeline()); // Shield: dsmod-pokemon-shield-route
     std::puts("0100ABF008968000_reader_test: all checks passed");
 }
 

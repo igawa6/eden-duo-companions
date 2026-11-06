@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Read-only native move preview, published only from a genuine command-menu update.
+// Read-only native move preview, published only from a genuine command-menu update: offline
+// singles (wild, trainer/Gym, Battle Tower) and the verified offline wild raid.
 // 8040B0 is the native Fight screen's Dynamax opportunity query. 845420 maps a BASE move
 // to its ordinary Max move; 8454F0 reads that base move's native Max power. 865A90 supplies
 // a separate Gigantamax message index (not a normal move id), using the exact species/form/
@@ -18,11 +19,13 @@ sw_battle_preview:
     ldr w9, [x20, #0x38]
     ubfx w10, w9, #16, #8             // communication: offline only
     cbnz w10, bpreview_done
-    ubfx w10, w9, #8, #8              // wild or trainer
-    cmp w10, #1
+    ubfx w10, w9, #8, #8              // wild, trainer or institution (Battle Tower)
+    cmp w10, #2
     b.hi bpreview_done
     and w9, w9, #0xff
-    cbz w9, bpreview_supported
+    cbz w9, bpreview_supported         // any offline single
+    cmp w10, #1                        // a raid: wild only (below)
+    b.hi bpreview_done
     cmp w9, #2
     b.ne bpreview_done
     cbnz w10, bpreview_done            // verified offline wild raid only

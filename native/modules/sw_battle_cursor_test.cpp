@@ -106,6 +106,15 @@ void MoveHover() {
     auto m = Build(false, 0, 0, 5);
     m.Put(kMoveView + 0x61D, "\1", 1);
     assert(Run(m).move == 0);
+    // Native Dynamax mirror (owner 2026-11-07): +0x61D is the top's own Max-move selection.
+    assert(Run(m).max_list == 1 && !Run(m).dmax_cell);
+    assert(Run(Build(false, 0, 1, 3)).max_list == 0);
+    assert(Run(Build(true, 0, 0, 1)).max_list == -1); // command menu: unknown, never "selected"
+    // D-pad Left on the move list (live 2026-11-07, Battle Tower, both games): the grid cursor
+    // moves to the even column beside the row (the Dynamax button), the hovered slot stays.
+    const auto on_button = Run(Build(false, 0, 1, 2));
+    assert(on_button.menu == Menu::Fight && on_button.move == 1 && on_button.dmax_cell && on_button.move_grid == 2);
+    assert(!Run(Build(false, 0, 1, 3)).dmax_cell);
 }
 void RaidRoot() {
     for (std::uint32_t i : {0u, 2u, 3u, 4u}) {

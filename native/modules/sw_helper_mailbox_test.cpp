@@ -16,6 +16,7 @@
 //      its mailbox base register (x20) is one sw_helper_mailbox.h declares.
 
 #include "sw_helper_mailbox.h"
+#include "sw_dmax_native.h"
 
 #include <array>
 #include <cassert>
@@ -736,7 +737,54 @@ void TestBattleAliveBeat() {
     AliveFrame(f);
     b.Update(t += 33);
     assert(b.status().battle_alive); // next battle
+    b.Update(t += 2000);
+    assert(!b.status().battle_alive);
+    // A host pause long after that battle (in the field) must not refresh its stale beat into a
+    // phantom battle (Shield owner 2026-11-07: field -> battle -> field blinks).
+    f.Set(EpochOffset, 7);
+    b.Update(t += 33);
+    assert(!b.status().battle_alive && b.status().alive_client == 0);
     std::puts("battle alive beat ok");
+}
+
+// Native Dynamax (owner 2026-11-07, Gym #1 / Battle Tower, both variants): the bottom offers the
+// toggle whenever the native Fight screen does (any battle kind), mirrors the top's selection and
+// shows Max moves for it; the companion's own raid toggle and an already-Dynamaxed battler keep
+// working; stale or foreign previews never offer it.
+void TestNativeDynamaxDecisions() {
+    using sw_battle_cursor::Menu;
+    sw_battle_cursor::Snapshot fight;
+    fight.menu = Menu::Fight; fight.move = 2; fight.move_list = 0x2189c00000; fight.max_list = 0;
+    Status st; st.helper_present = true; st.alive_client = 0x21'9532'EE60ull;
+    Status::Preview pv; pv.valid = pv.eligible = true; pv.client = st.alive_client; pv.mon = 0x21'8d92'ff80ull;
+    BattleView v; v.in_battle = v.own_ok = true;
+    for (std::uint32_t kind : {BattleKindAllowed | 0x100u /* Gym/trainer single */, 0x200u /* Tower single */,
+                               0x80000000u /* wild single */}) {
+        st.battle_kind = kind; // the offer does not depend on the kind: the native screen decides
+        assert(sw_dmax_native::NativeDmaxOffered(fight, st, pv, v, pv.mon, st.alive_client));
+    }
+    assert(sw_dmax_native::DynamaxCell(fight) == 4); // beside the hovered row 2
+    assert(!sw_dmax_native::DisplayMax(false, false, false, fight));
+    fight.max_list = 1; // the top's Dynamax button pressed: the top shows Max moves
+    assert(sw_dmax_native::NativeMaxSelected(fight) && sw_dmax_native::DisplayMax(false, false, false, fight));
+    assert(sw_dmax_native::NativeDmaxOffered(fight, st, pv, v, pv.mon, st.alive_client)); // toggle stays to turn it off
+    // Not offered: command menu, other battler, other client, stale preview, ineligible, Dynamaxed.
+    auto cmd = fight; cmd.menu = Menu::Command;
+    assert(!sw_dmax_native::NativeDmaxOffered(cmd, st, pv, v, pv.mon, st.alive_client) && !sw_dmax_native::NativeMaxSelected(cmd));
+    assert(sw_dmax_native::DynamaxCell(cmd) == -1);
+    assert(!sw_dmax_native::NativeDmaxOffered(fight, st, pv, v, pv.mon + 0x7A0, st.alive_client));
+    auto other = st; other.alive_client += 0x1000;
+    assert(!sw_dmax_native::NativeDmaxOffered(fight, other, pv, v, pv.mon, other.alive_client));
+    auto stale = pv; stale.valid = false;
+    assert(!sw_dmax_native::NativeDmaxOffered(fight, st, stale, v, pv.mon, st.alive_client));
+    auto used = pv; used.eligible = false; // Dynamax already used this battle
+    assert(!sw_dmax_native::NativeDmaxOffered(fight, st, used, v, pv.mon, st.alive_client));
+    auto active = v; active.max_active = true;
+    assert(!sw_dmax_native::NativeDmaxOffered(fight, st, pv, active, pv.mon, st.alive_client));
+    // An already-Dynamaxed battler and the companion's raid toggle still show Max moves anywhere.
+    assert(sw_dmax_native::DisplayMax(false, false, true, cmd) && sw_dmax_native::DisplayMax(true, false, false, cmd) &&
+           sw_dmax_native::DisplayMax(false, true, false, cmd));
+    std::puts("native Dynamax offer/mirror/display decisions ok");
 }
 
 // Phase 2: SWITCH and ITEM requests round-trip like FIGHT, carry their arguments, and a game
@@ -1642,6 +1690,7 @@ int main() {
     TestOpenMenuRoundTripAndCancellation();
     TestBallGuardsAndNativeIdentityPayload();
     TestBattleAliveBeat();
+    TestNativeDynamaxDecisions();
     TestSwitchItemRoundTrip();
     TestSwitchItemPreconditions();
     TestHudHide();

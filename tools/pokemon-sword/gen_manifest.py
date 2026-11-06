@@ -2795,15 +2795,23 @@ def move_detail_pane():
 
 def dynamax_toggle(x=150,y=840,gate="d.bt.dmax.visible",tag=""):
     dm=lambda name:arc("battle","battle_skillSelect_00_eng",name)
-    b=[image(x,y,200,200,dm("battle_dm_00^s"),tint="#FFC81450"),
+    # dark ring under the emblem while the native cursor rests on the top's Dynamax button
+    b=[box(x-4,y-4,x+204,y+204,104,DARK,need="sw.battle.native.dmax_cell"),
+       image(x,y,200,200,dm("battle_dm_00^s"),tint="#FFC81450"),
        image(x,y,200,200,dm("battle_dm_00^s"),tint="#FFC81450",flip_x=True,flip_y=True),
        *anim_group([image(x,y,200,200,dm("battle_dm_03^s"),tint=WHITE),
                     image(x,y,200,200,dm("battle_dm_03^s"),tint=WHITE,flip_x=True,flip_y=True)],
                    "sw.direct.dmax.selected", "dmax_on"+tag),
        image(x+50,y+127,100,70,dm("battle_dm_01^s")),
        image(x-8,y+55,217,73,dm("grptxt_battle_dm_00^q"),src_rect=[20/256,34/128,237/256,107/128]),
+       # The native cursor rests on the top's own Dynamax button: the tap is that button's A
+       # press; otherwise the tap moves the native cursor there (or, in a raid's companion move
+       # page, toggles the companion's choice).
        {"type":"button","rect":[x,y,200,200],"text":"","bg":"#00000000",
-        "color":"#00000000","on_tap":"battle_dynamax_tap"},
+        "color":"#00000000","on_tap":"battle_dynamax_tap",
+        "hide_bind":"sw.battle.native.dmax_cell","hide_eq":1},
+       {"type":"button","rect":[x,y,200,200],"text":"","bg":"#00000000",
+        "color":"#00000000","on_tap":"battle_native_a","need_bind":"sw.battle.native.dmax_cell"},
        T(x+275,y+174,"",34,INK,"m",bind="sw.battle.raid.dmax.turns_text",maxw=140,
          need="sw.battle.raid.dmax.turns_ready")]
     return groupgate(b,gate,"move.dynamax"+tag)
@@ -2892,8 +2900,8 @@ def page_battle_moves(raid=False):
     for i in range(4):
         b += move_pill(PILL_COLS[i % 2], PILL_ROWS[i // 2], f"sw.battle.own.move{i+1}", i)
     b += field_footer(650, "moves")
-    TAB_DERIVED["d.bt.dmax.c"] = (f"{COLLAPSED} && (sw.direct.dmax.ready || sw.direct.dmax.selected || "
-                                  "sw.battle.raid.dmax.turns_ready)")
+    TAB_DERIVED["d.bt.dmax.c"] = (f"{COLLAPSED} && (sw.direct.dmax.ready || sw.direct.dmax.native || "
+                                  "sw.direct.dmax.selected || sw.battle.raid.dmax.turns_ready)")
     b += dynamax_toggle(64, 770, gate="d.bt.dmax.c", tag=".c")
     b.append(pane_swipe([18, 186, 1204, 876], True))
     b += direct_toast()
@@ -3303,7 +3311,7 @@ def build_derived():
         {"name": "d.state.moves", "expr": "sw.state.battle && !sw.battle.raid.active && sw.battle.view.moves"},
         {"name": "d.state.balls", "expr": "sw.state.battle && sw.battle.view.balls"},
         {"name": "d.state.raidmoves", "expr": "sw.state.battle && sw.battle.raid.active && sw.battle.view.moves"},
-        {"name": "d.bt.dmax.visible", "expr": "sw.battle.move_detail.tab0 && (sw.direct.dmax.ready || sw.direct.dmax.selected || sw.battle.raid.dmax.turns_ready)"},
+        {"name": "d.bt.dmax.visible", "expr": "sw.battle.move_detail.tab0 && (sw.direct.dmax.ready || sw.direct.dmax.native || sw.direct.dmax.selected || sw.battle.raid.dmax.turns_ready)"},
         *[{"name":f"d.move.selected{i}","expr":f"sw.battle.move_detail.ready && sw.battle.move_detail.index == {i}"} for i in range(4)],
         *[{"name":f"d.move.veil{i}","expr":f"!sw.direct.move{i+1}.ready && sw.battle.native.menu != 2"} for i in range(4)],
         {"name": "d.raid.fight_ready", "expr": "sw.direct.move1.ready || sw.direct.move2.ready || sw.direct.move3.ready || sw.direct.move4.ready"},

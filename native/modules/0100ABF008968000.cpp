@@ -23,6 +23,7 @@
 #include "sw_build.h"
 #include "sw_fly.h"
 #include "sw_helper_mailbox.h"
+#include "sw_dmax_native.h"
 #include "sw_modfont.h"
 #include "sw_ui_images.h"
 #include "sw_reader.h"
@@ -310,12 +311,15 @@ void DirectUpkeep(Module& m, const EdenDsmodHostApi& host) {
             host.log(host.userdata, EDEN_DSMOD_LOG_INFO, line);
         }
     }
-    if (!d.view.in_battle || !st.battle_alive || d.command_serial != st.battle_serial) {
+    // The battle client held through an emulation stall (Reader::SetBattleHint): a stall keeps the
+    // page's selection and the Max-move preview; the battle ending or a new client resets them.
+    const std::uint64_t client = m.reader.battle_client();
+    if (!d.view.in_battle || !client || d.command_serial != st.battle_serial) {
         d.selected_command = 0;
         d.command_serial = st.battle_serial;
     }
-    if (!d.view.in_battle || !st.battle_alive ||
-        (d.last_preview.valid && (d.last_preview.client != st.alive_client ||
+    if (!d.view.in_battle || !client ||
+        (d.last_preview.valid && (d.last_preview.client != client ||
                                  d.last_preview.mon != m.reader.battle_own_actor()))) {
         d.dmax_wanted = false;
         d.last_preview = {};
@@ -325,7 +329,7 @@ void DirectUpkeep(Module& m, const EdenDsmodHostApi& host) {
     // The native move list (top in FIGHT input) keeps the companion's move list up (cursor sync).
     const bool native_fight = m.reader.native_cursor().menu == sw_battle_cursor::Menu::Fight ||
                               m.reader.native_cursor().menu == sw_battle_cursor::Menu::Target;
-    if (!d.view.in_battle || !st.battle_alive ||
+    if (!d.view.in_battle || !client ||
         !(m.reader.native_battle_command_waiting() || (native_fight && m.reader.battle_screen() == 1) ||
           (m.reader.native_cursor().menu == sw_battle_cursor::Menu::Balls && m.reader.battle_screen() == 2)))
         m.reader.SetBattleScreen(0);
@@ -353,7 +357,8 @@ void DirectUpkeep(Module& m, const EdenDsmodHostApi& host) {
         const auto key = "sw.battle.command.selected" + std::to_string(i);
         host.publish_i64(host.userdata, key.c_str(), d.selected_command == i ? 1 : 0);
     }
-    const bool selected = d.dmax_wanted || d.view.max_active;
+    const bool native_max = sw_dmax_native::NativeMaxSelected(m.reader.native_cursor());
+    const bool selected = d.dmax_wanted || d.view.max_active || native_max;
     bool base = false;
     host.publish_i64(host.userdata, "sw.direct.helper", st.helper_present ? 1 : 0);
     host.publish_i64(host.userdata, "sw.direct.menu_waiting", st.menu_waiting ? 1 : 0);
@@ -383,11 +388,20 @@ void DirectUpkeep(Module& m, const EdenDsmodHostApi& host) {
                            st.preview.valid && st.preview.eligible && !d.view.max_active &&
                            sw_helper::RaidDirectVerified && st.offline_raid;
     host.publish_i64(host.userdata, "sw.direct.dmax.ready", max_ready ? 1 : 0);
+    // The native Fight screen's own Dynamax button is on offer (the native opportunity query of
+    // this command turn, for the Pokemon now choosing): the bottom shows its toggle and drives
+    // the native button (battle_dynamax below), any battle kind -- Gym, trainer, Battle Tower.
+    const bool dmax_native = sw_dmax_native::NativeDmaxOffered(m.reader.native_cursor(), st, d.last_preview,
+                                                               d.view, m.reader.battle_own_actor(),
+                                                               m.reader.battle_client());
+    host.publish_i64(host.userdata, "sw.direct.dmax.native", dmax_native ? 1 : 0);
+    host.publish_i64(host.userdata, "sw.direct.dmax.native_on", native_max ? 1 : 0);
     host.publish_i64(host.userdata, "sw.direct.committed", d.committed);
     for (int k = 0; k < 4; ++k) {
         char key[40];
         std::snprintf(key, sizeof key, "sw.direct.move%d.ready", k + 1);
-        const bool ready = sw_helper::CheckFight(st, d.view, k, selected) == sw_helper::Refusal::None;
+        const bool ready = sw_helper::CheckFight(st, d.view, k, d.dmax_wanted || d.view.max_active) ==
+                           sw_helper::Refusal::None;
         base = base || ready;
         host.publish_i64(host.userdata, key, ready ? 1 : 0);
     }
@@ -1001,6 +1015,21 @@ bool DirectAction(Module& m, std::string_view action, std::int64_t argument) {
         return staged;
     }
     if (action == "battle_dynamax") {
+        const auto& nc = m.reader.native_cursor();
+        if (nc.menu == sw_battle_cursor::Menu::Fight) {
+            // The native move list waits (top in FIGHT): drive the top's own Dynamax button like
+            // a move row -- the first tap moves the native cursor onto it, a tap while it is
+            // highlighted is the A press (manifest battle_native_a on sw.battle.native.dmax_cell).
+            // The bottom then mirrors the top's selection (NativeMaxSelected).
+            const int cell = sw_dmax_native::DynamaxCell(nc);
+            if (!d.cursor || cell < 0 ||
+                !sw_dmax_native::NativeDmaxOffered(nc, st, d.last_preview, d.view, m.reader.battle_own_actor(),
+                                                   m.reader.battle_client()))
+                return false;
+            if (nc.dmax_cell) return true;
+            return d.cursor->StageIndex(sw_helper::CursorList::Move, static_cast<std::uint32_t>(cell),
+                                        nc.move_list, nc.move_view, m.reader.battle_client(), NowMs());
+        }
         if (d.view.max_active) return false;
         if (d.dmax_wanted) { d.dmax_wanted = false; return true; }
         if (!sw_helper::DynamaxDirectVerified || !st.preview.valid || !st.preview.eligible ||
@@ -1119,26 +1148,36 @@ void SampleCallback(void* p, const EdenDsmodHostApi* host) {
         {
             // Bridge upkeep first, so the reader's battle classification uses this tick's beats.
             std::lock_guard lock{m->direct.mutex};
-            if (m->direct.field) m->direct.field->Update(NowMs());
+            if (m->direct.field) {
+                m->direct.field->Update(NowMs());
+                m->reader.SetFieldFrames(m->direct.field->status().frames);
+            }
             if (m->direct.bridge) {
                 m->direct.bridge->Update(NowMs());
                 const auto& st = m->direct.bridge->status();
                 m->reader.SetBattleHint(st.battle_alive || st.menu_waiting, st.helper_present, st.alive_client);
                 auto& d = m->direct;
-                if (!st.battle_alive || d.preview_serial != st.battle_serial ||
-                    (d.last_preview.valid && d.last_preview.client != st.alive_client)) {
+                const std::uint64_t client = m->reader.battle_client(); // held through a stall
+                if (!client || d.preview_serial != st.battle_serial ||
+                    (d.last_preview.valid && d.last_preview.client != client)) {
                     d.dmax_wanted = false;
                     d.last_preview = {};
                 }
                 d.preview_serial = st.battle_serial;
                 if (st.preview.valid) d.last_preview = st.preview;
                 const auto& pv = d.last_preview;
-                const bool wanted = d.dmax_wanted || (st.preview.valid && st.preview.active) ||
-                                    m->reader.battle_dmax_active();
-                if (wanted && pv.valid && pv.client == st.alive_client) {
+                const bool wanted = sw_dmax_native::DisplayMax(d.dmax_wanted, st.preview.valid && st.preview.active,
+                                                               m->reader.battle_dmax_active(),
+                                                               m->reader.native_cursor());
+                const bool show = wanted && pv.valid && pv.client == client;
+                if (show) {
                     m->reader.SetDmaxPreview(true, pv.ids, pv.powers, pv.gmax, pv.base_ids, pv.mon);
                 } else {
                     m->reader.SetDmaxPreview(false);
+                }
+                if (host->publish_i64) { // diagnostics: Max moves wanted / shown on the bottom
+                    host->publish_i64(host->userdata, "sw.battle.dmax.wanted", wanted ? 1 : 0);
+                    host->publish_i64(host->userdata, "sw.battle.dmax.preview", show ? 1 : 0);
                 }
             } else {
                 m->reader.SetBattleHint(false, false, 0);

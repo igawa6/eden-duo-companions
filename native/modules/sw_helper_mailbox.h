@@ -587,7 +587,10 @@ public:
         if (epoch_ok && epoch != epoch_) {
             epoch_ = epoch;
             beat_at_ = -1; // a pause/invalidate: the menu must be seen waiting again
-            if (alive_at_ >= 0) alive_at_ = now_ms;
+            // Only a battle that was alive at the pause is carried over it: refreshing a stale
+            // beat from an earlier battle would read as a new battle in the field (one phantom
+            // battle page per pause).
+            if (alive_at_ >= 0 && status_.battle_alive) alive_at_ = now_ms;
         }
         std::uint32_t alive = 0;
         if (load32_(OffsetAliveBeat, &alive) && alive != alive_) {
@@ -959,6 +962,10 @@ struct FieldStatus {
     bool live = false;
     bool busy = false;
     bool player_free = false; // field_free on the latest field frame (the guest re-checks at execution)
+    // Field frames seen advancing this session (the field hook's beat changes): proof the guest is
+    // running the field. The battle phase uses it to tell "battle over" (field frames run, the
+    // battle client is silent) from an emulation stall (nothing advances).
+    std::uint64_t frames = 0;
 };
 
 struct FieldOutcome {
@@ -1007,7 +1014,10 @@ public:
                 const std::int64_t d = now_ms - beat_at_;
                 if (d > 0 && d <= 1000) frame_ms_ = frame_ms_ ? (frame_ms_ * 3 + d) / 4 : d;
             }
-            if (beat_seen_) beat_at_ = now_ms;
+            if (beat_seen_) {
+                beat_at_ = now_ms;
+                ++status_.frames;
+            }
             beat_ = beat;
             beat_seen_ = true;
         }
