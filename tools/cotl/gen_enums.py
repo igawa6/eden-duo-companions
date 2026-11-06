@@ -51,7 +51,7 @@ def parse(dump_path):
                 found[current].append((int(m.group(3)), m.group(2)))
     missing = [k for k, v in found.items() if not v]
     if missing:
-        sys.exit(f"Enums nicht gefunden: {missing}")
+        sys.exit(f"Enums not found: {missing}")
     return found
 
 

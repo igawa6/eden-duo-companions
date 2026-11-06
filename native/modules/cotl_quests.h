@@ -20,7 +20,7 @@ namespace cotl {
 struct QuestStep {
     std::string text;
     bool done = false;
-    int32_t progress = -1; // -1 = unbekannt
+    int32_t progress = -1; // -1 = unknown
     int32_t target = -1;
 };
 
@@ -29,11 +29,12 @@ struct QuestView {
     std::string title;      // GroupId title
     std::string text;       // task, e.g. "Collect Berry"
     std::string giver;      // follower name or empty
-    int32_t progress = -1;  // -1 = unbekannt
+    int32_t progress = -1;  // -1 = unknown
     int32_t target = -1;
     std::string due;        // "2 days left", "due today" or empty
     bool offered = false;   // not accepted yet
-    std::vector<QuestStep> steps; // all steps, open ones first
+    int32_t giver_id = -1;  // follower ID of the offer (Walk over), otherwise -1
+    std::vector<QuestStep> steps; // all sub-items, open ones first
 };
 
 // Replaces {0}, {1}, ... with args. If an argument is empty, a parenthesis "(...)" around its

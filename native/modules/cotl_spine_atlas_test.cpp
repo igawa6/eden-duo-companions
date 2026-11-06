@@ -149,7 +149,7 @@ TEST(spine_heart_full_centered_on_canvas) {
     CHECK_EQ(h->width, uint32_t(cotl::kHeartCanvas));
     CHECK_EQ(Opaque(*h), 16);
     const int c = cotl::kHeartCanvas / 2;
-    CHECK_EQ(h->rgba[((c - 2) * h->width + c - 2) * 4 + 3], uint8_t{255}); // linke obere Ecke
+    CHECK_EQ(h->rgba[((c - 2) * h->width + c - 2) * 4 + 3], uint8_t{255}); // top left corner
     CHECK_EQ(h->rgba[((c - 3) * h->width + c - 3) * 4 + 3], uint8_t{0});
 }
 
@@ -180,7 +180,7 @@ TEST(spine_crop_scaled_page) {
     r.y = 2;
     r.w = 4;
     r.h = 2;
-    const auto c = cotl::CropRegion(Grid(4, 3), r, 0.5f); // Atlasseite 8×6, Textur 4×3
+    const auto c = cotl::CropRegion(Grid(4, 3), r, 0.5f); // atlas page 8×6, texture 4×3
     REQUIRE(c.has_value());
     CHECK_EQ(c->width, 2u);
     CHECK_EQ(c->height, 1u);

@@ -150,7 +150,7 @@ void Describe(const Objective& q, const GameSnapshot& s, const Terms& t, QuestVi
     case kBedRest:
         v.text = fmt("Objectives/SendFollowerToBedRest", {q.str78});
         break;
-    case kCookMeals: // MealType @0x78, Count @0x7C (Ziel)
+    case kCookMeals: // MealType @0x78, Count @0x7C (target)
         v.text = fmt("Objectives/CookMeals", {t.Meal(n[0]), "", ""});
         v.target = n[1];
         break;
@@ -358,6 +358,7 @@ std::vector<QuestView> BuildQuests(const GameSnapshot& s, const Terms& terms) {
     for (const int32_t id : s.offered_quest_follower_ids) {
         QuestView v;
         v.offered = true;
+        v.giver_id = id;
         v.key = "offer:" + std::to_string(id);
         v.giver = FollowerName(s, id);
         v.title = "New quest";
@@ -443,6 +444,16 @@ void PublishQuests(Publisher& p, const std::vector<QuestView>& quests, int64_t s
         p.Text("quest.more" + n, more == 0 ? std::string{}
                                            : "+" + std::to_string(more) +
                                                  (more == 1 ? " more step" : " more steps"));
+        // Step bar: completed ones out of all sub-items
+        const size_t total = std::max<size_t>(quests[i].steps.size(), 1);
+        const auto done = static_cast<size_t>(std::count_if(
+            quests[i].steps.begin(), quests[i].steps.end(), [](const auto& st) { return st.done; }));
+        p.I64("quest.steps_done" + n, static_cast<int64_t>(done));
+        p.I64("quest.steps" + n, static_cast<int64_t>(total));
+        p.I64("quest.multi" + n, total > 1 ? 1 : 0);
+        p.Text("quest.stepno" + n, total > 1 ? "Step " + std::to_string(std::min(done + 1, total)) +
+                                                   " of " + std::to_string(total)
+                                             : std::string{});
     }
     if (selected < 0 || static_cast<size_t>(selected) >= quests.size()) {
         return;
@@ -451,7 +462,8 @@ void PublishQuests(Publisher& p, const std::vector<QuestView>& quests, int64_t s
     p.Text("quest.sel_title", q.title);
     p.Text("quest.sel_giver", q.giver.empty() ? std::string{} : "From " + q.giver);
     p.Text("quest.sel_due", q.due);
-    // All steps, open ones first; progress without parentheses
+    p.I64("quest.sel_offer", q.offered && q.giver_id >= 0 ? 1 : 0); // Walk over
+    // All sub-items, open ones first; progress without parentheses (the companion font has none)
     p.I64("quest.step_count", static_cast<int64_t>(q.steps.size()));
     for (size_t i = 0; i < q.steps.size(); ++i) {
         const auto& st = q.steps[i];

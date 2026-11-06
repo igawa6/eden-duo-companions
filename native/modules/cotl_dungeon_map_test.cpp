@@ -35,7 +35,7 @@ TEST(map_hides_undiscovered_rooms) {
     const std::vector<Room> rooms = {R(0, 0, true, true), R(1, 0, true, false), R(2, 0, false, false)};
     const auto m = BuildMap(rooms, 0, 0, 1000, 400);
     REQUIRE(m.cells.size() == 2);
-    CHECK_EQ(m.cells[0].state, 3); // aktuell
+    CHECK_EQ(m.cells[0].state, 3); // current
     CHECK_EQ(m.cells[1].state, 1); // only discovered
 }
 
@@ -95,7 +95,7 @@ TEST(map_big_floor_keeps_minimum_size_and_follows_current_room) {
     CHECK_EQ(m.size_index, static_cast<int32_t>(std::size(cotl::kMapSizes)) - 1);
     const auto& cur = m.cells[15];
     CHECK_EQ(cur.state, 3);
-    CHECK(std::abs(cur.px + m.room_w / 2 - 500) <= 1); // waagrecht mittig
+    CHECK(std::abs(cur.px + m.room_w / 2 - 500) <= 1); // horizontally centred
     CHECK(m.cells.front().px < 0);                       // the rest extends past the edge
     CHECK(m.cells.back().px + m.room_w > 1000);
     // Vertically the floor fits: still centred there

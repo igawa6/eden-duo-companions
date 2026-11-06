@@ -16,8 +16,10 @@
 #include "core/mods/dsmod_module_abi.h"
 #include "core/mods/dsmod_module_extensions.h"
 #include "core/mods/modules/dsmod_module_sdk.h"
+#include "cotl_actions.h"
 #include "cotl_font.h"
 #include "cotl_guest.h"
+#include "cotl_action_abi.h"
 #include "cotl_i2.h"
 #include "cotl_icons.h"
 #include "cotl_offsets_1_5_27.h"
@@ -34,6 +36,20 @@ constexpr uint32_t kReadEvery = 10;
 
 // How long all values keep flowing after a page change (120 ms crossfade, plus margin)
 constexpr int kAllPagesTicks = 30;
+
+// Mailbox of the guest helper via the host's load_u32/store_u32
+struct HostMailbox : cotl::MailboxIo {
+    const EdenDsmodHostExtensions* ext = nullptr;
+    bool Load(uint32_t off, uint32_t* v) override {
+        return ext != nullptr && ext->load_u32 != nullptr && ext->load_u32(ext->userdata, off, v);
+    }
+    bool Store(uint32_t off, uint32_t v) override {
+        return ext != nullptr && ext->store_u32 != nullptr && ext->store_u32(ext->userdata, off, v);
+    }
+};
+
+// Tabs like TABS in tools/cotl/gen_manifest.py
+constexpr int64_t kTabCount = 6, kFollowersTab = 1;
 
 struct Selections {
     int64_t follower = -1, problem_filter = -1, problem = -1, quest = -1, item = -1, tarot = -1;
@@ -52,19 +68,46 @@ struct Instance {
     // Icons: only used on the asset worker (load_image), separate from the tick thread
     std::mutex icons_mutex;
     EdenDsmodHostExtensions ext{};
+    // Follower actions: client on top of the mailbox (ext is copied in Configure)
+    HostMailbox mailbox;
+    cotl::ActionClient actions{mailbox};
     std::unique_ptr<cotl::IconLoader> icons;
     // Game font: loaded once, used by decode_font (host thread) and load_image (asset worker)
     std::mutex font_mutex;
     std::optional<cotl::HostFont> font;
     cotl::ProblemSelection problem_selection;
+    cotl::SkinColourCache colours; // only on the read thread (ReadSnapshot)
     cotl::KeepSelection<int32_t> follower_selection;
     cotl::KeepSelection<std::string> quest_selection;
     cotl::KeepSelection<int32_t> item_selection;
     // Tarot window: held by the module so that it closes with the run (only the package can set flags)
     std::atomic<int64_t> run_open{-1};
+    // Selected tab and open follower window (row): also in the module, so that the link from the
+    // Problems window (prob.goto) can set both at once. Published as nav.tab, fol.open.
+    std::atomic<int64_t> tab{0};
+    std::atomic<int64_t> fol_open{-1};
+    // Tab that closing the follower window returns to (-1 = none): set by
+    // prob.goto, consumed on close, discarded on any other tab or window change
+    std::atomic<int64_t> return_tab{-1};
+    // Row of the follower in the open Problems window (-1 = none); target of prob.goto. Only in
+    // Sample/OnAction, which run one after the other
+    int64_t prob_row = -1;
+    // Follower (ID) in the open Problems window (-1 = none); target of prob.walk. Like prob_row
+    int32_t prob_follower = -1;
+    // Quest giver in the open Quests window (-1 = none); target of quest.walk. Like prob_row
+    int32_t quest_walk = -1;
+    // Follower that Walk over last went to, while its status is shown (-1 = none).
+    // The status is then in walk.msg (under the button), not in act.message. Discarded when
+    // a follower window is opened or closed and on every command.
+    int32_t walk_follower = -1;
+    // The last command was Walk over: its status (e.g. "Done") never belongs in act.message,
+    // not even after closing. Only a real command shows its status there again.
+    bool last_was_walk = false;
     // Finished values; replayed every tick, rebuilt only on a new state or a new selection
     cotl::RecordingPublisher values;
     Selections selections;
+    // Open submenu in the follower window (Eat, Drink, Work); closed with the window or another follower
+    cotl::ActionMenu menu;
     bool built = false;
     std::string page;
     int all_pages_ticks = 0;
@@ -161,6 +204,17 @@ void Destroy(void* instance) {
     delete inst;
 }
 
+// Buttons of the selected follower. The state belongs to it, otherwise (selection just changed, torn read)
+// none; Sample and OnAction run one after the other, both see the same list.
+std::vector<cotl::ActionRow> SelectedActions(const Instance& inst) {
+    const auto& follower = inst.follower_selection.Current();
+    if (!follower || !inst.last || !inst.last->command_state ||
+        inst.last->command_state->follower_id != *follower) {
+        return {};
+    }
+    return cotl::MenuActions(cotl::OfferedCommands(*inst.last->command_state), inst.menu);
+}
+
 // Rebuild all values from the last read state; they are then passed on every tick
 void Rebuild(Instance* inst, const Selections& now) {
     auto& rec = inst->values;
@@ -168,6 +222,9 @@ void Rebuild(Instance* inst, const Selections& now) {
     if (!inst->last) {
         rec.I64("g.in_run", 0); // tab switching always needs this value
         rec.I64("g.loaded", 0);
+        inst->prob_row = -1;
+        inst->prob_follower = -1;
+        inst->quest_walk = -1;
         return;
     }
     const auto& s = *inst->last;
@@ -177,7 +234,10 @@ void Rebuild(Instance* inst, const Selections& now) {
     cotl::PublishSelectedFollower(rec, s, terms, follower ? cotl::FollowerRowOf(s, *follower) : -1);
     const auto problems = cotl::DeriveProblems(s, terms, static_cast<int32_t>(now.problem_filter));
     cotl::PublishProblems(rec, s, problems);
-    cotl::PublishSelectedProblems(rec, s, inst->problem_selection.Update(now.problem, problems));
+    const int32_t prob_follower = inst->problem_selection.Update(now.problem, problems);
+    cotl::PublishSelectedProblems(rec, s, prob_follower);
+    inst->prob_row = prob_follower < 0 ? -1 : cotl::FollowerRowOf(s, prob_follower);
+    inst->prob_follower = inst->prob_row < 0 ? -1 : prob_follower;
     const auto quests = cotl::BuildQuests(s, terms);
     const auto& quest = inst->quest_selection.Update(now.quest, [&](int64_t row) {
         return row < static_cast<int64_t>(quests.size()) ? quests[static_cast<size_t>(row)].key : std::string{};
@@ -187,6 +247,9 @@ void Rebuild(Instance* inst, const Selections& now) {
         quest_row = quests[i].key == *quest ? static_cast<int64_t>(i) : quest_row;
     }
     cotl::PublishQuests(rec, quests, quest_row);
+    inst->quest_walk = quest_row >= 0 && quests[static_cast<size_t>(quest_row)].offered
+                           ? quests[static_cast<size_t>(quest_row)].giver_id
+                           : -1;
     const auto& item = inst->item_selection.Update(now.item, [&](int64_t selected) {
         return cotl::InventoryTypeAt(s, selected).value_or(-1);
     });
@@ -196,6 +259,10 @@ void Rebuild(Instance* inst, const Selections& now) {
     cotl::PublishCult(rec, s);
 }
 
+// Threads: on_action and sample run serialized on the host's timing thread (contract in
+// dsmod_module_extensions.h: "Runs serialized with sample/tick on the timing thread"; the tap actions
+// run in the same tick as the module call, mod_module_host.cpp). ActionClient and
+// follower_selection therefore need no lock; only load_image runs on its own worker.
 void Sample(void* instance, const EdenDsmodHostApi* host) {
     try {
         if (instance == nullptr || host == nullptr || host->publish_i64 == nullptr) {
@@ -203,10 +270,26 @@ void Sample(void* instance, const EdenDsmodHostApi* host) {
         }
         auto* inst = static_cast<Instance*>(instance);
         host->publish_i64(host->userdata, "mod.ready", 1);
+        host->publish_i64(host->userdata, "nav.tab", inst->tab.load(std::memory_order_relaxed));
+        host->publish_i64(host->userdata, "fol.open", inst->fol_open.load(std::memory_order_relaxed));
+        // Diagnostic, goes away in Task 8 like act.heartbeat: raw float bits of the last stick reading,
+        // y high, x low
+        if (uint32_t x = 0, y = 0; inst->ext.load_u32 != nullptr &&
+                                   inst->ext.load_u32(inst->ext.userdata, COTL_ACT_RUN_AXIS_X, &x) &&
+                                   inst->ext.load_u32(inst->ext.userdata, COTL_ACT_RUN_AXIS_Y, &y)) {
+            host->publish_i64(host->userdata, "act.dbg_axis",
+                              static_cast<int64_t>((uint64_t{y} << 32) | x));
+        }
+        // Debug: heartbeat of the guest helper; absent while no hook is installed
+        if (uint32_t heartbeat = 0; inst->ext.load_u32 != nullptr &&
+                                    inst->ext.load_u32(inst->ext.userdata, COTL_ACT_HEARTBEAT,
+                                                       &heartbeat)) {
+            host->publish_i64(host->userdata, "act.heartbeat", heartbeat);
+        }
         const auto flag = [&](const char* name) {
             return host->get_i64 ? host->get_i64(host->userdata, name, -1) : -1;
         };
-        const Selections now{flag("@flag:fol.open"),   flag("@flag:prob.filter"),
+        const Selections now{inst->fol_open.load(std::memory_order_relaxed), flag("@flag:prob.filter"),
                              flag("@flag:prob.open"),  flag("@flag:quest.open"),
                              flag("@flag:inv.open"),   inst->run_open.load(std::memory_order_relaxed),
                              inst->i2_ready.load(std::memory_order_acquire)};
@@ -215,6 +298,8 @@ void Sample(void* instance, const EdenDsmodHostApi* host) {
         const auto& follower = inst->follower_selection.Update(now.follower, [&](int64_t row) {
             return inst->last ? cotl::FollowerIdAtRow(*inst->last, row).value_or(-1) : -1;
         });
+        // A submenu belongs to the follower it was opened for, and only while the window is open
+        if (now.follower < 0 || follower != before) inst->menu = {};
         bool dirty = now != inst->selections;
         if (inst->ticks++ % kReadEvery == 0 || follower != before) {
             const cotl::HostGuest guest(host);
@@ -228,13 +313,32 @@ void Sample(void* instance, const EdenDsmodHostApi* host) {
             } else if (auto snap = cotl::ReadSnapshot(guest, host->main_base,
                                                       follower.value_or(cotl::kNoThoughts),
                                                       inst->run_open.load(std::memory_order_relaxed) >=
-                                                          cotl::kRunSelWeapon)) {
+                                                          cotl::kRunSelWeapon,
+                                                      &inst->colours)) {
                 inst->last = std::move(snap);
                 dirty = true;
             }
             // On a torn read the last valid state stays in place
         }
-        // The tarot window belongs to the run: closed afterwards, even if it was open on death
+        // Action status after the selection: a message only applies to the follower it went to. After
+        // reading, so that a newly selected follower has its buttons right away.
+        {
+            const int32_t walk = inst->walk_follower;
+            const cotl::ActionStatus action_status =
+                inst->actions.Poll(walk >= 0 ? walk : follower ? *follower : cotl::kAnyFollower);
+            cotl::HostPublisher pub(host);
+            cotl::ActionStatus shown = action_status;
+            if (walk >= 0 || inst->last_was_walk) { // Walk over: message in walk.msg, not in act.message
+                shown = {};
+                shown.helper_alive = action_status.helper_alive;
+            }
+            cotl::PublishActions(pub, inst->actions.Available(), shown, SelectedActions(*inst));
+            if (inst->actions.Available()) { // like act.*: without a helper there is no button
+                pub.I64("walk.active", walk >= 0 ? 1 : 0);
+                pub.Text("walk.msg", walk >= 0 ? cotl::WalkMessage(action_status) : "");
+            }
+        }
+        // Tarot window belongs to the run: closed afterwards, even if it was open at death
         if (!(inst->last && inst->last->run) && inst->run_open.exchange(-1) != -1) {
             dirty = true;
         }
@@ -265,11 +369,12 @@ void Tick(void*, const EdenDsmodHostApi*) {}
 
 void Configure(void* instance, const EdenDsmodHostExtensions* ext) {
     if (instance != nullptr && ext != nullptr) {
-        static_cast<Instance*>(instance)->ext = *ext; // Copy: the pointer is only borrowed
+        static_cast<Instance*>(instance)->ext = *ext; // copy: the pointer is only borrowed
+        static_cast<Instance*>(instance)->mailbox.ext = &static_cast<Instance*>(instance)->ext;
     }
 }
 
-// Companion display state only, nothing affects the game
+// Display state of the companion; fol.act sends a request to the guest helper
 EdenDsmodBool OnAction(void* instance, const char* action, int64_t argument) {
     auto* inst = static_cast<Instance*>(instance);
     if (inst == nullptr || action == nullptr) {
@@ -283,12 +388,78 @@ EdenDsmodBool OnAction(void* instance, const char* action, int64_t argument) {
         inst->run_open.store(-1, std::memory_order_relaxed);
         return EDEN_DSMOD_TRUE;
     }
+    if (std::strcmp(action, "tab") == 0) { // Tab bar outside a run; argument = tab
+        if (argument < 0 || argument >= kTabCount) return EDEN_DSMOD_FALSE;
+        inst->tab.store(argument, std::memory_order_relaxed);
+        inst->return_tab.store(-1, std::memory_order_relaxed);
+        return EDEN_DSMOD_TRUE;
+    }
+    if (std::strcmp(action, "fol.open") == 0) { // Follower card (row) or -1 = close
+        inst->fol_open.store(argument < 0 ? -1 : argument, std::memory_order_relaxed);
+        inst->walk_follower = -1;
+        const int64_t back = inst->return_tab.exchange(-1, std::memory_order_relaxed);
+        if (argument < 0 && back >= 0) { // opened via the Problems link: back to Problems
+            inst->tab.store(back, std::memory_order_relaxed);
+        }
+        return EDEN_DSMOD_TRUE;
+    }
+    if (std::strcmp(action, "prob.goto") == 0) { // Problems window → commands (argument unused)
+        if (inst->prob_row < 0) return EDEN_DSMOD_FALSE;
+        inst->return_tab.store(inst->tab.exchange(kFollowersTab, std::memory_order_relaxed),
+                               std::memory_order_relaxed);
+        inst->fol_open.store(inst->prob_row, std::memory_order_relaxed);
+        inst->walk_follower = -1;
+        return EDEN_DSMOD_TRUE;
+    }
+    // Walk over (argument unused): quest giver, open follower window or Problems window
+    const bool quest_walk = std::strcmp(action, "quest.walk") == 0;
+    const bool fol_walk = std::strcmp(action, "fol.walk") == 0;
+    if (quest_walk || fol_walk || std::strcmp(action, "prob.walk") == 0) {
+        const auto& open = inst->follower_selection.Current();
+        const int32_t target = quest_walk ? inst->quest_walk
+                               : fol_walk ? (inst->fol_open.load(std::memory_order_relaxed) >= 0 && open
+                                                 ? *open
+                                                 : -1)
+                                          : inst->prob_follower;
+        if (target < 0 || !inst->actions.Submit(target, COTL_ACT_COMMAND_WALK_ONLY)) return EDEN_DSMOD_FALSE;
+        inst->walk_follower = target;
+        inst->last_was_walk = true;
+        return EDEN_DSMOD_TRUE;
+    }
+    if (std::strcmp(action, "fol.act") == 0) { // Button of the action list in the follower window; argument = row
+        const auto& follower = inst->follower_selection.Current();
+        const auto rows = SelectedActions(*inst);
+        if (argument < 0 || static_cast<size_t>(argument) >= rows.size() || !follower || *follower < 0) {
+            return EDEN_DSMOD_FALSE;
+        }
+        const auto& row = rows[static_cast<size_t>(argument)];
+        if (!row.enabled()) return EDEN_DSMOD_FALSE;
+        // Back, next page and submenus stay in the module; only an entry goes to the helper
+        if (row.command == cotl::kMenuBack) {
+            inst->menu = {};
+            return EDEN_DSMOD_TRUE;
+        }
+        if (row.command == cotl::kMenuMore) {
+            ++inst->menu.page;
+            return EDEN_DSMOD_TRUE;
+        }
+        if (row.opens) {
+            inst->menu = {row.command, 0};
+            return EDEN_DSMOD_TRUE;
+        }
+        if (!inst->actions.Submit(*follower, row.command, row.parent)) return EDEN_DSMOD_FALSE;
+        inst->walk_follower = -1;
+        inst->last_was_walk = false;
+        inst->menu = {};
+        return EDEN_DSMOD_TRUE;
+    }
     return EDEN_DSMOD_FALSE;
 }
 
 // Images from the game files: module:cotl:item/<ITEM_TYPE> (inventory), equip/<EquipmentType>,
-// relic/<RelicType>, tarot/<Card>, heart/<art>_<zustand>, mapicon/<Sprite> (native/modules/cotl_icons.h); module:cotl:font →
-// Game font atlas
+// relic/<RelicType>, tarot/<Card>, heart/<kind>_<state>, mapicon/<Sprite>, follower/<skin;colours>
+// (native/modules/cotl_icons.h, follower_portrait.h); module:cotl:font →
+// Atlas of the game font
 EdenDsmodBool LoadImage(void* instance, const EdenDsmodHostApi*, const char* key, void* receiver,
                         EdenDsmodImageSink sink) {
     try {
@@ -325,9 +496,11 @@ EdenDsmodBool LoadImage(void* instance, const EdenDsmodHostApi*, const char* key
             img = inst->icons->LoadRelic(num);
         } else if (kind == "mapicon") {
             img = inst->icons->LoadMapIcon(arg);
+        } else if (kind == "follower") { // "<skin>;<SLOT>=<RRGGBBAA>;…"
+            img = inst->icons->LoadFollower(arg);
         } else if (kind == "tarot") {
             img = inst->icons->LoadTarot(num);
-        } else if (kind == "heart") { // "<art>_<zustand>"
+        } else if (kind == "heart") { // "<kind>_<state>"
             const auto us = arg.find('_');
             if (us != std::string::npos) {
                 img = inst->icons->LoadHeart(arg.substr(0, us), arg.substr(us + 1));

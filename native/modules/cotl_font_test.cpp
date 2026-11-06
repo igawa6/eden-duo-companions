@@ -59,9 +59,9 @@ TEST(font_glyph_metrics_scaled_with_margin) {
     const auto& g = h->glyphs['I' - 0x20];
     CHECK_EQ(g.w, uint16_t{2 + 2}); // 4 x 0.5 plus 1 px margin per side
     CHECK_EQ(g.h, uint16_t{10 + 2});
-    CHECK_EQ(g.bearing_x, int16_t{0});  // 2 × 0,5 − 1
-    CHECK_EQ(g.bearing_y, int16_t{11}); // 20 × 0,5 + 1
-    CHECK_EQ(g.advance, uint16_t{5});   // round(4,5)
+    CHECK_EQ(g.bearing_x, int16_t{0});  // 2 × 0.5 − 1
+    CHECK_EQ(g.bearing_y, int16_t{11}); // 20 × 0.5 + 1
+    CHECK_EQ(g.advance, uint16_t{5});   // round(4.5)
 }
 
 TEST(font_coverage_from_distance_field) {

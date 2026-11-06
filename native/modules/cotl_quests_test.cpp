@@ -317,6 +317,22 @@ TEST(quests_published_steps_for_selection) {
     CHECK_EQ(p.i64["quest.step_done1"], int64_t{1});
 }
 
+// Step bar of the list: completed and all sub-items, "Step n of m" only with several
+TEST(quests_published_step_bar) {
+    std::vector<cotl::QuestView> qs(2);
+    qs[0].steps = {{"A", false}, {"B", false}, {"C", true}};
+    qs[1].steps = {{"Only", false}};
+    FakePublisher p;
+    cotl::PublishQuests(p, qs, -1);
+    CHECK_EQ(p.i64["quest.steps_done0"], int64_t{1});
+    CHECK_EQ(p.i64["quest.steps0"], int64_t{3});
+    CHECK_EQ(p.text["quest.stepno0"], std::string("Step 2 of 3"));
+    CHECK_EQ(p.i64["quest.steps1"], int64_t{1});
+    CHECK_EQ(p.text["quest.stepno1"], std::string(""));
+    CHECK_EQ(p.i64["quest.multi1"], int64_t{0});
+    CHECK_EQ(p.i64["quest.multi0"], int64_t{1});
+}
+
 namespace {
 
 // Text of the first open step of a single objective
@@ -346,7 +362,7 @@ TEST(quests_place_structures_shows_decorations_and_progress) {
     CHECK_EQ(TextOf(Of(18, {0, 4, 0, 4, 0})), std::string("Yew deco set (0/4)"));
 }
 
-// Objectives_GiveItem: NPCTerm @0x78, Target @0x84, TargetType @0x88; Fortschritt = Bestand
+// Objectives_GiveItem: NPCTerm @0x78, Target @0x84, TargetType @0x88; progress = stock
 TEST(quests_give_item_names_npc_item_and_owned) {
     const int32_t berry = EnumValue("ItemType", "BERRY");
     GameSnapshot s;

@@ -30,8 +30,8 @@ TEST(snapshot_reads_followers) {
 TEST(snapshot_marks_missionaries_and_prisoners) {
     fake::Game game;
     game.SetFollowers({{1, "A"}, {2, "B"}, {3, "C"}});
-    game.SetIdList(0xDD8, {2}); // Missionar
-    game.SetIdList(0xDC8, {3}); // Gefangener
+    game.SetIdList(0xDD8, {2}); // Missionary
+    game.SetIdList(0xDC8, {3}); // Prisoner
     const auto s = ReadSnapshot(game.g, fake::kMain);
     REQUIRE(s.has_value());
     REQUIRE(s->followers.size() == 3);
@@ -88,7 +88,7 @@ TEST(snapshot_reads_objectives) {
     game.SetObjectives({
         {1, 7, 2400, 15000, false, false, 42}, // collect quest for follower 7
         {5, -1},                               // story quest without a follower
-        {3, 8, 0, 0, true},                    // abgeschlossen
+        {3, 8, 0, 0, true},                    // completed
     });
     const auto s = ReadSnapshot(game.g, fake::kMain);
     REQUIRE(s.has_value());
@@ -105,7 +105,7 @@ TEST(snapshot_reads_objectives) {
     CHECK(s->objectives[2].complete);
 }
 
-// Objectives_GiveItem (z. B. "Seeking Sozo"): TargetType @0x88
+// Objectives_GiveItem (e.g. "Seeking Sozo"): TargetType @0x88
 TEST(snapshot_reads_give_item_target_type) {
     fake::Game game;
     fake::Game::ObjectiveSpec give{33, -1};
@@ -318,7 +318,7 @@ TEST(snapshot_door_rule_follows_minimap) {
     CHECK(!r[0].doors[cotl::kDoorE]); // Exit
     CHECK(r[0].doors[cotl::kDoorS]);  // Boss
     CHECK(!r[0].doors[cotl::kDoorW]); // DoorRoom
-    CHECK(!r[1].doors[cotl::kDoorN]); // Zielraum versteckt
+    CHECK(!r[1].doors[cotl::kDoorN]); // target room hidden
     CHECK(r[1].doors[cotl::kDoorE]);  // NextLayer to the east
     CHECK(r[1].doors[cotl::kDoorS]);  // True without a target room
     CHECK(!r[1].doors[cotl::kDoorW]); // Entrance
@@ -351,10 +351,10 @@ TEST(snapshot_question_mark_rooms) {
     REQUIRE(s.has_value() && s->run.has_value());
     const auto& r = s->run->rooms;
     REQUIRE(r.size() == 5);
-    CHECK(!r[0].question); // besucht
+    CHECK(!r[0].question); // visited
     CHECK(r[1].question);
     CHECK(r[2].question);
-    CHECK(!r[3].question); // versteckt
+    CHECK(!r[3].question); // hidden
     CHECK(!r[4].question); // no way back
     CHECK_EQ(r[0].path, std::string("Assets/_Rooms/Boss Room Dungeon 1_1.prefab"));
 }
@@ -539,4 +539,369 @@ TEST(snapshot_save_not_loaded_without_class) {
     const auto s = ReadSnapshot(game.g, fake::kMain);
     REQUIRE(s.has_value());
     CHECK(!s->save_loaded);
+}
+
+namespace {
+// Follower.Followers with one follower whose task `task_class` is in `state`; 0: no task
+void PutSceneFollower(fake::Game& game, size_t index, uint64_t task_class, int32_t state,
+                      uint64_t change_location = 0) {
+    constexpr uint64_t kClass = 0x4000000, kStatics = 0x4001000, kList = 0x4002000,
+                       kItems = 0x4003000, kScene = 0x4004000, kBrain = 0x4005000, kTask = 0x4006000;
+    game.g.PutU64(fake::kMain + 0x713C060, kClass);
+    game.g.PutU64(kClass + 0xB8, kStatics);
+    game.g.PutU64(kStatics + 0x0, kList);
+    game.g.PutRefList(kList, kItems, {kScene});
+    game.g.PutU64(kScene + 0x130, kBrain);
+    game.g.PutU64(kBrain + 0x20, fake::Game::FollowerObj(index));
+    game.g.PutU64(kBrain + 0xC8, task_class ? kTask : 0);
+    game.g.PutU64(kTask, task_class);
+    game.g.PutS32(kTask + 0x20, state);
+    game.g.PutU64(kTask + 0x28, change_location);
+}
+constexpr uint64_t kSleepClass = 0x4010000, kBedRestClass = 0x4011000, kOtherClass = 0x4012000;
+void PutTaskClasses(fake::Game& game) {
+    game.g.PutU64(fake::kMain + 0x713C5B0, kSleepClass);
+    game.g.PutU64(fake::kMain + 0x713C5B8, kBedRestClass);
+}
+} // namespace
+
+// The command state is read only for the selected follower
+TEST(snapshot_reads_command_state_of_selected_follower) {
+    fake::Game game;
+    game.SetFollowers({{7, "Bramble", 1, 50, 50, 0, 50, 0, {3, 9}}, {8, "Okra"}});
+    const uint64_t okra = fake::Game::FollowerObj(1);
+    game.g.PutS32(okra + 0x20, 0x44);
+    game.g.PutU8(okra + 0x210, 1);
+    game.g.PutF32(okra + 0x260, 2.5f);
+    game.g.PutU8(okra + 0x2D1, 1);
+    game.g.PutS32(okra + 0x8C, 0x31);
+    game.g.PutU8(fake::kDataManager + 0x75A, 1);
+    game.g.PutS32(fake::kDataManager + 0x16C, 1);
+    game.g.PutS32(fake::kDataManager + 0x174, 1);
+    game.g.PutS32(fake::kDataManager + 0x614, 4);
+    game.SetIdList(0x5B0, {6, 7});
+    game.SetIdList(0x5C0, {0x50});
+
+    CHECK(!ReadSnapshot(game.g, fake::kMain)->command_state.has_value());
+    CHECK(!ReadSnapshot(game.g, fake::kMain, cotl::kNoThoughts)->command_state.has_value());
+    CHECK(!ReadSnapshot(game.g, fake::kMain, 99)->command_state.has_value());
+
+    const auto s = ReadSnapshot(game.g, fake::kMain, 8);
+    REQUIRE(s.has_value());
+    REQUIRE(s->command_state.has_value());
+    const auto& c = *s->command_state;
+    CHECK_EQ(c.follower_id, 8);
+    CHECK_EQ(c.cursed_state, 0x44);
+    CHECK(c.is_snowman);
+    CHECK(c.drunk);
+    CHECK(c.received_blessing);
+    CHECK_EQ(c.necklace, 0x31);
+    CHECK(c.show_loyalty_bars);
+    CHECK(c.inspire_unlocked);
+    CHECK(c.intimidate_unlocked);
+    CHECK_EQ(c.season, 1);
+    CHECK_EQ(c.weather, 1);
+    CHECK_EQ(c.phase, 4);
+    CHECK(c.cult_traits == std::vector<int32_t>{0x50});
+    CHECK(c.task == cotl::FollowerTaskKind::None); // not in the scene
+
+    const auto first = ReadSnapshot(game.g, fake::kMain, 7);
+    REQUIRE(first->command_state.has_value());
+    CHECK(first->command_state->own_traits == (std::vector<int32_t>{3, 9}));
+    CHECK(!first->command_state->received_blessing);
+}
+
+TEST(snapshot_reads_sleep_task_like_the_wheel) {
+    fake::Game game;
+    game.SetFollowers({{7, "Bramble"}});
+    PutTaskClasses(game);
+    auto task = [&] { return ReadSnapshot(game.g, fake::kMain, 7)->command_state->task; };
+    using K = cotl::FollowerTaskKind;
+    CHECK(task() == K::None); // no scene
+    PutSceneFollower(game, 0, 0, 0);
+    CHECK(task() == K::None); // no task
+    PutSceneFollower(game, 0, kSleepClass, 4);
+    CHECK(task() == K::Sleep);
+    PutSceneFollower(game, 0, kBedRestClass, 4);
+    CHECK(task() == K::BedRest);
+    PutSceneFollower(game, 0, kOtherClass, 4);
+    CHECK(task() == K::None);
+    PutSceneFollower(game, 0, kSleepClass, 3); // not Doing yet
+    CHECK(task() == K::None);
+    PutSceneFollower(game, 0, kSleepClass, 4, 0x4013000); // subtask: on the way to bed
+    CHECK(task() == K::None);
+}
+
+TEST(snapshot_reads_the_timed_action_of_the_follower) {
+    fake::Game game;
+    game.SetFollowers({{7, "Bramble"}});
+    PutTaskClasses(game);
+    auto timed = [&] { return ReadSnapshot(game.g, fake::kMain, 7)->command_state->timed_action; };
+    CHECK(!timed()); // no scene
+    PutSceneFollower(game, 0, 0, 0);
+    constexpr uint64_t kScene = 0x4004000, kMachine = 0x4007000; // Follower+0x98, StateMachine+0x30
+    CHECK(!timed());                                             // no StateMachine: unreadable, no lock
+    game.g.PutU64(kScene + 0x98, kMachine);
+    game.g.PutS32(kMachine + 0x30, 0);
+    CHECK(!timed());
+    game.g.PutS32(kMachine + 0x30, 16); // even without a task, it does not count here
+    CHECK(timed());
+    PutSceneFollower(game, 0, kSleepClass, 4);
+    CHECK(timed());
+}
+
+// Unreadable stays set: the helper decides on the tap, Bless must not disappear
+TEST(snapshot_reads_tutorial_flag_and_keeps_it_when_unreadable) {
+    fake::Game game;
+    game.SetFollowers({{7, "Bramble"}});
+    game.g.PutU8(fake::kDataManager + 0x850, 0);
+    CHECK(!ReadSnapshot(game.g, fake::kMain, 7)->command_state->in_tutorial);
+    game.g.PutU8(fake::kDataManager + 0x850, 1);
+    CHECK(ReadSnapshot(game.g, fake::kMain, 7)->command_state->in_tutorial);
+    game.g.PutU8(fake::kDataManager + 0x850, 0);
+    game.g.unreadable = fake::kDataManager + 0x850;
+    CHECK(ReadSnapshot(game.g, fake::kMain, 7)->command_state->in_tutorial);
+}
+
+// The conditions of the simple commands (tools/cotl/README.md, Einfache Befehle)
+TEST(snapshot_reads_the_gates_of_the_simple_commands) {
+    fake::Game game;
+    game.SetFollowers({{7, "Bramble"}, {8, "Okra"}});
+    const uint64_t okra = fake::Game::FollowerObj(1);
+    game.g.PutS32(fake::kDataManager + 0x610, 3);
+    const auto read = [&](int32_t id) { return *ReadSnapshot(game.g, fake::kMain, id)->command_state; };
+
+    auto c = read(8);
+    CHECK(!c.inspired && !c.intimidated && !c.bribed && !c.scared_interacted && !c.kissed && !c.petted);
+    CHECK(!c.married && !c.skin_dog && !c.bribe_unlocked && !c.shrine_built && !c.sozo_freed);
+    CHECK(!c.work_through_night);
+    CHECK(!c.paid_tithes && !c.extort_unlocked);
+    CHECK_EQ(c.gold, 0);
+    CHECK_EQ(c.onboarding_phase, 0);
+
+    game.g.PutU8(okra + 0x2D0, 1);
+    game.g.PutU8(okra + 0x2D3, 1);
+    game.g.PutU8(okra + 0x2D4, 1);
+    game.g.PutU8(okra + 0x2D5, 1);
+    game.g.PutU8(okra + 0x2D7, 1);
+    game.g.PutU8(okra + 0x2D8, 1);
+    game.g.PutU8(okra + 0x2D9, 1);
+    game.g.PutU8(okra + 0x1F5, 1);
+    game.g.PutU64(okra + 0x58, okra + 0xC00);
+    game.g.PutString(okra + 0xC00, "Dog_2");
+    game.g.PutS32(okra + 0x2E4, 12);
+    game.g.PutS32(fake::kDataManager + 0x610, 12);
+    game.SetIdList(0x5B0, {0xF, 0xE});
+    game.g.PutU8(fake::kDataManager + 0x14C, 1);
+    game.g.PutS32(fake::kDataManager + 0x110, 3);
+    game.g.PutU8(fake::kDataManager + 0x6C3, 1);
+    game.g.PutU64(fake::kDataManager + 0xE80, 0x5C0000);
+    game.g.PutRefList(0x5C0000, 0x5C1000, {0x5C2000, 0x5C3000, 0x5C4000});
+    game.g.PutS32(0x5C2000 + 0x10, 1);
+    game.g.PutS32(0x5C2000 + 0x14, 99);
+    game.g.PutS32(0x5C3000 + 0x10, 0x14);
+    game.g.PutS32(0x5C3000 + 0x14, 7);
+    game.g.PutS32(0x5C4000 + 0x10, 0x14); // GetItemQuantity counts only the first stack
+    game.g.PutS32(0x5C4000 + 0x14, 50);
+
+    c = read(8);
+    CHECK(c.kissed && c.inspired && c.petted && c.intimidated && c.bribed && c.scared_interacted);
+    CHECK(c.married && c.skin_dog && c.bribe_unlocked && c.shrine_built && c.sozo_freed);
+    CHECK(c.work_through_night);
+    CHECK(c.paid_tithes && c.extort_unlocked);
+    CHECK_EQ(c.gold, 7);
+    CHECK_EQ(c.onboarding_phase, 3);
+
+    const auto other = read(7);
+    CHECK(!other.kissed && !other.married && !other.skin_dog);
+    CHECK(other.work_through_night == false);
+    CHECK(!other.paid_tithes);
+    CHECK(other.extort_unlocked); // doctrine applies to the whole cult
+
+    game.g.PutString(okra + 0xC00, "Poppy");
+    CHECK(read(8).skin_dog);
+    game.g.PutString(okra + 0xC00, "Cat");
+    CHECK(!read(8).skin_dog);
+}
+
+// MakeDemandCommands asks get_CurrentTaskType: a subtask counts with its type
+TEST(snapshot_reads_the_sleep_task_type_in_any_state) {
+    fake::Game game;
+    game.SetFollowers({{7, "Bramble"}});
+    PutTaskClasses(game);
+    auto in_sleep = [&] { return ReadSnapshot(game.g, fake::kMain, 7)->command_state->in_sleep_task; };
+    CHECK(!in_sleep());
+    PutSceneFollower(game, 0, kSleepClass, 3);
+    CHECK(in_sleep());
+    PutSceneFollower(game, 0, kBedRestClass, 3);
+    CHECK(in_sleep());
+    PutSceneFollower(game, 0, kOtherClass, 4);
+    CHECK(!in_sleep());
+    PutSceneFollower(game, 0, kSleepClass, 4, 0x4013000);
+    CHECK(!in_sleep());
+}
+
+// Food and work (tools/cotl/README.md): base buildings, meals and drinks, fasting, holiday, nudity
+TEST(snapshot_reads_what_eat_drink_and_work_offer) {
+    fake::Game game;
+    game.SetFollowers({{7, "Bramble"}});
+    const auto read = [&] { return *ReadSnapshot(game.g, fake::kMain, 7)->command_state; };
+    auto c = read();
+    CHECK(c.meals.empty() && c.drinks.empty() && c.structures.empty());
+    CHECK(!c.fasting && !c.holiday && !c.nudism && !c.pub_drinking);
+
+    // Meals: Structures_Meal is a building with its own type, plus the stores of the kitchens;
+    // drinks from the stores of the pubs, only the unreserved ones
+    game.SetBaseStructures({{52, {}},                                     // MEAL -> ITEM 0x20
+                            {431, {}},                                    // -> 0xC7
+                            {10, {}, {{0x39}, {0x91}}},                   // KITCHEN: meal and beer
+                            {265, {}, {{0x73, 2}}},                       // KITCHEN_II
+                            {343, {}, {{0x91}, {0x93, 1, 1}, {0x20}}},    // PUB: beer, cocktail reserved
+                            {350, {}, {{0xEC, 1, 0}}},                    // PUB_2: milkshake
+                            {31, {}},                                     // BUILD_SITE
+                            {1, {}, {{0x45}}}});                          // other building, its store does not count
+    c = read();
+    CHECK(c.structures == (std::vector<int32_t>{52, 431, 10, 265, 343, 350, 31, 1}));
+    CHECK(c.meals == (std::vector<int32_t>{0x20, 0xC7, 0x39, 0x73}));
+    CHECK(c.drinks == (std::vector<int32_t>{0x91, 0xEC}));
+
+    // Clock: TotalElapsedGameTime = day * 1200 + time; fasting 3600, holiday 1200, nudity 600
+    game.SetDayTime(3, 100.f);
+    const float now = 3 * 1200.f + 100.f;
+    game.g.PutF32(fake::kDataManager + 0x374, now - 3599.f);
+    game.g.PutF32(fake::kDataManager + 0x35C, now - 1199.f);
+    game.g.PutF32(fake::kDataManager + 0x364, now - 599.f);
+    c = read();
+    CHECK(c.fasting && c.holiday && c.nudism);
+    game.g.PutF32(fake::kDataManager + 0x374, now - 3600.f);
+    game.g.PutF32(fake::kDataManager + 0x35C, now - 1200.f);
+    game.g.PutF32(fake::kDataManager + 0x364, now - 600.f);
+    c = read();
+    CHECK(!c.fasting && !c.holiday && !c.nudism);
+
+    // Structures_Pub.IsDrinking (static @0x0)
+    constexpr uint64_t kPubClass = 0x7000, kPubStatics = 0x7400;
+    game.g.PutU64(fake::kMain + 0x7141930, kPubClass);
+    game.g.PutU64(kPubClass + 0xB8, kPubStatics);
+    CHECK(!read().pub_drinking);
+    game.g.PutU8(kPubStatics, 1);
+    CHECK(read().pub_drinking);
+}
+
+// Gifts (tools/cotl/README.md): inventory by first stack, AllNecklaces, the necklace and the pet
+TEST(snapshot_reads_what_gifts_offer) {
+    fake::Game game;
+    game.SetFollowers({{7, "Bramble"}});
+    const uint64_t info = fake::Game::FollowerObj(0);
+    const auto read = [&] { return *ReadSnapshot(game.g, fake::kMain, 7)->command_state; };
+    auto c = read();
+    CHECK(c.items.empty() && c.all_necklaces.empty());
+    CHECK(!c.showing_necklace && !c.has_dlc_pet && !c.onboarded_wool);
+
+    // First stack counts (GetItemQuantity 0x1BBD440): 0x2D with 0 hides the second stack
+    game.g.PutU64(fake::kDataManager + 0xE80, 0x5C0000);
+    game.g.PutRefList(0x5C0000, 0x5C1000, {0x5C2000, 0x5C3000, 0x5C4000, 0x5C5000});
+    game.g.PutS32(0x5C2000 + 0x10, 0x2B);
+    game.g.PutS32(0x5C2000 + 0x14, 2);
+    game.g.PutS32(0x5C3000 + 0x10, 0x2D);
+    game.g.PutS32(0x5C3000 + 0x14, 0);
+    game.g.PutS32(0x5C4000 + 0x10, 0x2D);
+    game.g.PutS32(0x5C4000 + 0x14, 5);
+    game.g.PutS32(0x5C5000 + 0x10, 0xAA);
+    game.g.PutS32(0x5C5000 + 0x14, 1);
+    // DataManager.AllNecklaces (static @0x50)
+    game.g.PutU64(fake::kDataManagerStatics + 0x50, 0x5D0000);
+    game.g.PutIntList(0x5D0000, 0x5D1000, {0x2D, 0x2E});
+    game.g.PutU8(info + 0x60, 1);
+    game.g.PutU8(fake::kDataManager + 0x95C, 1);
+    c = read();
+    CHECK(c.items == (std::vector<int32_t>{0x2B, 0xAA}));
+    CHECK(c.all_necklaces == (std::vector<int32_t>{0x2D, 0x2E}));
+    CHECK(c.showing_necklace);
+    CHECK(c.onboarded_wool);
+    CHECK(!c.has_dlc_pet);
+
+    // FollowerInfo.DLCPets @0xA0: one entry means a pet
+    game.g.PutU64(info + 0xA0, 0x5E0000);
+    game.g.PutIntList(0x5E0000, 0x5E1000, {});
+    CHECK(!read().has_dlc_pet);
+    game.g.PutIntList(0x5E0000, 0x5E1000, {3});
+    CHECK(read().has_dlc_pet);
+}
+
+namespace {
+fake::FollowerSpec Skinned(int32_t id, std::string skin, int32_t colour) {
+    fake::FollowerSpec f{id, "F" + std::to_string(id)};
+    f.skin = std::move(skin);
+    f.skin_colour = colour;
+    return f;
+}
+} // namespace
+
+// Colours as in SetFollowerCostume: first entry whose skin list has the name; set = SkinColour,
+// clamped to [0, count − 1].
+TEST(snapshot_reads_skin_colours) {
+    fake::Game game;
+    game.SetWorshipperData({
+        {{"Dog"}, {{{"HEAD_SKIN_TOP", {0, 0, 1, 1}}}}},
+        {{"Cat", "Cat2"},
+         {{{"HEAD_SKIN_TOP", {1, 0.5f, 0, 1}}, {"MARKINGS", {0, 1, 0, 0.5f}}}, {{"HEAD_SKIN_TOP", {1, 1, 1, 1}}}}},
+    });
+    game.SetFollowers({Skinned(1, "Cat2", 0), Skinned(2, "Cat", 7), Skinned(3, "Dog", -1),
+                       Skinned(4, "Unknown", 0), {5, "NoSkin"}});
+    const auto s = ReadSnapshot(game.g, fake::kMain);
+    REQUIRE(s.has_value());
+    REQUIRE(s->followers.size() == 5);
+    const auto& a = s->followers[0];
+    CHECK_EQ(a.skin, std::string("Cat2"));
+    REQUIRE(a.tints.size() == 2);
+    CHECK_EQ(a.tints[0].slot, std::string("HEAD_SKIN_TOP"));
+    CHECK_EQ(a.tints[0].rgba, 0xFF8000FFu);
+    CHECK_EQ(a.tints[1].rgba, 0x00FF0080u);
+    REQUIRE(s->followers[1].tints.size() == 1); // set 7 → last
+    CHECK_EQ(s->followers[1].tints[0].rgba, 0xFFFFFFFFu);
+    REQUIRE(s->followers[2].tints.size() == 1); // −1 → first
+    CHECK_EQ(s->followers[2].tints[0].rgba, 0x0000FFFFu);
+    CHECK(s->followers[3].tints.empty());
+    CHECK_EQ(s->followers[3].skin, std::string("Unknown"));
+    CHECK(s->followers[4].skin.empty());
+}
+
+TEST(snapshot_skin_without_worshipper_data) {
+    fake::Game game;
+    game.SetFollowers({Skinned(1, "Cat", 0)});
+    const auto s = ReadSnapshot(game.g, fake::kMain);
+    REQUIRE(s.has_value());
+    CHECK_EQ(s->followers[0].skin, std::string("Cat"));
+    CHECK(s->followers[0].tints.empty());
+}
+
+// The cache reads the colour table only once (it does not change in the game)
+TEST(snapshot_skin_colour_cache) {
+    fake::Game game;
+    game.SetWorshipperData({{{"Cat"}, {{{"HEAD_SKIN_TOP", {1, 0, 0, 1}}}}}});
+    game.SetFollowers({Skinned(1, "Cat", 0)});
+    cotl::SkinColourCache cache;
+    REQUIRE(ReadSnapshot(game.g, fake::kMain, cotl::kAllThoughts, false, &cache).has_value());
+    game.SetWorshipperData({{{"Cat"}, {{{"HEAD_SKIN_TOP", {0, 0, 1, 1}}}}}});
+    const auto s = ReadSnapshot(game.g, fake::kMain, cotl::kAllThoughts, false, &cache);
+    REQUIRE(s.has_value());
+    REQUIRE(s->followers[0].tints.size() == 1);
+    CHECK_EQ(s->followers[0].tints[0].rgba, 0xFF0000FFu);
+}
+
+// Shortly after loading the colour table is still empty: that must not stick
+TEST(snapshot_skin_colour_cache_retries_empty) {
+    fake::Game game;
+    game.SetWorshipperData({});
+    game.SetFollowers({Skinned(1, "Cat", 0)});
+    cotl::SkinColourCache cache;
+    const auto early = ReadSnapshot(game.g, fake::kMain, cotl::kAllThoughts, false, &cache);
+    REQUIRE(early.has_value());
+    CHECK(early->followers[0].tints.empty());
+    game.SetWorshipperData({{{"Cat"}, {{{"HEAD_SKIN_TOP", {1, 0, 0, 1}}}}}});
+    const auto s = ReadSnapshot(game.g, fake::kMain, cotl::kAllThoughts, false, &cache);
+    REQUIRE(s.has_value());
+    REQUIRE(s->followers[0].tints.size() == 1);
+    CHECK_EQ(s->followers[0].tints[0].rgba, 0xFF0000FFu);
 }

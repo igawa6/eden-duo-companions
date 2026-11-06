@@ -879,23 +879,26 @@ By igawa6. Source: GPL-3.0-or-later. The companion ships no game art and no game
 <details>
 <summary>Screenshots and details</summary>
 
-`01002E7016C46000` · game versions 1.5.27 and 1.5.28 (same build) · companion 1.0.0
+`01002E7016C46000` · game versions 1.5.27 and 1.5.28 (same build) · companion 1.1.0
 
-| Cult | Dungeon |
+| Cult | Followers |
 |:---:|:---:|
-| <img src="screenshots/cult-of-the-lamb/cult.png" width="400" alt="Cult of the Lamb: Cult"> | <img src="screenshots/cult-of-the-lamb/dungeon.png" width="400" alt="Cult of the Lamb: Dungeon"> |
+| <img src="screenshots/cult-of-the-lamb/cult.png" width="400" alt="Cult of the Lamb: Cult"> | <img src="screenshots/cult-of-the-lamb/followers.png" width="400" alt="Cult of the Lamb: Followers"> |
+| **Follower commands** | **Dungeon** |
+| <img src="screenshots/cult-of-the-lamb/commands.png" width="400" alt="Cult of the Lamb: Follower commands"> | <img src="screenshots/cult-of-the-lamb/dungeon.png" width="400" alt="Cult of the Lamb: Dungeon"> |
 
-Live status of your cult and your current run on the bottom screen. Requires Eden Duo 1.3.2 or newer (runtime 22).
+Live status of your cult and your current run on the bottom screen, and follower commands by touch. Requires Eden Duo 1.3.2 or newer (runtime 22).
 
 - **Cult.** Faith, hunger, health, the day and its phases, follower counts, dirt, bodies and silo levels.
-- **Problems.** Followers who need attention, with filters; tap a follower to see all their problems.
-- **Quests.** Offered and accepted quests with the game's text, steps, givers and deadlines.
-- **Followers.** Every follower with role, age, traits and current thoughts.
+- **Problems.** Followers who need attention, with their pictures and filters; tap a follower to see all their problems, open their commands or walk over to them.
+- **Quests.** Offered and accepted quests with the game's text, steps, givers and deadlines. Walk over to a follower who offers a quest.
+- **Followers.** Every follower with picture, role, age, traits and current thoughts. Tap one for the commands the game's command wheel offers them: Bless, Dance, Intimidate, Extort, Romance, Sleep, Work, Eat, Drink, Gift, Give Pet and more, each greyed out with the game's reason when it isn't possible. Walk over sends the Lamb to that follower.
 - **Items.** Your inventory with the game's icons and descriptions; marks items an open quest needs.
 - **Dungeon.** HUD-style hearts, a map of what you have discovered, and your tarot cards. Tap a card, your weapon, curse or relic for its effect, stats and description.
-- **Limits.** Read-only, English text, player 1 only. Unsupported builds are refused. Weapon and curse damage leaves out co-op tarot cards.
+- **Commands.** A small in-game helper runs each command through the game's own command code, at the base only, and not while a menu or dialogue is open.
+- **Limits.** English text, player 1 only. Unsupported builds are refused. Weapon and curse damage leaves out co-op tarot cards.
 
-The companion ships no game art: icons, images, text and fonts are read from your game files.
+The companion ships no game art: icons, images, text and fonts are read from your game files. Frames and icons are its own pixel art.
 Code: GPL-3.0-or-later. Tested on an AYN Thor.
 
 </details>

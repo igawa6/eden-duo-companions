@@ -10,6 +10,7 @@
 #include <string_view>
 #include <vector>
 
+#include "cotl_actions.h"
 #include "cotl_snapshot.h"
 #include "cotl_terms.h"
 
@@ -91,8 +92,9 @@ std::optional<int32_t> InventoryTypeAt(const GameSnapshot& s, int64_t selected);
 int64_t InventoryRowOf(const GameSnapshot& s, int32_t item_type);
 
 // fol.count, fol.name{i}, fol.level{i}, fol.role{i}, fol.sat{i}, fol.loyal{i}, fol.ill{i},
-// fol.happy{i}, fol.group{i}. Order: normal followers, then missionaries,
-// then prisoners; within a group as in the game.
+// fol.happy{i}, fol.group{i}, fol.pic{i} (head image, PortraitKey; empty without a known skin).
+// Order: normal followers, then missionaries,
+// then prisoners; within the group as in the game.
 void PublishFollowers(Publisher& p, const GameSnapshot& s, const Terms& terms);
 
 // Groups as in the game menu (0 Currency, 1 Food, 2 Items), order of the menu lists; only quantities > 0
@@ -134,5 +136,12 @@ void PublishMap(Publisher& p, const GameSnapshot& s);
 // PublishFollowers). Nothing is published outside the list.
 void PublishSelectedFollower(Publisher& p, const GameSnapshot& s, const Terms& terms,
                              int64_t index);
+
+// act.available (1 = show buttons), act.state, act.message, act.count, act.name{i}, act.enabled{i},
+// act.command{i}. Without a helper only act.available = 0. `available` is ActionClient::Available(): it
+// stays true during a pause so the buttons do not flicker; the line then says "Game is paused".
+// When idle, the line names the reason for a locked row.
+void PublishActions(Publisher& p, bool available, const ActionStatus& status,
+                    const std::vector<ActionRow>& rows);
 
 } // namespace cotl

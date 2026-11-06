@@ -20,6 +20,66 @@ std::optional<uint64_t> DataManager(const Guest& g, uint64_t main_base) {
     return ReadPtr(g, *statics + off::kDataManagerInstance);
 }
 
+// Slot colours of a skin as in SetFollowerCostume: first SkinAndData entry with the name in the
+// skin list, colour set SkinColour clamped to [0, count − 1]
+std::vector<SlotTint> ReadTints(const Guest& g, uint64_t main_base, const std::string& skin, int32_t colour,
+                                SkinColourCache* cache) {
+    const auto statics = StaticFields(g, main_base, off::kWorshipperDataTypeInfo);
+    const auto inst = statics ? ReadPtr(g, *statics + off::wd::kInstance) : std::nullopt;
+    if (!inst || skin.empty()) {
+        return {};
+    }
+    SkinColourCache local;
+    SkinColourCache& c = cache != nullptr ? *cache : local;
+    if (c.instance != *inst || c.skin_data.empty()) { // empty shortly after loading: read again
+        c = SkinColourCache{};
+        c.instance = *inst;
+        const auto chars = ReadPtr(g, *inst + off::wd::kCharacters);
+        for (const uint64_t sad : chars ? ReadRefList(g, *chars).value_or(std::vector<uint64_t>{})
+                                        : std::vector<uint64_t>{}) {
+            const auto skins = ReadPtr(g, sad + off::wd::kSkin);
+            for (const uint64_t cs : skins ? ReadRefList(g, *skins).value_or(std::vector<uint64_t>{})
+                                           : std::vector<uint64_t>{}) {
+                const auto name = ReadPtr(g, cs + off::wd::kSkinName);
+                if (name) {
+                    c.skin_data.emplace(ReadString(g, *name).value_or(""), sad); // first wins
+                }
+            }
+        }
+    }
+    const auto key = std::make_pair(skin, colour);
+    if (const auto it = c.tints.find(key); it != c.tints.end()) {
+        return it->second;
+    }
+    std::vector<SlotTint> out;
+    const auto sad = c.skin_data.find(skin);
+    const auto sets_list = sad != c.skin_data.end() ? ReadPtr(g, sad->second + off::wd::kSlotAndColours)
+                                                    : std::nullopt;
+    const auto sets = sets_list ? ReadRefList(g, *sets_list) : std::nullopt;
+    if (sets && !sets->empty()) {
+        const auto n = static_cast<int32_t>(sets->size());
+        const uint64_t set = (*sets)[static_cast<size_t>(colour < 0 ? 0 : std::min(colour, n - 1))];
+        const auto list = ReadPtr(g, set + off::wd::kSetList);
+        for (const uint64_t e : list ? ReadRefList(g, *list).value_or(std::vector<uint64_t>{})
+                                     : std::vector<uint64_t>{}) {
+            const auto slot = ReadPtr(g, e + off::wd::kSlot);
+            if (!slot) {
+                continue;
+            }
+            uint32_t rgba = 0;
+            for (uint64_t k = 0; k < 4; ++k) {
+                const float v = std::clamp(ReadPod<float>(g, e + off::wd::kColor + k * 4).value_or(1.0f), 0.0f, 1.0f);
+                rgba = rgba << 8 | static_cast<uint32_t>(std::lround(v * 255.0f));
+            }
+            out.push_back({ReadString(g, *slot).value_or(""), rgba});
+        }
+    }
+    if (!out.empty()) { // empty = not there yet (or skin without colours): do not hold on to it
+        c.tints.emplace(key, out);
+    }
+    return out;
+}
+
 constexpr float kMaxHalfHearts = 88;
 constexpr size_t kMaxTarot = 60;
 
@@ -64,7 +124,48 @@ std::optional<Follower> ReadFollower(const Guest& g, uint64_t obj, int32_t thoug
     f.injured = ReadPod<float>(g, obj + off::fi::kInjured).value_or(0);
     f.exhaustion = ReadPod<float>(g, obj + off::fi::kExhaustion).value_or(0);
     f.dissent = ReadPod<float>(g, obj + off::fi::kDissent).value_or(0);
+    if (const auto skin = ReadPtr(g, obj + off::fi::kSkinName)) {
+        f.skin = ReadString(g, *skin).value_or("");
+    }
+    f.skin_colour = ReadPod<int32_t>(g, obj + off::fi::kSkinColour).value_or(0);
     return f;
+}
+
+// Task of the follower as DefaultCommands sees it (Follower.Brain.CurrentTask): if he is not in
+// the scene, there is none. Same check as sleeping() in the helper. in_sleep_task is the question of
+// MakeDemandCommands to get_CurrentTaskType: without subtask, in any state.
+void ReadFollowerTask(const Guest& g, uint64_t main_base, int32_t id, FollowerCommandState& c) {
+    const auto statics = StaticFields(g, main_base, off::kFollowerTypeInfo);
+    const auto list = statics ? ReadPtr(g, *statics + off::follower::kFollowers) : std::nullopt;
+    const auto scene = list ? ReadRefList(g, *list) : std::nullopt;
+    if (!scene) {
+        return;
+    }
+    for (const uint64_t follower : *scene) {
+        const auto brain = ReadPtr(g, follower + off::follower::kBrain);
+        const auto info = brain ? ReadPtr(g, *brain + off::brain::kInfo) : std::nullopt;
+        if (!info || ReadPod<int32_t>(g, *info + off::fi::kId) != id) {
+            continue;
+        }
+        if (const auto machine = ReadPtr(g, follower + off::follower::kState)) {
+            c.timed_action = ReadPod<int32_t>(g, *machine + off::player::kStateCurrent) ==
+                             off::follower::kStateTimedAction;
+        }
+        const auto task = ReadPtr(g, *brain + off::brain::kCurrentTask);
+        if (!task || ReadPtr(g, *task + off::kTaskChangeLocation)) {
+            return;
+        }
+        const auto klass = ReadPtr(g, *task);
+        const bool sleep = klass && klass == ReadPtr(g, main_base + off::kSleepTaskTypeInfo);
+        const bool bed_rest = klass && klass == ReadPtr(g, main_base + off::kBedRestTaskTypeInfo);
+        c.in_sleep_task = sleep || bed_rest;
+        if (ReadPod<int32_t>(g, *task + off::kTaskState) == off::kTaskStateDoing) {
+            c.task = sleep      ? FollowerTaskKind::Sleep
+                     : bed_rest ? FollowerTaskKind::BedRest
+                                : FollowerTaskKind::None;
+        }
+        return;
+    }
 }
 
 std::vector<int32_t> IdList(const Guest& g, uint64_t dm, uint64_t field) {
@@ -154,6 +255,115 @@ std::vector<int32_t> ReadOfferedQuests(const Guest& g, uint64_t main_base) {
         }
     }
     return out;
+}
+
+// Food and work (tools/cotl/README.md): base buildings for the roles and pub, meals (lying
+// Structures_Meal and stocks of kitchens and storage, MealCommands 0x20356E0 checks no reservation),
+// free drinks of pubs and storage (DrinkSomething: QuantityReserved <= 0), plus the declaration clock.
+void ReadFoodAndWork(const Guest& g, uint64_t main_base, uint64_t dm, FollowerCommandState& c) {
+    if (const auto list = ReadPtr(g, dm + off::dm::kBaseStructures)) {
+        for (const uint64_t o : ReadRefList(g, *list, 4096).value_or(std::vector<uint64_t>{})) {
+            const int32_t type = ReadPod<int32_t>(g, o + off::structure::kType).value_or(0);
+            c.structures.push_back(type);
+            if (const int32_t meal = MealItemOfStructure(type); meal >= 0) c.meals.push_back(meal);
+            // KITCHEN, KITCHEN_II, FOOD_STORAGE, FOOD_STORAGE_2; PUB, PUB_2
+            const bool kitchen = type == 10 || type == 265 || type == 73 || type == 74;
+            const bool pub = type == 343 || type == 350 || type == 73 || type == 74;
+            if (!kitchen && !pub) continue;
+            const auto inv = ReadPtr(g, o + off::structure::kInventory);
+            for (const uint64_t it : inv ? ReadRefList(g, *inv).value_or(std::vector<uint64_t>{})
+                                         : std::vector<uint64_t>{}) {
+                const auto item = ReadPod<int32_t>(g, it + off::item::kType);
+                if (!item) continue;
+                if (kitchen && IsMealItem(*item)) c.meals.push_back(*item);
+                if (pub && IsDrinkItem(*item) && ReadPod<int32_t>(g, it + off::item::kQuantityReserved).value_or(1) <= 0) {
+                    c.drinks.push_back(*item);
+                }
+            }
+        }
+    }
+    // TimeManager.TotalElapsedGameTime; unreadable: nothing declared
+    const auto day = ReadPod<int32_t>(g, dm + off::dm::kCurrentDayIndex);
+    const auto time = ReadPod<float>(g, dm + off::dm::kCurrentGameTime);
+    if (day && time) {
+        const float now = static_cast<float>(*day) * 1200.f + *time;
+        const auto since = [&](uint64_t field, float span) {
+            const auto at = ReadPod<float>(g, dm + field);
+            return at && now - *at < span;
+        };
+        c.fasting = since(off::dm::kLastFastDeclared, 3600.f);
+        c.holiday = since(off::dm::kLastHolidayDeclared, 1200.f);
+        c.nudism = since(off::dm::kLastNudismDeclared, 600.f);
+    }
+    if (const auto statics = StaticFields(g, main_base, off::kStructuresPubTypeInfo)) {
+        c.pub_drinking = ReadPod<uint8_t>(g, *statics + off::kPubIsDrinking).value_or(0) != 0;
+    }
+}
+
+// What FollowerCommandGroups.DefaultCommands reads (tools/cotl/README.md, Command list)
+FollowerCommandState ReadCommandState(const Guest& g, uint64_t main_base, uint64_t dm, uint64_t info,
+                                      const Follower& f) {
+    FollowerCommandState c;
+    c.follower_id = f.id;
+    c.cursed_state = f.cursed_state;
+    c.own_traits = f.traits;
+    c.cult_traits = IdList(g, dm, off::dm::kCultTraits);
+    c.is_snowman = ReadPod<uint8_t>(g, info + off::fi::kIsSnowman).value_or(0) != 0;
+    c.drunk = ReadPod<float>(g, info + off::fi::kDrunk).value_or(0) > 0;
+    c.received_blessing = ReadPod<uint8_t>(g, info + off::fi::kReceivedBlessing).value_or(0) != 0;
+    c.necklace = ReadPod<int32_t>(g, info + off::fi::kNecklace).value_or(0);
+    c.show_loyalty_bars = ReadPod<uint8_t>(g, dm + off::dm::kShowLoyaltyBars).value_or(0) != 0;
+    c.in_tutorial = ReadPod<uint8_t>(g, dm + off::dm::kInTutorial).value_or(1) != 0;
+    const auto doctrines = IdList(g, dm, off::dm::kDoctrineUnlockedUpgrades);
+    c.inspire_unlocked = Contains(doctrines, off::dm::kDoctrineInspire);
+    c.intimidate_unlocked = Contains(doctrines, off::dm::kDoctrineIntimidate);
+    c.season = ReadPod<int32_t>(g, dm + off::dm::kCurrentSeason).value_or(0);
+    c.weather = ReadPod<int32_t>(g, dm + off::dm::kCurrentWeatherEvent).value_or(0);
+    c.phase = ReadPod<int32_t>(g, dm + off::dm::kCurrentPhase).value_or(0);
+    ReadFollowerTask(g, main_base, f.id, c);
+    const auto flag = [&](uint64_t base, uint64_t field) { return ReadPod<uint8_t>(g, base + field).value_or(0) != 0; };
+    c.inspired = flag(info, off::fi::kInspired);
+    c.intimidated = flag(info, off::fi::kIntimidated);
+    c.bribed = flag(info, off::fi::kBribed);
+    c.paid_tithes = flag(info, off::fi::kPaidTithes);
+    c.kissed = flag(info, off::fi::kKissed);
+    c.petted = flag(info, off::fi::kPetDog);
+    c.scared_interacted = flag(info, off::fi::kScaredTraitInteracted);
+    c.married = flag(info, off::fi::kMarriedToLeader);
+    if (const auto skin = ReadPtr(g, info + off::fi::kSkinName)) {
+        const std::string name = ReadString(g, *skin).value_or("");
+        c.skin_dog = name.find("Dog") != std::string::npos || name.find("Poppy") != std::string::npos;
+    }
+    c.bribe_unlocked = Contains(doctrines, off::dm::kDoctrineBribe);
+    c.extort_unlocked = Contains(doctrines, off::dm::kDoctrineExtort);
+    c.shrine_built = flag(dm, off::dm::kHasBuiltShrine1);
+    c.sozo_freed = flag(dm, off::dm::kSozoNoLongerBrainwashed);
+    c.onboarding_phase = ReadPod<int32_t>(g, dm + off::dm::kOnboardingPhase).value_or(0);
+    const auto day = ReadPod<int32_t>(g, dm + off::dm::kCurrentDayIndex);
+    c.work_through_night = day && day == ReadPod<int32_t>(g, info + off::fi::kWorkThroughNightDay);
+    // GetItemQuantity 0x1BBD440: the first stack counts. Unreadable means grey, never a wasted trip.
+    // Gifts: every type whose first stack has at least 1
+    if (const auto items = ReadPtr(g, dm + off::dm::kItems)) {
+        std::vector<int32_t> seen;
+        for (const uint64_t it : ReadRefList(g, *items).value_or(std::vector<uint64_t>{})) {
+            const auto type = ReadPod<int32_t>(g, it + off::item::kType);
+            if (!type || Contains(seen, *type)) continue;
+            seen.push_back(*type);
+            const int32_t quantity = ReadPod<int32_t>(g, it + off::item::kQuantity).value_or(0);
+            if (*type == off::dm::kItemBlackGold) c.gold = quantity;
+            if (quantity >= 1) c.items.push_back(*type);
+        }
+    }
+    if (const auto statics = StaticFields(g, main_base, off::kDataManagerTypeInfo)) {
+        c.all_necklaces = IdList(g, *statics, off::kDataManagerAllNecklaces);
+    }
+    c.showing_necklace = flag(info, off::fi::kShowingNecklace);
+    c.onboarded_wool = flag(dm, off::dm::kOnboardedWool);
+    if (const auto pets = ReadPtr(g, info + off::fi::kDlcPets)) {
+        c.has_dlc_pet = ReadPod<int32_t>(g, *pets + kListSize).value_or(0) > 0;
+    }
+    ReadFoodAndWork(g, main_base, dm, c);
+    return c;
 }
 
 // Seed and fertiliser silos: Structures_SiloSeed/SiloFertiliser.get_Capacity = 250 for
@@ -429,7 +639,7 @@ bool IsDungeonLocation(int32_t location) {
 }
 
 std::optional<GameSnapshot> ReadSnapshot(const Guest& g, uint64_t main_base, int32_t thoughts_for,
-                                         bool read_gear) {
+                                         bool read_gear, SkinColourCache* colours) {
     const auto dm = DataManager(g, main_base);
     if (!dm) {
         return std::nullopt;
@@ -447,6 +657,7 @@ std::optional<GameSnapshot> ReadSnapshot(const Guest& g, uint64_t main_base, int
         if (!f) {
             return std::nullopt;
         }
+        f->tints = ReadTints(g, main_base, f->skin, f->skin_colour, colours);
         s.followers.push_back(std::move(*f));
     }
 
@@ -488,6 +699,11 @@ std::optional<GameSnapshot> ReadSnapshot(const Guest& g, uint64_t main_base, int
             f.group = FollowerGroup::Prisoner;
         } else if (Contains(missionaries, f.id)) {
             f.group = FollowerGroup::Missionary;
+        }
+    }
+    for (size_t i = 0; thoughts_for >= 0 && i < s.followers.size(); ++i) {
+        if (s.followers[i].id == thoughts_for) {
+            s.command_state = ReadCommandState(g, main_base, *dm, (*objs)[i], s.followers[i]);
         }
     }
     return s;

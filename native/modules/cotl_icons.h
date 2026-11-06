@@ -3,7 +3,7 @@
 
 // Item icons from the player's game files (nothing is shipped).
 //
-// Weg: "Inventory Icon Mapping" (MonoBehaviour in resources.assets: ITEM_TYPE → Sprite) →
+// Path: "Inventory Icon Mapping" (MonoBehaviour in resources.assets: ITEM_TYPE → Sprite) →
 // Sprite (RenderDataKey + atlas tag, raw layout Unity 2022.3) to SpriteAtlas in the Addressables bundle
 // (atlas_bundles_1_5_27.inc, with TypeTree) to a rectangle in the atlas texture, then cropped.
 // Details in tools/cotl/README.md (inventory icons).
@@ -49,7 +49,7 @@ enum class DataKind { Equipment, Relic };
 
 struct DataSprite {
     DataKind kind = DataKind::Equipment;
-    int32_t type = 0;   // EquipmentType bzw. RelicType
+    int32_t type = 0;   // EquipmentType or RelicType
     int64_t sprite = 0; // UISprite PathID in the same file
 };
 
@@ -74,8 +74,20 @@ std::optional<ce_unity::Image> DecodeSwitchSprite(std::span<const uint8_t> data,
                                                   const ce_unity::AstcDecoder& astc, float x, float y,
                                                   float w, float h);
 
-// ASTC decoder through the host that decodes large textures in tiles of whole blocks:
-// ce_unity::MakeHostAstcDecoder rejects output > 16 MiB, Eden's decode_astc widths/heights
+// ASTC texture (8×8 or 12×12) from the Tegra block layout into rows of whole blocks; the
+// follower page (4096², 8×8) is unscrambled once this way and then decoded per region.
+struct LinearAstc {
+    std::vector<uint8_t> blocks;
+    uint32_t row_blocks = 0, col_blocks = 0, block = 0;
+    int32_t width = 0, height = 0;
+};
+std::optional<LinearAstc> DeswizzleSwitchAstc(std::span<const uint8_t> data, const ce_unity::TextureInfo& tex);
+// Rectangle in Unity coordinates (origin bottom left), image with origin top left
+std::optional<ce_unity::Image> DecodeLinearRect(const LinearAstc& lin, const ce_unity::AstcDecoder& astc,
+                                                float x, float y, float w, float h);
+
+// ASTC decoder via the host that decodes large textures in tiles of whole blocks:
+// ce_unity::MakeHostAstcDecoder rejects outputs > 16 MiB, Eden's decode_astc widths/heights
 // > 2048 (2048 atlases are padded to 2052). max_tile_bytes limits the output per
 // host call, max_width the tile width (and height).
 ce_unity::AstcDecoder MakeTiledAstcDecoder(void* userdata, EdenDsmodAstcDecoder decode,
@@ -107,6 +119,8 @@ public:
     std::optional<ce_unity::Image> LoadTarot(int32_t card);
     // In-game map sprite from the MapIcons atlas (room icons "Icon_Boss" ..., "Map_You")
     std::optional<ce_unity::Image> LoadMapIcon(const std::string& sprite);
+    // Head of a follower (module:cotl:follower/<arg>, follower_portrait.h): skin and slot colours
+    std::optional<ce_unity::Image> LoadFollower(const std::string& arg);
     // Reason for the last failure (for the log)
     std::string LastError() {
         std::lock_guard lock(mutex_);
@@ -125,14 +139,20 @@ private:
     // Spine atlas "<name>_Atlas" in the Spine bundle with its decoded page (mutex_ held)
     struct SpinePage;
     const SpinePage* EnsureSpine(const std::string& atlas_asset);
+    // Follower.atlas and the unscrambled page; regions in the original frame (mutex_ held)
+    struct FollowerPage;
+    FollowerPage* EnsureFollowerPage();
+    const ce_unity::Image* FollowerRegion(FollowerPage& page, std::string_view region);
 
     ce_unity::RangeReader romfs_;
     ce_unity::AstcDecoder astc_;
     std::unique_ptr<ce_unity::Reader> bundles_;
     std::shared_ptr<ce_unity::SerializedFile> resources_;
     std::optional<std::map<int32_t, int64_t>> mapping_;
-    std::optional<std::map<int32_t, int64_t>> equipment_, relics_; // Typ → Sprite-PathID
+    std::optional<std::map<int32_t, int64_t>> equipment_, relics_; // type → sprite PathID
     std::map<std::string, std::unique_ptr<SpinePage>> spine_;
+    std::unique_ptr<FollowerPage> follower_;
+    std::string follower_error_; // page could not be loaded: do not read again for every image
     using AtlasKey = std::tuple<uint32_t, uint32_t, uint32_t, uint32_t, int64_t>;
     std::map<std::string, std::map<AtlasKey, IconLocation>> atlases_; // atlas tag to its sprites
     std::list<std::pair<std::string, ce_unity::Image>> textures_;     // most recently used first
