@@ -258,7 +258,7 @@ The companion ships no game art: maps, item pictures, icons, fonts and text are 
 
 `010055D009F78000` · game version 1.2.0 · companion 1.0.1
 
-Korean, Japanese and Chinese text support by [aedurappa](https://github.com/aedurappa).
+Korean, Japanese and Chinese text support by [aedurappa](https://github.com/aedurappa). The companion's fixed words (labels) follow the game's language.
 
 | Monastery | Academy | Battle |
 |:---:|:---:|:---:|
