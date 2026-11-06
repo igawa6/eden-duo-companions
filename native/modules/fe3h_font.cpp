@@ -196,6 +196,84 @@ bool Build(Face face, const GameTables& tables, const std::vector<uint32_t>& cod
     return out.mapped >= 0x5F;
 }
 
+bool LangFromIndex(int index, Lang& out) {
+    switch (index) {
+    case 0:
+        out = Lang::Jpn;
+        return true;
+    case 9:
+        out = Lang::Kor;
+        return true;
+    case 10:
+        out = Lang::Twn;
+        return true;
+    case 11:
+        out = Lang::Chn;
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool CjkCell(uint32_t index, uint32_t& x, uint32_t& y) {
+    x = (index % CjkColumns) * CjkCellSize;
+    y = (index / CjkColumns) * CjkCellSize;
+    return x + CjkCellSize <= CjkAtlasW && y + CjkCellSize <= CjkAtlasH;
+}
+
+uint32_t CjkBase(Lang lang) {
+    return LatinPages * PageRows + uint32_t(lang) * CjkPages * PageRows;
+}
+
+bool PageSourceOf(uint32_t page, PageSource& out) {
+    if (page >= PageCount)
+        return false;
+    if (page < LatinPages) {
+        out = {true, Lang::Kor, page * PageRows};
+        return true;
+    }
+    const uint32_t k = page - LatinPages;
+    out = {false, Lang(k / CjkPages), (k % CjkPages) * PageRows};
+    return true;
+}
+
+namespace {
+
+bool IsHangul(uint32_t cp) {
+    return (cp >= 0xAC00 && cp <= 0xD7A3) || (cp >= 0x1100 && cp <= 0x11FF) ||
+           (cp >= 0x3130 && cp <= 0x318F);
+}
+
+} // namespace
+
+void AddCjk(Font& font, std::span<const CjkTable> tables) {
+    if (font.first_codepoint != FirstCodepoint)
+        return;
+    for (const CjkTable& t : tables) {
+        const uint32_t base = CjkBase(t.lang);
+        for (uint32_t i = 0; i < t.codes.size(); ++i) {
+            const uint32_t cp = t.codes[i];
+            uint32_t x, y;
+            if (cp < FirstCodepoint || cp > CjkLastCodepoint || !CjkCell(i, x, y))
+                continue;
+            const size_t slot = cp - FirstCodepoint;
+            if (slot >= font.glyphs.size())
+                font.glyphs.resize(slot + 1);
+            Glyph& g = font.glyphs[slot];
+            if (g.advance)
+                continue; // Latin (or an earlier set) already has this code point
+            g = {uint16_t(x),
+                 uint16_t(base + y),
+                 uint16_t(CjkCellSize),
+                 uint16_t(CjkCellSize),
+                 0,
+                 int16_t(CjkCellSize),
+                 uint16_t(IsHangul(cp) ? HangulAdvance : CjkAdvance)};
+            ++font.mapped;
+        }
+    }
+}
+
 bool ParseRequest(std::span<const uint8_t> bytes, Face& face) {
     const std::string_view s{reinterpret_cast<const char*>(bytes.data()), bytes.size()};
     constexpr std::string_view Magic = "FE3HFONT ";

@@ -612,6 +612,8 @@ set(FE3H_ASSET_SOURCES
     fe3h_assets.h
     fe3h_font.cpp
     fe3h_font.h
+    fe3h_language.cpp
+    fe3h_language.h
     fe3h_text.cpp
     fe3h_text.h
     fe3h_ui2d.cpp
@@ -642,6 +644,12 @@ dsmod_add_module(dsmod-fe3h EXCLUDE_FROM_ALL
     SOURCES ${FE3H_MODULE_SOURCES}
     EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
     INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+
+# Fire Emblem: Three Houses: tests of the CJK font and of the language finding (synthetic data only).
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-fe3h-font KEEP_ASSERTS SOURCES fe3h_font_test.cpp fe3h_font.cpp)
+    dsmod_add_test(dsmod-fe3h-language KEEP_ASSERTS SOURCES fe3h_language_test.cpp fe3h_language.cpp)
+endif()
 
 
 set(ISAAC_ASSET_SOURCES

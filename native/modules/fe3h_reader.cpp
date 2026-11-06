@@ -3,6 +3,7 @@
 
 // Fire Emblem: Three Houses 1.2.0 reader (fe3h_reader.h): the build check, guest reads, the sample (context, domains, publish) and the module actions.
 
+#include "fe3h_language.h"
 #include "fe3h_reader_internal.h"
 
 #include <algorithm>
@@ -86,6 +87,22 @@ std::optional<u64> Reader::Ptr(u64 at) const {
 }
 bool Reader::InMain(u64 at, u64 n) const {
     return dsmod_sdk::InMain(base, size, at, n);
+}
+std::string Reader::LanguageProbe() {
+    return fe3h_language::BuildProbe(
+        [&](uint32_t index, std::string& out) { return !(out = Text(TextPart1, index)).empty(); });
+}
+int Reader::GameLanguage() const {
+    constexpr u64 LangOffset = 0x158;
+    constexpr u8 LanguageCount = 12; // msgdata: JPN, ENG_U, ENG_E, GER, FRA_E, FRA_U, ESP_E,
+                                     // ESP_U, ITA, KOR, TWN, CHN
+    if (!gl.lang_var)
+        return -1;
+    const auto obj = Ptr(gl.lang_var);
+    if (!obj)
+        return -1;
+    const auto lang = Get<u8>(*obj + LangOffset);
+    return lang && *lang < LanguageCount ? int(*lang) : -1;
 }
 /// NUL-terminated string, read in chunks that never cross a 4 KiB page (the next page may be
 /// unmapped); fails when no NUL is found within `max` bytes.

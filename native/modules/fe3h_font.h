@@ -106,4 +106,77 @@ bool Build(Face face, const GameTables& tables, const std::vector<uint32_t>& cod
 // "FE3HFONT sans" (any trailing text ignored). False for anything else.
 bool ParseRequest(std::span<const uint8_t> bytes, Face& face);
 
+// ---- CJK: the game's own per-language atlases (serif face only) ------------------------------
+//
+// The Latin font has no Hangul, kana or Han. The game ships one 4096 x 4096 BC3 G1T per CJK
+// language (white + alpha, 52 x 52 cells, 78 per row, cell = row * 78 + column, one 20-byte
+// texture header like LINKDATA 72) and a UTF8TBL for it (cell index -> code point, the same
+// layout as the Latin table 77):
+//
+//   language  msgdata index  atlas  table
+//   Korean    9              75     80    2350 KS X 1001 syllables + jamo + kana + symbols
+//   Japanese  0              71     76
+//   Trad. Chinese (TWN) 10   74     78
+//   Simpl. Chinese (CHN) 11  73     79
+//
+// The sets share Han code points with different shapes, so only the game's language set (plus
+// Korean for Hangul, which no other set has) joins the Latin glyphs, and a code point the Latin
+// font already has stays Latin. The glyphs are a whole cell; no metrics exist in the game's
+// tables for them, so the advance is a constant (Hangul 51, the rest 52: all full width).
+//
+// Paged atlas (manifest font_page_h = PageRows, font_atlas = module:fe3h:font/page/{p}): the
+// virtual atlas stacks a slot for the Latin atlas (LatinPages pages), then one slot of CjkPages
+// pages per set in the order of `Lang`, so a page is a PageRows-high band of exactly one game
+// atlas (the rows past the end of the atlas are transparent). PageRows is one cell row (52 px; a
+// multiple of the BC3 block height 4 too): no cell straddles two pages, and a page holds only 78
+// glyphs. The host keeps 32 MiB of pages and draws a glyph whose page is not resident blank, so the
+// pages one screen of text touches must stay few: with 4-row pages (312 glyphs, 3.4 MB) a screen
+// of 77 different syllables touched 9 Hangul pages plus the Latin ones (37 MB) and glyphs came
+// and went; with one-row pages (0.85 MB) it is about 31 pages (26 MB).
+enum class Lang : uint8_t { Kor, Jpn, Twn, Chn };
+inline constexpr size_t LangCount = 4;
+
+struct CjkSet {
+    uint32_t texture_entry; // LINKDATA id of the G1T
+    uint32_t code_entry;    // LINKDATA id of the UTF8TBL
+};
+inline constexpr CjkSet CjkSets[LangCount] = {{75, 80}, {71, 76}, {74, 78}, {73, 79}};
+
+inline constexpr uint32_t CjkAtlasW = 4096, CjkAtlasH = 4096;
+inline constexpr uint32_t CjkCellSize = 52, CjkColumns = 78;
+inline constexpr uint32_t PageRows = CjkCellSize; // 52
+inline constexpr uint32_t LatinPages = (AtlasHeight + PageRows - 1) / PageRows;  // 10
+inline constexpr uint32_t CjkPages = (CjkAtlasH + PageRows - 1) / PageRows;      // 79
+inline constexpr uint32_t HangulAdvance = 51, CjkAdvance = 52;
+inline constexpr uint32_t CjkLastCodepoint = 0xFFFF; // the whole BMP: the full width forms (U+FF00..) are the digits,
+                                                       // commas and marks the Japanese and Chinese texts use
+
+// Game language index (msgdata order: 0 JPN, 1.. Latin languages, 9 KOR, 10 TWN, 11 CHN) -> the
+// CJK set for it; false for the Latin-script languages (and anything out of range).
+bool LangFromIndex(int index, Lang& out);
+
+// Cell of a glyph index inside a CJK atlas; false out of range.
+bool CjkCell(uint32_t index, uint32_t& x, uint32_t& y);
+// First row of a set in the virtual atlas.
+uint32_t CjkBase(Lang lang);
+
+// Where the rows of virtual page `page` come from: the Latin atlas (latin = true) or a CJK atlas,
+// starting at row `y` of that atlas. False beyond the virtual atlas.
+struct PageSource {
+    bool latin{};
+    Lang lang{};
+    uint32_t y{};
+};
+bool PageSourceOf(uint32_t page, PageSource& out);
+inline constexpr uint32_t PageCount = LatinPages + uint32_t(LangCount) * CjkPages;
+
+struct CjkTable {
+    Lang lang{};
+    std::vector<uint32_t> codes; // DecodeCodeTable of the set's UTF8TBL
+};
+
+// Adds the glyphs of `tables` (earlier tables win) to a serif font from Build: only code points
+// that have no glyph yet. Extends the dense run up to CjkLastCodepoint as needed.
+void AddCjk(Font& font, std::span<const CjkTable> tables);
+
 } // namespace fe3h_font

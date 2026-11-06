@@ -221,6 +221,13 @@ public:
     void SetAssets(fe3h_assets::Library* lib) {
         assets = lib;
     }
+    /// The game's language index (the msgdata order: 0 JPN, 1 ENG_U, ..., 9 KOR, 10 TWN, 11 CHN;
+    /// the byte at +0x158 of the object `lang_var` points to), -1 while it cannot be read.
+    /// Tick thread only (reads guest memory like Sample).
+    int GameLanguage() const;
+    /// A few words of the game's own text in the language it runs (fe3h_language.h, BuildProbe),
+    /// read from the in-memory text manager; empty while it is not loaded. Tick thread only.
+    std::string LanguageProbe();
     /// The overlay images (thread-safe; load_image renders from it).
     DangerStore& Danger() {
         return *danger;
