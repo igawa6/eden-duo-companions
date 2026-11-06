@@ -2300,7 +2300,7 @@ EdenDsmodBool LoadImage(void* instance,const EdenDsmodHostApi*,const char* key,
       const uint32_t width=(rest.substr(0,slash)=="echo" || rest.substr(0,slash)=="automaton")?(title_image?580:930):InspectionWidth;
       if(title_image) {
         if(layout->use_body)
-          return RenderBodyParagraph(width==580?ready->echo_name_body:ready->hero_body,name,{237,184,185,255},width,layout->title_h,image) && Emit(image,receiver,sink);
+          return RenderBodyParagraph(InspectionNameFont(*ready,*layout,width),name,{237,184,185,255},width,layout->title_h,image) && Emit(image,receiver,sink);
         image=Image(width,static_cast<int>(layout->title_h));int y=0;
         for(const auto& line:layout->heading_lines) {
           Image glyphs;if(!RenderCompactHeading(ready->heading,line,{237,184,185,255},width,glyphs))return false;

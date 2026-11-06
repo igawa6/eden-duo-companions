@@ -23,7 +23,11 @@ bool BodyAtlas(const NativeFonts &native, std::span<const uint32_t> required,
 // Original native atlas metrics, one line, integer scale1; no substitutions.
 bool RenderBody(const FontAtlas& font, std::string_view text,
                 std::array<uint8_t,4> color, uint32_t width_bound, acnh::Image& out);
-// Native atlas pixels, word wrapping and explicit newlines; fixed-size output.
+// Ideographs, kana, CJK punctuation and full-width forms: text that wraps
+// between characters instead of at spaces. Hangul wraps at spaces.
+bool CjkCodepoint(uint32_t cp);
+// Native atlas pixels, word wrapping (between CJK characters too) and explicit
+// newlines; fixed-size output.
 // Unfittable text clears the output instead of clipping or substituting glyphs.
 bool RenderBodyParagraph(const FontAtlas& font, std::string_view text,
                          std::array<uint8_t,4> color, uint32_t width,

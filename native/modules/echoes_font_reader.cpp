@@ -10,6 +10,11 @@
 namespace echoes {
 namespace {
 constexpr std::string_view Standard = "nintendo_udsg-r_std_003";
+constexpr std::array<std::string_view, 2> SimplifiedChinese{
+    "nintendo_udsg-r_org_zh-cn_003", "nintendo_udsg-r_ext_zh-cn_003"};
+constexpr std::array<std::string_view, 1> TraditionalChinese{
+    "nintendo_udjxh-db_zh-tw_003"};
+constexpr std::array<std::string_view, 1> Korean{"nintendo_udsg-r_ko_003"};
 uint16_t BE16(const uint8_t *p) { return uint16_t(uint16_t(p[0]) << 8 | p[1]); }
 uint32_t BE32(const uint8_t *p) {
   return uint32_t(p[0]) << 24 | uint32_t(p[1]) << 16 | uint32_t(p[2]) << 8 |
@@ -40,7 +45,6 @@ struct Locale {
   uint64_t object{};
   uint32_t flag{};
   std::string root;
-  bool supported{};
   bool operator==(const Locale &) const = default;
 };
 bool GetLocale(const ReadFn &r, uint64_t b, Locale &l) {
@@ -59,9 +63,6 @@ bool GetLocale(const ReadFn &r, uint64_t b, Locale &l) {
   for (size_t i = 0; i < roots.size(); ++i)
     if (l.flag == (uint32_t(1) << i)) {
       l.root = roots[i];
-      // Japanese, US and EU roots use the Standard face as their primary
-      // shared font; Chinese and Korean need their own native faces.
-      l.supported = i <= 11;
       return true;
     }
   return false;
@@ -235,7 +236,19 @@ bool SameDescription(const Font &a, const Font &b) {
          a.face.family == b.face.family;
 }
 } // namespace
+std::span<const std::string_view> LocaleFontFamilies(uint32_t locale_flag) {
+  switch (locale_flag) {
+  case 0x1000: return SimplifiedChinese;
+  case 0x2000: return TraditionalChinese;
+  case 0x4000: return Korean;
+  default: return {};
+  }
+}
 bool ValidateStandardFontBytes(const std::vector<uint8_t>& bytes) {
+  return ValidateNativeFontBytes(bytes, Standard);
+}
+bool ValidateNativeFontBytes(const std::vector<uint8_t>& bytes,
+                             std::string_view family) {
   if (bytes.empty() || bytes.size() > MaxNativeFontBytes) return false;
   constexpr uint64_t base = 0x1000;
   const ReadFn read = [&](uint64_t at, void* output, size_t n) {
@@ -246,7 +259,7 @@ bool ValidateStandardFontBytes(const std::vector<uint8_t>& bytes) {
   };
   Font font;
   font.face.bytes = base;
-  return Describe(read, font) && font.face.family == Standard &&
+  return Describe(read, font) && font.face.family == family &&
          font.size == bytes.size() && Verify(font, bytes);
 }
 
@@ -272,14 +285,11 @@ NativeFonts ReadNativeFonts(const ReadFn &r, uint64_t b, bool build_matches) {
     out.locale_valid = true;
     out.locale_flag = l.flag;
     out.message_root = l.root;
-    out.body_font_supported = l.supported;
+    // Japanese, US and EU roots use the Standard face as their primary shared
+    // font; Chinese and Korean add their own native faces (LocaleFontFamilies).
+    out.body_font_supported = true;
     out.locale_object = l.object;
   };
-  if (!l.supported) {
-    if (GetLocale(r, b, last) && l == last)
-      publish_locale();
-    return out;
-  }
   Chain chain, final;
   if (!GetChain(r, b, chain)) {
     if (GetLocale(r, b, last) && l == last)
@@ -288,6 +298,8 @@ NativeFonts ReadNativeFonts(const ReadFn &r, uint64_t b, bool build_matches) {
   }
   std::vector<Font> fonts;
   size_t chosen = 16;
+  const auto families = LocaleFontFamilies(l.flag);
+  std::vector<size_t> locale(families.size(), 16);
   bool valid = true;
   for (const auto &n : chain.nodes) {
     Font f;
@@ -305,16 +317,29 @@ NativeFonts ReadNativeFonts(const ReadFn &r, uint64_t b, bool build_matches) {
       }
       chosen = fonts.size();
     }
+    for (size_t i = 0; i < families.size(); ++i)
+      if (f.face.family == families[i]) {
+        valid = valid && locale[i] == 16;
+        locale[i] = fonts.size();
+      }
+    if (!valid)
+      break;
     fonts.push_back(std::move(f));
   }
-  std::vector<uint8_t> copy;
-  if (valid && chosen != 16) {
-    const auto &f = fonts[chosen];
+  const auto copy_font = [&](size_t index, std::vector<uint8_t> &copy) {
+    if (index == 16)
+      return false;
+    const auto &f = fonts[index];
     copy.resize(f.size);
-    valid =
-        Read(r, f.face.bytes, 0, copy.data(), copy.size()) && Verify(f, copy);
-  } else
-    valid = false;
+    return Read(r, f.face.bytes, 0, copy.data(), copy.size()) && Verify(f, copy);
+  };
+  std::vector<uint8_t> copy;
+  std::vector<NativeFontCopy> locale_copies(families.size());
+  valid = valid && copy_font(chosen, copy);
+  for (size_t i = 0; valid && i < families.size(); ++i) {
+    locale_copies[i].family = families[i];
+    valid = copy_font(locale[i], locale_copies[i].bytes);
+  }
   if (valid)
     for (const auto &f : fonts) {
       Font check;
@@ -335,6 +360,7 @@ NativeFonts ReadNativeFonts(const ReadFn &r, uint64_t b, bool build_matches) {
     out.faces.push_back(f.face);
   out.standard_font_address = fonts[chosen].face.bytes;
   out.standard_font = std::move(copy);
+  out.locale_fonts = std::move(locale_copies);
   out.standard_font_valid = true;
   return out;
 }

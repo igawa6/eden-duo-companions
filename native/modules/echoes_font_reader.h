@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include "echoes_reader.h"
+#include <span>
 #include <string>
+#include <string_view>
 namespace echoes {
 inline constexpr size_t MaxNativeFontBytes = 16 * 1024 * 1024;
 inline constexpr std::array<IdentityGuard, 2> FontIdentityGuards{{
@@ -61,6 +63,15 @@ struct NativeFontFace {
   uint64_t node{}, resource{}, bytes{};
   std::string family;
 };
+// A validated owned copy of one native shared face.
+struct NativeFontCopy {
+  std::string family;
+  std::vector<uint8_t> bytes;
+};
+// Native faces that a language flag puts ahead of Standard: Simplified Chinese
+// (nn::pl types 1 and 2), Traditional Chinese (3) and Korean (4). Empty for
+// Japanese, US and EU languages.
+std::span<const std::string_view> LocaleFontFamilies(uint32_t locale_flag);
 struct NativeFonts {
   bool compatible{}, locale_valid{}, body_font_supported{},
       standard_font_valid{};
@@ -71,6 +82,9 @@ struct NativeFonts {
   uint64_t locale_object{}, engine{}, list_head{}, standard_font_address{};
   std::vector<NativeFontFace> faces;
   std::vector<uint8_t> standard_font;
+  // LocaleFontFamilies(locale_flag) in order, all present when
+  // standard_font_valid is set. Body glyphs prefer these, then Standard.
+  std::vector<NativeFontCopy> locale_fonts;
 };
 // main_base is the loaded main NSO base; build_matches is independently checked
 // by the caller. ReadFn reads guest bytes and must reject unmapped ranges.
@@ -83,4 +97,7 @@ NativeFonts ReadNativeFonts(const ReadFn &read, uint64_t main_base,
 // Validates an owned native Standard SFNT before passing it to a rasterizer.
 // No guest-memory access and no persistent cache.
 bool ValidateStandardFontBytes(const std::vector<uint8_t>& bytes);
+// The same validation for any expected native family name.
+bool ValidateNativeFontBytes(const std::vector<uint8_t>& bytes,
+                             std::string_view family);
 } // namespace echoes

@@ -190,7 +190,7 @@ int main() {
     acnh::Image image;
     if (layout.use_body) {
       Check(layout.heading_lines.empty() && layout.title_h == 180);
-      Check(echoes::RenderBodyParagraph(width==580?resources.echo_name_body:resources.hero_body, name, white, width,
+      Check(echoes::RenderBodyParagraph(echoes::InspectionNameFont(resources, layout, width), name, white, width,
                                         layout.title_h, image));
     } else {
       Check(!layout.heading_lines.empty() && layout.heading_lines.size() <= 2);
@@ -366,24 +366,41 @@ int main() {
   worker.join();
   Check(!result && !resources.Snapshot());
   Check(resources.EnsureReady());
-  // Every Standard-font root reaches readiness from its own message root and
-  // regional multi-sheet Heading font; Chinese and Korean stay unavailable.
+  // Every root reaches readiness from its own message root and regional
+  // multi-sheet Heading font. Chinese and Korean also need their native faces:
+  // private copies named <family>.ttf in ECHOES_CJK_FONTS.
   constexpr std::array<std::string_view, 15> roots{
       "regionJP/JPja", "regionUS/USen", "regionUS/USfr", "regionUS/USes",
       "regionUS/USpt", "regionEU/EUen", "regionEU/EUfr", "regionEU/EUes",
       "regionEU/EUde", "regionEU/EUit", "regionEU/EUnl", "regionEU/EUru",
       "regionCN/CNzh", "regionTW/TWzh", "regionKR/KRko"};
+  const char *cjk = std::getenv("ECHOES_CJK_FONTS");
   for (size_t i = 0; i < roots.size(); ++i) {
     if (i == 1)
       continue;
-    if (i <= 11 && !std::filesystem::exists(root / std::string(roots[i]) /
-                                            "message/glossary/CopyableActor.msbt")) {
+    if (!std::filesystem::exists(root / std::string(roots[i]) /
+                                 "message/glossary/CopyableActor.msbt")) {
       std::cout << "SKIP " << roots[i] << " (messages absent from ECHOES_ROMFS)\n";
       continue;
     }
     auto locale = std::make_shared<echoes::NativeFonts>(*native);
     locale->locale_flag = uint32_t(1) << i;
     locale->message_root = std::string(roots[i]);
+    const auto families = echoes::LocaleFontFamilies(locale->locale_flag);
+    Check((i > 11) == !families.empty());
+    if (!families.empty()) {
+      echoes::Resources missing(read);
+      missing.SetNativeFonts(locale);
+      Check(!missing.EnsureReady() && !missing.Snapshot());
+      if (!cjk) {
+        std::cout << "SKIP " << roots[i] << " (ECHOES_CJK_FONTS unset)\n";
+        continue;
+      }
+      for (auto family : families)
+        locale->locale_fonts.push_back(
+            {std::string(family),
+             File(std::filesystem::path(cjk) / (std::string(family) + ".ttf"))});
+    }
     echoes::Resources regional(read);
     regional.SetNativeFonts(locale);
     const bool ok = regional.EnsureReady();
@@ -398,10 +415,6 @@ int main() {
                 << ", locations " << snapshot->locations.size()
                 << ", ui " << snapshot->heading_ui_keys.size() << "/" << snapshot->ui.size();
     std::cout << '\n';
-    if (i > 11) {
-      Check(!ok && !snapshot);
-      continue;
-    }
     Check(ok && snapshot && snapshot->echoes.size() == 128 &&
           snapshot->message_root == roots[i] && !snapshot->body.image.Empty() &&
           !snapshot->heading.sheet.Empty() &&

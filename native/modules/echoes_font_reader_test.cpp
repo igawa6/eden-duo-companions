@@ -128,6 +128,24 @@ struct Memory {
     for (size_t i = 0; i < 8; ++i)
       a[24 + i] = uint8_t(n >> (8 * i));
   }
+  // Inserts a face at the list head, as the native loader does.
+  void Push(const std::string &family) {
+    const uint64_t at = Node + 64 * ++pushed, resource = Resource + 64 * pushed,
+                   blob = Blob + 4096 * pushed;
+    std::array<uint8_t, 32> node{};
+    uint64_t head{};
+    Read(Engine + 8, &head, 8);
+    for (size_t i = 0; i < 8; ++i) {
+      node[8 + i] = uint8_t(resource >> (8 * i));
+      node[24 + i] = uint8_t(head >> (8 * i));
+    }
+    Put(at, node.data(), node.size());
+    U64(resource + 0x10, blob);
+    auto f = Font(family);
+    Put(blob, f.data(), f.size());
+    U64(Engine + 8, at);
+  }
+  size_t pushed = 0;
 };
 size_t cases = 0;
 void Check(bool value) {
@@ -179,11 +197,64 @@ int main() {
     Memory m;
     m.U32(Locale + 0x20, uint32_t(1) << i);
     auto s = m.Run();
+    // Chinese and Korean also need their own faces, absent here.
     bool supported = i <= 11;
     Check(s.locale_valid && s.message_root == roots[i] &&
-          s.body_font_supported == supported &&
-          s.standard_font_valid == supported &&
-          (supported || s.standard_font.empty()));
+          s.body_font_supported && s.standard_font_valid == supported &&
+          (supported || s.standard_font.empty()) && s.locale_fonts.empty());
+  }
+  // The native list of all six shared faces, Standard loaded first.
+  const auto shared = [](Memory &m) {
+    for (auto family : {"nintendo_udsg-r_org_zh-cn_003",
+                        "nintendo_udsg-r_ext_zh-cn_003",
+                        "nintendo_udjxh-db_zh-tw_003", "nintendo_udsg-r_ko_003",
+                        "NintendoExt003"})
+      m.Push(family);
+  };
+  for (auto [flag, count] : {std::pair{0x1000u, 2u}, std::pair{0x2000u, 1u},
+                             std::pair{0x4000u, 1u}, std::pair{0x2u, 0u},
+                             std::pair{0x1u, 0u}}) {
+    Memory m;
+    shared(m);
+    m.U32(Locale + 0x20, flag);
+    auto s = m.Run();
+    const auto families = echoes::LocaleFontFamilies(flag);
+    Check(s.standard_font_valid && s.faces.size() == 6 &&
+          families.size() == count && s.locale_fonts.size() == count);
+    for (size_t i = 0; i < count; ++i)
+      Check(s.locale_fonts[i].family == families[i] &&
+            echoes::ValidateNativeFontBytes(s.locale_fonts[i].bytes,
+                                            families[i]) &&
+            !echoes::ValidateStandardFontBytes(s.locale_fonts[i].bytes));
+  }
+  Check(echoes::LocaleFontFamilies(0x1000)[0] == "nintendo_udsg-r_org_zh-cn_003" &&
+        echoes::LocaleFontFamilies(0x1000)[1] == "nintendo_udsg-r_ext_zh-cn_003" &&
+        echoes::LocaleFontFamilies(0x2000)[0] == "nintendo_udjxh-db_zh-tw_003" &&
+        echoes::LocaleFontFamilies(0x4000)[0] == "nintendo_udsg-r_ko_003");
+  {
+    // A missing Simplified Chinese extension face publishes no font.
+    Memory m;
+    m.Push("nintendo_udsg-r_org_zh-cn_003");
+    m.U32(Locale + 0x20, 0x1000);
+    auto s = m.Run();
+    Check(s.locale_valid && !s.standard_font_valid && s.standard_font.empty() &&
+          s.locale_fonts.empty());
+  }
+  {
+    // Two faces with the Korean family are ambiguous.
+    Memory m;
+    m.Push("nintendo_udsg-r_ko_003");
+    m.Push("nintendo_udsg-r_ko_003");
+    m.U32(Locale + 0x20, 0x4000);
+    Check(!m.Run().standard_font_valid);
+  }
+  {
+    // A corrupt Korean face publishes no font.
+    Memory m;
+    m.Push("nintendo_udsg-r_ko_003");
+    m.ranges.at(Blob + 4096)[100] ^= 1;
+    m.U32(Locale + 0x20, 0x4000);
+    Check(!m.Run().standard_font_valid);
   }
   for (auto flag : {0u, 3u, 0x8000u}) {
     Memory m;

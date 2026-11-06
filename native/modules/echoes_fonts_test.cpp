@@ -189,5 +189,66 @@ int main() {
     std::cout << "All regional Heading fonts decoded\n";
   } else
     std::cout << "SKIP regional Heading fonts (ECHOES_HEADING_DIR unset)\n";
+  Check(echoes::CjkCodepoint(0x4e00) && echoes::CjkCodepoint(0x3042) &&
+        echoes::CjkCodepoint(0x3002) && echoes::CjkCodepoint(0xff01) &&
+        !echoes::CjkCodepoint('A') && !echoes::CjkCodepoint(0xac00) &&
+        !echoes::CjkCodepoint(0x3131) && !echoes::CjkCodepoint(0xe9));
+  // Private copies of the native Chinese and Korean shared faces, named
+  // <family>.ttf, plus ECHOES_FONT_TTF for Standard.
+  const char *cjk = std::getenv("ECHOES_CJK_FONTS");
+  const char *standard = std::getenv("ECHOES_FONT_TTF");
+  if (cjk && standard) {
+    struct Sample {
+      uint32_t flag;
+      const char *text;
+    };
+    // Native-language sample words; only glyph coverage and wrapping matter.
+    for (auto [flag, text] :
+         {Sample{0x1000, "\xe6\x8c\x89\xe4\xb8\x8b\xe6\x8c\xa5\xe5\x89\x91\xe3\x80\x82"},
+          Sample{0x2000, "\xe6\x8c\x89\xe4\xb8\x8b\xe6\x8f\xae\xe5\x8a\x8d\xe3\x80\x82"},
+          Sample{0x4000, "\xea\xb2\x80\xec\x9d\x84 \xed\x9c\x98\xeb\x91\x90\xeb\xa5\xb8\xeb\x8b\xa4."}}) {
+      auto native = Input(File(standard));
+      native.locale_flag = flag;
+      std::vector<uint32_t> required = cps;
+      for (const auto &family : echoes::LocaleFontFamilies(flag))
+        native.locale_fonts.push_back(
+            {std::string(family),
+             File((std::string(cjk) + "/" + std::string(family) + ".ttf").c_str())});
+      std::string paragraph;
+      for (int i = 0; i < 12; ++i)
+        paragraph += text;
+      for (size_t i = 0; i < paragraph.size();) {
+        uint32_t cp = uint8_t(paragraph[i++]);
+        const size_t n = cp >= 0xe0 ? 2 : cp >= 0xc0 ? 1 : 0;
+        cp &= n ? 0x3fu >> n : 0x7fu;
+        for (size_t j = 0; j < n; ++j)
+          cp = cp << 6 | (uint8_t(paragraph[i++]) & 63);
+        required.push_back(cp);
+      }
+      Check(echoes::BodyAtlas(native, required, atlas));
+      const auto &h = atlas.glyphs['H' - atlas.first_codepoint];
+      Check(h.h >= 29 && h.h <= 30);
+      // One unbroken CJK run wraps between characters; Korean at spaces.
+      Check(!echoes::RenderBody(atlas, paragraph, {255, 255, 255, 255}, 392, image));
+      Check(echoes::RenderBodyParagraph(atlas, paragraph, {255, 255, 255, 255},
+                                        392, 1024, image));
+      size_t rows = 0;
+      for (int y = 0; y < image.h; y += 38)
+        for (int x = 0; x < image.w; ++x)
+          if (image.At(x, y + 10)[3]) {
+            ++rows;
+            break;
+          }
+      Check(rows >= 3);
+      auto wrong = native;
+      wrong.locale_fonts.clear();
+      Check(!echoes::BodyAtlas(wrong, required, atlas) && atlas.image.Empty());
+      wrong = native;
+      wrong.locale_fonts[0].bytes[100] ^= 1;
+      Check(!echoes::BodyAtlas(wrong, required, atlas));
+    }
+    std::cout << "Native Chinese and Korean body atlases wrap\n";
+  } else
+    std::cout << "SKIP Chinese and Korean faces (ECHOES_CJK_FONTS unset)\n";
   std::cout << checks << " font rendering checks passed\n";
 }

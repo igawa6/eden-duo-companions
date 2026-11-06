@@ -14,13 +14,14 @@ bool LocaleMatches(const NativeFonts &n) {
       "regionCN/CNzh", "regionTW/TWzh", "regionKR/KRko"};
   for (size_t i = 0; i < roots.size(); ++i)
     if (n.locale_flag == (uint32_t(1) << i))
-      return i <= 11 && n.message_root == roots[i];
+      return n.message_root == roots[i];
   return false;
 }
 bool Usable(const std::shared_ptr<const NativeFonts> &n) {
   return n && n->compatible && n->locale_valid && n->body_font_supported &&
          n->standard_font_valid && !n->standard_font.empty() &&
-         n->standard_font.size() <= MaxNativeFontBytes && LocaleMatches(*n);
+         n->standard_font.size() <= MaxNativeFontBytes && LocaleMatches(*n) &&
+         n->locale_fonts.size() == LocaleFontFamilies(n->locale_flag).size();
 }
 bool ReadFile(const ResourceReadAssetFn &read, std::string_view path,
               std::vector<uint8_t> &bytes) {
@@ -76,6 +77,17 @@ bool HeadingSupports(const HeadingFont &f, std::string_view value) {
     return false;
   return std::all_of(cp.begin(), cp.end(),
                      [&](uint32_t c) { return f.glyphs.contains(c); });
+}
+// Codepoint whose UTF-8 encoding starts at `at`; zero when malformed.
+uint32_t CodepointAt(std::string_view text, size_t at) {
+  std::vector<uint32_t> cp;
+  size_t end = at + 1;
+  while (end < text.size() && (uint8_t(text[end]) & 0xc0) == 0x80)
+    ++end;
+  return at < text.size() && Codepoints(text.substr(at, end - at), cp) &&
+                 cp.size() == 1
+             ? cp[0]
+             : 0;
 }
 uint32_t InkHeight(const acnh::Image &image) {
   for (int y = image.h; y > 0; --y)
@@ -133,18 +145,24 @@ bool InspectionLayout(const ReadyResources &resources, std::string_view name,
   } else {
     layout.heading_lines.clear();
     acnh::Image measure;
-    const auto& name_body=width==580?resources.echo_name_body:resources.hero_body;
-    if (name_body.image.Empty() ||
-        !RenderBodyParagraph(name_body, name, white, width, 180,
-                             measure))
-      return false;
+    // A word wider than the column at the 36 px cap tries the 29 px atlas.
+    const auto fits = [&] {
+      const auto &name_body = InspectionNameFont(resources, layout, width);
+      return !name_body.image.Empty() &&
+             RenderBodyParagraph(name_body, name, white, width, 180, measure);
+    };
+    if (!fits()) {
+      layout.small_body = width != 580;
+      if (!layout.small_body || !fits())
+        return false;
+    }
     layout.use_body = true;
     layout.title_h = 180;
   }
   // Measure immutable native title ink once; the Echo favorite follows the name.
   acnh::Image title_measure;
   if(layout.use_body) {
-    const auto& font=width==580?resources.echo_name_body:resources.hero_body;
+    const auto& font=InspectionNameFont(resources,layout,width);
     if(!RenderBodyParagraph(font,name,white,width,layout.title_h,title_measure))return false;
   } else {
     title_measure=acnh::Image(width,layout.title_h);
@@ -467,6 +485,12 @@ std::shared_ptr<ReadyResources> Build(const ResourceReadAssetFn &read,
   return out;
 }
 } // namespace
+const FontAtlas &InspectionNameFont(const ReadyResources &resources,
+                                   const InspectionTextLayout &layout,
+                                   uint32_t width) {
+  return width == 580 || layout.small_body ? resources.echo_name_body
+                                           : resources.hero_body;
+}
 std::string InspectionDescription(std::string_view text) {
   std::string result;
   result.reserve(text.size());
@@ -482,7 +506,13 @@ std::string InspectionDescription(std::string_view text) {
         ++at;
       ++lines;
     } while (at < text.size() && (text[at] == '\n' || text[at] == '\r'));
-    result += lines == 1 ? " " : "\n\n";
+    // A soft break between CJK characters joins them without a space.
+    size_t last = result.size();
+    while (last && (uint8_t(result[last - 1]) & 0xc0) == 0x80)
+      --last;
+    const bool cjk = last && (CjkCodepoint(CodepointAt(result, last - 1)) ||
+                              CjkCodepoint(CodepointAt(text, at)));
+    result += lines == 1 ? (cjk ? "" : " ") : "\n\n";
   }
   return result;
 }

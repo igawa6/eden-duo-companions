@@ -26,11 +26,18 @@ inline constexpr uint32_t InspectionWidth = 392;
 struct InspectionTextLayout {
   std::vector<std::string> heading_lines;
   bool use_body{};
+  // Body title in the 29 px name atlas instead of the 36 px one.
+  bool small_body{};
   uint32_t title_h{}, description_h{}, title_right{}, title_bottom{};
 };
 // Native prose is authored for a wider menu. Reflow soft line breaks in the
 // inspection column while retaining explicit paragraph boundaries and words.
 std::string InspectionDescription(std::string_view text);
+struct ReadyResources;
+// The body atlas of a use_body title.
+const FontAtlas &InspectionNameFont(const ReadyResources &resources,
+                                   const InspectionTextLayout &layout,
+                                   uint32_t width);
 struct ReadyResources {
   uint32_t locale_flag{};
   std::string message_root;

@@ -60,7 +60,47 @@ bool Utf8(std::string_view text, std::vector<uint32_t> &result) {
   }
   return true;
 }
+// A line may not start with closing punctuation or small kana, nor end with
+// opening punctuation.
+bool NoBreakBefore(uint32_t cp) {
+  static constexpr std::u32string_view closing =
+      U"、。，．・：；？！）」』】〕〉》〗〙｝］ー々ゝゞぁぃぅぇぉっゃゅょゎ"
+      U"ァィゥェォッャュョヮヵヶ…‥!),.:;?]}";
+  return closing.find(char32_t(cp)) != std::u32string_view::npos;
+}
+bool NoBreakAfter(uint32_t cp) {
+  static constexpr std::u32string_view opening = U"（「『【〔〈《〖〘｛［([{";
+  return opening.find(char32_t(cp)) != std::u32string_view::npos;
+}
+// Splits a space-free word where CJK text may wrap.
+std::vector<std::string_view> Segments(std::string_view word) {
+  std::vector<std::string_view> out;
+  uint32_t previous = 0;
+  size_t start = 0;
+  for (size_t at = 0; at < word.size();) {
+    const size_t begin = at;
+    uint32_t cp = uint8_t(word[at++]);
+    const size_t n = cp >= 0xf0 ? 3 : cp >= 0xe0 ? 2 : cp >= 0xc0 ? 1 : 0;
+    cp &= n ? 0x3fu >> n : 0x7fu;
+    for (size_t i = 0; i < n && at < word.size(); ++i)
+      cp = cp << 6 | (uint8_t(word[at++]) & 63);
+    if (begin && (CjkCodepoint(previous) || CjkCodepoint(cp)) &&
+        !NoBreakBefore(cp) && !NoBreakAfter(previous)) {
+      out.push_back(word.substr(start, begin - start));
+      start = begin;
+    }
+    previous = cp;
+  }
+  out.push_back(word.substr(start));
+  return out;
+}
 } // namespace
+bool CjkCodepoint(uint32_t cp) {
+  return ((cp >= 0x2e80 && cp <= 0x9fff) && !(cp >= 0x3130 && cp <= 0x318f)) ||
+         (cp >= 0xf900 && cp <= 0xfaff) || (cp >= 0xfe30 && cp <= 0xfe4f) ||
+         (cp >= 0xff00 && cp <= 0xff60) || (cp >= 0xffe0 && cp <= 0xffe6) ||
+         (cp >= 0x20000 && cp <= 0x3ffff);
+}
 std::vector<uint32_t> EnglishBodyCodepoints() {
   std::vector<uint32_t> cp;
   for (uint32_t i = 32; i <= 126; ++i)
@@ -79,13 +119,28 @@ bool BodyAtlas(const NativeFonts &native, std::span<const uint32_t> required,
   // The reader's checksum-validated owned snapshot is the trust boundary. The
   // caller must preserve these immutable bytes; arbitrary external TTFs are not
   // an input format for this helper (stb_truetype is not a hostile-file
-  // parser).
+  // parser). Chinese and Korean faces come first, then Standard, like the
+  // native shared-font priority.
+  const auto families = LocaleFontFamilies(native.locale_flag);
+  if (native.locale_fonts.size() != families.size())
+    return false;
+  std::vector<const std::vector<uint8_t> *> faces;
+  for (size_t i = 0; i < families.size(); ++i) {
+    const auto &copy = native.locale_fonts[i];
+    if (copy.family != families[i] ||
+        !ValidateNativeFontBytes(copy.bytes, families[i]))
+      return false;
+    faces.push_back(&copy.bytes);
+  }
   const auto &bytes = native.standard_font;
   if (bytes.size() > MaxNativeFontBytes || !ValidateStandardFontBytes(bytes))
     return false;
-  stbtt_fontinfo info{};
-  if (!stbtt_InitFont(&info, bytes.data(), 0))
-    return false;
+  faces.push_back(&bytes);
+  std::vector<stbtt_fontinfo> infos(faces.size());
+  for (size_t i = 0; i < faces.size(); ++i)
+    if (!stbtt_InitFont(&infos[i], faces[i]->data(), 0))
+      return false;
+  auto &info = infos.back();
   std::set<uint32_t> cps(required.begin(), required.end());
   cps.insert(32);
   if (!Scalar(*cps.begin()) || *cps.rbegin() > 0x10ffff ||
@@ -95,20 +150,31 @@ bool BodyAtlas(const NativeFonts &native, std::span<const uint32_t> required,
   if (!stbtt_GetCodepointBox(&info, 'H', &hx0, &hy0, &hx1, &hy1) || hy1 <= hy0)
     return false;
   const float scale = float(cap_height) / float(hy1 - hy0);
+  // Standard's H fixes the em; the other faces share that em size.
+  const float em = scale / stbtt_ScaleForMappingEmToPixels(&info, 1);
+  std::vector<float> scales;
+  for (auto &face : infos)
+    scales.push_back(&face == &info ? scale
+                                    : stbtt_ScaleForMappingEmToPixels(&face, em));
   struct Raster {
     uint32_t cp;
+    size_t face;
     int x0, y0, w, h, advance;
     uint32_t x, y;
   };
   std::vector<Raster> glyphs;
   uint32_t x = 1, y = 1, shelf = 0, page = 0;
   for (uint32_t cp : cps) {
-    if (!Scalar(cp) || !stbtt_FindGlyphIndex(&info, int(cp)))
+    size_t face = 0;
+    while (face < infos.size() && !stbtt_FindGlyphIndex(&infos[face], int(cp)))
+      ++face;
+    if (!Scalar(cp) || face == infos.size())
       return false;
+    const float s = scales[face];
     int x0{}, y0{}, x1{}, y1{}, advance{}, bearing{};
-    stbtt_GetCodepointBitmapBox(&info, int(cp), scale, scale, &x0, &y0, &x1,
+    stbtt_GetCodepointBitmapBox(&infos[face], int(cp), s, s, &x0, &y0, &x1,
                                 &y1);
-    stbtt_GetCodepointHMetrics(&info, int(cp), &advance, &bearing);
+    stbtt_GetCodepointHMetrics(&infos[face], int(cp), &advance, &bearing);
     if (x1 < x0 || y1 < y0 || x1 - x0 > 1022 || y1 - y0 > 510 ||
         x0 < INT16_MIN || x0 > INT16_MAX || -y0 < INT16_MIN || -y0 > INT16_MAX)
       return false;
@@ -126,11 +192,11 @@ bool BodyAtlas(const NativeFonts &native, std::span<const uint32_t> required,
     }
     if ((size_t(page) + 1) * AtlasWidth * PageHeight * 4 > PixelBudget)
       return false;
-    int ax = int(std::lround(float(advance) * scale));
+    int ax = int(std::lround(float(advance) * s));
     if (ax < 0 || ax > UINT16_MAX)
       return false;
     glyphs.push_back(
-        {cp, x0, y0, int(w), int(h), ax, x, page * PageHeight + y});
+        {cp, face, x0, y0, int(w), int(h), ax, x, page * PageHeight + y});
     x += w + 2;
     shelf = std::max(shelf, h + 2);
   }
@@ -145,8 +211,8 @@ bool BodyAtlas(const NativeFonts &native, std::span<const uint32_t> required,
   for (const auto &g : glyphs) {
     std::vector<uint8_t> mask(size_t(g.w) * size_t(g.h));
     if (g.w && g.h)
-      stbtt_MakeCodepointBitmap(&info, mask.data(), g.w, g.h, g.w, scale, scale,
-                                int(g.cp));
+      stbtt_MakeCodepointBitmap(&infos[g.face], mask.data(), g.w, g.h, g.w,
+                                scales[g.face], scales[g.face], int(g.cp));
     for (int iy = 0; iy < g.h; ++iy)
       for (int ix = 0; ix < g.w; ++ix)
         result.image
@@ -427,12 +493,17 @@ bool RenderBodyParagraph(const FontAtlas& font, std::string_view text,
     if (c==' ' || c=='\r' || c=='\t') { ++at; continue; }
     const auto end=text.find_first_of(" \r\n\t",at);
     const auto word=text.substr(at,end==std::string_view::npos?text.size()-at:end-at);
-    std::string candidate=line.empty()?std::string(word):line+" "+std::string(word);
-    acnh::Image measure;
-    if (!RenderBody(font,candidate,color,width,measure)) {
-      if (line.empty() || !emit() || !RenderBody(font,word,color,width,measure)) return false;
-      line=word;
-    } else line=std::move(candidate);
+    // CJK segments of one word join without a space.
+    bool spaced=true;
+    for (const auto segment:Segments(word)) {
+      std::string candidate=line.empty()?std::string(segment):line+(spaced?" ":"")+std::string(segment);
+      acnh::Image measure;
+      if (!RenderBody(font,candidate,color,width,measure)) {
+        if (line.empty() || !emit() || !RenderBody(font,segment,color,width,measure)) return false;
+        line=segment;
+      } else line=std::move(candidate);
+      spaced=false;
+    }
     at=end==std::string_view::npos?text.size():end;
   }
   if (!line.empty() && !emit()) return false;
