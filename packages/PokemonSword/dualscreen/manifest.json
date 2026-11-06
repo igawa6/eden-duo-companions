@@ -57295,6 +57295,26 @@
     {
      "type": "image",
      "rect": [
+      146,
+      836,
+      208,
+      208
+     ],
+     "empty_src": "",
+     "src": "file:img/rr104.png",
+     "tint": "#FF1F1D1C",
+     "fill": "slice",
+     "slice": [
+      104,
+      104,
+      104,
+      104
+     ],
+     "need_bind": "d.move.dynamax.0"
+    },
+    {
+     "type": "image",
+     "rect": [
       150,
       840,
       200,
@@ -57303,7 +57323,7 @@
      "empty_src": "",
      "src": "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#battle_dm_00^s",
      "tint": "#FFC81450",
-     "need_bind": "d.move.dynamax.0"
+     "need_bind": "d.move.dynamax.1"
     },
     {
      "type": "image",
@@ -57318,7 +57338,7 @@
      "tint": "#FFC81450",
      "flip_x": true,
      "flip_y": true,
-     "need_bind": "d.move.dynamax.1"
+     "need_bind": "d.move.dynamax.2"
     },
     {
      "type": "image",
@@ -57331,7 +57351,7 @@
      "empty_src": "",
      "src": "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#battle_dm_03^s",
      "tint": "#FFFFFFFF",
-     "need_bind": "d.move.dynamax.2",
+     "need_bind": "d.move.dynamax.3",
      "anim": {
       "bind": "d.anim.dmax_on",
       "group": "dmax_on",
@@ -57352,7 +57372,7 @@
      "tint": "#FFFFFFFF",
      "flip_x": true,
      "flip_y": true,
-     "need_bind": "d.move.dynamax.3",
+     "need_bind": "d.move.dynamax.4",
      "anim": {
       "bind": "d.anim.dmax_on",
       "group": "dmax_on",
@@ -57370,7 +57390,7 @@
      ],
      "empty_src": "",
      "src": "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#battle_dm_01^s",
-     "need_bind": "d.move.dynamax.4"
+     "need_bind": "d.move.dynamax.5"
     },
     {
      "type": "image",
@@ -57388,7 +57408,7 @@
       0.9258,
       0.8359
      ],
-     "need_bind": "d.move.dynamax.5",
+     "need_bind": "d.move.dynamax.6",
      "bind": "d.lang",
      "src_names": [
       "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#grptxt_battle_dm_00^q",
@@ -57415,7 +57435,23 @@
      "bg": "#00000000",
      "color": "#00000000",
      "on_tap": "battle_dynamax_tap",
-     "need_bind": "d.move.dynamax.6"
+     "hide_bind": "sw.battle.native.dmax_cell",
+     "hide_eq": 1,
+     "need_bind": "d.move.dynamax.7"
+    },
+    {
+     "type": "button",
+     "rect": [
+      150,
+      840,
+      200,
+      200
+     ],
+     "text": "",
+     "bg": "#00000000",
+     "color": "#00000000",
+     "on_tap": "battle_native_a",
+     "need_bind": "d.move.dynamax.8"
     },
     {
      "type": "label",
@@ -57433,7 +57469,7 @@
      "max_lines": 1,
      "fit_text": true,
      "text_min_scale": 4,
-     "need_bind": "d.move.dynamax.7"
+     "need_bind": "d.move.dynamax.9"
     },
     {
      "type": "image",
@@ -59343,6 +59379,26 @@
     {
      "type": "image",
      "rect": [
+      60,
+      766,
+      208,
+      208
+     ],
+     "empty_src": "",
+     "src": "file:img/rr104.png",
+     "tint": "#FF1F1D1C",
+     "fill": "slice",
+     "slice": [
+      104,
+      104,
+      104,
+      104
+     ],
+     "need_bind": "d.move.dynamax.c.0"
+    },
+    {
+     "type": "image",
+     "rect": [
       64,
       770,
       200,
@@ -59351,7 +59407,7 @@
      "empty_src": "",
      "src": "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#battle_dm_00^s",
      "tint": "#FFC81450",
-     "need_bind": "d.move.dynamax.c.0"
+     "need_bind": "d.move.dynamax.c.1"
     },
     {
      "type": "image",
@@ -59366,7 +59422,7 @@
      "tint": "#FFC81450",
      "flip_x": true,
      "flip_y": true,
-     "need_bind": "d.move.dynamax.c.1"
+     "need_bind": "d.move.dynamax.c.2"
     },
     {
      "type": "image",
@@ -59379,7 +59435,7 @@
      "empty_src": "",
      "src": "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#battle_dm_03^s",
      "tint": "#FFFFFFFF",
-     "need_bind": "d.move.dynamax.c.2",
+     "need_bind": "d.move.dynamax.c.3",
      "anim": {
       "bind": "d.anim.dmax_on.c",
       "group": "dmax_on.c",
@@ -59400,7 +59456,7 @@
      "tint": "#FFFFFFFF",
      "flip_x": true,
      "flip_y": true,
-     "need_bind": "d.move.dynamax.c.3",
+     "need_bind": "d.move.dynamax.c.4",
      "anim": {
       "bind": "d.anim.dmax_on.c",
       "group": "dmax_on.c",
@@ -59418,7 +59474,7 @@
      ],
      "empty_src": "",
      "src": "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#battle_dm_01^s",
-     "need_bind": "d.move.dynamax.c.4"
+     "need_bind": "d.move.dynamax.c.5"
     },
     {
      "type": "image",
@@ -59436,7 +59492,7 @@
       0.9258,
       0.8359
      ],
-     "need_bind": "d.move.dynamax.c.5",
+     "need_bind": "d.move.dynamax.c.6",
      "bind": "d.lang",
      "src_names": [
       "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#grptxt_battle_dm_00^q",
@@ -59463,7 +59519,23 @@
      "bg": "#00000000",
      "color": "#00000000",
      "on_tap": "battle_dynamax_tap",
-     "need_bind": "d.move.dynamax.c.6"
+     "hide_bind": "sw.battle.native.dmax_cell",
+     "hide_eq": 1,
+     "need_bind": "d.move.dynamax.c.7"
+    },
+    {
+     "type": "button",
+     "rect": [
+      64,
+      770,
+      200,
+      200
+     ],
+     "text": "",
+     "bg": "#00000000",
+     "color": "#00000000",
+     "on_tap": "battle_native_a",
+     "need_bind": "d.move.dynamax.c.8"
     },
     {
      "type": "label",
@@ -59481,7 +59553,7 @@
      "max_lines": 1,
      "fit_text": true,
      "text_min_scale": 4,
-     "need_bind": "d.move.dynamax.c.7"
+     "need_bind": "d.move.dynamax.c.9"
     },
     {
      "type": "button",
@@ -74079,6 +74151,26 @@
     {
      "type": "image",
      "rect": [
+      146,
+      836,
+      208,
+      208
+     ],
+     "empty_src": "",
+     "src": "file:img/rr104.png",
+     "tint": "#FF1F1D1C",
+     "fill": "slice",
+     "slice": [
+      104,
+      104,
+      104,
+      104
+     ],
+     "need_bind": "d.move.dynamax.0"
+    },
+    {
+     "type": "image",
+     "rect": [
       150,
       840,
       200,
@@ -74087,7 +74179,7 @@
      "empty_src": "",
      "src": "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#battle_dm_00^s",
      "tint": "#FFC81450",
-     "need_bind": "d.move.dynamax.0"
+     "need_bind": "d.move.dynamax.1"
     },
     {
      "type": "image",
@@ -74102,7 +74194,7 @@
      "tint": "#FFC81450",
      "flip_x": true,
      "flip_y": true,
-     "need_bind": "d.move.dynamax.1"
+     "need_bind": "d.move.dynamax.2"
     },
     {
      "type": "image",
@@ -74115,7 +74207,7 @@
      "empty_src": "",
      "src": "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#battle_dm_03^s",
      "tint": "#FFFFFFFF",
-     "need_bind": "d.move.dynamax.2",
+     "need_bind": "d.move.dynamax.3",
      "anim": {
       "bind": "d.anim.dmax_on",
       "group": "dmax_on",
@@ -74136,7 +74228,7 @@
      "tint": "#FFFFFFFF",
      "flip_x": true,
      "flip_y": true,
-     "need_bind": "d.move.dynamax.3",
+     "need_bind": "d.move.dynamax.4",
      "anim": {
       "bind": "d.anim.dmax_on",
       "group": "dmax_on",
@@ -74154,7 +74246,7 @@
      ],
      "empty_src": "",
      "src": "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#battle_dm_01^s",
-     "need_bind": "d.move.dynamax.4"
+     "need_bind": "d.move.dynamax.5"
     },
     {
      "type": "image",
@@ -74172,7 +74264,7 @@
       0.9258,
       0.8359
      ],
-     "need_bind": "d.move.dynamax.5",
+     "need_bind": "d.move.dynamax.6",
      "bind": "d.lang",
      "src_names": [
       "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#grptxt_battle_dm_00^q",
@@ -74199,7 +74291,23 @@
      "bg": "#00000000",
      "color": "#00000000",
      "on_tap": "battle_dynamax_tap",
-     "need_bind": "d.move.dynamax.6"
+     "hide_bind": "sw.battle.native.dmax_cell",
+     "hide_eq": 1,
+     "need_bind": "d.move.dynamax.7"
+    },
+    {
+     "type": "button",
+     "rect": [
+      150,
+      840,
+      200,
+      200
+     ],
+     "text": "",
+     "bg": "#00000000",
+     "color": "#00000000",
+     "on_tap": "battle_native_a",
+     "need_bind": "d.move.dynamax.8"
     },
     {
      "type": "label",
@@ -74217,7 +74325,7 @@
      "max_lines": 1,
      "fit_text": true,
      "text_min_scale": 4,
-     "need_bind": "d.move.dynamax.7"
+     "need_bind": "d.move.dynamax.9"
     },
     {
      "type": "image",
@@ -76127,6 +76235,26 @@
     {
      "type": "image",
      "rect": [
+      60,
+      766,
+      208,
+      208
+     ],
+     "empty_src": "",
+     "src": "file:img/rr104.png",
+     "tint": "#FF1F1D1C",
+     "fill": "slice",
+     "slice": [
+      104,
+      104,
+      104,
+      104
+     ],
+     "need_bind": "d.move.dynamax.c.0"
+    },
+    {
+     "type": "image",
+     "rect": [
       64,
       770,
       200,
@@ -76135,7 +76263,7 @@
      "empty_src": "",
      "src": "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#battle_dm_00^s",
      "tint": "#FFC81450",
-     "need_bind": "d.move.dynamax.c.0"
+     "need_bind": "d.move.dynamax.c.1"
     },
     {
      "type": "image",
@@ -76150,7 +76278,7 @@
      "tint": "#FFC81450",
      "flip_x": true,
      "flip_y": true,
-     "need_bind": "d.move.dynamax.c.1"
+     "need_bind": "d.move.dynamax.c.2"
     },
     {
      "type": "image",
@@ -76163,7 +76291,7 @@
      "empty_src": "",
      "src": "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#battle_dm_03^s",
      "tint": "#FFFFFFFF",
-     "need_bind": "d.move.dynamax.c.2",
+     "need_bind": "d.move.dynamax.c.3",
      "anim": {
       "bind": "d.anim.dmax_on.c",
       "group": "dmax_on.c",
@@ -76184,7 +76312,7 @@
      "tint": "#FFFFFFFF",
      "flip_x": true,
      "flip_y": true,
-     "need_bind": "d.move.dynamax.c.3",
+     "need_bind": "d.move.dynamax.c.4",
      "anim": {
       "bind": "d.anim.dmax_on.c",
       "group": "dmax_on.c",
@@ -76202,7 +76330,7 @@
      ],
      "empty_src": "",
      "src": "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#battle_dm_01^s",
-     "need_bind": "d.move.dynamax.c.4"
+     "need_bind": "d.move.dynamax.c.5"
     },
     {
      "type": "image",
@@ -76220,7 +76348,7 @@
       0.9258,
       0.8359
      ],
-     "need_bind": "d.move.dynamax.c.5",
+     "need_bind": "d.move.dynamax.c.6",
      "bind": "d.lang",
      "src_names": [
       "romfs:/bin/appli/battle/bin/battle_skillSelect_00_eng.arc#timg/__Combined.bntx#grptxt_battle_dm_00^q",
@@ -76247,7 +76375,23 @@
      "bg": "#00000000",
      "color": "#00000000",
      "on_tap": "battle_dynamax_tap",
-     "need_bind": "d.move.dynamax.c.6"
+     "hide_bind": "sw.battle.native.dmax_cell",
+     "hide_eq": 1,
+     "need_bind": "d.move.dynamax.c.7"
+    },
+    {
+     "type": "button",
+     "rect": [
+      64,
+      770,
+      200,
+      200
+     ],
+     "text": "",
+     "bg": "#00000000",
+     "color": "#00000000",
+     "on_tap": "battle_native_a",
+     "need_bind": "d.move.dynamax.c.8"
     },
     {
      "type": "label",
@@ -76265,7 +76409,7 @@
      "max_lines": 1,
      "fit_text": true,
      "text_min_scale": 4,
-     "need_bind": "d.move.dynamax.c.7"
+     "need_bind": "d.move.dynamax.c.9"
     },
     {
      "type": "button",
@@ -78631,11 +78775,11 @@
   "libraries": {
    "linux-x86_64": {
     "path": "modules/linux-x86_64/0100ABF008968000.so",
-    "sha256": "439a75248c2adc1867d1c2fcf5f178794304b995353cffa9ffd342b7e9b04a62"
+    "sha256": "d58e87eb962d4ed3b8627d8b1eb9bbf7d00177369aa2ce2c4d2f81222b21dc26"
    },
    "android-arm64-v8a": {
     "path": "modules/android-arm64-v8a/0100ABF008968000.so",
-    "sha256": "1a6a89d8c069dd6c364c7cd997d3b38fe1c3a510286a481b48e681606f3287c6"
+    "sha256": "3434802e867676a022372703c2a10c6f64fb4159ff25977e1dfce168b98f38be"
    }
   }
  },
@@ -80871,7 +81015,7 @@
   },
   {
    "name": "d.bt.dmax.visible",
-   "expr": "sw.battle.move_detail.tab0 && (sw.direct.dmax.ready || sw.direct.dmax.selected || sw.battle.raid.dmax.turns_ready)"
+   "expr": "sw.battle.move_detail.tab0 && (sw.direct.dmax.ready || sw.direct.dmax.native || sw.direct.dmax.selected || sw.battle.raid.dmax.turns_ready)"
   },
   {
    "name": "d.move.selected0",
@@ -86687,7 +86831,7 @@
   },
   {
    "name": "d.move.dynamax.0",
-   "expr": "d.bt.dmax.e"
+   "expr": "d.bt.dmax.e && (sw.battle.native.dmax_cell)"
   },
   {
    "name": "d.move.dynamax.1",
@@ -86695,7 +86839,7 @@
   },
   {
    "name": "d.move.dynamax.2",
-   "expr": "d.bt.dmax.e && (sw.direct.dmax.selected)"
+   "expr": "d.bt.dmax.e"
   },
   {
    "name": "d.move.dynamax.3",
@@ -86703,7 +86847,7 @@
   },
   {
    "name": "d.move.dynamax.4",
-   "expr": "d.bt.dmax.e"
+   "expr": "d.bt.dmax.e && (sw.direct.dmax.selected)"
   },
   {
    "name": "d.move.dynamax.5",
@@ -86715,6 +86859,14 @@
   },
   {
    "name": "d.move.dynamax.7",
+   "expr": "d.bt.dmax.e"
+  },
+  {
+   "name": "d.move.dynamax.8",
+   "expr": "d.bt.dmax.e && (sw.battle.native.dmax_cell)"
+  },
+  {
+   "name": "d.move.dynamax.9",
    "expr": "d.bt.dmax.e && (sw.battle.raid.dmax.turns_ready)"
   },
   {
@@ -87095,7 +87247,7 @@
   },
   {
    "name": "d.move.dynamax.c.0",
-   "expr": "d.bt.dmax.c"
+   "expr": "d.bt.dmax.c && (sw.battle.native.dmax_cell)"
   },
   {
    "name": "d.move.dynamax.c.1",
@@ -87103,7 +87255,7 @@
   },
   {
    "name": "d.move.dynamax.c.2",
-   "expr": "d.bt.dmax.c && (sw.direct.dmax.selected)"
+   "expr": "d.bt.dmax.c"
   },
   {
    "name": "d.move.dynamax.c.3",
@@ -87111,7 +87263,7 @@
   },
   {
    "name": "d.move.dynamax.c.4",
-   "expr": "d.bt.dmax.c"
+   "expr": "d.bt.dmax.c && (sw.direct.dmax.selected)"
   },
   {
    "name": "d.move.dynamax.c.5",
@@ -87123,6 +87275,14 @@
   },
   {
    "name": "d.move.dynamax.c.7",
+   "expr": "d.bt.dmax.c"
+  },
+  {
+   "name": "d.move.dynamax.c.8",
+   "expr": "d.bt.dmax.c && (sw.battle.native.dmax_cell)"
+  },
+  {
+   "name": "d.move.dynamax.c.9",
    "expr": "d.bt.dmax.c && (sw.battle.raid.dmax.turns_ready)"
   },
   {
@@ -90411,7 +90571,7 @@
   },
   {
    "name": "d.bt.dmax.c",
-   "expr": "d.bt.collapsed && (sw.direct.dmax.ready || sw.direct.dmax.selected || sw.battle.raid.dmax.turns_ready)"
+   "expr": "d.bt.collapsed && (sw.direct.dmax.ready || sw.direct.dmax.native || sw.direct.dmax.selected || sw.battle.raid.dmax.turns_ready)"
   },
   {
    "name": "d.tg.0.card",
