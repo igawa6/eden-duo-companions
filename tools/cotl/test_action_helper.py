@@ -332,6 +332,8 @@ class Machine:
             f["animator_on"] = bool(args["x1"] & 1)
         elif name == "sleep_is_awake":
             uc.reg_write(A.UC_ARM64_REG_X0, self.awake)
+        elif name == "array_new" and self.array_new_fails:
+            uc.reg_write(A.UC_ARM64_REG_X0, 0)
         elif name == "array_new":
             # il2cpp_array_new_specific: length @0x18, data @0x20; the helper writes only the data
             arr = self.alloc(0x20 + 4 * args["x1"])
@@ -562,6 +564,7 @@ class Machine:
         self.set_u64(self.kl["AUDIO"][1] + AUDIO_INSTANCE, audio)
         self.set_u32(self.kl["STRUCTURES"][0] + 0xE0, 1)  # class constructor has run
         self.init_metadata_result = self.kl["INT_ARRAY"][0]
+        self.array_new_fails = False  # il2cpp_array_new_specific returns null (out of memory)
         # GameManager.instance (static @0x0)
         self.gm = self.alloc(0x40)
         self.set_u64(self.gm + 0x10, 1)
@@ -2335,6 +2338,24 @@ class CommandTests(unittest.TestCase):
         m.run()
         self.assertEqual(m.status(), (5, ST["CANCELLED"], RS["NOT_AVAILABLE"]))
         self.unreached(m)
+        self.assertEqual(m.count("reset_follower"), 1)
+
+    def test_failed_array_allocation_cancels_before_any_effect(self):
+        m = self.machine()
+        walk_up(m, command=COMMAND_BLESS)
+        inter = m.followers[0]["inter"]
+        m.set_u8(inter + INTER_PREVENT_CLOSE, 1)
+        m.array_new_fails = True
+        m.end_walk()
+        m.run()
+        self.assertEqual(m.status(), (5, ST["CANCELLED"], RS["NOT_AVAILABLE"]))
+        self.assertEqual(m.count("array_new"), 1)
+        self.assertEqual(m.handler_args, [])
+        for name in ("sim_pause", "conversation_new"):
+            self.assertEqual(m.count(name), 0, name)
+        self.assertEqual(m.uc.mem_read(inter + INTER_ACTIVATED, 1)[0], 0)
+        self.assertEqual(m.uc.mem_read(inter + INTER_PREVENT_CLOSE, 1)[0], 1)
+        self.assertEqual(m.mb("RUN_TASK"), 0)
         self.assertEqual(m.count("reset_follower"), 1)
 
     def test_what_would_throw_in_the_handler_cancels_before_any_effect(self):

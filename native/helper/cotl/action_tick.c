@@ -973,6 +973,13 @@ static uint32_t run_command(Addr mailbox, Addr main, Addr f, uint32_t seq) {
         return COTL_ACT_REASON_NOT_AVAILABLE;
     Addr klass = command_array_class(main);
     if (!klass) return COTL_ACT_REASON_NOT_AVAILABLE;
+    // Allocated before any game state changes: on failure (null) nothing has happened yet
+    typedef Addr (*ArrayNew)(Addr klass, uint32_t length);
+    // Like the wheel: the chosen entry first, then its parent (OnFollowerCommandFinalized reads [0])
+    Addr array = ((ArrayNew)GAME_FN(main, COTL_ACT_FN_ARRAY_NEW))(klass, parent ? 2 : 1);
+    if (!array) return COTL_ACT_REASON_NOT_AVAILABLE;
+    *(volatile uint32_t *)(array + ARRAY_DATA) = command;
+    if (parent) *(volatile uint32_t *)(array + ARRAY_DATA + 4) = parent;
 
     *(volatile Addr *)(mailbox + COTL_ACT_RUN_TASK) = PTR(inter, COTL_ACT_INTERACT_TASK);
     *(volatile uint8_t *)(inter + COTL_ACT_INTERACT_PREVENT_CLOSE) = 0; // OnInteract 0x2C593D8
@@ -983,11 +990,6 @@ static uint32_t run_command(Addr mailbox, Addr main, Addr f, uint32_t seq) {
     *MAILBOX_U32(mailbox, COTL_ACT_RUN_PHASE) = PHASE_RUN;
     publish(mailbox, seq, COTL_ACT_STATE_RUNNING, COTL_ACT_REASON_NONE);
 
-    typedef Addr (*ArrayNew)(Addr klass, uint32_t length);
-    // Like the wheel: the chosen entry first, then its parent (OnFollowerCommandFinalized reads [0])
-    Addr array = ((ArrayNew)GAME_FN(main, COTL_ACT_FN_ARRAY_NEW))(klass, parent ? 2 : 1);
-    *(volatile uint32_t *)(array + ARRAY_DATA) = command;
-    if (parent) *(volatile uint32_t *)(array + ARRAY_DATA + 4) = parent;
     typedef void (*Pause)(Addr method);
     ((Pause)GAME_FN(main, COTL_ACT_FN_SIM_PAUSE))(0);
     typedef void (*ConversationNew)(Addr self, uint32_t set_inactive, uint32_t snap, Addr player_arg,

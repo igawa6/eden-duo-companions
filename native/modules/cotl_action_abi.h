@@ -143,7 +143,7 @@ enum CotlActionReason {
 #define COTL_ACT_INFO_LEAVING 0xC0         // FollowerInfo.LeavingCult
 #define COTL_ACT_INFO_TRAITS 0x1E8         // FollowerInfo.Traits (List<TraitType>)
 
-// FollowerManager.FollowerLocked liest diese DataManager-Felder
+// FollowerManager.FollowerLocked reads these DataManager fields
 #define COTL_ACT_DM_CULT_TRAITS 0x5C0 // List<TraitType>
 #define COTL_ACT_DM_RECRUIT 0xCE8     // Followers_Recruit (List<FollowerInfo>)
 #define COTL_ACT_DM_TRAIT_MANIPULATING 0xDC0 // List<int>
