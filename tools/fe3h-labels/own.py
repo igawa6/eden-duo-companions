@@ -35,7 +35,6 @@ OWN = {
     'Stocking the dining hall…': ['Stocking the dining hall…', '食堂の備蓄を整えています…', 'Der Speisesaal wird aufgefüllt…', 'Réapprovisionnement du réfectoire…', 'Reabasteciendo el comedor…', 'Rifornimento della sala da pranzo…', '식당에 재료를 채우는 중…', '正在補充食堂的存糧…', '正在补充食堂的存粮…'],
     'Studying the tactics…': ['Studying the tactics…', '戦術を研究しています…', 'Taktiken werden studiert…', 'Étude des tactiques…', 'Estudiando las tácticas…', 'Studio delle tattiche…', '전술을 연구하는 중…', '正在研究戰術…', '正在研究战术…'],
     'Tending the greenhouse…': ['Tending the greenhouse…', '温室の手入れをしています…', 'Das Gewächshaus wird gepflegt…', 'Entretien de la serre…', 'Cuidando el invernadero…', 'Cura della serra…', '온실을 가꾸는 중…', '正在照料溫室…', '正在照料温室…'],
-    'To next': ['To next', '次まで', 'Bis zum nächsten', 'Prochain', 'Siguiente', 'Prossimo', '다음까지', '距下一級', '距下一级'],
     'Units': ['Units', 'ユニット', 'Einheiten', 'Unités', 'Unidades', 'Unità', '유닛', '單位', '单位'],
     'Untapped Units': ['Untapped Units', '未行動のユニット', 'Ungenutzte Einheiten', 'Unités non jouées', 'Unidades sin actuar', 'Unità non mosse', '미행동 유닛', '未行動單位', '未行动单位'],
     'Waiting for the battle map': ['Waiting for the battle map', '戦場マップを待っています', 'Warten auf die Schlachtkarte', 'En attente de la carte de bataille', 'Esperando el mapa de batalla', 'In attesa della mappa di battaglia', '전장 지도를 기다리는 중', '等待戰場地圖', '等待战场地图'],

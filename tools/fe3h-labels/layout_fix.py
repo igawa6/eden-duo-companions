@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright 2026 Eden_Duo_Mode contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Layout fixes the localized words need, shared by gen_labels.py and gen_ko.py.
+"""Layout fixes the localized words need, used by gen_labels.py.
 
 The top bar of the battle pages draws the label "Turn" (left aligned, text_scale 8, y 116) and the
 turn number (text_scale 10, y 111) 78 units to its right, left aligned. The game's own words are
