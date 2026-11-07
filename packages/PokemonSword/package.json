@@ -14,11 +14,11 @@
   "libraries": {
    "linux-x86_64": {
     "path": "modules/linux-x86_64/0100ABF008968000.so",
-    "sha256": "267fa7817d1616d7beec0c8983667279d5f293e53d5ec6dced541dbf304d5f2e"
+    "sha256": "fcbcacf0a2a80717fd971e9555a57702cbbb3a14a17a9604960689824d6f0a0b"
    },
    "android-arm64-v8a": {
     "path": "modules/android-arm64-v8a/0100ABF008968000.so",
-    "sha256": "ddce608e688cfcc96567cc71039a5067d1cc4daa8158bd6f181b30882f73abba"
+    "sha256": "43caf830f9faa23bc0c815d665035a1be5b97947d8b6b01c695c8e925e28bc32"
    }
   }
  }
