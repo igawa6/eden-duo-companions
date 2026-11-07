@@ -5,7 +5,7 @@
 </p>
 
 <div align="center">
-  <a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>&nbsp;<a href="https://ko-fi.com/igawa6"><img src="https://img.shields.io/badge/Support_me_on_Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi"></a>&nbsp;<a href="https://ko-fi.com/polls/5th-Poll-Next-Switch-Game-on-Eden-Duo-Y2S729BJ48"><img src="https://img.shields.io/badge/%F0%9F%97%B3%EF%B8%8F_Next_Game_Poll-1ABC9C?style=for-the-badge" alt="Poll"></a>
+  <a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>&nbsp;<a href="https://ko-fi.com/igawa6"><img src="https://img.shields.io/badge/Support_me_on_Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi"></a>&nbsp;<a href="https://ko-fi.com/polls/6th-Poll-Next-Switch-Game-on-Eden-Duo-C2K72A62LU"><img src="https://img.shields.io/badge/%F0%9F%97%B3%EF%B8%8F_Next_Game_Poll-1ABC9C?style=for-the-badge" alt="Poll"></a>
 </div>
 
 ---
