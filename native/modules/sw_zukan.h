@@ -56,6 +56,8 @@ struct EntryState {
     // The form value the game's own Pokédex shows for this entry (PKHeX Zukan8 DisplayFormID,
     // bits 15..27 of the caught word). Use DisplayForm() for the personal-table form.
     u16 display_form_raw = 0;
+    // The gender the entry's picture shows (DisplayGender, bits 29..30: 0 male, 1 female).
+    u8 display_gender = 0;
 };
 
 /// Alcremie (869) stores form * 7 + decoration (PKHeX Zukan8.SetDex); every other species the form.
@@ -79,6 +81,7 @@ inline EntryState DecodeEntry(const u8* data, std::size_t data_size, std::size_t
     const u32 caught_word = ReadU32LE(data + off + kOfsCaught);
     e.caught = (caught_word & 1u) != 0;
     e.display_form_raw = static_cast<u16>((caught_word >> 15) & 0x1FFFu);
+    e.display_gender = static_cast<u8>((caught_word >> 29) & 3u);
     return e;
 }
 

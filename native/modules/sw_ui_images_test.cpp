@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <fstream>
 #include "sw_ui_images.h"
+#include "sw_species_icon_table.h"
 #include "sw_test_romfs.h"
 namespace {
 struct Received { int w=0,h=0; std::vector<std::uint8_t> rgba; };
@@ -37,6 +38,26 @@ int main(int argc,char** argv) {
         }
     }
     bool handled=false;Received r;
+    if(real) {
+        // Every form/gender icon file the module can select is in this romfs.
+        int files=0;
+        for(const auto& v:sw_species_icon_table::kVariants)
+            for(char c:{'m','f','s','n'}) {
+                const int bit=c=='m'?1:c=='f'?2:c=='s'?4:8;
+                if(!(v.suffixes&bit)) continue;
+                char path[96];
+                std::snprintf(path,sizeof path,"romfs:/bin/appli/icon_pokemon/poke_icon_%04u_%02u%c_n.bntx",unsigned(v.icon_id),unsigned(v.form),c);
+                assert(host.read_romfs(host.userdata,path,0,nullptr,0)>0);++files;
+            }
+        assert(files>800);
+        // A form with its own icon draws it; a form without one draws the species' default look.
+        const auto pixels=[&](const char* key){Received x;bool h=false;assert(images.Load(host,key,&x,Sink,h)&&h);return x.rgba;};
+        assert(pixels("module:sw:ui/form/555/1")!=pixels("module:sw:ui/form/555/0"));
+        assert(pixels("module:sw:ui/form/849/1")!=pixels("module:sw:ui/form/849/0"));
+        assert(pixels("module:sw:ui/form/618/7")==pixels("module:sw:ui/form/618/0"));
+        assert(pixels("module:sw:ui/form/618/1")!=pixels("module:sw:ui/form/618/0"));
+        assert(pixels("module:sw:ui/form/122/5")==pixels("module:sw:ui/form/122/1"));
+    }
     assert(!images.Load(host,"unrelated",&r,Sink,handled) && !handled);
     assert(!images.Load(host,"module:sw:ui/form/12/invalid",&r,Sink,handled) && handled);
     images.Reset();int before=reads;

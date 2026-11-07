@@ -128,24 +128,22 @@ inline std::pair<int, int> Levels(const Zone& zone, const Row& row, bool champio
     return {std::max(row.min_level, floor), std::max(row.max_level, floor)};
 }
 
-// Module-owned form sources avoid an offline list of encounter forms in the manifest.
+// Module-owned form sources avoid an offline list of encounter forms in the manifest. The image
+// itself is the form's own icon, or the species' default look when the form has none
+// (sw_species_icons::Select, decoded by sw_ui_images.cpp).
 inline bool IconSource(std::uint16_t species, std::uint8_t form, char* out, std::size_t size) {
-    char original[160];
-    if (!sw_species_icons::IconSourceForm(species, form, original, sizeof original)) return false;
+    sw_species_icons::Icon icon;
+    if (!sw_species_icons::Select(species, form, sw_species_icons::kGenderUnknown, icon)) return false;
     const int n = std::snprintf(out, size, "module:sw:ui/form/%u/%u", unsigned(species), unsigned(form));
     return n > 0 && static_cast<std::size_t>(n) < size;
 }
 
-/// Size class of a species' box-icon art (its alpha box, sw_species_icon_metrics.h), so a small
-/// Pokemon and Jynx both read at a glance in a fixed slot: 0 small (art <= 56x48 icon px),
-/// 1 medium (<= 76x64), 2 large. The manifest draws each class at its own scale.
-inline int IconClass(std::uint16_t species) {
-    for (const auto& b : sw_species_icon_metrics::kBoxes) {
-        if (b.species != species) continue;
-        const int w = b.right - b.left, h = b.bottom - b.top;
-        return h <= 48 && w <= 56 ? 0 : h <= 64 && w <= 76 ? 1 : 2;
-    }
-    return 0;
+/// Size class of the shown art (sw_species_icons::SizeClass) of `species` in `form`.
+inline int IconClass(std::uint16_t species, std::uint8_t form,
+                     std::uint8_t gender = sw_species_icons::kGenderUnknown) {
+    sw_species_icons::Icon icon;
+    if (!sw_species_icons::Select(species, form, gender, icon)) return 0;
+    return sw_species_icons::SizeClass(icon);
 }
 
 } // namespace sw_route

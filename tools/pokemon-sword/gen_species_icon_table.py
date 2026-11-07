@@ -100,6 +100,9 @@ def decode_pokecaplist(path: Path):
     return [struct.unpack_from("<4H", data, i * 8) for i in range(n)]
 
 
+SUFFIX_BITS = {"m": 1, "f": 2, "s": 4, "n": 8}
+
+
 def build_table():
     personal = PERSONAL.read_bytes()
     by_icon_form = load_icon_files(ICONDIR)
@@ -121,8 +124,18 @@ def build_table():
             missing.append(species)
             continue
         table.append((species, icon_id, form, suffix))
-        stems.add(f"{icon_id:04d}_{form:02d}{suffix}")
-    return table, stems, missing
+    # Every (form, gender) look of every icon id a species uses: the reader picks the shown
+    # Pokemon's own form and gender from these (sw_species_icons.h), so the package's sprite map
+    # (icon_stems_full.txt) lists all of them.
+    variants = []
+    for icon_id in sorted({row[1] for row in table}):
+        for form, suffixes in sorted(by_icon_form[icon_id].items()):
+            mask = 0
+            for suffix in suffixes:
+                mask |= SUFFIX_BITS[suffix]
+                stems.add(f"{icon_id:04d}_{form:02d}{suffix}")
+            variants.append((icon_id, form, mask))
+    return table, variants, stems, missing
 
 
 HEADER_TEMPLATE = '''\
@@ -144,15 +157,15 @@ HEADER_TEMPLATE = '''\
 // at all -- the well-known "Dexit" cut, e.g. the Pidgey/Weedle/Rattata lines -- and correctly
 // fail closed, same as every other unverified lookup in this module).
 //
-// `form` is 0 (each species' base/default appearance) for every species except the one explicit
-// override in the generator script's FORM_OVERRIDES (Mr. Mime, 122 -> form 1, the Galarian look
-// actually encountered in this game) -- there is no per-individual form field in sw_pk8.h to pick
-// a form from live data, so a generic species->icon table can only ever show one fixed appearance
-// per species; this is that documented, deliberate exception, baked into the data itself (not a
-// separate override list downstream), not a gap.
+// kTable's `form` is each species' default appearance (form 0, except the generator script's
+// FORM_OVERRIDES: Mr. Mime, 122 -> form 1, the Galarian look encountered in this game): the art
+// shown when a Pokemon's own form has no icon of its own. kVariants lists every icon file
+// (icon id, form, gender suffixes) of those icon ids, so a Pokemon's own form and gender
+// (PK8 +0x24/+0x22, battle struct +0x33D) select its own look (sw_species_icons.h).
 
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
 namespace sw_species_icon_table {{
@@ -165,8 +178,22 @@ struct Entry {{
                  // variant exists, male is shown), 'f' female-only
 }};
 
+// Suffix bits of one (icon id, form): which poke_icon_<id>_<form><suffix>_n.bntx files exist.
+inline constexpr std::uint8_t kMale = 1, kFemale = 2, kSingle = 4, kGenderless = 8;
+
+struct Variant {{
+    std::uint16_t icon_id;
+    std::uint8_t form;
+    std::uint8_t suffixes;
+}};
+
 inline constexpr Entry kTable[]{{
 {rows}
+}};
+
+// Sorted by (icon_id, form).
+inline constexpr Variant kVariants[]{{
+{variant_rows}
 }};
 
 /// Looks up a species' box-icon id + form + suffix. Fails closed (returns false) for any species
@@ -182,15 +209,28 @@ inline bool Lookup(std::uint16_t species, std::uint16_t& icon_id, std::uint8_t& 
     return false;
 }}
 
+/// The suffix bits of `icon_id`'s `form` icon files; 0 = that form has no icon of its own.
+inline std::uint8_t VariantSuffixes(std::uint16_t icon_id, std::uint8_t form) {{
+    std::size_t lo = 0, hi = sizeof kVariants / sizeof kVariants[0];
+    const std::uint32_t key = static_cast<std::uint32_t>(icon_id) << 8 | form;
+    while (lo < hi) {{
+        const std::size_t mid = (lo + hi) / 2;
+        const std::uint32_t k = static_cast<std::uint32_t>(kVariants[mid].icon_id) << 8 | kVariants[mid].form;
+        if (k == key) return kVariants[mid].suffixes;
+        if (k < key) lo = mid + 1; else hi = mid;
+    }}
+    return 0;
+}}
+
 }} // namespace sw_species_icon_table
 '''
 
 
-def format_rows(table):
+def format_rows(table, fmt=lambda r: "{{{}, {}, {}, '{}'}}, ".format(*r)):
     lines = []
     line = "    "
-    for species, icon_id, form, suffix in table:
-        entry = f"{{{species}, {icon_id}, {form}, '{suffix}'}}, "
+    for row in table:
+        entry = fmt(row)
         if len(line) + len(entry) > 96:
             lines.append(line.rstrip())
             line = "    "
@@ -206,17 +246,19 @@ def main():
     if not ICONDIR.exists():
         sys.exit(f"icon_pokemon dir not found at {ICONDIR} -- set SW_ROMFS_DIR")
 
-    table, stems, missing = build_table()
+    table, variants, stems, missing = build_table()
 
     header = HEADER_TEMPLATE.format(
         icon_off=ICON_ID_OFFSET, rec_size=REC_SIZE, count=len(table),
-        max_species=MAX_SPECIES, rows=format_rows(table))
+        max_species=MAX_SPECIES, rows=format_rows(table),
+        variant_rows=format_rows(variants, lambda r: "{{{}, {}, {}}}, ".format(*r)))
     HEADER_OUT.write_text(header, encoding="utf-8")
     STEMS_OUT.write_text("\n".join(sorted(stems)) + "\n", encoding="utf-8")
 
     remapped = sum(1 for sp, icon_id, _form, _suffix in table if sp != icon_id)
     print(f"{HEADER_OUT}: {len(table)} species resolved ({remapped} remapped), "
           f"{len(missing)} not in this game's dex")
+    print(f"{HEADER_OUT}: {len(variants)} (icon id, form) variants")
     print(f"{STEMS_OUT}: {len(stems)} stems")
 
 

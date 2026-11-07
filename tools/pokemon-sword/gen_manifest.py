@@ -173,8 +173,8 @@ def item_icon_src(item_id):
 
 def build_sprite_map():
     # icon_stems_full.txt (gen_species_icon_table.py, from sw_species_icon_table.h's own
-    # generated data) already covers every species sw_species_icons::IconSource() can ever
-    # publish -- no hand-maintained stem list needed any more. item_ids_full.txt (this
+    # generated data) already covers every icon file sw_species_icons::Select() can ever
+    # publish (every species' every form and gender look) -- no hand-maintained stem list. item_ids_full.txt (this
     # directory, see its own header) does the same for sw_item_icons::IconSource().
     m = {}
     for i in range(len(PERSONAL_TYPE_SLUGS)):

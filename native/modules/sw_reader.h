@@ -1320,6 +1320,7 @@ private:
         bool valid = false;
         bool egg = false;     // valid for reorder only: never a medicine/battle/summary target
         bool shiny = false;   // never set for an Egg
+        std::uint8_t gender = sw_species_icons::kGenderUnknown; // PK8 +0x22 (box icon art)
     };
     std::array<LiveSlot, 6> live_party_cache_{};
     bool live_party_ok_ = false; // the live array's root and count read this tick
@@ -1393,7 +1394,7 @@ private:
             if (species_ok) pt("species_name", name);
             if (sw_font::CoversText(mon.nickname)) pt("name", mon.nickname); // the native summary's nickname
             else if (species_ok) pt("name", name);
-            PublishIcon(host, "sw.party.detail", mon.species);
+            PublishIcon(host, "sw.party.detail", mon.species, mon.form, mon.gender);
             pi("shiny", slot.shiny ? 1 : 0);   // never set for an Egg (no detail view for one either)
             pt("level_text", sw_str::Level(slot.level));
             pt("hp_text", std::to_string(slot.current_hp) + "/" + std::to_string(slot.max_hp));
@@ -1676,28 +1677,34 @@ private:
         }
     }
 
-    // D2 port: a species' box icon under `key_prefix` (<prefix>.icon_ready + .icon_src), the same
-    // fail-closed sw_species_icons::IconSource the party strip uses.
-    void PublishIcon(const EdenDsmodHostApi& host, const char* key_prefix, std::uint16_t species) {
+    // D2 port: one shown Pokemon's box icon under `key_prefix` (<prefix>.icon_ready + .icon_src +
+    // the art offset): its own form's and gender's look (sw_species_icons::Select -- Galarian
+    // Stunfisk, Urshifu Rapid Strike, a female Pikachu ...), the species' default look when that
+    // form has no icon of its own; fails closed for a species not in this game's dex.
+    void PublishIcon(const EdenDsmodHostApi& host, const char* key_prefix, std::uint16_t species,
+                     std::uint8_t form, std::uint8_t gender = sw_species_icons::kGenderUnknown) {
         char key[72];
         char src[160]{};
-        const bool ok = species != 0 && sw_species_icons::IconSource(species, src, sizeof src);
+        sw_species_icons::Icon icon;
+        const bool ok = sw_species_icons::Select(species, form, gender, icon) &&
+                        sw_species_icons::Source(icon, src, sizeof src);
         std::snprintf(key, sizeof key, "%s.icon_ready", key_prefix);
         if (host.publish_i64) PubI(host, key, ok ? 1 : 0);
         if (ok && host.publish_text) {
             std::snprintf(key, sizeof key, "%s.icon_src", key_prefix);
             PubT(host, key, src);
         }
-        if (ok) PublishIconOffset(host, key_prefix, species);
+        if (ok) PublishIconOffset(host, key_prefix, icon);
     }
 
     // <prefix>.icon_dx/.icon_dy (icon pixels; the manifest scales them by draw size / 136x112):
     // moves the art's visible feet onto one baseline and centres it by its art, from the
-    // offline-baked alpha boxes (sw_species_icon_metrics.h). No box -> 0/0 (texture placement).
-    void PublishIconOffset(const EdenDsmodHostApi& host, const char* key_prefix, std::uint16_t species) {
+    // offline-baked alpha boxes of the shown icon file (sw_species_icon_metrics.h, per form and
+    // gender). No box -> 0/0 (texture placement).
+    void PublishIconOffset(const EdenDsmodHostApi& host, const char* key_prefix, const sw_species_icons::Icon& icon) {
         if (!host.publish_i64) return;
         int dx = 0, dy = 0;
-        if (!sw_species_icon_metrics::OffsetFor(species, dx, dy)) dx = dy = 0;
+        if (!sw_species_icons::Offset(icon, dx, dy)) dx = dy = 0;
         char key[80];
         std::snprintf(key, sizeof key, "%s.icon_dx", key_prefix);
         PubI(host, key, dx);
@@ -1900,7 +1907,8 @@ private:
 
     void PublishPartySlot(const EdenDsmodHostApi& host, int i, std::uint16_t species, std::uint8_t form, int level,
                           std::uint16_t max_hp, int current_hp /* -1 = not known */, std::uint32_t status,
-                          const std::string& nickname = {}, bool shiny = false) {
+                          const std::string& nickname = {}, bool shiny = false,
+                          std::uint8_t gender = sw_species_icons::kGenderUnknown) {
         char key[40];
         std::snprintf(key, sizeof key, "sw.party.%d.ready", i);
         PubI(host, key, 1);
@@ -1946,7 +1954,7 @@ private:
             PubT(host, key, pct_text);
         }
         std::snprintf(key, sizeof key, "sw.party.%d", i);
-        PublishIcon(host, key, species);
+        PublishIcon(host, key, species, form, gender);
         PublishStatusIcon(host, key, status, current_hp >= 0 ? static_cast<std::uint16_t>(current_hp) : 0,
                           current_hp >= 0 ? max_hp : 0);
         PublishWeaknessBoard(host, key, species, form);
@@ -2007,7 +2015,7 @@ private:
                 level_sum += m.level;
                 ++level_n;
                 PublishPartySlot(host, i, m.species, m.form, m.level, m.max_hp, -1, 0, m.nickname,
-                                 sw_pk8::IsShiny(m.pid, m.tid, m.sid));
+                                 sw_pk8::IsShiny(m.pid, m.tid, m.sid), m.gender);
             }
             // The save mirror has no current HP: average level only, "able" unknown.
             PublishPartySummary(host, level_sum, level_n, -1);
@@ -2151,7 +2159,8 @@ private:
                 std::memcpy(&ec, blob.data(), sizeof ec);
                 live_party_cache_[static_cast<std::size_t>(i)] = {m.species, static_cast<std::uint8_t>(level),
                                                                   m.current_hp, max_hp, m.status, ec, true, m.egg,
-                                                                  !m.egg && sw_pk8::IsShiny(m.pid, m.tid, m.sid)};
+                                                                  !m.egg && sw_pk8::IsShiny(m.pid, m.tid, m.sid),
+                                                                  m.gender};
                 party_detail_mons_[static_cast<std::size_t>(i)] = m;
                 if (m.egg) {
                     PublishEggSlot(host, i);
@@ -2161,7 +2170,7 @@ private:
                 ++level_n;
                 if (m.current_hp > 0) ++able;
                 PublishPartySlot(host, i, m.species, m.form, level, max_hp, m.current_hp, m.status, m.nickname,
-                                 sw_pk8::IsShiny(m.pid, m.tid, m.sid));
+                                 sw_pk8::IsShiny(m.pid, m.tid, m.sid), m.gender);
                 PublishLivePartyMoves(host, i, m);
                 PublishPartySlotExtras(host, i, m, max_hp);
             }
@@ -2475,6 +2484,7 @@ private:
         if (host.publish_i64) PubI(host, "sw.dex.sel_row", sel_row);
 
         std::uint16_t detail_species = 0, detail_form_raw = 0;
+        std::uint8_t detail_gender = sw_species_icons::kGenderUnknown;
         bool detail_seen = false, detail_caught = false;
         // Same as the Bag rows: nothing past row_count (the repeat is bound to row_count).
         for (int i = 0; i < row_count && i < kMaxDexRows; ++i) {
@@ -2498,6 +2508,7 @@ private:
                 detail_seen = st.seen;
                 detail_caught = st.caught;
                 detail_form_raw = st.display_form_raw;
+                detail_gender = st.display_gender;
             }
 
             // Spoiler rule: an unseen entry publishes nothing beyond number/seen/caught above --
@@ -2509,14 +2520,19 @@ private:
                 std::snprintf(key, sizeof key, "sw.dex.row.%d.name", i);
                 PubT(host, key, name.c_str());
             }
+            // The row shows the picture the game's own Pokedex shows (its display form and gender).
             char icon_src[160]{};
-            if (sw_species_icons::IconSource(species, icon_src, sizeof icon_src)) {
+            const std::uint16_t row_form = sw_zukan::DisplayForm(species, st.display_form_raw);
+            sw_species_icons::Icon icon;
+            if (sw_species_icons::Select(species, row_form <= 0xFF ? static_cast<std::uint8_t>(row_form) : 0,
+                                         st.display_gender, icon) &&
+                sw_species_icons::Source(icon, icon_src, sizeof icon_src)) {
                 std::snprintf(key, sizeof key, "sw.dex.row.%d.icon_ready", i);
                 if (host.publish_i64) PubI(host, key, 1);
                 std::snprintf(key, sizeof key, "sw.dex.row.%d.icon_src", i);
                 if (host.publish_text) PubT(host, key, icon_src);
                 std::snprintf(key, sizeof key, "sw.dex.row.%d", i);
-                PublishIconOffset(host, key, species);
+                PublishIconOffset(host, key, icon);
             }
         }
 
@@ -2551,14 +2567,8 @@ private:
         if (species_names_ready_ && sw_species_names::SpeciesName(species_names_, detail_species, name) &&
             host.publish_text)
             PubT(host, "sw.dex.detail.name", name.c_str());
-        char icon_src[160]{};
-        if (sw_species_icons::IconSource(detail_species, icon_src, sizeof icon_src)) {
-            if (host.publish_i64) PubI(host, "sw.dex.detail.icon_ready", 1);
-            if (host.publish_text) PubT(host, "sw.dex.detail.icon_src", icon_src);
-            PublishIconOffset(host, "sw.dex.detail", detail_species);
-        } else if (host.publish_i64) {
-            PubI(host, "sw.dex.detail.icon_ready", 0);
-        }
+        // The picture of the same displayed form (and gender) as the types and stats.
+        PublishIcon(host, "sw.dex.detail", detail_species, detail_form, detail_gender);
 
         // Types + weakness/immunity board, reusing the Pokémon page's own helper (same fields:
         // type1/2, type1/2_src, type1/2_label_src, weak<j>/immune<j> discs).
@@ -2602,6 +2612,12 @@ private:
                 const sw_zukan::EntryState st =
                     is_selected ? sw_zukan::EntryState{detail_seen, detail_caught}
                                 : resolve(static_cast<std::uint16_t>(m.species));
+                // Each member's own form: the selected entry's displayed one, else the form the
+                // game's evolution data gives the member (Koffing -> Galarian Weezing, Mime Jr. ->
+                // Galarian Mr. Mime); the first stage's default look.
+                const std::uint8_t member_form = is_selected ? detail_form
+                                                 : m.depth > 0 ? static_cast<std::uint8_t>(m.via.form) : 0;
+                const std::uint8_t member_gender = is_selected ? detail_gender : sw_species_icons::kGenderUnknown;
                 std::snprintf(key, sizeof key, "sw.dex.detail.evo.%d.seen", i);
                 if (host.publish_i64) PubI(host, key, st.seen ? 1 : 0);
                 std::snprintf(key, sizeof key, "sw.dex.detail.evo.%d.selected", i);
@@ -2644,16 +2660,17 @@ private:
                     PubT(host, key, evo_name.c_str());
                 }
                 char evo_icon_src[160]{};
-                if (sw_species_icons::IconSource(static_cast<std::uint16_t>(m.species), evo_icon_src,
-                                                 sizeof evo_icon_src)) {
+                sw_species_icons::Icon evo_icon;
+                if (sw_species_icons::Select(static_cast<std::uint16_t>(m.species), member_form, member_gender, evo_icon) &&
+                    sw_species_icons::Source(evo_icon, evo_icon_src, sizeof evo_icon_src)) {
                     std::snprintf(key, sizeof key, "sw.dex.detail.evo.%d.icon_ready", i);
                     if (host.publish_i64) PubI(host, key, 1);
                     std::snprintf(key, sizeof key, "sw.dex.detail.evo.%d.icon_src", i);
                     if (host.publish_text) PubT(host, key, evo_icon_src);
                     std::snprintf(key, sizeof key, "sw.dex.detail.evo.%d", i);
-                    PublishIconOffset(host, key, static_cast<std::uint16_t>(m.species));
+                    PublishIconOffset(host, key, evo_icon);
                     std::snprintf(key, sizeof key, "sw.dex.detail.evo.%d.icon_class", i);
-                    if (host.publish_i64) PubI(host, key, sw_route::IconClass(static_cast<std::uint16_t>(m.species)));
+                    if (host.publish_i64) PubI(host, key, sw_species_icons::SizeClass(evo_icon));
                 }
             }
         } else if (host.publish_i64) {
@@ -3102,16 +3119,22 @@ private:
             PubT(host, "sw.map.wild.place", place.c_str());
             char key[48], src[160];
             for (int i = 0; i < kWildStrip; ++i) {
-                const bool ok = i < count && sw_route::IconSource(rows[static_cast<std::size_t>(i)].species,
-                                                                              rows[static_cast<std::size_t>(i)].form, src, sizeof src);
+                // The encounter form's own art (sw_route::IconSource), its size class and offset.
+                sw_species_icons::Icon icon;
+                const bool ok = i < count &&
+                                sw_route::IconSource(rows[static_cast<std::size_t>(i)].species,
+                                                     rows[static_cast<std::size_t>(i)].form, src, sizeof src) &&
+                                sw_species_icons::Select(rows[static_cast<std::size_t>(i)].species,
+                                                         rows[static_cast<std::size_t>(i)].form,
+                                                         sw_species_icons::kGenderUnknown, icon);
                 std::snprintf(key, sizeof key, "sw.map.wild.strip.%d.ready", i);
                 PubI(host, key, ok ? 1 : 0);
                 std::snprintf(key, sizeof key, "sw.map.wild.strip.%d.icon_src", i);
                 PubT(host, key, ok ? src : "");
                 std::snprintf(key, sizeof key, "sw.map.wild.strip.%d.icon_class", i);
-                PubI(host, key, ok ? sw_route::IconClass(rows[static_cast<std::size_t>(i)].species) : 0);
+                PubI(host, key, ok ? sw_species_icons::SizeClass(icon) : 0);
                 std::snprintf(key, sizeof key, "sw.map.wild.strip.%d", i);
-                if (ok) PublishIconOffset(host, key, rows[static_cast<std::size_t>(i)].species);
+                if (ok) PublishIconOffset(host, key, icon);
             }
             PubI(host, "sw.map.wild.more_ready", count > kWildStrip ? 1 : 0);
             const std::string more = "+" + std::to_string(count > kWildStrip ? count - kWildStrip : 0);
@@ -3165,11 +3188,13 @@ private:
                 const bool icon = sw_route::IconSource(row.species, row.form, src, sizeof src);
                 PubI(host, (p + "icon_ready").c_str(), icon ? 1 : 0);
                 // large art (class 2) draws smaller so it stays clear of the text column
-                const bool big = sw_route::IconClass(row.species) == 2;
+                sw_species_icons::Icon art;
+                const bool big = icon && sw_species_icons::Select(row.species, row.form, sw_species_icons::kGenderUnknown, art) &&
+                                 sw_species_icons::SizeClass(art) == 2;
                 PubI(host, (p + "icon_std").c_str(), icon && !big ? 1 : 0);
                 PubI(host, (p + "icon_big").c_str(), icon && big ? 1 : 0);
                 PubT(host, (p + "icon_src").c_str(), icon ? src : "");
-                if (icon) PublishIconOffset(host, ("sw.route." + std::to_string(i)).c_str(), row.species);
+                if (icon) PublishIconOffset(host, ("sw.route." + std::to_string(i)).c_str(), art);
                 std::string name;
                 if (!(species_names_ready_ && sw_species_names::SpeciesName(species_names_, row.species, name)))
                     name = "#" + std::to_string(row.species);
@@ -3690,6 +3715,13 @@ private:
         const auto& live = live_party_cache_[static_cast<std::size_t>(pid)];
         return live.valid && !live.egg && live.species == species && live.shiny;
     }
+    // Box icon gender of an own battle member: its species-matched live party slot (the battle
+    // struct's gender byte is not mapped); unknown -> the species' default look for that form.
+    std::uint8_t OwnMonGender(int pid, std::uint16_t species) const {
+        if (pid < 0 || pid > 5) return sw_species_icons::kGenderUnknown;
+        const auto& live = live_party_cache_[static_cast<std::size_t>(pid)];
+        return live.valid && !live.egg && live.species == species ? live.gender : sw_species_icons::kGenderUnknown;
+    }
 
     // A wild foe's shiny mark: the game's wild-encounter PK8 (party format, encrypted) at
     // heap+0x8FEA3648 (SysBot.Pokemon WildPokemonOffset == CaptureSight Pk8Offset::Wild,
@@ -3701,7 +3733,8 @@ private:
     // Keyed on the battle epoch too: the next wild battle can reuse the client address and meet
     // the same species / level / max HP (review 3 C1), and must re-read its own PK8.
     struct WildShiny { std::uint64_t epoch = 0; u64 client = 0; std::uint16_t species = 0, max_hp = 0;
-                       std::uint8_t level = 0; bool matched = false, shiny = false; };
+                       std::uint8_t level = 0; bool matched = false, shiny = false;
+                       std::uint8_t gender = sw_species_icons::kGenderUnknown; };
     WildShiny wild_shiny_{};
     bool battle_wild_single_ = false;  // PublishBattleBall's rule check, this battle tick
     bool WildFoeShiny(const EdenDsmodHostApi& host, u64 heap_begin, const sw_battle::Mon& foe) {
@@ -3718,7 +3751,15 @@ private:
         if (!pk.checksum_valid || pk.egg || pk.species != foe.species) return false;
         c.matched = true;
         c.shiny = sw_pk8::IsShiny(pk.pid, pk.tid, pk.sid);
+        c.gender = pk.gender;
         return c.shiny;
+    }
+    // The wild foe's gender for its box icon, from the encounter PK8 WildFoeShiny matched this
+    // battle (unknown when it did not match: the species' default look for that form).
+    std::uint8_t WildFoeGender(const sw_battle::Mon& foe) const {
+        const auto& c = wild_shiny_;
+        return c.matched && c.epoch == battle_epoch_ && c.client == battle_client_ && c.species == foe.species &&
+               c.level == foe.level && c.max_hp == foe.max_hp ? c.gender : sw_species_icons::kGenderUnknown;
     }
 
     bool BattleMemberIsEgg(int pid, const sw_battle::Mon& m) const {
@@ -3752,7 +3793,8 @@ private:
             if (pid < 0 || pid > 5) continue;
             const auto& m = members[static_cast<std::size_t>(pid)];
             if (!m.valid || BattleMemberIsEgg(pid, m)) continue;
-            icon_sig = HashValue(static_cast<std::uint64_t>(n) << 32 | static_cast<std::uint64_t>(m.form) << 16 | m.species,
+            icon_sig = HashValue(static_cast<std::uint64_t>(OwnMonGender(pid, m.species)) << 40 |
+                                     static_cast<std::uint64_t>(n) << 32 | static_cast<std::uint64_t>(m.form) << 16 | m.species,
                                  icon_sig);
             bench_pids[static_cast<std::size_t>(n)] = pid;
             ++n;
@@ -3766,7 +3808,7 @@ private:
                 const int bpid = bench_pids[static_cast<std::size_t>(i)];
                 const auto species = members[static_cast<std::size_t>(bpid)].species;
                 const auto form = members[static_cast<std::size_t>(bpid)].form;
-                PublishIcon(host, key, species);
+                PublishIcon(host, key, species, form, OwnMonGender(bpid, species));
                 // Field tab party list (owner dev.23 4e): name (nickname), native type labels.
                 std::string name;
                 if (host.publish_text && OwnMonName(bpid, species, name)) {
@@ -4171,7 +4213,11 @@ private:
         std::snprintf(text, sizeof text, "%d%%", pct);
         std::snprintf(key, sizeof key, "%s.hp_pct_text", prefix); PubT(host, key, text);
 
-        const auto sig = HashValue(static_cast<std::uint64_t>(mon.level) << 32 | mon.species, 0);
+        // The own participant is the player's active Pokemon: its party slot gives the gender.
+        const std::uint8_t gender = tape_index == 0 ? OwnMonGender(active_idx_, mon.species)
+                                                    : sw_species_icons::kGenderUnknown;
+        const auto sig = HashValue(static_cast<std::uint64_t>(gender) << 48 | static_cast<std::uint64_t>(mon.form) << 40 |
+                                   static_cast<std::uint64_t>(mon.level) << 32 | mon.species, 0);
         Taped(raid_mon_tape_[static_cast<std::size_t>(tape_index)], sig, host, [&] {
             std::snprintf(key, sizeof key, "%s.species", prefix); PubI(host, key, mon.species);
             std::snprintf(key, sizeof key, "%s.level", prefix); PubI(host, key, mon.level);
@@ -4180,7 +4226,7 @@ private:
                                sw_species_names::SpeciesName(species_names_, mon.species, name);
             std::snprintf(key, sizeof key, "%s.name_ready", prefix); PubI(host, key, named ? 1 : 0);
             if (named) { std::snprintf(key, sizeof key, "%s.name", prefix); PubT(host, key, name.c_str()); }
-            PublishIcon(host, prefix, mon.species);
+            PublishIcon(host, prefix, mon.species, mon.form, gender);
         });
     }
 
@@ -4394,7 +4440,8 @@ private:
             // Name/icon are species-only (review OPTIMIZE #8): cached per shown slot on species
             // identity. The pick itself (order/reasons/pid), and HP below, stay fully live --
             // both can change from a tie-break or a plain HP tick without the species changing.
-            std::uint64_t name_sig = mon.species;
+            std::uint64_t name_sig = static_cast<std::uint64_t>(OwnMonGender(pick.pid, mon.species)) << 40 |
+                                     static_cast<std::uint64_t>(mon.form) << 32 | mon.species;
             for (char c : party_detail_mons_[static_cast<std::size_t>(pick.pid)].nickname)
                 name_sig = HashValue(static_cast<std::uint8_t>(c), name_sig);
             Taped(switch_pick_tape_[static_cast<std::size_t>(i)], name_sig, host, [&] {
@@ -4404,7 +4451,7 @@ private:
                     std::snprintf(key, sizeof key, "%s.name", prefix);
                     PubT(host, key, name.c_str());
                 }
-                PublishIcon(host, prefix, mon.species);
+                PublishIcon(host, prefix, mon.species, mon.form, OwnMonGender(pick.pid, mon.species));
             });
             std::snprintf(key, sizeof key, "%s.pid", prefix); PubI(host, key, pick.pid);
             std::snprintf(key, sizeof key, "%s.shiny", prefix); PubI(host, key, OwnMonShiny(pick.pid, mon.species) ? 1 : 0);
@@ -4853,7 +4900,8 @@ private:
                     std::snprintf(key, sizeof key, "%s.%s", prefix, suffix);
                     PubI(host, key, on ? 1 : 0);
                 }
-                PublishIcon(host, prefix, mon.species);
+                PublishIcon(host, prefix, mon.species, mon.form,
+                            own_side ? OwnMonGender(pid, mon.species) : sw_species_icons::kGenderUnknown);
                 std::snprintf(key, sizeof key, "%s.shiny", prefix);
                 PubI(host, key, own_side && OwnMonShiny(pid, mon.species) ? 1 : 0);
                 return true;
@@ -5072,7 +5120,7 @@ private:
                 PubT(host, "sw.battle.own.level_text", sw_str::Level(own.level).c_str());
             }
 
-            PublishIcon(host, "sw.battle.own", own.species);
+            PublishIcon(host, "sw.battle.own", own.species, own.form, OwnMonGender(active_idx_, own.species));
             // The active Pokemon's status badge (battle Bag card, 2026-11-01), from the same party
             // record the bench rows use (the battle struct carries no status); fainted follows
             // the live battle HP.
@@ -5329,9 +5377,14 @@ private:
             // Matchup card: the foe's own types + what it's weak/immune to (personal data, same
             // helper the Pokémon page's weakness board uses) -- real data, no move-type guess
             // needed for this half of the card.
-            Taped(foe_board_tape_, static_cast<std::uint64_t>(foe.species) << 8 | foe.form, host, [&] {
+            // Only a wild single's foe has its encounter PK8 (gender); a trainer's shows the form's
+            // default look.
+            const std::uint8_t foe_gender = !raid.active && battle_wild_single_
+                                                ? WildFoeGender(foe) : sw_species_icons::kGenderUnknown;
+            Taped(foe_board_tape_, static_cast<std::uint64_t>(foe_gender) << 24 |
+                                   static_cast<std::uint64_t>(foe.species) << 8 | foe.form, host, [&] {
                 PublishWeaknessBoard(host, "sw.battle.foe", foe.species, foe.form);
-                PublishIcon(host, "sw.battle.foe", foe.species);
+                PublishIcon(host, "sw.battle.foe", foe.species, foe.form, foe_gender);
             });
         }
     }

@@ -1512,6 +1512,13 @@ void TestBattleRegionalFormFoeMatchups() {
               "effectiveness (Galarian Corsola neutral, Corsola super effective, unknown form withheld)");
 }
 
+// The 8-character stem of a published box icon source ("0618_01s").
+std::string IconStemOf(const std::string& src) {
+    const auto at = src.find("poke_icon_");
+    assert(at != std::string::npos && src.size() >= at + 18);
+    return src.substr(at + 10, 8); // "0618_01s"
+}
+
 void TestDexDetailShowsDisplayedForm() {
     for (const std::uint16_t display : {std::uint16_t{1}, std::uint16_t{0}, std::uint16_t{5}}) {
         FakeHost fake = BuildFixture(false);
@@ -1546,10 +1553,190 @@ void TestDexDetailShowsDisplayedForm() {
         assert(fake.ints.at("sw.dex.detail.type2") == (galarian ? 8 : 12));
         assert(fake.ints.at("sw.dex.detail.info_ready") == 1);
         assert(fake.ints.at("sw.dex.detail.bs1") == (galarian ? 81 : 66)); // Attack
+        // The picture is the displayed form's too, on the row and the detail card.
+        const char* stem = galarian ? "0618_01s" : "0618_00s";
+        assert(fake.ints.at("sw.dex.detail.icon_ready") == 1 && IconStemOf(fake.texts.at("sw.dex.detail.icon_src")) == stem);
+        int row = -1;
+        for (int i = 0; i < fake.ints.at("sw.dex.row_count"); ++i)
+            if (fake.ints.count("sw.dex.row." + std::to_string(i) + ".icon_ready")) row = i;
+        assert(row >= 0 && IconStemOf(fake.texts.at("sw.dex.row." + std::to_string(row) + ".icon_src")) == stem);
     }
     assert(sw_zukan::DisplayForm(869, 7 * 3 + 4) == 3 && sw_zukan::DisplayForm(618, 1) == 1); // Alcremie
     std::puts("sw_reader: the Pokedex detail shows the game's displayed form (Galarian Stunfisk "
               "types and base stats), and the base form for a form the species does not have");
+}
+
+// Box icons follow the shown Pokemon's own form and gender (owner 2026-11-07, live: a Rapid
+// Strike Urshifu showed default Urshifu, a Galarian Stunfisk foe the Kanto art). The icon files and
+// their art boxes are the generated tables' (numbers only, sw_species_icon_table.h /
+// sw_species_icon_metrics.h); both variants share them.
+void TestFormIconSelection() {
+    using sw_species_icons::kGenderUnknown;
+    struct Case { std::uint16_t species; std::uint8_t form, gender; const char* stem; };
+    const Case cases[] = {
+        {618, 0, 0, "0618_00s"}, {618, 1, 1, "0618_01s"},                          // Stunfisk, Galarian
+        {263, 1, 0, "0263_01s"}, {264, 1, 1, "0264_01s"}, {222, 1, 0, "0222_01s"}, // Galarian Zigzagoon, Linoone, Corsola
+        {110, 1, kGenderUnknown, "0110_01s"}, {122, 0, 0, "0122_00s"}, {122, 1, 0, "0122_01s"}, // Weezing, Mr. Mime
+        {80, 2, 0, "0080_02s"}, {555, 0, 0, "0555_00s"}, {555, 1, 0, "0555_01s"},  // Galarian Slowbro, Darmanitan, Zen
+        {555, 2, 1, "0555_02s"}, {555, 3, 0, "0555_03s"},                          // Galarian, Galarian Zen
+        {892, 0, 0, "0983_00s"}, {892, 1, 0, "0983_01s"},                          // Urshifu Single / Rapid Strike
+        {849, 0, 1, "0922_00s"}, {849, 1, 0, "0922_01s"},                          // Toxtricity Amped / Low Key
+        {479, 0, 2, "0479_00n"}, {479, 1, 2, "0479_01n"}, {479, 2, 2, "0479_02n"}, // Rotom, Heat, Wash
+        {479, 3, 2, "0479_03n"}, {479, 4, 2, "0479_04n"}, {479, 5, 2, "0479_05n"}, // Frost, Fan, Mow
+        {37, 1, 1, "0037_01s"}, {38, 1, 0, "0038_01s"}, {27, 1, 0, "0027_01s"},    // Alolan Vulpix, Ninetales, Sandshrew
+        {26, 1, 1, "0026_01s"}, {52, 1, 0, "0052_01s"}, {52, 2, 0, "0052_02s"},    // Alolan Raichu, Meowth; Galarian Meowth
+        {26, 0, 1, "0026_00f"}, {26, 0, 0, "0026_00m"}, {26, 0, kGenderUnknown, "0026_00m"}, // Raichu's female art
+        {25, 0, 1, "0025_00f"}, {25, 7, 0, "0025_07m"},                            // female Pikachu, Partner Cap
+        {876, 0, 0, "0942_00m"}, {876, 1, 1, "0942_01f"}, {678, 1, 1, "0734_01f"}, // Indeedee, Meowstic female forms
+        {888, 1, 2, "0938_01n"}, {681, 1, 0, "0746_01s"},                          // Zacian Crowned, Aegislash Blade
+        // A form without an icon of its own: the species' default look (fail closed, never another file).
+        {618, 7, 0, "0618_00s"}, {892, 9, 0, "0983_00s"}, {122, 5, 0, "0122_01s"}, {849, 2, 1, "0922_00s"},
+        {80, 1, 0, "0080_00s"},
+    };
+    for (const auto& c : cases) {
+        char src[160]{};
+        assert(sw_species_icons::IconSource(c.species, c.form, c.gender, src, sizeof src));
+        assert(IconStemOf(src) == c.stem);
+        sw_species_icons::Icon icon;
+        assert(sw_species_icons::Select(c.species, c.form, c.gender, icon));
+        int dx = 99, dy = 99;
+        assert(sw_species_icons::Offset(icon, dx, dy)); // every selectable file has its art box
+    }
+    char src[160]{};
+    assert(!sw_species_icons::IconSource(13, 0, 0, src, sizeof src));  // not in this game's dex
+    assert(!sw_species_icons::IconSource(0, 1, 0, src, sizeof src));
+    // The default look is the unchanged per-species icon for every species.
+    for (const auto& e : sw_species_icon_table::kTable) {
+        char a[160]{}, b[160]{};
+        assert(sw_species_icons::IconSource(e.species, a, sizeof a));
+        assert(sw_species_icons::IconSource(e.species, e.form, kGenderUnknown, b, sizeof b));
+        assert(std::string(a) == b);
+    }
+    std::puts("sw_species_icons: Galarian/Alolan forms, Zen Mode, Rapid Strike, Low Key, Rotom's "
+              "appliances and the female forms/art select their own icon; missing forms fall back to "
+              "the species' default look");
+}
+
+void TestFormIconMetricsCoverage() {
+    // Exactly one art box per selectable icon file, in the texture, and forms keep their own box.
+    std::size_t files = 0;
+    for (const auto& v : sw_species_icon_table::kVariants)
+        for (const auto& [bit, suffix] : {std::pair{sw_species_icon_table::kMale, 'm'},
+                                          std::pair{sw_species_icon_table::kFemale, 'f'},
+                                          std::pair{sw_species_icon_table::kSingle, 's'},
+                                          std::pair{sw_species_icon_table::kGenderless, 'n'}}) {
+            if (!(v.suffixes & bit)) continue;
+            ++files;
+            const auto* b = sw_species_icon_metrics::Find(v.icon_id, v.form, suffix);
+            assert(b && b->left < b->right && b->top < b->bottom);
+            assert(b->right <= sw_species_icon_metrics::kIconW && b->bottom <= sw_species_icon_metrics::kIconH);
+        }
+    assert(files == std::size(sw_species_icon_metrics::kBoxes));
+    for (std::size_t i = 1; i < std::size(sw_species_icon_table::kVariants); ++i) {
+        const auto& a = sw_species_icon_table::kVariants[i - 1];
+        const auto& b = sw_species_icon_table::kVariants[i];
+        assert(a.icon_id < b.icon_id || (a.icon_id == b.icon_id && a.form < b.form)); // binary search order
+    }
+    for (const auto& e : sw_species_icon_table::kTable)
+        assert(sw_species_icon_table::VariantSuffixes(e.icon_id, e.form) != 0);
+    int base_dx = 0, base_dy = 0, zen_dx = 0, zen_dy = 0;
+    assert(sw_species_icon_metrics::OffsetFor(555, 0, 's', base_dx, base_dy));
+    assert(sw_species_icon_metrics::OffsetFor(555, 1, 's', zen_dx, zen_dy));
+    assert(base_dx != zen_dx); // Zen Mode's art box is its own
+    assert(!sw_species_icon_metrics::OffsetFor(555, 9, 's', base_dx, base_dy));
+    std::puts("sw_species_icon_metrics: an art box for every form/gender icon file the module can show");
+}
+
+// One live party member re-made from the Mewtwo fixture blob: species/form/gender changed.
+std::array<unsigned char, sw_pk8::kSizeStored> LiveMemberAs(std::uint16_t species, std::uint8_t form, std::uint8_t gender) {
+    auto d = DecryptedMewtwo();
+    d[0x08] = static_cast<unsigned char>(species);
+    d[0x09] = static_cast<unsigned char>(species >> 8);
+    d[0x22] = static_cast<unsigned char>((d[0x22] & 0xF3u) | (gender << 2));
+    d[0x24] = form;
+    return EncryptStored(d);
+}
+
+void TestFormIconsPartyBattleDex() {
+    // Party: Rapid Strike Urshifu, a female Pikachu, a female Indeedee (form 1), Galarian Stunfisk.
+    const auto urshifu = LiveMemberAs(892, 1, 0), pikachu = LiveMemberAs(25, 0, 1);
+    const auto indeedee = LiveMemberAs(876, 1, 1), stunfisk = LiveMemberAs(618, 1, 0);
+    {
+        FakeHost fake = BuildLivePartyFixture({urshifu.data(), pikachu.data(), indeedee.data(), stunfisk.data()});
+        // Full rows (form stat rows need all six base stats); Mewtwo's base HP and growth on every
+        // row so the fixture's level and HP still compute.
+        auto& personal = fake.dat_files[sw_personal_stats::kPersonalTablePath];
+        personal.resize(1192 * sw_personal_stats::kRecordSize);
+        const auto row = [&](int index, unsigned char t1, unsigned char t2, std::uint16_t first, unsigned char count) {
+            const std::size_t o = static_cast<std::size_t>(index) * sw_personal_stats::kRecordSize;
+            const unsigned char bases[]{106, 110, 90, 130, 154, 90};
+            std::memcpy(personal.data() + o, bases, 6);
+            personal[o + 6] = t1; personal[o + 7] = t2; personal[o + 0x15] = 5;
+            PutU16(personal, o + sw_species_types::kFormStatsOffset, first);
+            personal[o + sw_species_types::kFormCountOffset] = count;
+        };
+        row(892, 1, 16, 1188, 2); row(1188, 1, 10, 0, 0);   // Urshifu, Rapid Strike
+        row(25, 12, 12, 0, 1);                              // Pikachu
+        row(876, 13, 0, 1170, 2); row(1170, 13, 0, 0, 0);   // Indeedee, female
+        row(618, 4, 12, 1021, 2); row(1021, 4, 8, 0, 0);    // Stunfisk, Galarian
+        const EdenDsmodHostApi host = MakeHostApi(fake);
+        sw_reader::Reader reader;
+        reader.Sample(host);
+        const char* want[] = {"0983_01s", "0025_00f", "0942_01f", "0618_01s"};
+        for (int i = 0; i < 4; ++i) {
+            const std::string k = "sw.party." + std::to_string(i) + ".";
+            assert(fake.ints.at(k + "ready") == 1 && fake.ints.at(k + "icon_ready") == 1);
+            assert(IconStemOf(fake.texts.at(k + "icon_src")) == want[i]);
+        }
+        // The offset is the shown file's own art box.
+        int dx = 0, dy = 0;
+        assert(sw_species_icon_metrics::OffsetFor(983, 1, 's', dx, dy));
+        assert(fake.ints.at("sw.party.0.icon_dx") == dx && fake.ints.at("sw.party.0.icon_dy") == dy);
+        assert(sw_species_icon_metrics::OffsetFor(618, 1, 's', dx, dy));
+        assert(fake.ints.at("sw.party.3.icon_dx") == dx && fake.ints.at("sw.party.3.icon_dy") == dy);
+    }
+    {   // Battle header: Galarian Corsola foe (+0x33D), and the base form for form 0.
+        for (const std::uint8_t form : {std::uint8_t{1}, std::uint8_t{0}, std::uint8_t{6}}) {
+            FakeHost fake = BuildFixture(false);
+            AddRegionalFormPersonal(fake);
+            AddBattleFixture(fake, 0xFFFFFFFFu, 200, 356, /*foe_species=*/222, 40, 60, 90);
+            SetFoeForm(fake, form);
+            const EdenDsmodHostApi host = MakeHostApi(fake);
+            sw_reader::Reader reader;
+            AddLiveParty(fake);
+            PrimeWorldEntered(fake, host, reader);
+            SetCurrentScreen(fake, 0xFFFFFFFFu);
+            reader.Sample(host);
+            assert(fake.ints.at("sw.battle.foe.ready") == 1 && fake.ints.at("sw.battle.foe.icon_ready") == 1);
+            assert(IconStemOf(fake.texts.at("sw.battle.foe.icon_src")) == (form == 1 ? "0222_01s" : "0222_00s"));
+            int dx = 0, dy = 0;
+            assert(sw_species_icon_metrics::OffsetFor(222, form == 1 ? 1 : 0, 's', dx, dy));
+            assert(fake.ints.at("sw.battle.foe.icon_dx") == dx && fake.ints.at("sw.battle.foe.icon_dy") == dy);
+            assert(IconStemOf(fake.texts.at("sw.battle.own.icon_src")) == "0150_00n"); // Mewtwo
+        }
+    }
+    {   // Own battler: its form from the battle struct, its gender from its live party slot.
+        for (const bool female : {true, false}) {
+            FakeHost fake = BuildFixture(false);
+            AddBattleFixture(fake, 0xFFFFFFFFu, 200, 356, /*foe_species=*/222, 40, 60, 90);
+            const auto* a_own = sw_addresses::Find("battle.own_mon");
+            for (auto& r : fake.regions)
+                if (r.base == fake.heap_begin + a_own->sysbot_offset) PutU16(r.data, 0x70, 25); // own Pikachu
+            const auto member = LiveMemberAs(25, 0, female ? 1 : 0);
+            FakeHost live = BuildLivePartyFixture({member.data()});
+            for (auto& r : live.regions) fake.regions.push_back(std::move(r));
+            fake.personal[25] = {12, 12, 106, 5};
+            const EdenDsmodHostApi host = MakeHostApi(fake);
+            sw_reader::Reader reader;
+            PrimeWorldEntered(fake, host, reader);
+            SetCurrentScreen(fake, 0xFFFFFFFFu);
+            reader.Sample(host);
+            assert(fake.ints.at("sw.battle.own.ready") == 1 && fake.ints.at("sw.battle.own.species") == 25);
+            assert(IconStemOf(fake.texts.at("sw.battle.own.icon_src")) == (female ? "0025_00f" : "0025_00m"));
+        }
+    }
+    std::puts("sw_reader: party slots, the battle foe and the own battler show their own form's (and "
+              "gender's) box icon and its art offset");
 }
 
 // BATTLE AUTO-SWITCH RELIABILITY FIX (2026-10-25 task): reproduces the exact failure mode that
@@ -4039,6 +4226,9 @@ void RunAll() {
     TestRegionalFormTypes();
     TestBattleRegionalFormFoeMatchups();
     TestDexDetailShowsDisplayedForm();
+    TestFormIconSelection();
+    TestFormIconMetricsCoverage();
+    TestFormIconsPartyBattleDex();
     SWORD_ONLY(TestBattleBallIdentityPagingAndViewReset());
     SWORD_ONLY(TestNativeBattleMenuFsmClassification());
     TestInBattleStickyAcrossUnclassifiedTick();

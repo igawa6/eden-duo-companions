@@ -219,7 +219,8 @@ struct PartyMon {
     u16 current_hp_at_save = 0;  // +0x8A
     u32 status_at_save = 0;      // +0x94 (int32 in PKHeX; 0 == no status)
     bool egg = false;            // +0x8C bit30 (IsEgg); never reveal species/stats for an Egg
-    u8 form = 0;                 // +0x24 (types/matchups are per form)
+    u8 form = 0;                 // +0x24 (types/matchups/box icon are per form)
+    u8 gender = 2;               // +0x22 bits2..3, 0 male/1 female/2 genderless (box icon art)
     std::string nickname;        // +0x58, UTF-8 ("" = undecodable)
 };
 
@@ -252,6 +253,7 @@ inline PartyMon DecodeParty(const u8* encrypted) {
     m.status_at_save = Rd32(buf.data() + 0x94);
     m.egg = ((Rd32(buf.data() + 0x8C) >> 30) & 1u) != 0;
     m.form = buf[0x24];
+    m.gender = static_cast<u8>((buf[0x22] >> 2) & 3u);
     m.nickname = DecodeNicknameUtf8(buf.data());
     m.checksum_valid = ComputeChecksum16(buf.data()) == m.checksum;
     m.species_in_range = m.species >= 1 && m.species <= kMaxKnownSpeciesSwSh;

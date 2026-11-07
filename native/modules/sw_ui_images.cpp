@@ -112,7 +112,7 @@ Image GameImage(const EdenDsmodHostApi& host,std::string_view key) {
         auto b=std::from_chars(key.data()+split+1,key.data()+key.size(),form);
         if(a.ec!=std::errc{} || a.ptr!=key.data()+split || b.ec!=std::errc{} || b.ptr!=key.data()+key.size() || species>898 || form>255) return {};
         char path[160];
-        if(!sw_species_icons::IconSourceForm(species,form,path,sizeof path)) return {};
+        if(!sw_species_icons::IconSource(species,form,sw_species_icons::kGenderUnknown,path,sizeof path)) return {};
         std::string source=path;auto hash=source.find('#');
         auto bytes=sw_archive::Load(host,source.substr(0,hash).c_str());
         Image out;

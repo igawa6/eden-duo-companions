@@ -39,42 +39,88 @@
 #include <cstdint>
 #include <cstdio>
 
+#include "sw_species_icon_metrics.h"
 #include "sw_species_icon_table.h"
 
 namespace sw_species_icons {
 
-/// Builds the standalone-bntx romfs source for a species' box icon ("x.bntx#tex" form,
-/// PACKAGE_FORMAT.md section 3.11 -- the real box icon .bntx holds exactly one texture, named
-/// identically to its own filename stem). Fails closed (returns false, `out` untouched) for any
-/// species not in this game's dex (sw_species_icon_table::Lookup already does -- e.g. the
-/// Pidgey/Weedle/Rattata "Dexit" lines have no entry) or any `out` buffer too small.
-inline bool IconSource(std::uint16_t species, char* out, std::size_t out_size) {
-    if (!out || out_size == 0) return false;
+// Gender argument of Select/IconSource: PK8 +0x22 bits 2..3 (0 male, 1 female, 2 genderless);
+// kGenderUnknown where the shown Pokemon's gender is not read (a trainer's battler).
+inline constexpr std::uint8_t kGenderUnknown = 0xFF;
+
+/// One box icon file: romfs:/bin/appli/icon_pokemon/poke_icon_<icon_id>_<form><suffix>_n.bntx.
+struct Icon {
     std::uint16_t icon_id = 0;
     std::uint8_t form = 0;
     char suffix = 0;
-    if (!sw_species_icon_table::Lookup(species, icon_id, form, suffix)) return false;
+};
+
+/// The species' default look (sw_species_icon_table.h kTable). False = not in this game's dex.
+inline bool Base(std::uint16_t species, Icon& out) {
+    return species != 0 && sw_species_icon_table::Lookup(species, out.icon_id, out.form, out.suffix);
+}
+
+/// The look the game's box list shows for a Pokemon of `species` in `form` (PK8 +0x24, battle
+/// struct +0x33D, Zukan8 display form, an evolution's target form): that form's own icon
+/// (Galarian Stunfisk, Darmanitan Zen Mode, Urshifu Rapid Strike, Rotom's appliances, Indeedee
+/// and Meowstic female = form 1 ...), the female file where the form has one and `gender` is 1,
+/// otherwise the male / single / genderless file (the table generator's suffix preference). A form
+/// with no icon of its own fails closed to the species' default look; false only for a species
+/// not in this game's dex.
+inline bool Select(std::uint16_t species, std::uint8_t form, std::uint8_t gender, Icon& out) {
+    if (!Base(species, out)) return false;
+    using namespace sw_species_icon_table;
+    const std::uint8_t bits = VariantSuffixes(out.icon_id, form);
+    if (!bits) return true; // no own icon for this form: the default look
+    out.form = form;
+    if (gender == 1 && (bits & kFemale)) out.suffix = 'f';
+    else if (bits & kMale) out.suffix = 'm';
+    else if (bits & kSingle) out.suffix = 's';
+    else if (bits & kGenderless) out.suffix = 'n';
+    else out.suffix = 'f';
+    return true;
+}
+
+/// Builds the standalone-bntx romfs source ("x.bntx#tex" form, PACKAGE_FORMAT.md section 3.11 --
+/// the real box icon .bntx holds exactly one texture, named identically to its own filename
+/// stem). Every file Select can return is in the package's sprite map (icon_stems_full.txt).
+inline bool Source(const Icon& icon, char* out, std::size_t out_size) {
+    if (!out || out_size == 0 || icon.icon_id == 0) return false;
     const int n = std::snprintf(out, out_size,
         "romfs:/bin/appli/icon_pokemon/poke_icon_%04u_%02u%c_n.bntx#poke_icon_%04u_%02u%c_n",
-        static_cast<unsigned>(icon_id), static_cast<unsigned>(form), suffix,
-        static_cast<unsigned>(icon_id), static_cast<unsigned>(form), suffix);
+        static_cast<unsigned>(icon.icon_id), static_cast<unsigned>(icon.form), icon.suffix,
+        static_cast<unsigned>(icon.icon_id), static_cast<unsigned>(icon.form), icon.suffix);
     return n > 0 && static_cast<std::size_t>(n) < out_size;
 }
 
-/// The box icon of one form (`form` 0 = the species' default look, as IconSource): Galarian
-/// Zigzagoon/Slowpoke, Pumpkaboo sizes, East Sea Shellos ... (wild encounter forms; every
-/// encounter form's file exists in 1.3.2 with the species' own gender suffix).
-inline bool IconSourceForm(std::uint16_t species, std::uint8_t form, char* out, std::size_t out_size) {
-    if (!out || out_size == 0) return false;
-    std::uint16_t icon_id = 0;
-    std::uint8_t base_form = 0;
-    char suffix = 0;
-    if (!sw_species_icon_table::Lookup(species, icon_id, base_form, suffix)) return false;
-    const unsigned f = form ? form : base_form;
-    const int n = std::snprintf(out, out_size,
-        "romfs:/bin/appli/icon_pokemon/poke_icon_%04u_%02u%c_n.bntx#poke_icon_%04u_%02u%c_n",
-        static_cast<unsigned>(icon_id), f, suffix, static_cast<unsigned>(icon_id), f, suffix);
-    return n > 0 && static_cast<std::size_t>(n) < out_size;
+/// The species' default box icon. Fails closed (returns false, `out` untouched) for any species
+/// not in this game's dex (sw_species_icon_table::Lookup already does -- e.g. the
+/// Pidgey/Weedle/Rattata "Dexit" lines have no entry) or any `out` buffer too small.
+inline bool IconSource(std::uint16_t species, char* out, std::size_t out_size) {
+    Icon icon;
+    return Base(species, icon) && Source(icon, out, out_size);
+}
+
+/// The box icon of one Pokemon's own form and gender (Select).
+inline bool IconSource(std::uint16_t species, std::uint8_t form, std::uint8_t gender, char* out,
+                       std::size_t out_size) {
+    Icon icon;
+    return Select(species, form, gender, icon) && Source(icon, out, out_size);
+}
+
+/// The art offset of one icon file (sw_species_icon_metrics.h); false = no baked box.
+inline bool Offset(const Icon& icon, int& dx, int& dy) {
+    return sw_species_icon_metrics::OffsetFor(icon.icon_id, icon.form, icon.suffix, dx, dy);
+}
+
+/// Size class of an icon's art (its alpha box), so a small Pokemon and Jynx both read at a glance
+/// in a fixed slot: 0 small (art <= 56x48 icon px), 1 medium (<= 76x64), 2 large. The manifest
+/// draws each class at its own scale.
+inline int SizeClass(const Icon& icon) {
+    const auto* b = sw_species_icon_metrics::Find(icon.icon_id, icon.form, icon.suffix);
+    if (!b) return 0;
+    const int w = b->right - b->left, h = b->bottom - b->top;
+    return h <= 48 && w <= 56 ? 0 : h <= 64 && w <= 76 ? 1 : 2;
 }
 
 } // namespace sw_species_icons
