@@ -78775,11 +78775,11 @@
   "libraries": {
    "linux-x86_64": {
     "path": "modules/linux-x86_64/01008DB008C2C000.so",
-    "sha256": "da8c79ef587438d35e2f00df3f52d6c07ca28c7ae93193201cde3f5484e86aee"
+    "sha256": "4cfec365e4c3445cd8f1d93f91209916737732cf37bc57105a6828edc8427f73"
    },
    "android-arm64-v8a": {
     "path": "modules/android-arm64-v8a/01008DB008C2C000.so",
-    "sha256": "177df7f85212df8a69ebd1e3537302e289ea4479cc0abc89781ace68c1e41dff"
+    "sha256": "4641c18766b7cfcc0b0d7adc7d105145f9aabccf8a6c9445c0dacb72a6d896d0"
    }
   }
  },
