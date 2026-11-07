@@ -231,6 +231,64 @@ int main() {
         echoes::LocaleFontFamilies(0x1000)[1] == "nintendo_udsg-r_ext_zh-cn_003" &&
         echoes::LocaleFontFamilies(0x2000)[0] == "nintendo_udjxh-db_zh-tw_003" &&
         echoes::LocaleFontFamilies(0x4000)[0] == "nintendo_udsg-r_ko_003");
+  // Without firmware every slot holds a replacement face; the Standard slot is
+  // the list tail (loaded first). Native Standard always wins.
+  const auto synthesized = [](Memory &m, bool broken_middle) {
+    auto f = Font("Open Sans");
+    m.Put(Blob, f.data(), f.size());
+    for (auto family : {"Open Sans", "Source Sans Pro", "Open Sans",
+                        "Open Sans", "YuzuOSSExtension"})
+      m.Push(family);
+    if (broken_middle)
+      B16(m.ranges.at(Blob + 4096 * 3), 134, 0xffff);
+  };
+  for (auto [flag, broken] : {std::pair{0x2u, false}, std::pair{0x40u, true},
+                              std::pair{0x800u, false}}) {
+    Memory m;
+    synthesized(m, broken);
+    m.U32(Locale + 0x20, flag);
+    auto s = m.Run();
+    Check(s.standard_font_valid && s.fallback && s.standard_family == "Open Sans" &&
+          s.standard_font_address == Blob && s.locale_fonts.empty() &&
+          s.problem.empty() && echoes::ValidateNativeFontBytes(s.standard_font, "Open Sans") &&
+          !echoes::ValidateStandardFontBytes(s.standard_font));
+  }
+  for (auto flag : {0x1u, 0x1000u, 0x2000u, 0x4000u}) {
+    Memory m;
+    synthesized(m, false);
+    m.U32(Locale + 0x20, flag);
+    auto s = m.Run();
+    Check(s.locale_valid && !s.standard_font_valid && !s.fallback &&
+          s.standard_font.empty() &&
+          s.problem.find("no Japanese, Chinese or Korean glyphs") != std::string::npos);
+  }
+  {
+    Memory m;
+    shared(m);
+    auto s = m.Run();
+    Check(s.standard_font_valid && !s.fallback &&
+          s.standard_family == "nintendo_udsg-r_std_003");
+  }
+  {
+    // A corrupt replacement face, or a list that is not the six shared
+    // fonts, publishes nothing.
+    Memory m;
+    synthesized(m, false);
+    m.ranges.at(Blob)[100] ^= 1;
+    auto s = m.Run();
+    Check(!s.standard_font_valid && !s.fallback && !s.problem.empty());
+    Memory five;
+    auto f = Font("Open Sans");
+    five.Put(Blob, f.data(), f.size());
+    for (int i = 0; i < 4; ++i)
+      five.Push("Open Sans");
+    Check(!five.Run().standard_font_valid);
+    Memory junk;
+    synthesized(junk, false);
+    std::vector<uint8_t> garbage(256, 0x5a);
+    junk.Put(Blob, garbage.data(), garbage.size());
+    Check(!junk.Run().standard_font_valid);
+  }
   {
     // A missing Simplified Chinese extension face publishes no font.
     Memory m;

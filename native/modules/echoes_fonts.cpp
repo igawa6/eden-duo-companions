@@ -133,7 +133,10 @@ bool BodyAtlas(const NativeFonts &native, std::span<const uint32_t> required,
     faces.push_back(&copy.bytes);
   }
   const auto &bytes = native.standard_font;
-  if (bytes.size() > MaxNativeFontBytes || !ValidateStandardFontBytes(bytes))
+  if (bytes.size() > MaxNativeFontBytes ||
+      !(native.fallback ? families.empty() && !native.standard_family.empty() &&
+                              ValidateNativeFontBytes(bytes, native.standard_family)
+                        : ValidateStandardFontBytes(bytes)))
     return false;
   faces.push_back(&bytes);
   std::vector<stbtt_fontinfo> infos(faces.size());

@@ -85,6 +85,12 @@ struct NativeFonts {
   // LocaleFontFamilies(locale_flag) in order, all present when
   // standard_font_valid is set. Body glyphs prefer these, then Standard.
   std::vector<NativeFontCopy> locale_fonts;
+  // Set when the native Standard face is absent and standard_font is the
+  // system's replacement font in the Standard slot (Latin/Cyrillic languages).
+  bool fallback{};
+  std::string standard_family;
+  // Why no font was published; empty on success.
+  std::string problem;
 };
 // main_base is the loaded main NSO base; build_matches is independently checked
 // by the caller. ReadFn reads guest bytes and must reject unmapped ranges.

@@ -317,6 +317,7 @@ struct Module {
   std::vector<uint8_t> echo_textures, item_textures, ingredient_textures;
   uint64_t epoch{1}, font_epoch{}, font_attempt{}, cached_base{};
   bool font_attempted{}, ui_held{}, pulse_active{}, resource_ready_seen{};
+  std::string font_note;
   uint64_t pulse_at{};
   explicit Module(const EdenDsmodHostApi& api)
       : host(api), resources(AssetReader(),Reader(host),host.main_base), assets(AssetReader()), map_icons(AssetReader()) {}
@@ -431,6 +432,14 @@ struct Module {
     if (!fonts && (!font_attempted || tick < font_attempt || tick-font_attempt >= 60)) {
       font_attempted = true; font_attempt = tick;
       auto found = std::make_shared<NativeFonts>(ReadNativeFonts(read, host.main_base, HostBuild(host)));
+      // One line per distinct outcome; the read itself retries every second.
+      const auto note = found->fallback
+          ? "native Standard face absent, using the system's replacement font (" + found->standard_family + ")"
+          : found->problem;
+      if (host.log && note != font_note) {
+        font_note = note;
+        if (!note.empty()) host.log(host.userdata,1,("Echoes fonts: "+note).c_str());
+      }
       if (found->standard_font_valid && found->locale_valid && found->body_font_supported) {
         fonts = std::move(found); cached_base = host.main_base;
         resources.SetNativeFonts(fonts); ++font_epoch;

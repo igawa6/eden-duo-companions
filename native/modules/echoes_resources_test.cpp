@@ -421,6 +421,59 @@ int main() {
           !snapshot->heading_echo_keys.empty() &&
           !snapshot->inspection_echo_text.empty());
   }
+  // Without firmware fonts the emulator's replacement Standard face (Open
+  // Sans) is the fallback body font for Latin and Cyrillic roots. The bytes
+  // are read from the emulator source tree at test time, never committed.
+  if (const char *eden = std::getenv("ECHOES_EDEN_SOURCE")) {
+    std::ifstream in(std::filesystem::path(eden) /
+                     "src/core/file_sys/system_archive/data/font_standard.cpp");
+    const std::string text((std::istreambuf_iterator<char>(in)), {});
+    std::vector<uint8_t> replacement;
+    for (size_t at = text.find("{{"); at != std::string::npos &&
+                                      (at = text.find("0x", at)) != std::string::npos;
+         at += 4)
+      replacement.push_back(uint8_t(std::stoul(text.substr(at + 2, 2), nullptr, 16)));
+    Check(echoes::ValidateNativeFontBytes(replacement, "Open Sans"));
+    for (size_t i = 1; i <= 11; ++i) {
+      if (!std::filesystem::exists(root / std::string(roots[i]) /
+                                   "message/glossary/CopyableActor.msbt"))
+        continue;
+      auto fallback = std::make_shared<echoes::NativeFonts>(*native);
+      fallback->standard_font = replacement;
+      fallback->fallback = true;
+      fallback->standard_family = "Open Sans";
+      fallback->locale_flag = uint32_t(1) << i;
+      fallback->message_root = std::string(roots[i]);
+      echoes::Resources regional(read);
+      regional.SetNativeFonts(fallback);
+      const bool ok = regional.EnsureReady();
+      const auto snapshot = regional.Snapshot();
+      std::cout << roots[i] << " (replacement font): " << regional.LastBuildPhase();
+      if (snapshot)
+        std::cout << ", body pages " << snapshot->body.image.h / 512
+                  << ", inspection " << snapshot->inspection_echo_text.size()
+                  << "/" << snapshot->inspection_automaton_text.size()
+                  << ", prologue " << snapshot->prologue_text.size()
+                  << ", floor labels " << snapshot->dungeon_floor_labels.size()
+                  << ", map labels " << std::count_if(snapshot->map_label_sizes.begin(), snapshot->map_label_sizes.end(), [](const auto& size){return size[0]>0;})
+                  << "/" << snapshot->map_labels.size();
+      std::cout << '\n';
+      Check(ok && snapshot && snapshot->echoes.size() == 128 &&
+            !snapshot->body.image.Empty() && !snapshot->inspection_echo_text.empty());
+      for (const auto &[key, label] : snapshot->dungeon_floor_labels) {
+        acnh::Image image;
+        Check(echoes::RenderBody(snapshot->body, label, {48, 46, 61, 255}, 236, image) &&
+              image.h <= 48);
+      }
+    }
+    // The native Standard check still refuses the replacement face.
+    auto native_only = std::make_shared<echoes::NativeFonts>(*native);
+    native_only->standard_font = replacement;
+    echoes::Resources refused(read);
+    refused.SetNativeFonts(native_only);
+    Check(!refused.EnsureReady());
+  } else
+    std::cout << "SKIP replacement font (ECHOES_EDEN_SOURCE unset)\n";
   const char *segments = std::getenv("ECHOES_SEGMENTS");
   if (segments) {
     const auto text = File(std::filesystem::path(segments) / "text.bin");

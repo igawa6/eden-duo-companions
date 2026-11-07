@@ -339,6 +339,38 @@ NativeFonts ReadNativeFonts(const ReadFn &r, uint64_t b, bool build_matches) {
   for (size_t i = 0; valid && i < families.size(); ++i) {
     locale_copies[i].family = families[i];
     valid = copy_font(locale[i], locale_copies[i].bytes);
+    if (!valid && locale[i] == 16)
+      out.problem = "native " + std::string(families[i]) + " face absent";
+  }
+  // Without system firmware the emulator synthesizes every shared font with
+  // replacement faces (e.g. Open Sans, the same bytes in several slots). The
+  // game loads shared font types 0..5 in order and the list inserts at its
+  // head, so the last of the six nodes is the Standard slot (type 0).
+  bool fallback = false;
+  if (!valid && chosen == 16 && chain.nodes.size() == 6) {
+    Font tail, check;
+    tail.face.node = check.face.node = chain.nodes.back().at;
+    tail.face.resource = check.face.resource = chain.nodes.back().resource;
+    tail.face.bytes = check.face.bytes = chain.nodes.back().raw;
+    if (Describe(r, tail) && !tail.face.family.empty() &&
+        tail.face.family != Standard) {
+      // Replacement faces carry no kana, CJK ideographs or Hangul.
+      if (l.flag == 1 || !families.empty())
+        out.problem = "native Standard face absent; the replacement font (" +
+                      tail.face.family +
+                      ") has no Japanese, Chinese or Korean glyphs";
+      else {
+        copy.resize(tail.size);
+        valid = Read(r, tail.face.bytes, 0, copy.data(), copy.size()) &&
+                Verify(tail, copy) && Describe(r, check) &&
+                SameDescription(tail, check);
+        if (valid) {
+          fallback = true;
+          fonts = {std::move(tail)};
+          chosen = 0;
+        }
+      }
+    }
   }
   if (valid)
     for (const auto &f : fonts) {
@@ -352,13 +384,18 @@ NativeFonts ReadNativeFonts(const ReadFn &r, uint64_t b, bool build_matches) {
   if (!GetLocale(r, b, last) || l != last)
     return out;
   publish_locale();
-  if (!valid || !GetChain(r, b, final) || chain != final)
+  if (!valid || !GetChain(r, b, final) || chain != final) {
+    if (out.problem.empty())
+      out.problem = "no valid native Standard face";
     return out;
+  }
   out.engine = chain.engine;
   out.list_head = chain.head;
   for (const auto &f : fonts)
     out.faces.push_back(f.face);
   out.standard_font_address = fonts[chosen].face.bytes;
+  out.standard_family = fonts[chosen].face.family;
+  out.fallback = fallback;
   out.standard_font = std::move(copy);
   out.locale_fonts = std::move(locale_copies);
   out.standard_font_valid = true;
