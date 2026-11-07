@@ -43,8 +43,8 @@ This repository holds the companion source code, packages, documentation and scr
 | 23 | [Persona 3 Portable](#persona-3-portable) | `0100DCD01525A000` | 1.0.0 (base game) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/persona-3-portable-1.0.1) | ⭐<br><a href="https://github.com/jschroeder1"><img src="https://img.shields.io/badge/jschroeder1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="jschroeder1"></a> |
 | 24 | [Fire Emblem Engage](#fire-emblem-engage) | `0100A6301214E000` | 2.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/fire-emblem-engage-1.0.0) | 🥇<br><a href="https://ko-fi.com/igawa6/commissions"><img src="https://img.shields.io/badge/Anon.-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Anon."></a> |
 | 25 | [Octopath Traveler 0](#octopath-traveler-0) | `01005270232F2000` | 1.0.5 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/octopath-traveler-0-1.0.0) | 🥇<br><a href="https://ko-fi.com/W7W1DAK7T"><img src="https://img.shields.io/badge/TwoBitSprite-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="TwoBitSprite"></a> |
-| 26 | [Pokémon Sword](#pokemon-sword) | `0100ABF008968000` | 1.3.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-sword-1.0.1) | 🥇<br><a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a> |
-| 27 | [Pokémon Shield](#pokemon-shield) | `01008DB008C2C000` | 1.3.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-shield-1.0.1) | 🥇<br><a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a> |
+| 26 | [Pokémon Sword](#pokemon-sword) | `0100ABF008968000` | 1.3.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-sword-1.0.2) | 🥇<br><a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a> |
+| 27 | [Pokémon Shield](#pokemon-shield) | `01008DB008C2C000` | 1.3.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-shield-1.0.2) | 🥇<br><a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a> |
 | 28 | [Cult of the Lamb](#cult-of-the-lamb) | `01002E7016C46000` | 1.5.27, 1.5.28 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/cult-of-the-lamb-1.0.0) | ⭐<br><a href="https://github.com/AlterDigga"><img src="https://img.shields.io/badge/AlterDigga-181717?style=flat-square&logo=github&logoColor=white" alt="AlterDigga"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
@@ -817,7 +817,7 @@ Code: GPL-3.0-or-later; third-party decoder and font-rasterizer notices are incl
 <details>
 <summary>Screenshots and details</summary>
 
-`0100ABF008968000` · game version 1.3.2 (Isle of Armor and Crown Tundra supported) · companion 1.0.0
+`0100ABF008968000` · game version 1.3.2 (Isle of Armor and Crown Tundra supported) · companion 1.0.2
 
 | Town Map | Battle | Pokédex |
 |:---:|:---:|:---:|
@@ -848,7 +848,7 @@ By igawa6. Source: GPL-3.0-or-later. The companion ships no game art and no game
 <details>
 <summary>Screenshots and details</summary>
 
-`01008DB008C2C000` · game version 1.3.2 (Isle of Armor and Crown Tundra supported) · companion 1.0.0
+`01008DB008C2C000` · game version 1.3.2 (Isle of Armor and Crown Tundra supported) · companion 1.0.2
 
 | Town Map | Battle | Pokédex |
 |:---:|:---:|:---:|
