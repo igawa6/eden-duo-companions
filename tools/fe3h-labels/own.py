@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: Copyright 2026 Eden_Duo_Mode contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+# columns: en, ja, de, fr, es, it, ko, zh-Hant, zh-Hans
+COLS = ['en', 'ja', 'de', 'fr', 'es', 'it', 'ko', 'twn', 'chn']
+OWN = {
+    'Academy': ['Academy', '士官学校', 'Akademie', 'Académie', 'Academia', 'Accademia', '사관학교', '士官學校', '士官学校'],
+    'Ally': ['Ally', '友軍', 'Verbündete', 'Alliés', 'Aliados', 'Alleati', '우군', '友軍', '友军'],
+    'Battle Forecast': ['Battle Forecast', '戦闘予測', 'Kampfvorschau', 'Prévision du combat', 'Previsión de combate', 'Previsione di battaglia', '전투 예측', '戰鬥預測', '战斗预测'],
+    'Calendar': ['Calendar', 'カレンダー', 'Kalender', 'Calendrier', 'Calendario', 'Calendario', '달력', '日曆', '日历'],
+    'Char': ['Char', 'キャラ', 'Figur', 'Perso.', 'Pers.', 'Pers.', '캐릭터', '角色', '角色'],
+    'Consulting ancient officer manuals…': ['Consulting ancient officer manuals…', '古い士官の手引書を調べています…', 'Alte Offiziershandbücher werden gewälzt…', "Consultation des anciens manuels d'officier…", 'Consultando antiguos manuales de oficiales…', 'Consultazione degli antichi manuali degli ufficiali…', '오래된 사관 교본을 살펴보는 중…', '正在翻閱古老的軍官手冊…', '正在翻阅古老的军官手册…'],
+    'Deadline': ['Deadline', '期限', 'Frist', 'Échéance', 'Plazo', 'Scadenza', '기한', '期限', '期限'],
+    'Enemy': ['Enemy', '敵軍', 'Gegner', 'Ennemis', 'Enemigos', 'Nemici', '적군', '敵軍', '敌军'],
+    'Equipped': ['Equipped', '装備中', 'Ausgerüstet', 'Équipé', 'Equipado', 'Equipaggiato', '장착 중', '裝備中', '装备中'],
+    'Exp Max': ['Exp Max', 'EXP MAX', 'Erf. max.', 'Exp max.', 'Exp. máx.', 'Esp. max', 'EXP MAX', 'EXP MAX', 'EXP MAX'],
+    'Icons': ['Icons', 'アイコン', 'Symbole', 'Icônes', 'Iconos', 'Icone', '아이콘', '圖示', '图标'],
+    'In Progress': ['In Progress', '進行中', 'In Arbeit', 'En cours', 'En curso', 'In corso', '진행 중', '進行中', '进行中'],
+    'Legend': ['Legend', '凡例', 'Legende', 'Légende', 'Leyenda', 'Legenda', '범례', '圖例', '图例'],
+    'Lost Items in hand': ['Lost Items in hand', '手持ちの落とし物', 'Verlorene Items im Besitz', 'Objets trouvés en main', 'Objetos perdidos en mano', 'Oggetti smarriti posseduti', '소지 중인 분실물', '持有的失物', '持有的失物'],
+    'Markers': ['Markers', 'マーカー', 'Markierungen', 'Marqueurs', 'Marcadores', 'Segnalini', '마커', '標記', '标记'],
+    'Monastery': ['Monastery', '修道院', 'Kloster', 'Monastère', 'Monasterio', 'Monastero', '수도원', '修道院', '修道院'],
+    'No lost items in hand': ['No lost items in hand', '手持ちの落とし物はありません', 'Keine verlorenen Items im Besitz', 'Aucun objet trouvé en main', 'Sin objetos perdidos en mano', 'Nessun oggetto smarrito posseduto', '소지 중인 분실물이 없습니다', '沒有持有的失物', '没有持有的失物'],
+    'Not available during battle': ['Not available during battle', '戦闘中は利用できません', 'Im Kampf nicht verfügbar', 'Indisponible pendant le combat', 'No disponible durante el combate', 'Non disponibile durante la battaglia', '전투 중에는 사용할 수 없습니다', '戰鬥中無法使用', '战斗中无法使用'],
+    'Objective': ['Objective', '目的', 'Ziel', 'Objectif', 'Objetivo', 'Obiettivo', '목적', '目標', '目标'],
+    'Personal': ['Personal', '個人', 'Persönlich', 'Personnel', 'Personal', 'Personale', '개인', '個人', '个人'],
+    'Player': ['Player', '自軍', 'Spieler', 'Joueur', 'Jugador', 'Giocatore', '플레이어', '我軍', '我军'],
+    'Polishing the Sword of the Creator…': ['Polishing the Sword of the Creator…', '創造の剣を磨いています…', 'Das Schwert der Schöpfung wird poliert…', "Polissage de l'Épée du Créateur…", 'Puliendo la Espada del Creador…', 'Lucidatura della Spada del Creatore…', '창조의 검을 닦는 중…', '正在擦拭創造之劍…', '正在擦拭创造之剑…'],
+    'Preparing the lecture hall…': ['Preparing the lecture hall…', '講義室を準備しています…', 'Der Vorlesungssaal wird vorbereitet…', 'Préparation de la salle de cours…', 'Preparando el aula…', "Preparazione dell'aula…", '강의실을 준비하는 중…', '正在準備講堂…', '正在准备讲堂…'],
+    'Reading the calendar': ['Reading the calendar', 'カレンダーを読み込んでいます', 'Kalender wird gelesen', 'Lecture du calendrier', 'Leyendo el calendario', 'Lettura del calendario', '달력을 읽는 중', '正在讀取日曆', '正在读取日历'],
+    'Reading the roster': ['Reading the roster', '名簿を読み込んでいます', 'Namensliste wird gelesen', 'Lecture de la liste des élèves', 'Leyendo la lista de alumnos', "Lettura dell'elenco degli studenti", '명부를 읽는 중', '正在讀取名冊', '正在读取名册'],
+    'Ready to Report': ['Ready to Report', '報告可能', 'Bereit zur Meldung', 'Prêt à rapporter', 'Listo para informar', 'Pronto per il rapporto', '보고 가능', '可回報', '可回报'],
+    'Reset': ['Reset', 'リセット', 'Zurücksetzen', 'Réinitialiser', 'Restablecer', 'Ripristina', '초기화', '重設', '重置'],
+    "Reviewing the war council's reports…": ["Reviewing the war council's reports…", '軍議の報告を確認しています…', 'Berichte des Kriegsrats werden geprüft…', 'Examen des rapports du conseil de guerre…', 'Revisando los informes del consejo de guerra…', 'Esame dei rapporti del consiglio di guerra…', '군의 보고를 검토하는 중…', '正在檢閱軍議報告…', '正在检阅军议报告…'],
+    'Sharpening the training weapons…': ['Sharpening the training weapons…', '訓練用の武器を研いでいます…', 'Die Übungswaffen werden geschärft…', "Affûtage des armes d'entraînement…", 'Afilando las armas de entrenamiento…', 'Affilatura delle armi da addestramento…', '훈련용 무기를 가는 중…', '正在磨利訓練用武器…', '正在磨利训练用武器…'],
+    'Stocking the dining hall…': ['Stocking the dining hall…', '食堂の備蓄を整えています…', 'Der Speisesaal wird aufgefüllt…', 'Réapprovisionnement du réfectoire…', 'Reabasteciendo el comedor…', 'Rifornimento della sala da pranzo…', '식당에 재료를 채우는 중…', '正在補充食堂的存糧…', '正在补充食堂的存粮…'],
+    'Studying the tactics…': ['Studying the tactics…', '戦術を研究しています…', 'Taktiken werden studiert…', 'Étude des tactiques…', 'Estudiando las tácticas…', 'Studio delle tattiche…', '전술을 연구하는 중…', '正在研究戰術…', '正在研究战术…'],
+    'Tending the greenhouse…': ['Tending the greenhouse…', '温室の手入れをしています…', 'Das Gewächshaus wird gepflegt…', 'Entretien de la serre…', 'Cuidando el invernadero…', 'Cura della serra…', '온실을 가꾸는 중…', '正在照料溫室…', '正在照料温室…'],
+    'Units': ['Units', 'ユニット', 'Einheiten', 'Unités', 'Unidades', 'Unità', '유닛', '單位', '单位'],
+    'Untapped Units': ['Untapped Units', '未行動のユニット', 'Ungenutzte Einheiten', 'Unités non jouées', 'Unidades sin actuar', 'Unità non mosse', '미행동 유닛', '未行動單位', '未行动单位'],
+    'Waiting for the battle map': ['Waiting for the battle map', '戦場マップを待っています', 'Warten auf die Schlachtkarte', 'En attente de la carte de bataille', 'Esperando el mapa de batalla', 'In attesa della mappa di battaglia', '전장 지도를 기다리는 중', '等待戰場地圖', '等待战场地图'],
+    'Waiting for the monastery': ['Waiting for the monastery', '修道院を待っています', 'Warten auf das Kloster', 'En attente du monastère', 'Esperando el monasterio', 'In attesa del monastero', '수도원을 기다리는 중', '等待修道院', '等待修道院'],
+    'Waiting for the quest log': ['Waiting for the quest log', 'クエスト記録を待っています', 'Warten auf das Questlog', 'En attente du journal de quêtes', 'Esperando el registro de peticiones', 'In attesa del registro missioni', '퀘스트 기록을 기다리는 중', '等待任務記錄', '等待任务记录'],
+    'War': ['War', '戦争', 'Krieg', 'Guerre', 'Guerra', 'Guerra', '전쟁', '戰爭', '战争'],
+}
+# labels that read the game's own text
+REFS_EXTRA = {'G': (1, 396), 'Lv': (1, 300), 'pts': (1, 463)}

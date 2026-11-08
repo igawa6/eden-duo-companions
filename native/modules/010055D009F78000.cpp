@@ -15,6 +15,7 @@
 #include "core/mods/dsmod_module_extensions.h"
 #include "core/mods/modules/dsmod_module_sdk.h"
 #include "fe3h_assets.h"
+#include "fe3h_labels.h"
 #include "fe3h_language.h"
 #include "fe3h_reader.h"
 
@@ -188,6 +189,7 @@ struct Module {
                 return ResolveLanguage(reader_lang, p);
             });
         }
+        PublishLabels(h);
         if (h->publish_i64) {
             h->publish_i64(h->userdata, "__font_epoch", font_epoch);
             h->publish_i64(h->userdata, "fe.lang", reader_lang);
@@ -229,6 +231,69 @@ struct Module {
     int language_found{-1};
     int language_state{0};
     std::uint64_t language_samples{0}, language_retry_at{0};
+
+    struct LabelResult {
+        int language{-1}; ///< the language the words are in
+        bool complete{};  ///< every game text was read (else tried again later)
+        std::vector<std::string> values;
+    };
+
+    /// The companion's fixed words in `language`: a game term from the game's own message data,
+    /// the rest this companion's own text (fe3h_labels.h). Runs off the tick thread (it reads the
+    /// romfs).
+    LabelResult BuildLabels(int language) const {
+        LabelResult r{language, true, {}};
+        const fe3h_labels::Entry* entries = fe3h_labels::Entries();
+        for (std::size_t i = 0; i < fe3h_labels::EntryCount(); ++i) {
+            const auto& e = entries[i];
+            std::string value;
+            if (e.part >= 0) {
+                std::string game;
+                if (fe3h_assets::GameText(*assets, &host, static_cast<std::uint32_t>(language),
+                                          static_cast<std::uint32_t>(e.part),
+                                          static_cast<std::uint32_t>(e.index), game))
+                    value = fe3h_labels::CleanGameText(game);
+                else
+                    r.complete = false;
+            }
+            r.values.push_back(value.empty() ? std::string{fe3h_labels::Own(e, language)}
+                                             : std::move(value));
+        }
+        return r;
+    }
+
+    /// Publishes "ui.l.<key>" for every label: English until the language is found, then that
+    /// language's words (built on a worker; an unreadable romfs is tried again after 120 samples).
+    void PublishLabels(const EdenDsmodHostApi* h) {
+        using namespace std::chrono_literals;
+        const fe3h_labels::Entry* entries = fe3h_labels::Entries();
+        if (label_keys.empty()) {
+            for (std::size_t i = 0; i < fe3h_labels::EntryCount(); ++i) {
+                label_keys.push_back(std::string{"ui.l."} + entries[i].key);
+                label_values.emplace_back(fe3h_labels::Own(entries[i], -1));
+            }
+        }
+        if (label_job.valid() && label_job.wait_for(0s) == std::future_status::ready) {
+            LabelResult r = label_job.get();
+            labels_language = r.language;
+            label_values = std::move(r.values);
+            labels_complete = r.complete;
+            label_retry_at = language_samples + 120;
+        }
+        if (!label_job.valid() && language_found >= 0 &&
+            (language_found != labels_language || (!labels_complete && language_samples >= label_retry_at))) {
+            const int language = language_found;
+            label_job = std::async(std::launch::async, [this, language] { return BuildLabels(language); });
+        }
+        if (h->publish_text)
+            for (std::size_t i = 0; i < label_keys.size(); ++i)
+                h->publish_text(h->userdata, label_keys[i].c_str(), label_values[i].c_str());
+    }
+
+    std::vector<std::string> label_keys, label_values;
+    int labels_language{-1}; ///< the language of label_values
+    bool labels_complete{true};
+    std::uint64_t label_retry_at{0};
     std::mutex arrow_mutex;
     std::vector<std::uint8_t> arrow_src;
     std::uint32_t arrow_w{}, arrow_h{}, arrow_side{};
@@ -236,8 +301,9 @@ struct Module {
     EdenDsmodHostApi host; // create()'s host table: decode_font gets no host of its own
     std::unique_ptr<fe3h_assets::Library> assets;
     Fe3hReader::Reader reader;
-    // last: destroyed (and joined) before the library and the host table the job reads
+    // last: destroyed (and joined) before the library and the host table the jobs read
     std::future<LanguageResult> language_job;
+    std::future<LabelResult> label_job;
 };
 
 void* Create(const EdenDsmodHostApi* host, const char* config) {
