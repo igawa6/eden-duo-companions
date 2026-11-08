@@ -1341,11 +1341,13 @@ if(BUILD_TESTING AND NOT ANDROID AND Python3_Interpreter_FOUND)
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-sword/gen_ui_geometry.py" --check)
 endif()
 
-# Cult of the Lamb 1.5.27 and 1.5.28 (same main build): read-only status pages with art, font and
-# text from the player's romfs through the Chained Echoes Unity reader.
+# Cult of the Lamb 1.5.27 and 1.5.28 (same main build): status pages and follower commands, with
+# art, font and text from the player's romfs through the Chained Echoes Unity reader. The commands
+# run in the guest helper in native/helper/cotl (packages/CultOfTheLamb/dualscreen/guest).
 set(COTL_SOURCES cotl_guest.cpp cotl_snapshot.cpp cotl_publish.cpp cotl_i2.cpp cotl_terms.cpp
     cotl_problems.cpp cotl_quests.cpp cotl_icons.cpp cotl_dungeon_map.cpp cotl_equipment.cpp
-    cotl_font.cpp cotl_spine_atlas.cpp ${CE_UNITY_SOURCES})
+    cotl_font.cpp cotl_spine_atlas.cpp cotl_actions.cpp cotl_follower_portrait.cpp
+    ${CE_UNITY_SOURCES})
 dsmod_add_module(dsmod-cotl EXCLUDE_FROM_ALL TITLE 01002E7016C46000
     SOURCES 01002E7016C46000.cpp ${COTL_SOURCES}
     EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
@@ -1355,6 +1357,7 @@ if(BUILD_TESTING AND NOT ANDROID)
         SOURCES cotl_test_main.cpp cotl_guest_test.cpp cotl_module_test.cpp cotl_snapshot_test.cpp
             cotl_publish_test.cpp cotl_i2_test.cpp cotl_terms_test.cpp cotl_problems_test.cpp
             cotl_quests_test.cpp cotl_icons_test.cpp cotl_dungeon_map_test.cpp cotl_font_test.cpp
-            cotl_spine_atlas_test.cpp 01002E7016C46000.cpp ${COTL_SOURCES}
+            cotl_spine_atlas_test.cpp cotl_actions_test.cpp cotl_follower_portrait_test.cpp
+            01002E7016C46000.cpp ${COTL_SOURCES}
         INCLUDE_DIRECTORIES ${CE_UNITY_INCLUDE_DIRECTORIES})
 endif()

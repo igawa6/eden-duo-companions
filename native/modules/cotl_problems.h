@@ -53,8 +53,8 @@ struct ProblemRow {
 std::vector<ProblemRow> DeriveProblems(const GameSnapshot& s, const Terms& terms,
                                        int32_t filter = -1);
 
-// prob.count, prob.n<kind> (count per kind, several per follower possible), prob.name{i},
-// prob.level{i}, prob.kind{i}, prob.reason{i}
+// prob.count, prob.n<kind> (count per kind, also several per follower), prob.name{i},
+// prob.level{i}, prob.kind{i}, prob.reason{i}, prob.pic{i} (head image like fol.pic{i})
 void PublishProblems(Publisher& p, const GameSnapshot& s, const std::vector<ProblemRow>& rows);
 
 // Remembers the follower when a row is tapped: rows can re-sort while
@@ -69,7 +69,7 @@ private:
     int32_t follower_id_ = -1;
 };
 
-// All problems of the follower, by urgency: prob.sel_name, prob.sel_level, prob.sel_count,
+// All problems of the follower, by urgency: prob.sel_name, prob.sel_pic, prob.sel_level, prob.sel_count,
 // prob.sel_kind{i}, prob.sel_reason{i}. Without a matching follower only prob.sel_count = 0.
 void PublishSelectedProblems(Publisher& p, const GameSnapshot& s, int32_t follower_id);
 

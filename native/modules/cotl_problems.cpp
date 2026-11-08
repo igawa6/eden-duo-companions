@@ -110,6 +110,7 @@ void PublishSelectedProblems(Publisher& p, const GameSnapshot& s, int32_t follow
     }
     const auto found = FollowerProblems(*f);
     p.Text("prob.sel_name", f->name);
+    p.Text("prob.sel_pic", PortraitKey(f->skin, f->tints));
     p.I64("prob.sel_level", f->level);
     p.I64("prob.sel_count", static_cast<int64_t>(found.size()));
     for (size_t i = 0; i < found.size(); ++i) {
@@ -138,6 +139,9 @@ void PublishProblems(Publisher& p, const GameSnapshot& s, const std::vector<Prob
     for (size_t i = 0; i < rows.size(); ++i) {
         const std::string n = std::to_string(i);
         p.Text("prob.name" + n, rows[i].name);
+        const auto f = std::find_if(s.followers.begin(), s.followers.end(),
+                                    [&](const Follower& x) { return x.id == rows[i].follower_id; });
+        p.Text("prob.pic" + n, f != s.followers.end() ? PortraitKey(f->skin, f->tints) : std::string());
         p.I64("prob.level" + n, rows[i].level);
         p.I64("prob.kind" + n, static_cast<int64_t>(rows[i].kind));
         p.Text("prob.reason" + n, rows[i].reason);

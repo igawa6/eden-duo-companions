@@ -5,13 +5,16 @@
 #pragma once
 
 #include <array>
+#include <map>
 #include <cstdint>
 #include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "cotl_actions.h"
 #include "cotl_dungeon_map.h"
+#include "cotl_follower_portrait.h"
 
 #include "cotl_guest.h"
 
@@ -43,6 +46,17 @@ struct Follower {
           adoration = 0, // loyalty, 0-100 (FollowerBrainStats.get_MAX_ADORATION)
           exhaustion = 0, dissent = 0;
     FollowerGroup group = FollowerGroup::Normal;
+    std::string skin;            // FollowerInfo.SkinName, e.g. "Cat2"
+    int32_t skin_colour = 0;     // FollowerInfo.SkinColour: colour set of the kind
+    std::vector<SlotTint> tints; // slot colours from WorshipperData (empty if not loaded)
+};
+
+// WorshipperData does not change in the game: Skin → SkinAndData and (skin, colour set) → slot colours
+// are read once per instance.
+struct SkinColourCache {
+    uint64_t instance = 0;
+    std::map<std::string, uint64_t, std::less<>> skin_data;
+    std::map<std::pair<std::string, int32_t>, std::vector<SlotTint>> tints;
 };
 
 struct Objective {
@@ -52,7 +66,7 @@ struct Objective {
     float expire = 0;        // ExpireTimestamp, game minutes since the start of the game
     bool has_expiry = false; // QuestExpireDuration > 0
     std::string group_id;    // GroupId (+0x18), I2 term of the title
-    std::string unique_group; // UniqueGroupID (+0x40): Unterpunkte eines Quests
+    std::string unique_group; // UniqueGroupID (+0x40): sub-items of a quest
     // Subclass fields +0x78, +0x7C, +0x80, +0x84, +0x88 as int; meaning per Type, see cotl_quests.cpp
     std::array<int32_t, 5> ints{};
     std::string str2; // second string: @0x88 RECRUIT_CURSED FollowerName, @0x90 FIND_FOLLOWER name
@@ -94,10 +108,10 @@ struct GameSnapshot {
     std::vector<Follower> followers;
     std::vector<Objective> objectives;              // Task 6
     std::vector<int32_t> offered_quest_follower_ids; // Task 6
-    std::vector<std::pair<int32_t, int32_t>> items; // Task 7: (ITEM_TYPE, Menge)
+    std::vector<std::pair<int32_t, int32_t>> items; // Task 7: (ITEM_TYPE, quantity)
     // Only read when an open quest needs them (quest texts)
     std::vector<std::pair<int32_t, int32_t>> enemies_killed; // (Enemy, count)
-    std::vector<std::pair<int32_t, int32_t>> offerings;      // (ITEM_TYPE, Menge) BlizzardOfferings
+    std::vector<std::pair<int32_t, int32_t>> offerings;      // (ITEM_TYPE, quantity) BlizzardOfferings
     std::vector<AnimalInfo> animals;
     std::vector<int32_t> legendary_known; // EquipmentType
     int32_t sword_return_day = 0;
@@ -109,6 +123,8 @@ struct GameSnapshot {
     // Dirt in the base (BaseStructures): poop piles, vomit, corpses
     int32_t poop = 0, vomit = 0, corpses = 0;
     std::optional<Run> run; // only during a dungeon run
+    // Only for the selected follower (thoughts_for from ReadSnapshot), so only with the window open
+    std::optional<FollowerCommandState> command_state;
 };
 
 // GameManager.IsDungeon without None (-1): locations where a run is in progress.
@@ -120,6 +136,7 @@ bool IsDungeonLocation(int32_t location);
 inline constexpr int32_t kAllThoughts = -2;
 inline constexpr int32_t kNoThoughts = -1;
 std::optional<GameSnapshot> ReadSnapshot(const Guest& g, uint64_t main_base,
-                                         int32_t thoughts_for = kAllThoughts, bool read_gear = false);
+                                         int32_t thoughts_for = kAllThoughts, bool read_gear = false,
+                                         SkinColourCache* colours = nullptr);
 
 } // namespace cotl

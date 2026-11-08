@@ -96,7 +96,7 @@ TEST(problems_one_row_per_follower_with_more_count) {
     auto s = At(1, 0);
     auto f = Healthy(1, "Busy");
     f.cursed_state = cotl::kThoughtIll;
-    f.satiation = 10;  // hungrig
+    f.satiation = 10;  // hungry
     f.exhaustion = 5;  // exhausted
     s.followers = {f};
     const auto rows = DeriveProblems(s, kTerms);
@@ -150,7 +150,7 @@ TEST(problems_published_with_counts) {
     cotl::PublishProblems(p, s, rows);
     CHECK_EQ(p.i64["prob.count"], int64_t{2});
     CHECK_EQ(p.i64["prob.n1"], int64_t{1}); // Ill
-    CHECK_EQ(p.i64["prob.n3"], int64_t{2}); // Hungry: beide Follower
+    CHECK_EQ(p.i64["prob.n3"], int64_t{2}); // Hungry: both followers
     CHECK_EQ(p.text["prob.name0"], std::string("A"));
     CHECK_EQ(p.i64["prob.kind1"], int64_t{3});
 }
@@ -173,7 +173,7 @@ TEST(problems_selected_follower_lists_all_problems_by_urgency) {
     auto s = At(1, 0);
     auto f = Healthy(7, "Busy");
     f.cursed_state = cotl::kThoughtIll;
-    f.satiation = 10; // hungrig
+    f.satiation = 10; // hungry
     f.exhaustion = 5; // exhausted
     f.level = 3;
     s.followers = {Healthy(1, "Fine"), f};
@@ -212,4 +212,18 @@ TEST(problems_selection_keeps_follower_when_rows_reorder) {
     CHECK_EQ(sel.Update(-1, {b, a}), -1);
     CHECK_EQ(sel.Update(1, {b, a}), 1); // newly opened: current row
     CHECK_EQ(sel.Update(5, {b, a}), -1); // that row does not exist
+}
+
+TEST(problems_published_with_portraits) {
+    auto s = At(1, 0);
+    auto a = Healthy(1, "A");
+    a.satiation = 10;
+    a.skin = "Dog";
+    s.followers = {a};
+    FakePublisher p;
+    cotl::PublishProblems(p, s, DeriveProblems(s, kTerms));
+    CHECK_EQ(p.text["prob.pic0"], std::string("module:cotl:follower/Dog"));
+    FakePublisher sel;
+    cotl::PublishSelectedProblems(sel, s, 1);
+    CHECK_EQ(sel.text["prob.sel_pic"], std::string("module:cotl:follower/Dog"));
 }
