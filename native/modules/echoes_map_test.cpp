@@ -153,6 +153,23 @@ int main() {
     Memory wrong; wrong.Key(0, "Other"); Empty(wrong.Sample()); ++cases;
     Memory malformed; malformed.Key(1, "Map\n"); Empty(malformed.Sample()); ++cases;
   }
+  {
+    Memory m;
+    const auto before = m.Sample();
+    m.Put(Records + 0x30, 0x83, 1);
+    const auto entered = m.Sample();
+    Check(entered.discovery_valid && entered.source == before.source &&
+          !before.maps[0].Discovered(1) && entered.maps[0].Discovered(1) &&
+          !entered.maps[0].Presented(1),
+          "same-source traversal entry is visible before native presentation");
+    m.Put(Records + 0x70, 3, 1);
+    const auto presented = m.Sample();
+    Check(presented.discovery_valid && presented.source == entered.source &&
+          presented.maps[0].discovered == entered.maps[0].discovered &&
+          presented.maps[0].Presented(1),
+          "native presentation completion does not change exploration");
+    ++cases;
+  }
   for (auto visit : {size_t(2), size_t(3)}) {
     for (auto target : {Records + 0x30, Records + 0x70}) {
       Memory m; m.before = [&](uint64_t at, size_t v) {

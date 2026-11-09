@@ -1,8 +1,12 @@
 # The Legend of Zelda: Echoes of Wisdom companion
 
 Title `01008CF01BAAC000`, game update 1.1.0 (build `9F221E1AFA65BA5443E955158AB97DA871E5E41F…`).
-Companion 1.0.0 for Eden Duo 1.3.2 (runtime 22) or newer. Any other build shows a notice and
+Companion 1.0.1-rc.4 for Eden Duo 1.3.2 (runtime 22) or newer. Any other build shows a notice and
 reads nothing.
+
+The Field player marker follows the live native position across conservative fog boundaries
+and while refreshed terrain is decoding. Exploration uses native discovery bits; presentation
+completion in the pause map is tracked separately and does not delay companion updates.
 
 The bottom screen is a map-first companion: terrain, Echoes, Notebook/Items/Equipment and quick
 travel without opening the pause menu.

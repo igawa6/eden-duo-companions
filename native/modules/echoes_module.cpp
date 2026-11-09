@@ -1073,17 +1073,17 @@ struct Module {
     T("echo.map.player.u",player.valid?std::to_string(player.uv[0]):"");
     T("echo.map.player.v",player.valid?std::to_string(player.uv[1]):"");
     if(!player.valid || !home_shown || home_page!=4 || ui_held || value.selector.held || !host.get_f64)return;
-    std::shared_ptr<const MapCoverage> coverage;size_t slot{};
+    size_t slot{};
     {
       std::lock_guard lock(map_mutex);
-      if(!map_ready || !map_coverage || map_coverage->uri!=map_uri ||
-         player.world.source.map_epoch!=map_slots[map_slot].source)return;
-      coverage=map_coverage;slot=map_slot;
+      if(!map_ready || player.world.source.map_epoch!=map_slots[map_slot].source)return;
+      slot=map_slot;
     }
     const double u=player.uv[0],v=(player.uv[1]*916+MapRasterPadY)/MapRasterH;
     if(!std::isfinite(u)||!std::isfinite(v)||u<0||u>=1||v<0||v>=1)return;
-    const auto px=static_cast<size_t>(u*coverage->width),py=static_cast<size_t>(v*coverage->height);
-    if(coverage->alpha[py*static_cast<size_t>(coverage->width)+px]!=255)return;
+    // The native player position is already known even where conservative
+    // terrain coverage hides a boundary texel or a new map image is decoding.
+    // Fog and image-worker latency must not hide the player.
     const auto& binds=FieldMapViewBinds(slot);
     const double missing=std::numeric_limits<double>::quiet_NaN();
     const double zoom=host.get_f64(host.userdata,binds[0].c_str(),missing),
@@ -1100,8 +1100,8 @@ struct Module {
       const int span=std::max(1,static_cast<int>((end-origin)*static_cast<float>(pixels)));
       return (uv*pixels-start)*extent/span;
     };
-    const double x=MapX+coordinate(u,pan_x,MapW,coverage->width,zoom)-32;
-    const double y=MapY+coordinate(v,pan_y,MapH,coverage->height,zoom)-32;
+    const double x=MapX+coordinate(u,pan_x,MapW,MapRasterW,zoom)-32;
+    const double y=MapY+coordinate(v,pan_y,MapH,MapRasterH,zoom)-32;
     if(x<MapX||y<MapY||x+64>MapX+MapW||y+64>MapY+MapH)return;
     I("echo.map.marker.x",std::lround(x));I("echo.map.marker.y",std::lround(y));I("echo.map.marker.visible",1);
   }
