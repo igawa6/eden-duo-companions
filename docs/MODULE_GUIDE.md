@@ -51,6 +51,7 @@ Dread module's map generator (`native/modules/010093801237C000.cpp` plus `dread_
  eden_dsmod_get_save_extensions      configure(read_save_file)
  eden_dsmod_get_write_extensions     configure(write_batch)
  eden_dsmod_get_data_extensions      load_data                    (runtime 12)
+ eden_dsmod_get_texture_extensions   configure(request/poll/cancel) (runtime 24)
 ```
 
 **Constants.**
@@ -327,6 +328,60 @@ Link's Awakening has no module.
 
 These match the `EXPORTS` lists in `native/modules/CMakeLists.txt`. Dread's base
 extensions provide `on_action` but no `load_image`.
+
+### 2.7 Texture readback (read-only): `eden_dsmod_get_texture_extensions`
+
+Added in runtime 24. Constants: `EDEN_DSMOD_TEXTURE_EXT_VERSION 1`,
+`EDEN_DSMOD_TEXTURE_EXT_HASH 0x9c82904bbfce672b`, host capability
+`EDEN_DSMOD_CAP_TEXTURE_READBACK` (bit 13; never set it in the module's own `capabilities`).
+
+Some games keep state only on the GPU: a fog of war painted into a render target, a minimap
+rendered to a texture. This asks the host for a CPU copy of one such texture.
+
+- **Opt-in twice.** Export the getter **and** set `"module": {"texture_readback": true}` in the
+  manifest. The host calls `configure(inst, const EdenDsmodHostTextureApi*)` once, right after
+  `create`, only when it can serve readbacks (runtime 24+, Vulkan, asynchronous GPU emulation);
+  it then also sets `EDEN_DSMOD_CAP_TEXTURE_READBACK`. No call: keep your own fallback.
+- **`request(userdata, const EdenDsmodTextureRequest*, int32_t* status)`** returns a ticket, or
+  0 with the reason in `*status`. It never blocks. The request names `format`
+  (`EDEN_DSMOD_TEXTURE_R8` or `_RGBA8`), `width` and `height` (must equal the texture's level 0),
+  and `gpu_address`: the texture's base in the title's GPU address space, or 0 for the newest
+  resident texture with that size and format (the result reports the address and how many
+  candidates matched, so confirm it once and then ask by address). `reserved` is 0.
+- **Selector `flags`** (0 = none). Optional bits that narrow which textures match, in both modes
+  (by address the texture there must satisfy them, else `MISMATCH`; with `gpu_address` 0 only
+  matching textures count as candidates):
+  `EDEN_DSMOD_TEXTURE_REQUIRE_RENDER_TARGET` (the GPU has drawn into it as a colour render
+  target, not just uploaded, copied or blitted it), `_REQUIRE_SRGB` / `_REQUIRE_UNORM` (the
+  texture's format encoding; sRGB for RGBA8 only) and `_REQUIRE_REDRAWN` (a render target the GPU
+  has drawn into in at least two different frames: a texture the game keeps updating, such as a
+  fog-of-war or paint mask, rather than a one-off render it then only samples; a texture drawn
+  once so far does not match yet). Unknown bits, SRGB with UNORM, or SRGB on an R8 request are
+  `INVALID`; every runtime-24 host (Eden Duo 1.3.5.1 and later) understands the flags. Games often keep several same-size textures
+  resident (My Time at Sandrock: 10+ RGBA8 256×256 in gameplay, the fog mask found with
+  `RENDER_TARGET | SRGB | REDRAWN`), so check `info.candidates == 1` before trusting a size-mode
+  result. A dev-tools build with `EDEN_DSMOD_TEXTURE_READBACK_LOG=1` logs the images behind an
+  ambiguous or missed request together with these properties.
+- **`poll(userdata, ticket, out, out_size, EdenDsmodTextureInfo*)`**: `PENDING`, `READY` (tight
+  rows top-down, `info.size` bytes copied, ticket closed) or an error (ticket closed). A buffer
+  smaller than `info.size` returns `INVALID` and keeps the ticket. `info.generation` changes only
+  when the GPU wrote the texture, so equal generations mean equal pixels. `cancel` drops a ticket.
+- **Limits.** R8 (R8_UNORM) or RGBA8 (A8B8G8R8 / B8G8R8A8, unorm or srgb, returned as R, G, B, A
+  bytes); 1–2048 a side and at most 16 MiB; 2 open tickets (`BUSY`); 2 accepted requests per
+  second (`RATE_LIMITED`); a copy pending for 2 s fails (`FAILED`).
+- **Statuses.** `INVALID`, `RATE_LIMITED`, `BUSY`, `NOT_FOUND` (nothing resident there or
+  nothing matching the size, format and flags, for example before the game first drew with it),
+  `MISMATCH` (wrong size/format/kind, modified by the CPU since, or not matching the flags),
+  `UNSUPPORTED`, `FAILED`, `UNKNOWN_TICKET`. Every failure is a status, never a
+  crash or a stall.
+- **Cost.** The copy is recorded on the GPU thread and lands with the next frame's own work,
+  usually one or two frames later; nothing waits for it. Call from `sample`/`tick`/`on_action`.
+- **Showing it.** Turn the pixels into a module image (`load_image`, a new key per generation)
+  and use it as a map overlay's `mask_bind` (PACKAGE_FORMAT §3.12) to fog high-resolution art
+  with the game's own low-resolution mask.
+- **Host side.** `mod_texture_readback.{h,cpp}` and `InitializeModuleTextureExtensions`
+  (`mod_module_services.cpp`); the renderer side is `vk_dsmod_texture_readback.cpp`.
+- **Versioning.** A package that depends on it declares `"min_runtime": 24`.
 
 ## 3. Build ids and `supports_build`
 

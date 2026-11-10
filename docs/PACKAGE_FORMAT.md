@@ -151,6 +151,7 @@ This block is read from `manifest.json`, not from `package.json`.
 | `build_ids` | 1–256 strings, each 16 or 64 hex characters. The running build ID must **start with** one of them |
 | `libraries.<platform>.path` | Must be exactly `modules/<platform>/<TITLEID>.so` |
 | `libraries.<platform>.sha256` | 64 hex characters, matching the file. The Android installer additionally requires lower case |
+| `texture_readback` | Since runtime 24: `true` lets the module use the texture readback extension (MODULE_GUIDE §2.7); the host offers it only when the module exports it **and** this key is `true`. A value that is not a boolean refuses the module. Declare `"min_runtime": 24` when the companion depends on it |
 
 - **Platform names:** `linux-x86_64`, `linux-aarch64`, `android-arm64-v8a`, `android-x86_64`. The
   package builder currently accepts only `linux-x86_64` and `android-arm64-v8a`.
@@ -606,7 +607,7 @@ The style keys and their defaults are in the `MapStyle` struct in `mod_types_map
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `image_bind` | text point | — | Names the area's base picture (any image source), drawn over the area's world box like the area's own `image` and overriding it. Empty or missing = the area's own |
-| `overlays` | array | — | Pictures placed in world space, over the base picture and under the markers; they pan and zoom with the map. Each has `src` or `src_bind` (a text point naming the key; wins when set), the world box `x0`, `y0`, `x1`, `y1` (the top edge is at the larger y), `show_bind` (gate) and `opacity` (0–1, default 1). An entry without a source or with an empty box is ignored with a warning |
+| `overlays` | array | — | Pictures placed in world space, over the base picture and under the markers; they pan and zoom with the map. Each has `src` or `src_bind` (a text point naming the key; wins when set), the world box `x0`, `y0`, `x1`, `y1` (the top edge is at the larger y), `show_bind` (gate) and `opacity` (0–1, default 1). Since runtime 24, `mask_bind` (a text point naming an image): that image's alpha, stretched with bilinear filtering over the box, multiplies the overlay's alpha, for example a fog of war the module reads back off the GPU (MODULE_GUIDE §2.7). An empty or missing point draws the overlay unmasked; a named mask that has not loaded yet draws nothing; a turned view (`view_rotate_bind`) skips a masked overlay. An entry without a source or with an empty box is ignored with a warning |
 | `view_rect_x0_bind`, `view_rect_y0_bind`, `view_rect_x1_bind`, `view_rect_y1_bind` | names | — | A bound default view in world units: when all four resolve, the base view (zoom 1, no pan) fits that rect instead of the whole area. Only some of the four: ignored with a warning |
 | `view_rect_pad` | number | 0 | Padding around the view rect, in world units |
 | `label_offset` | `[right, up]` px | `[12, 24]` | Since runtime 15: the area name's offset from the widget's bottom-left corner |
@@ -996,7 +997,7 @@ package metadata and every `file:` reference, but not the manifest's semantics.
 
 ## 6. Runtime history and `min_runtime`
 
-`DualScreenRuntimeVersion` is currently **23** (Eden Duo 1.3.3; 22 in 1.3.0–1.3.2.2), with **module ABI 1 unchanged**.
+`DualScreenRuntimeVersion` is currently **24** (Eden Duo 1.3.5.1; 23 in 1.3.3–1.3.5; 22 in 1.3.0–1.3.2.2), with **module ABI 1 unchanged**.
 Eden Duo 1.2.0 provides runtime 19, and 1.1.0 provides runtime 18. What each version adds to the
 package format:
 
@@ -1016,6 +1017,7 @@ package format:
 | 21 | Device and emulator values: `@device.battery_present` / `battery_pct` / `charging` and `@perf.fps` / `speed_pct` / `frametime_ms` / `frametime_x10`, published for a package that names them and answered to a module's `get_i64` / `get_f64` regardless; image `pan_bounds`, limiting a `pan_zoom` picture's pan/zoom window to part of it |
 | 22 | Map `view_rotate_bind` turns the whole view clockwise about the widget centre (markers, labels and pins stay upright; the pre-existing `marker_rotate_bind` becomes relative to the turned map); two-axis scroll regions (`axes`, `lock_axis`, `content_w[_bind]` / `content_h[_bind]`, widget `scroll_follow`, `@scroll_x` / `@scroll_max_x`); tap payload `"payload": "$tap"`; text `slant_deg` / `italic`; dynamic-marker `frames` / `frame_ms` / `pulse`; manifest `preload`; `@map_view_rot:<area>` and module read access to every `@map_view_*` key and to `@view_zoom` / `@view_pan_x` / `@view_pan_y:<id>` (also newly published), one tick behind |
 | 23 | `sysfont:` source: the console's shared system fonts as TrueType bytes, real firmware only (empty otherwise), for Korean / Chinese text a game takes from the firmware; a module's `read_romfs` reads it |
+| 24 | The module texture readback extension (with its render-target / sRGB / UNORM / redrawn selector flags) and the manifest's `module.texture_readback` (MODULE_GUIDE §2.7); map overlay `mask_bind` |
 
 Runtimes 14 and 15 were first released together, so the outline, rise and chord keys, whose exact
 version the source does not record, are listed under 15.
