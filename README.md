@@ -661,8 +661,8 @@ Requires Eden Duo 1.3.2.2 or newer.
 Zelda's map, Echoes and gear on the second screen, so you can swap, eat and plan without opening the pause menu.
 
 - **Map.** The map of Hyrule with the game's own icons and place names, where you are, your rupees and the area you are in. Place map pins (flag, heart, chest, diamond) and travel to any waypoint you have unlocked.
-- **Echo circles.** Three circles beside the map hold your favourite Echoes first, then your most recently used ones, always for the save you're on. Tap one and it is set on Y right away, with the top-screen icon updating too. During Swordfighter Form the circles show the Form's Bow, Sword and Bomb.
-- **Notebooks.** Every Echo and Automaton you have learned, with its cost, description and favourite mark. Favourite an Echo here to bring it to the circles beside the map.
+- **Echo circles.** Three circles beside the map. Drag an Echo from Notebooks onto one, or tap an Echo then a circle, to put it there for that save; an open circle fills itself with your favourites first, then your most recently used Echoes. Tap a circle and it is set on Y right away, with the top-screen icon updating too. During Swordfighter Form the circles show the Form's Bow, Sword and Bomb.
+- **Notebooks.** Every Echo and Automaton you have learned, with its cost, description and favourite mark. Drag one onto a circle, or tap it then a circle, to put it there.
 - **Equipment.** Equip and remove accessories and change outfits straight from the second screen.
 - **Items.** Your ingredients with their counts. Tap Eat to recover hearts without opening the menu.
 - **Link's opening** has its own view with his Bow, Sword and Bomb. Title, loading and the pause menu keep a calm screen instead of flickering.

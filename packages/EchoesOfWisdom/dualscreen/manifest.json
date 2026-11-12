@@ -21,7 +21,7 @@
   "font": "module:echoes/body-font",
   "font_atlas": "module:echoes/body-atlas?p={p}",
   "font_page_h": 512,
-  "_about": "Native Equipment, Items and Notebooks with Echo shortcuts that follow your own favourites and Last Used order, and native held grids for update 1.1.0. Physical Right/Left D-pad holds own native selection and release. Touch jumps to verified native selections and refreshes the original carousel; sort tabs request one native sort operation. Field terrain follows native discovery, story and weather; supported locations show Zelda\u2019s native marker. No game artwork, strings or font files are bundled.",
+  "_about": "Native Equipment, Items and Notebooks with assignable Echo shortcuts that otherwise follow your own favourites and Last Used order, and native held grids for update 1.1.0. Physical Right/Left D-pad holds own native selection and release. Touch jumps to verified native selections and refreshes the original carousel; sort tabs request one native sort operation. Field terrain follows native discovery, story and weather; supported locations show Zelda\u2019s native marker. No game artwork, strings or font files are bundled.",
   "_development": "Selected native Notebook/Map/ActorSelect redesign; mock geometry reviewed. Desktop and Thor NCE field/held selection exercised; major-dungeon live qualification pending.",
   "flags": {
     "eow_stamp0": 0,
@@ -47,7 +47,56 @@
     "eow_stamp20": 0,
     "eow_stamp21": 0,
     "eow_stamp22": 0,
-    "eow_stamp23": 0
+    "eow_stamp23": 0,
+    "eow_ss_0": 0,
+    "eow_ss_1": 0,
+    "eow_ss_2": 0,
+    "eow_ss_3": 0,
+    "eow_ss_4": 0,
+    "eow_ss_5": 0,
+    "eow_ss_6": 0,
+    "eow_ss_7": 0,
+    "eow_ss_8": 0,
+    "eow_ss_9": 0,
+    "eow_ss_10": 0,
+    "eow_ss_11": 0,
+    "eow_ss_12": 0,
+    "eow_ss_13": 0,
+    "eow_ss_14": 0,
+    "eow_ss_15": 0,
+    "eow_ss_16": 0,
+    "eow_ss_17": 0,
+    "eow_ss_18": 0,
+    "eow_ss_19": 0,
+    "eow_ss_20": 0,
+    "eow_ss_21": 0,
+    "eow_ss_22": 0,
+    "eow_ss_23": 0,
+    "eow_ss_24": 0,
+    "eow_ss_25": 0,
+    "eow_ss_26": 0,
+    "eow_ss_27": 0,
+    "eow_ss_28": 0,
+    "eow_ss_29": 0,
+    "eow_ss_30": 0,
+    "eow_ss_31": 0,
+    "eow_ss_32": 0,
+    "eow_ss_33": 0,
+    "eow_ss_34": 0,
+    "eow_ss_35": 0,
+    "eow_ss_36": 0,
+    "eow_ss_37": 0,
+    "eow_ss_38": 0,
+    "eow_ss_39": 0,
+    "eow_ss_40": 0,
+    "eow_ss_41": 0,
+    "eow_ss_42": 0,
+    "eow_ss_43": 0,
+    "eow_ss_44": 0,
+    "eow_ss_45": 0,
+    "eow_ss_46": 0,
+    "eow_ss_47": 0,
+    "eow_ss_48": 0
   },
   "persist_flags": [
     "eow_stamp0",
@@ -73,7 +122,56 @@
     "eow_stamp20",
     "eow_stamp21",
     "eow_stamp22",
-    "eow_stamp23"
+    "eow_stamp23",
+    "eow_ss_0",
+    "eow_ss_1",
+    "eow_ss_2",
+    "eow_ss_3",
+    "eow_ss_4",
+    "eow_ss_5",
+    "eow_ss_6",
+    "eow_ss_7",
+    "eow_ss_8",
+    "eow_ss_9",
+    "eow_ss_10",
+    "eow_ss_11",
+    "eow_ss_12",
+    "eow_ss_13",
+    "eow_ss_14",
+    "eow_ss_15",
+    "eow_ss_16",
+    "eow_ss_17",
+    "eow_ss_18",
+    "eow_ss_19",
+    "eow_ss_20",
+    "eow_ss_21",
+    "eow_ss_22",
+    "eow_ss_23",
+    "eow_ss_24",
+    "eow_ss_25",
+    "eow_ss_26",
+    "eow_ss_27",
+    "eow_ss_28",
+    "eow_ss_29",
+    "eow_ss_30",
+    "eow_ss_31",
+    "eow_ss_32",
+    "eow_ss_33",
+    "eow_ss_34",
+    "eow_ss_35",
+    "eow_ss_36",
+    "eow_ss_37",
+    "eow_ss_38",
+    "eow_ss_39",
+    "eow_ss_40",
+    "eow_ss_41",
+    "eow_ss_42",
+    "eow_ss_43",
+    "eow_ss_44",
+    "eow_ss_45",
+    "eow_ss_46",
+    "eow_ss_47",
+    "eow_ss_48"
   ],
   "derived": [
     {
@@ -620,6 +718,584 @@
     {
       "name": "echo.stamp.persist.23.match",
       "expr": "echo.stamp.persist.23.pending && @flag:eow_stamp23 == echo.stamp.23.packed"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.0",
+      "expr": "echo.saveslot.restore.slot == 0 ? @flag:eow_ss_0 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.1",
+      "expr": "echo.saveslot.restore.slot == 1 ? @flag:eow_ss_1 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.2",
+      "expr": "echo.saveslot.restore.slot == 2 ? @flag:eow_ss_2 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.3",
+      "expr": "echo.saveslot.restore.slot == 3 ? @flag:eow_ss_3 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.4",
+      "expr": "echo.saveslot.restore.slot == 4 ? @flag:eow_ss_4 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.5",
+      "expr": "echo.saveslot.restore.slot == 5 ? @flag:eow_ss_5 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.6",
+      "expr": "echo.saveslot.restore.slot == 6 ? @flag:eow_ss_6 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.7",
+      "expr": "echo.saveslot.restore.slot == 7 ? @flag:eow_ss_7 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.8",
+      "expr": "echo.saveslot.restore.slot == 8 ? @flag:eow_ss_8 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.9",
+      "expr": "echo.saveslot.restore.slot == 9 ? @flag:eow_ss_9 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.10",
+      "expr": "echo.saveslot.restore.slot == 10 ? @flag:eow_ss_10 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.11",
+      "expr": "echo.saveslot.restore.slot == 11 ? @flag:eow_ss_11 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.12",
+      "expr": "echo.saveslot.restore.slot == 12 ? @flag:eow_ss_12 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.13",
+      "expr": "echo.saveslot.restore.slot == 13 ? @flag:eow_ss_13 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.14",
+      "expr": "echo.saveslot.restore.slot == 14 ? @flag:eow_ss_14 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.15",
+      "expr": "echo.saveslot.restore.slot == 15 ? @flag:eow_ss_15 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.16",
+      "expr": "echo.saveslot.restore.slot == 16 ? @flag:eow_ss_16 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.17",
+      "expr": "echo.saveslot.restore.slot == 17 ? @flag:eow_ss_17 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.18",
+      "expr": "echo.saveslot.restore.slot == 18 ? @flag:eow_ss_18 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.19",
+      "expr": "echo.saveslot.restore.slot == 19 ? @flag:eow_ss_19 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.20",
+      "expr": "echo.saveslot.restore.slot == 20 ? @flag:eow_ss_20 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.21",
+      "expr": "echo.saveslot.restore.slot == 21 ? @flag:eow_ss_21 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.22",
+      "expr": "echo.saveslot.restore.slot == 22 ? @flag:eow_ss_22 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.23",
+      "expr": "echo.saveslot.restore.slot == 23 ? @flag:eow_ss_23 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.24",
+      "expr": "echo.saveslot.restore.slot == 24 ? @flag:eow_ss_24 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.25",
+      "expr": "echo.saveslot.restore.slot == 25 ? @flag:eow_ss_25 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.26",
+      "expr": "echo.saveslot.restore.slot == 26 ? @flag:eow_ss_26 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.27",
+      "expr": "echo.saveslot.restore.slot == 27 ? @flag:eow_ss_27 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.28",
+      "expr": "echo.saveslot.restore.slot == 28 ? @flag:eow_ss_28 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.29",
+      "expr": "echo.saveslot.restore.slot == 29 ? @flag:eow_ss_29 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.30",
+      "expr": "echo.saveslot.restore.slot == 30 ? @flag:eow_ss_30 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.31",
+      "expr": "echo.saveslot.restore.slot == 31 ? @flag:eow_ss_31 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.32",
+      "expr": "echo.saveslot.restore.slot == 32 ? @flag:eow_ss_32 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.33",
+      "expr": "echo.saveslot.restore.slot == 33 ? @flag:eow_ss_33 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.34",
+      "expr": "echo.saveslot.restore.slot == 34 ? @flag:eow_ss_34 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.35",
+      "expr": "echo.saveslot.restore.slot == 35 ? @flag:eow_ss_35 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.36",
+      "expr": "echo.saveslot.restore.slot == 36 ? @flag:eow_ss_36 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.37",
+      "expr": "echo.saveslot.restore.slot == 37 ? @flag:eow_ss_37 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.38",
+      "expr": "echo.saveslot.restore.slot == 38 ? @flag:eow_ss_38 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.39",
+      "expr": "echo.saveslot.restore.slot == 39 ? @flag:eow_ss_39 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.40",
+      "expr": "echo.saveslot.restore.slot == 40 ? @flag:eow_ss_40 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.41",
+      "expr": "echo.saveslot.restore.slot == 41 ? @flag:eow_ss_41 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.42",
+      "expr": "echo.saveslot.restore.slot == 42 ? @flag:eow_ss_42 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.43",
+      "expr": "echo.saveslot.restore.slot == 43 ? @flag:eow_ss_43 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.44",
+      "expr": "echo.saveslot.restore.slot == 44 ? @flag:eow_ss_44 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.45",
+      "expr": "echo.saveslot.restore.slot == 45 ? @flag:eow_ss_45 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.46",
+      "expr": "echo.saveslot.restore.slot == 46 ? @flag:eow_ss_46 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.47",
+      "expr": "echo.saveslot.restore.slot == 47 ? @flag:eow_ss_47 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.pick.48",
+      "expr": "echo.saveslot.restore.slot == 48 ? @flag:eow_ss_48 : 0"
+    },
+    {
+      "name": "echo.saveslot.restore.value",
+      "terms": [
+        "echo.saveslot.restore.pick.0",
+        "echo.saveslot.restore.pick.1",
+        "echo.saveslot.restore.pick.2",
+        "echo.saveslot.restore.pick.3",
+        "echo.saveslot.restore.pick.4",
+        "echo.saveslot.restore.pick.5",
+        "echo.saveslot.restore.pick.6",
+        "echo.saveslot.restore.pick.7",
+        "echo.saveslot.restore.pick.8",
+        "echo.saveslot.restore.pick.9",
+        "echo.saveslot.restore.pick.10",
+        "echo.saveslot.restore.pick.11",
+        "echo.saveslot.restore.pick.12",
+        "echo.saveslot.restore.pick.13",
+        "echo.saveslot.restore.pick.14",
+        "echo.saveslot.restore.pick.15",
+        "echo.saveslot.restore.pick.16",
+        "echo.saveslot.restore.pick.17",
+        "echo.saveslot.restore.pick.18",
+        "echo.saveslot.restore.pick.19",
+        "echo.saveslot.restore.pick.20",
+        "echo.saveslot.restore.pick.21",
+        "echo.saveslot.restore.pick.22",
+        "echo.saveslot.restore.pick.23",
+        "echo.saveslot.restore.pick.24",
+        "echo.saveslot.restore.pick.25",
+        "echo.saveslot.restore.pick.26",
+        "echo.saveslot.restore.pick.27",
+        "echo.saveslot.restore.pick.28",
+        "echo.saveslot.restore.pick.29",
+        "echo.saveslot.restore.pick.30",
+        "echo.saveslot.restore.pick.31",
+        "echo.saveslot.restore.pick.32",
+        "echo.saveslot.restore.pick.33",
+        "echo.saveslot.restore.pick.34",
+        "echo.saveslot.restore.pick.35",
+        "echo.saveslot.restore.pick.36",
+        "echo.saveslot.restore.pick.37",
+        "echo.saveslot.restore.pick.38",
+        "echo.saveslot.restore.pick.39",
+        "echo.saveslot.restore.pick.40",
+        "echo.saveslot.restore.pick.41",
+        "echo.saveslot.restore.pick.42",
+        "echo.saveslot.restore.pick.43",
+        "echo.saveslot.restore.pick.44",
+        "echo.saveslot.restore.pick.45",
+        "echo.saveslot.restore.pick.46",
+        "echo.saveslot.restore.pick.47",
+        "echo.saveslot.restore.pick.48"
+      ]
+    },
+    {
+      "name": "echo.saveslot.restore.invalid",
+      "expr": "echo.saveslot.restore.pending && (echo.saveslot.restore.value < 0 || echo.saveslot.restore.value >= 65536 || floor(echo.saveslot.restore.value) != echo.saveslot.restore.value)"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.0.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 1) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.0.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 1) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.1.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 2) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.1.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 2) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.2.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 4) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.2.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 4) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.3.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 8) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.3.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 8) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.4.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 16) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.4.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 16) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.5.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 32) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.5.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 32) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.6.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 64) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.6.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 64) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.7.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 128) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.7.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 128) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.8.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 256) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.8.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 256) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.9.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 512) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.9.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 512) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.10.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 1024) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.10.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 1024) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.11.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 2048) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.11.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 2048) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.12.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 4096) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.12.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 4096) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.13.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 8192) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.13.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 8192) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.14.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 16384) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.14.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 16384) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.15.0",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 32768) % 2 == 0"
+    },
+    {
+      "name": "echo.saveslot.restore.bit.15.1",
+      "expr": "echo.saveslot.restore.pending && !echo.saveslot.restore.invalid && floor(echo.saveslot.restore.value / 32768) % 2 == 1"
+    },
+    {
+      "name": "echo.saveslot.persist.0.match",
+      "expr": "echo.saveslot.persist.0.pending && @flag:eow_ss_0 == echo.saveslot.0.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.1.match",
+      "expr": "echo.saveslot.persist.1.pending && @flag:eow_ss_1 == echo.saveslot.1.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.2.match",
+      "expr": "echo.saveslot.persist.2.pending && @flag:eow_ss_2 == echo.saveslot.2.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.3.match",
+      "expr": "echo.saveslot.persist.3.pending && @flag:eow_ss_3 == echo.saveslot.3.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.4.match",
+      "expr": "echo.saveslot.persist.4.pending && @flag:eow_ss_4 == echo.saveslot.4.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.5.match",
+      "expr": "echo.saveslot.persist.5.pending && @flag:eow_ss_5 == echo.saveslot.5.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.6.match",
+      "expr": "echo.saveslot.persist.6.pending && @flag:eow_ss_6 == echo.saveslot.6.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.7.match",
+      "expr": "echo.saveslot.persist.7.pending && @flag:eow_ss_7 == echo.saveslot.7.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.8.match",
+      "expr": "echo.saveslot.persist.8.pending && @flag:eow_ss_8 == echo.saveslot.8.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.9.match",
+      "expr": "echo.saveslot.persist.9.pending && @flag:eow_ss_9 == echo.saveslot.9.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.10.match",
+      "expr": "echo.saveslot.persist.10.pending && @flag:eow_ss_10 == echo.saveslot.10.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.11.match",
+      "expr": "echo.saveslot.persist.11.pending && @flag:eow_ss_11 == echo.saveslot.11.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.12.match",
+      "expr": "echo.saveslot.persist.12.pending && @flag:eow_ss_12 == echo.saveslot.12.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.13.match",
+      "expr": "echo.saveslot.persist.13.pending && @flag:eow_ss_13 == echo.saveslot.13.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.14.match",
+      "expr": "echo.saveslot.persist.14.pending && @flag:eow_ss_14 == echo.saveslot.14.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.15.match",
+      "expr": "echo.saveslot.persist.15.pending && @flag:eow_ss_15 == echo.saveslot.15.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.16.match",
+      "expr": "echo.saveslot.persist.16.pending && @flag:eow_ss_16 == echo.saveslot.16.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.17.match",
+      "expr": "echo.saveslot.persist.17.pending && @flag:eow_ss_17 == echo.saveslot.17.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.18.match",
+      "expr": "echo.saveslot.persist.18.pending && @flag:eow_ss_18 == echo.saveslot.18.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.19.match",
+      "expr": "echo.saveslot.persist.19.pending && @flag:eow_ss_19 == echo.saveslot.19.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.20.match",
+      "expr": "echo.saveslot.persist.20.pending && @flag:eow_ss_20 == echo.saveslot.20.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.21.match",
+      "expr": "echo.saveslot.persist.21.pending && @flag:eow_ss_21 == echo.saveslot.21.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.22.match",
+      "expr": "echo.saveslot.persist.22.pending && @flag:eow_ss_22 == echo.saveslot.22.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.23.match",
+      "expr": "echo.saveslot.persist.23.pending && @flag:eow_ss_23 == echo.saveslot.23.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.24.match",
+      "expr": "echo.saveslot.persist.24.pending && @flag:eow_ss_24 == echo.saveslot.24.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.25.match",
+      "expr": "echo.saveslot.persist.25.pending && @flag:eow_ss_25 == echo.saveslot.25.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.26.match",
+      "expr": "echo.saveslot.persist.26.pending && @flag:eow_ss_26 == echo.saveslot.26.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.27.match",
+      "expr": "echo.saveslot.persist.27.pending && @flag:eow_ss_27 == echo.saveslot.27.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.28.match",
+      "expr": "echo.saveslot.persist.28.pending && @flag:eow_ss_28 == echo.saveslot.28.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.29.match",
+      "expr": "echo.saveslot.persist.29.pending && @flag:eow_ss_29 == echo.saveslot.29.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.30.match",
+      "expr": "echo.saveslot.persist.30.pending && @flag:eow_ss_30 == echo.saveslot.30.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.31.match",
+      "expr": "echo.saveslot.persist.31.pending && @flag:eow_ss_31 == echo.saveslot.31.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.32.match",
+      "expr": "echo.saveslot.persist.32.pending && @flag:eow_ss_32 == echo.saveslot.32.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.33.match",
+      "expr": "echo.saveslot.persist.33.pending && @flag:eow_ss_33 == echo.saveslot.33.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.34.match",
+      "expr": "echo.saveslot.persist.34.pending && @flag:eow_ss_34 == echo.saveslot.34.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.35.match",
+      "expr": "echo.saveslot.persist.35.pending && @flag:eow_ss_35 == echo.saveslot.35.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.36.match",
+      "expr": "echo.saveslot.persist.36.pending && @flag:eow_ss_36 == echo.saveslot.36.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.37.match",
+      "expr": "echo.saveslot.persist.37.pending && @flag:eow_ss_37 == echo.saveslot.37.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.38.match",
+      "expr": "echo.saveslot.persist.38.pending && @flag:eow_ss_38 == echo.saveslot.38.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.39.match",
+      "expr": "echo.saveslot.persist.39.pending && @flag:eow_ss_39 == echo.saveslot.39.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.40.match",
+      "expr": "echo.saveslot.persist.40.pending && @flag:eow_ss_40 == echo.saveslot.40.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.41.match",
+      "expr": "echo.saveslot.persist.41.pending && @flag:eow_ss_41 == echo.saveslot.41.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.42.match",
+      "expr": "echo.saveslot.persist.42.pending && @flag:eow_ss_42 == echo.saveslot.42.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.43.match",
+      "expr": "echo.saveslot.persist.43.pending && @flag:eow_ss_43 == echo.saveslot.43.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.44.match",
+      "expr": "echo.saveslot.persist.44.pending && @flag:eow_ss_44 == echo.saveslot.44.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.45.match",
+      "expr": "echo.saveslot.persist.45.pending && @flag:eow_ss_45 == echo.saveslot.45.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.46.match",
+      "expr": "echo.saveslot.persist.46.pending && @flag:eow_ss_46 == echo.saveslot.46.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.47.match",
+      "expr": "echo.saveslot.persist.47.pending && @flag:eow_ss_47 == echo.saveslot.47.packed"
+    },
+    {
+      "name": "echo.saveslot.persist.48.match",
+      "expr": "echo.saveslot.persist.48.pending && @flag:eow_ss_48 == echo.saveslot.48.packed"
     },
     {
       "name": "echo.dungeon.floor.menu.1",
@@ -1320,7 +1996,7 @@
     },
     {
       "name": "echo.enforce.any",
-      "expr": "echo.drive.any || echo.stamp.enforce.any || echo.warp.input.any"
+      "expr": "echo.drive.any || echo.stamp.enforce.any || echo.warp.input.any || echo.saveslot.enforce.any"
     },
     {
       "name": "echo.warp.confirm.show",
@@ -1934,6 +2610,530 @@
     },
     {
       "action": "stamp_persist_ack_23",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_reject",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_0_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_0_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_1_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_1_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_2_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_2_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_3_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_3_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_4_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_4_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_5_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_5_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_6_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_6_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_7_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_7_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_8_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_8_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_9_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_9_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_10_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_10_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_11_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_11_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_12_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_12_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_13_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_13_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_14_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_14_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_15_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_restore_15_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_0",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_1",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_2",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_2",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_3",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_3",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_4",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_4",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_5",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_5",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_6",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_6",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_7",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_7",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_8",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_8",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_9",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_9",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_10",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_10",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_11",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_11",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_12",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_12",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_13",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_13",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_14",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_14",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_15",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_15",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_16",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_16",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_17",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_17",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_18",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_18",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_19",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_19",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_20",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_20",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_21",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_21",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_22",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_22",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_23",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_23",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_24",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_24",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_25",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_25",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_26",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_26",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_27",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_27",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_28",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_28",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_29",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_29",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_30",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_30",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_31",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_31",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_32",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_32",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_33",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_33",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_34",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_34",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_35",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_35",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_36",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_36",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_37",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_37",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_38",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_38",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_39",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_39",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_40",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_40",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_41",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_41",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_42",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_42",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_43",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_43",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_44",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_44",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_45",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_45",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_46",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_46",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_47",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_47",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_write_48",
+      "every_ms": 0
+    },
+    {
+      "action": "saveslot_persist_ack_48",
       "every_ms": 0
     },
     {
@@ -3941,6 +5141,923 @@
       "enabled_bind": "echo.stamp.persist.23.match",
       "haptic": "off"
     },
+    "saveslot_restore_reject": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": -1,
+      "enabled_bind": "echo.saveslot.restore.invalid",
+      "haptic": "off"
+    },
+    "saveslot_restore_0_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 0,
+      "enabled_bind": "echo.saveslot.restore.bit.0.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_0_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 1,
+      "enabled_bind": "echo.saveslot.restore.bit.0.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_1_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 2,
+      "enabled_bind": "echo.saveslot.restore.bit.1.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_1_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 3,
+      "enabled_bind": "echo.saveslot.restore.bit.1.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_2_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 4,
+      "enabled_bind": "echo.saveslot.restore.bit.2.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_2_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 5,
+      "enabled_bind": "echo.saveslot.restore.bit.2.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_3_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 6,
+      "enabled_bind": "echo.saveslot.restore.bit.3.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_3_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 7,
+      "enabled_bind": "echo.saveslot.restore.bit.3.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_4_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 8,
+      "enabled_bind": "echo.saveslot.restore.bit.4.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_4_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 9,
+      "enabled_bind": "echo.saveslot.restore.bit.4.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_5_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 10,
+      "enabled_bind": "echo.saveslot.restore.bit.5.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_5_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 11,
+      "enabled_bind": "echo.saveslot.restore.bit.5.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_6_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 12,
+      "enabled_bind": "echo.saveslot.restore.bit.6.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_6_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 13,
+      "enabled_bind": "echo.saveslot.restore.bit.6.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_7_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 14,
+      "enabled_bind": "echo.saveslot.restore.bit.7.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_7_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 15,
+      "enabled_bind": "echo.saveslot.restore.bit.7.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_8_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 16,
+      "enabled_bind": "echo.saveslot.restore.bit.8.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_8_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 17,
+      "enabled_bind": "echo.saveslot.restore.bit.8.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_9_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 18,
+      "enabled_bind": "echo.saveslot.restore.bit.9.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_9_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 19,
+      "enabled_bind": "echo.saveslot.restore.bit.9.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_10_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 20,
+      "enabled_bind": "echo.saveslot.restore.bit.10.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_10_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 21,
+      "enabled_bind": "echo.saveslot.restore.bit.10.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_11_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 22,
+      "enabled_bind": "echo.saveslot.restore.bit.11.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_11_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 23,
+      "enabled_bind": "echo.saveslot.restore.bit.11.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_12_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 24,
+      "enabled_bind": "echo.saveslot.restore.bit.12.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_12_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 25,
+      "enabled_bind": "echo.saveslot.restore.bit.12.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_13_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 26,
+      "enabled_bind": "echo.saveslot.restore.bit.13.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_13_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 27,
+      "enabled_bind": "echo.saveslot.restore.bit.13.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_14_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 28,
+      "enabled_bind": "echo.saveslot.restore.bit.14.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_14_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 29,
+      "enabled_bind": "echo.saveslot.restore.bit.14.1",
+      "haptic": "off"
+    },
+    "saveslot_restore_15_0": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 30,
+      "enabled_bind": "echo.saveslot.restore.bit.15.0",
+      "haptic": "off"
+    },
+    "saveslot_restore_15_1": {
+      "kind": "module",
+      "action": "saveslot_restore_packet",
+      "argument": 31,
+      "enabled_bind": "echo.saveslot.restore.bit.15.1",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_0": {
+      "kind": "set_value",
+      "flag": "eow_ss_0",
+      "value": "$echo.saveslot.0.packed",
+      "enabled_bind": "echo.saveslot.persist.0.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_0": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 0,
+      "enabled_bind": "echo.saveslot.persist.0.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_1": {
+      "kind": "set_value",
+      "flag": "eow_ss_1",
+      "value": "$echo.saveslot.1.packed",
+      "enabled_bind": "echo.saveslot.persist.1.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_1": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 1,
+      "enabled_bind": "echo.saveslot.persist.1.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_2": {
+      "kind": "set_value",
+      "flag": "eow_ss_2",
+      "value": "$echo.saveslot.2.packed",
+      "enabled_bind": "echo.saveslot.persist.2.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_2": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 2,
+      "enabled_bind": "echo.saveslot.persist.2.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_3": {
+      "kind": "set_value",
+      "flag": "eow_ss_3",
+      "value": "$echo.saveslot.3.packed",
+      "enabled_bind": "echo.saveslot.persist.3.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_3": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 3,
+      "enabled_bind": "echo.saveslot.persist.3.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_4": {
+      "kind": "set_value",
+      "flag": "eow_ss_4",
+      "value": "$echo.saveslot.4.packed",
+      "enabled_bind": "echo.saveslot.persist.4.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_4": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 4,
+      "enabled_bind": "echo.saveslot.persist.4.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_5": {
+      "kind": "set_value",
+      "flag": "eow_ss_5",
+      "value": "$echo.saveslot.5.packed",
+      "enabled_bind": "echo.saveslot.persist.5.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_5": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 5,
+      "enabled_bind": "echo.saveslot.persist.5.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_6": {
+      "kind": "set_value",
+      "flag": "eow_ss_6",
+      "value": "$echo.saveslot.6.packed",
+      "enabled_bind": "echo.saveslot.persist.6.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_6": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 6,
+      "enabled_bind": "echo.saveslot.persist.6.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_7": {
+      "kind": "set_value",
+      "flag": "eow_ss_7",
+      "value": "$echo.saveslot.7.packed",
+      "enabled_bind": "echo.saveslot.persist.7.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_7": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 7,
+      "enabled_bind": "echo.saveslot.persist.7.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_8": {
+      "kind": "set_value",
+      "flag": "eow_ss_8",
+      "value": "$echo.saveslot.8.packed",
+      "enabled_bind": "echo.saveslot.persist.8.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_8": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 8,
+      "enabled_bind": "echo.saveslot.persist.8.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_9": {
+      "kind": "set_value",
+      "flag": "eow_ss_9",
+      "value": "$echo.saveslot.9.packed",
+      "enabled_bind": "echo.saveslot.persist.9.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_9": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 9,
+      "enabled_bind": "echo.saveslot.persist.9.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_10": {
+      "kind": "set_value",
+      "flag": "eow_ss_10",
+      "value": "$echo.saveslot.10.packed",
+      "enabled_bind": "echo.saveslot.persist.10.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_10": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 10,
+      "enabled_bind": "echo.saveslot.persist.10.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_11": {
+      "kind": "set_value",
+      "flag": "eow_ss_11",
+      "value": "$echo.saveslot.11.packed",
+      "enabled_bind": "echo.saveslot.persist.11.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_11": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 11,
+      "enabled_bind": "echo.saveslot.persist.11.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_12": {
+      "kind": "set_value",
+      "flag": "eow_ss_12",
+      "value": "$echo.saveslot.12.packed",
+      "enabled_bind": "echo.saveslot.persist.12.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_12": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 12,
+      "enabled_bind": "echo.saveslot.persist.12.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_13": {
+      "kind": "set_value",
+      "flag": "eow_ss_13",
+      "value": "$echo.saveslot.13.packed",
+      "enabled_bind": "echo.saveslot.persist.13.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_13": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 13,
+      "enabled_bind": "echo.saveslot.persist.13.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_14": {
+      "kind": "set_value",
+      "flag": "eow_ss_14",
+      "value": "$echo.saveslot.14.packed",
+      "enabled_bind": "echo.saveslot.persist.14.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_14": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 14,
+      "enabled_bind": "echo.saveslot.persist.14.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_15": {
+      "kind": "set_value",
+      "flag": "eow_ss_15",
+      "value": "$echo.saveslot.15.packed",
+      "enabled_bind": "echo.saveslot.persist.15.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_15": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 15,
+      "enabled_bind": "echo.saveslot.persist.15.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_16": {
+      "kind": "set_value",
+      "flag": "eow_ss_16",
+      "value": "$echo.saveslot.16.packed",
+      "enabled_bind": "echo.saveslot.persist.16.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_16": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 16,
+      "enabled_bind": "echo.saveslot.persist.16.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_17": {
+      "kind": "set_value",
+      "flag": "eow_ss_17",
+      "value": "$echo.saveslot.17.packed",
+      "enabled_bind": "echo.saveslot.persist.17.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_17": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 17,
+      "enabled_bind": "echo.saveslot.persist.17.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_18": {
+      "kind": "set_value",
+      "flag": "eow_ss_18",
+      "value": "$echo.saveslot.18.packed",
+      "enabled_bind": "echo.saveslot.persist.18.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_18": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 18,
+      "enabled_bind": "echo.saveslot.persist.18.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_19": {
+      "kind": "set_value",
+      "flag": "eow_ss_19",
+      "value": "$echo.saveslot.19.packed",
+      "enabled_bind": "echo.saveslot.persist.19.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_19": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 19,
+      "enabled_bind": "echo.saveslot.persist.19.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_20": {
+      "kind": "set_value",
+      "flag": "eow_ss_20",
+      "value": "$echo.saveslot.20.packed",
+      "enabled_bind": "echo.saveslot.persist.20.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_20": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 20,
+      "enabled_bind": "echo.saveslot.persist.20.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_21": {
+      "kind": "set_value",
+      "flag": "eow_ss_21",
+      "value": "$echo.saveslot.21.packed",
+      "enabled_bind": "echo.saveslot.persist.21.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_21": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 21,
+      "enabled_bind": "echo.saveslot.persist.21.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_22": {
+      "kind": "set_value",
+      "flag": "eow_ss_22",
+      "value": "$echo.saveslot.22.packed",
+      "enabled_bind": "echo.saveslot.persist.22.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_22": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 22,
+      "enabled_bind": "echo.saveslot.persist.22.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_23": {
+      "kind": "set_value",
+      "flag": "eow_ss_23",
+      "value": "$echo.saveslot.23.packed",
+      "enabled_bind": "echo.saveslot.persist.23.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_23": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 23,
+      "enabled_bind": "echo.saveslot.persist.23.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_24": {
+      "kind": "set_value",
+      "flag": "eow_ss_24",
+      "value": "$echo.saveslot.24.packed",
+      "enabled_bind": "echo.saveslot.persist.24.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_24": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 24,
+      "enabled_bind": "echo.saveslot.persist.24.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_25": {
+      "kind": "set_value",
+      "flag": "eow_ss_25",
+      "value": "$echo.saveslot.25.packed",
+      "enabled_bind": "echo.saveslot.persist.25.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_25": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 25,
+      "enabled_bind": "echo.saveslot.persist.25.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_26": {
+      "kind": "set_value",
+      "flag": "eow_ss_26",
+      "value": "$echo.saveslot.26.packed",
+      "enabled_bind": "echo.saveslot.persist.26.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_26": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 26,
+      "enabled_bind": "echo.saveslot.persist.26.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_27": {
+      "kind": "set_value",
+      "flag": "eow_ss_27",
+      "value": "$echo.saveslot.27.packed",
+      "enabled_bind": "echo.saveslot.persist.27.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_27": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 27,
+      "enabled_bind": "echo.saveslot.persist.27.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_28": {
+      "kind": "set_value",
+      "flag": "eow_ss_28",
+      "value": "$echo.saveslot.28.packed",
+      "enabled_bind": "echo.saveslot.persist.28.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_28": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 28,
+      "enabled_bind": "echo.saveslot.persist.28.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_29": {
+      "kind": "set_value",
+      "flag": "eow_ss_29",
+      "value": "$echo.saveslot.29.packed",
+      "enabled_bind": "echo.saveslot.persist.29.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_29": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 29,
+      "enabled_bind": "echo.saveslot.persist.29.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_30": {
+      "kind": "set_value",
+      "flag": "eow_ss_30",
+      "value": "$echo.saveslot.30.packed",
+      "enabled_bind": "echo.saveslot.persist.30.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_30": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 30,
+      "enabled_bind": "echo.saveslot.persist.30.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_31": {
+      "kind": "set_value",
+      "flag": "eow_ss_31",
+      "value": "$echo.saveslot.31.packed",
+      "enabled_bind": "echo.saveslot.persist.31.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_31": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 31,
+      "enabled_bind": "echo.saveslot.persist.31.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_32": {
+      "kind": "set_value",
+      "flag": "eow_ss_32",
+      "value": "$echo.saveslot.32.packed",
+      "enabled_bind": "echo.saveslot.persist.32.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_32": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 32,
+      "enabled_bind": "echo.saveslot.persist.32.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_33": {
+      "kind": "set_value",
+      "flag": "eow_ss_33",
+      "value": "$echo.saveslot.33.packed",
+      "enabled_bind": "echo.saveslot.persist.33.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_33": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 33,
+      "enabled_bind": "echo.saveslot.persist.33.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_34": {
+      "kind": "set_value",
+      "flag": "eow_ss_34",
+      "value": "$echo.saveslot.34.packed",
+      "enabled_bind": "echo.saveslot.persist.34.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_34": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 34,
+      "enabled_bind": "echo.saveslot.persist.34.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_35": {
+      "kind": "set_value",
+      "flag": "eow_ss_35",
+      "value": "$echo.saveslot.35.packed",
+      "enabled_bind": "echo.saveslot.persist.35.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_35": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 35,
+      "enabled_bind": "echo.saveslot.persist.35.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_36": {
+      "kind": "set_value",
+      "flag": "eow_ss_36",
+      "value": "$echo.saveslot.36.packed",
+      "enabled_bind": "echo.saveslot.persist.36.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_36": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 36,
+      "enabled_bind": "echo.saveslot.persist.36.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_37": {
+      "kind": "set_value",
+      "flag": "eow_ss_37",
+      "value": "$echo.saveslot.37.packed",
+      "enabled_bind": "echo.saveslot.persist.37.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_37": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 37,
+      "enabled_bind": "echo.saveslot.persist.37.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_38": {
+      "kind": "set_value",
+      "flag": "eow_ss_38",
+      "value": "$echo.saveslot.38.packed",
+      "enabled_bind": "echo.saveslot.persist.38.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_38": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 38,
+      "enabled_bind": "echo.saveslot.persist.38.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_39": {
+      "kind": "set_value",
+      "flag": "eow_ss_39",
+      "value": "$echo.saveslot.39.packed",
+      "enabled_bind": "echo.saveslot.persist.39.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_39": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 39,
+      "enabled_bind": "echo.saveslot.persist.39.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_40": {
+      "kind": "set_value",
+      "flag": "eow_ss_40",
+      "value": "$echo.saveslot.40.packed",
+      "enabled_bind": "echo.saveslot.persist.40.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_40": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 40,
+      "enabled_bind": "echo.saveslot.persist.40.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_41": {
+      "kind": "set_value",
+      "flag": "eow_ss_41",
+      "value": "$echo.saveslot.41.packed",
+      "enabled_bind": "echo.saveslot.persist.41.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_41": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 41,
+      "enabled_bind": "echo.saveslot.persist.41.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_42": {
+      "kind": "set_value",
+      "flag": "eow_ss_42",
+      "value": "$echo.saveslot.42.packed",
+      "enabled_bind": "echo.saveslot.persist.42.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_42": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 42,
+      "enabled_bind": "echo.saveslot.persist.42.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_43": {
+      "kind": "set_value",
+      "flag": "eow_ss_43",
+      "value": "$echo.saveslot.43.packed",
+      "enabled_bind": "echo.saveslot.persist.43.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_43": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 43,
+      "enabled_bind": "echo.saveslot.persist.43.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_44": {
+      "kind": "set_value",
+      "flag": "eow_ss_44",
+      "value": "$echo.saveslot.44.packed",
+      "enabled_bind": "echo.saveslot.persist.44.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_44": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 44,
+      "enabled_bind": "echo.saveslot.persist.44.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_45": {
+      "kind": "set_value",
+      "flag": "eow_ss_45",
+      "value": "$echo.saveslot.45.packed",
+      "enabled_bind": "echo.saveslot.persist.45.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_45": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 45,
+      "enabled_bind": "echo.saveslot.persist.45.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_46": {
+      "kind": "set_value",
+      "flag": "eow_ss_46",
+      "value": "$echo.saveslot.46.packed",
+      "enabled_bind": "echo.saveslot.persist.46.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_46": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 46,
+      "enabled_bind": "echo.saveslot.persist.46.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_47": {
+      "kind": "set_value",
+      "flag": "eow_ss_47",
+      "value": "$echo.saveslot.47.packed",
+      "enabled_bind": "echo.saveslot.persist.47.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_47": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 47,
+      "enabled_bind": "echo.saveslot.persist.47.match",
+      "haptic": "off"
+    },
+    "saveslot_persist_write_48": {
+      "kind": "set_value",
+      "flag": "eow_ss_48",
+      "value": "$echo.saveslot.48.packed",
+      "enabled_bind": "echo.saveslot.persist.48.pending",
+      "haptic": "off"
+    },
+    "saveslot_persist_ack_48": {
+      "kind": "module",
+      "action": "saveslot_persist_ack",
+      "argument": 48,
+      "enabled_bind": "echo.saveslot.persist.48.match",
+      "haptic": "off"
+    },
     "drive_left": {
       "kind": "button",
       "button": "RStick(-1,0)",
@@ -4135,6 +6252,27 @@
       "action": "quick_equip",
       "argument": "$payload",
       "enabled_bind": "echo.quick.equip.ready",
+      "haptic": "confirm"
+    },
+    "quick_assign_0": {
+      "kind": "module",
+      "action": "quick_assign_0",
+      "argument": "$payload",
+      "enabled_bind": "echo.quick.assign.ready",
+      "haptic": "confirm"
+    },
+    "quick_assign_1": {
+      "kind": "module",
+      "action": "quick_assign_1",
+      "argument": "$payload",
+      "enabled_bind": "echo.quick.assign.ready",
+      "haptic": "confirm"
+    },
+    "quick_assign_2": {
+      "kind": "module",
+      "action": "quick_assign_2",
+      "argument": "$payload",
+      "enabled_bind": "echo.quick.assign.ready",
       "haptic": "confirm"
     },
     "combat_native_x": {
@@ -5276,7 +7414,8 @@
           "src_bind": "echo.inspect.cell.{i}.icon",
           "payload": "$echo.inspect.cell.{i}.token",
           "on_tap": "inspect",
-          "tap_enabled_bind": "echo.inspect.input"
+          "tap_enabled_bind": "echo.inspect.input",
+          "select_group": "echo_shortcuts"
         },
         {
           "type": "image",
@@ -5387,7 +7526,8 @@
           "src_bind": "echo.inspect.cell.{i}.icon",
           "payload": "$echo.inspect.cell.{i}.token",
           "on_tap": "inspect",
-          "tap_enabled_bind": "echo.inspect.input"
+          "tap_enabled_bind": "echo.inspect.input",
+          "select_group": "echo_shortcuts"
         },
         {
           "type": "image",
@@ -5639,9 +7779,10 @@
             196
           ],
           "need_bind": "echo.quick.visible",
-          "on_tap": "quick_equip",
-          "payload": "$echo.quick.0.token",
-          "tap_enabled_bind": "echo.quick.equip.ready",
+          "drop_action": "quick_assign_0",
+          "accept_group": "echo_shortcuts",
+          "highlight_src": "module:echoes/assets/quick-ring",
+          "tap_enabled_bind": "echo.quick.assign.ready",
           "id": "echo_notebook_piece_34"
         },
         {
@@ -5714,9 +7855,10 @@
             196
           ],
           "need_bind": "echo.quick.visible",
-          "on_tap": "quick_equip",
-          "payload": "$echo.quick.1.token",
-          "tap_enabled_bind": "echo.quick.equip.ready",
+          "drop_action": "quick_assign_1",
+          "accept_group": "echo_shortcuts",
+          "highlight_src": "module:echoes/assets/quick-ring",
+          "tap_enabled_bind": "echo.quick.assign.ready",
           "id": "echo_notebook_piece_40"
         },
         {
@@ -5789,9 +7931,10 @@
             196
           ],
           "need_bind": "echo.quick.visible",
-          "on_tap": "quick_equip",
-          "payload": "$echo.quick.2.token",
-          "tap_enabled_bind": "echo.quick.equip.ready",
+          "drop_action": "quick_assign_2",
+          "accept_group": "echo_shortcuts",
+          "highlight_src": "module:echoes/assets/quick-ring",
+          "tap_enabled_bind": "echo.quick.assign.ready",
           "id": "echo_notebook_piece_46"
         },
         {

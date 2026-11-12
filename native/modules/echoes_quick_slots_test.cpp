@@ -23,6 +23,7 @@ int main() {
   v.favorite_valid=true; v.favorite_crc_keys={400};
   q.Sync(v);
   check(q.ready()); check(q.Target(0)==40); check(!q.Target(1)); check(!q.Target(2)); check(!q.active());
+  check(q.ConsumeOwnershipChange()); // first save seen this boot
 
   // C: holding the selector sorted Last Used (sort_enum bit 0) supplies the
   // remaining order; the favourite (40) still comes first.
@@ -31,6 +32,7 @@ int main() {
   v.selector.ordered_native_ids={20,10,40,30,50};
   q.Sync(v);
   check(q.Target(0)==40); check(q.Target(1)==20); check(q.Target(2)==10);
+  check(!q.ConsumeOwnershipChange()); // same save, no repeat signal
 
   // D: closing the selector on the same save keeps showing the cached Last
   // Used order -- the rail does not go blank just because the picker isn't
@@ -56,26 +58,26 @@ int main() {
   check(q.Target(0)==20); check(q.Target(1)==40); check(q.Target(2)==30);
   check(q.active()==1);
 
-  // G: a fully unreadable sample hides every circle outright and discards
-  // every cache -- an unreadable moment can be exactly when a save switch
-  // is in flight, so nothing is trusted to survive it.
-  LiveSnapshot unreadable;
-  q.Sync(unreadable);
+  // G: a transient unreadable sample (a loading screen, most commonly) hides
+  // the circles for that one sample, but -- unlike a confirmed different
+  // save -- it must NOT clear the cached favourites/Last Used order: the
+  // moment the very same save is readable again, the circles come back
+  // exactly as they were, with no re-hold of the picker needed.
+  LiveSnapshot loading; // a bare, unreadable sample: compatible defaults false
+  q.Sync(loading);
   check(!q.ready()); check(!q.Target(0)); check(!q.Target(1)); check(!q.Target(2)); check(!q.active());
-  // Recovery: the independent favourite reader works again immediately,
-  // without the picker being reopened, but the Last Used fallback stays
-  // empty until the picker is held again -- it has no live substitute.
-  LiveSnapshot recovered;
-  recovered.compatible=recovered.collection_valid=true; recovered.collection_source={1,2,3,0};
-  recovered.learned_native_ids={10,20,30,40,50}; recovered.learned_crc_keys={100,200,300,400,500};
-  recovered.favorite_valid=true; recovered.favorite_crc_keys={400,200};
-  q.Sync(recovered);
-  check(q.ready()); check(q.Target(0)==40); check(q.Target(1)==20); check(!q.Target(2)); check(!q.active());
+  check(!q.ConsumeOwnershipChange()); // an unreadable sample is not a save change
+  q.Sync(v); // the same save's next real sample, selector closed again
+  v.selector.held=false;
+  check(q.ready()); check(q.Target(0)==20); check(q.Target(1)==40); check(q.Target(2)==30);
+  check(q.active()==1);
+  check(!q.ConsumeOwnershipChange());
 
   // H: no cross-save leakage -- a different save (different save_data) on
   // the very next sample, with no favourites/Last Used known for it yet,
   // shows nothing from the old save even though the collection itself
-  // reads as valid again immediately.
+  // reads as valid again immediately. This IS a confirmed save change, so
+  // caches (and any hand assignment) are dropped, and the caller is told.
   QuickSlots qh; LiveSnapshot h1;
   h1.compatible=h1.collection_valid=true; h1.collection_source={1,2,3,0};
   h1.learned_native_ids={5,6,7}; h1.learned_crc_keys={50,60,70};
@@ -84,14 +86,19 @@ int main() {
   h1.selector.ordered_native_ids={6,5,7};
   qh.Sync(h1);
   check(qh.ready()); check(qh.Target(0)==6); check(qh.Target(1)==5); check(qh.Target(2)==7);
+  check(qh.ConsumeOwnershipChange());
+  check(qh.Assign(0,6)); // hand-pin slot 0 on this save
+  check(qh.dirty()); qh.ClearDirty();
   LiveSnapshot h2=h1;
   h2.collection_source.save_data=99; // a different save loaded
   h2.learned_native_ids={1,2}; h2.learned_crc_keys={10,20};
   h2.selector={}; // the picker is closed right after a fresh load, as usual
   qh.Sync(h2);
   check(qh.ready()); // the new save's own collection is readable
-  check(!qh.Target(0)); check(!qh.Target(1)); check(!qh.Target(2)); // never 6/5/7
+  check(!qh.Target(0)); check(!qh.Target(1)); check(!qh.Target(2)); // never 6/5/7, never the hand pin
   check(!qh.active());
+  check(qh.ConsumeOwnershipChange()); // the caller must now resolve h2's own save identity
+  check(qh.manual()==std::array<uint16_t,3>{QuickSlots::Empty,QuickSlots::Empty,QuickSlots::Empty});
 
   // I: a favourite whose CRC no longer resolves within the currently
   // learned set (e.g. after a de-sync) is dropped rather than shown stale.
@@ -121,6 +128,44 @@ int main() {
   j2.selector.held=false; j2.selector.ordered_native_ids.clear(); // picker closed; cache still holds {2,1,3}
   qj.Sync(j2);
   check(qj.ready()); check(qj.Target(0)==1); check(qj.Target(1)==3); check(!qj.Target(2));
+
+  // K: manual assignment (tap-grid-then-slot / drag) takes its own fixed
+  // circle ahead of any auto-fill, duplicate assignment swaps the two
+  // hand-assigned circles, and an unassigned circle keeps auto-filling.
+  QuickSlots qk; LiveSnapshot k1;
+  k1.compatible=k1.collection_valid=true; k1.collection_source={1,2,3,0};
+  k1.learned_native_ids={1,2,3,4,5}; k1.learned_crc_keys={10,20,30,40,50};
+  k1.selector.compatible=k1.selector.selector_valid=k1.selector.held=true;
+  k1.selector.sort_valid=true; k1.selector.sort_enum=1;
+  k1.selector.ordered_native_ids={3,2,1,4,5};
+  qk.Sync(k1);
+  check(qk.Target(0)==3); check(qk.Target(1)==2); check(qk.Target(2)==1); // pure auto-fill so far
+  check(!qk.Assign(5,1)); // out-of-range slot refused
+  check(!qk.Assign(0,99)); // not learned, refused
+  check(qk.Assign(2,5)); // hand-pin slot 2 to Echo 5 (not currently shown anywhere)
+  qk.Sync(k1);
+  check(qk.Target(0)==3); check(qk.Target(1)==2); check(qk.Target(2)==5); // slot 2 now fixed, auto-fill yields it the circle
+  check(qk.Assign(0,5)); // 5 is already hand-pinned to slot 2 -> duplicate assignment swaps
+  check(qk.manual()==std::array<uint16_t,3>{5,QuickSlots::Empty,QuickSlots::Empty}); // the pin moved to slot 0; slot 2's pin is gone, free for auto-fill
+  qk.Sync(k1);
+  check(qk.Target(0)==5); check(qk.Target(1)==3); check(qk.Target(2)==2); // slot 2 now auto-fills again
+
+  // L: "save as reference" -- a hand assignment is only shown while that
+  // Echo is still learned in this exact save; losing it (never happens in
+  // play, but defends against an imperfect persisted-identity match) falls
+  // the circle back to auto-fill without discarding the stored pin, and it
+  // reappears the moment the Echo is learned/learnable again.
+  LiveSnapshot k2=k1;
+  k2.learned_native_ids={1,2,3,4}; k2.learned_crc_keys={10,20,30,40}; // Echo 5 no longer learned
+  qk.Sync(k2);
+  check(qk.Target(0)!=5); // the stale hand pin for slot 0 does not show
+  check(qk.manual()[0]==5); // but it is still stored, not forgotten
+  qk.Sync(k1); // Echo 5 learned again (e.g. transient read glitch undone)
+  check(qk.Target(0)==5);
+
+  // M: tapping a circle (Target()) is unaffected by any of the above --
+  // it always just names whatever Echo that circle currently shows.
+  check(qk.Target(1)==3);
 
   std::cout<<checks<<" quick-slot checks passed\n";
 }

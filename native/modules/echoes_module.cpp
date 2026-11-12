@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "echoes_assets.h"
 #include "echoes_quick_slots.h"
+#include "echoes_save_slot_bridge.h"
+#include "echoes_save_slot_table.h"
 #include "echoes_helper_mailbox.h"
 #include "echoes_drive.h"
 #include "echoes_direct_select.h"
@@ -143,6 +145,14 @@ QuickKeys BuildQuickKeys(size_t i) {
   const auto p="echo.quick."+std::to_string(i)+".";
   return {p+"valid",p+"active",p+"token",p+"icon",p+"cost"};
 }
+// Save-slot persisted-table transport (echo.saveslot.<i>.*, SaveSlotBridge::Count
+// values), published every sample regardless of page so the restore/write
+// enforce loop always has fresh gates to evaluate.
+struct SaveSlotKeys { std::string pending,packed; };
+SaveSlotKeys BuildSaveSlotKeys(size_t i) {
+  const auto p="echo.saveslot."+std::to_string(i)+".";
+  return {"echo.saveslot.persist."+std::to_string(i)+".pending",p+"packed"};
+}
 // Map viewport inside the framed panel; keeps the composed map's 1272:916 aspect.
 // Top of the inspected name; the detail column ends above the footer band.
 constexpr int InspectTop=382;
@@ -156,6 +166,15 @@ struct Module {
   Resources resources;
   Assets assets;
   QuickSlots quick_slots;
+  // Per-save circle assignments: a bounded (8), LRU-by-write-age table keyed
+  // by a stable save identity, persisted through runtime-22 flags. Decoded
+  // once at boot; afterwards purely in-memory lookups/edits, written back
+  // through the same bridge. See SaveIdentity() for what the identity is.
+  SaveSlotBridge save_bridge;
+  SaveSlotTable save_table_;
+  bool save_table_loaded_{};
+  bool save_lookup_done_{}; // false from an ownership change until the one-time table lookup actually runs
+  std::optional<uint32_t> save_identity_{}; // this save's current identity, recomputed every sample
   // Guest helper (load plan): sets Y through the native setter in-game.
   helper::HelperMailbox helper;
   MapIconAssets map_icons;
@@ -251,6 +270,7 @@ struct Module {
   std::vector<StampKeys> stamp_keys_;
   std::vector<DungeonFloorKeys> dungeon_floor_keys_;
   std::vector<QuickKeys> quick_slot_keys_;
+  std::vector<SaveSlotKeys> save_slot_keys_;
   std::shared_ptr<DungeonMapAssets> dungeon_assets;
   using DungeonSlot = DungeonViewSlot;
   DungeonViewCache dungeon_views;
@@ -503,6 +523,46 @@ struct Module {
     return entry.kind==InventoryKind::Accessory &&
         std::find(inventory.equipped_accessories.begin(),inventory.equipped_accessories.end(),
                   entry.mask)!=inventory.equipped_accessories.end();
+  }
+  // A per-save identity for the persisted circle-assignment table,
+  // independent of the access_object/save_data heap pointers (those differ
+  // every process boot). RE finding (2026-11-12, see
+  // games/echoes-of-wisdom/analysis/20261112-save-identity/README.md): no
+  // scalar field reachable from access_object/save_data (or one hop
+  // further) is BOTH stable across an app restart AND distinguishes saves.
+  // In particular collection_source.revision -- the only candidate this
+  // reader already exposed -- is proven unsuitable: three independent
+  // existing readers (dungeon icons, dungeon reader, map-annotation
+  // reader) only ever compare it against a value they captured earlier in
+  // the SAME process, never a stored constant, and save_data+0x16cf8 (the
+  // list it comes from) is read-only at every call site found -- consistent
+  // with a runtime index rebuilt fresh on every load, not save-file bytes.
+  // The save-select screen's own data (rodata confirms on-disk
+  // `save:/slot{N}/file{M}.bin` + a separate `save:/save.meta`, with loose
+  // `save_id`/`playtime`/`slotIndex` strings) is the most promising real
+  // identity, but it lives in a separate file read only while the
+  // title/file-select scene is active, not through this reader's gameplay
+  // pointer chain -- a new, separate parser, out of scope here.
+  // Best available fallback, used below: combine the Automaton ownership
+  // mask (automatons.ownership_mask, 6 bits -- written once per unlock,
+  // otherwise constant) with the learned-Echo count (0-127, 7 bits -- real
+  // save content, changes only when a new Echo is learned). Low entropy
+  // (8192 combinations) and NOT claimed to be unique or fully stable: two
+  // different saves at the same completion count and Automaton set
+  // collide, and a save's identity drifts the next time it learns an
+  // Echo (its old bucket just ages out via the normal LRU; nothing
+  // crashes or leaks). Every lookup is still Learned()-gated in QuickSlots,
+  // so a collision or a drifted match can only ever show a circle the
+  // ACTIVE save genuinely has learned, never a fabricated or stale one --
+  // a cosmetic mismatch, not a correctness bug. Identity 0 is reserved for
+  // "unknown/unused" (a brand new file with no Automaton and 0 learned).
+  std::optional<uint32_t> SaveIdentity(const LiveSnapshot& value) const {
+    if (!value.compatible || !value.collection_valid) return {};
+    const uint32_t count_bits = static_cast<uint32_t>(value.learned_native_ids.size()) & 0x7fu;
+    const uint32_t mask_bits = value.automatons.ownership_valid
+        ? (uint32_t(value.automatons.ownership_mask) & 0x3fu) : 0u;
+    const uint32_t identity = (count_bits << 6) | mask_bits;
+    return identity ? std::optional<uint32_t>(identity) : std::nullopt;
   }
   // Echoes' own favourites/Last Used readers never cover Automatons, so a
   // machine can only ever reach a quick-slot circle through this merged
@@ -1667,13 +1727,59 @@ struct Module {
         }
       }
     }
-    // Recomputed from authenticated live data every sample; nothing here is
-    // ever persisted, so the rail can never carry a previous save's Echoes.
+    // Decode the persisted per-save table exactly once, as soon as the
+    // runtime finishes restoring it (same transport as the stamp bridge: a
+    // module cannot read a persisted flag directly, only receive it pushed
+    // back through on_action; see echoes_save_slot_bridge.h).
+    if(!save_table_loaded_) {
+      SaveSlotBridge::Table restored{};
+      if(save_bridge.AdvanceRestore(restored)) {
+        save_table_.Decode(restored);
+        save_table_loaded_=true;
+      }
+    }
+    // The rail itself is recomputed from authenticated live data every
+    // sample; only a hand assignment (Assign(), below) is ever persisted,
+    // keyed by this save's own identity, so a different save can never
+    // show it and an app restart does not lose it.
     quick_slots.Sync(ShortcutSnapshot(value));
+    if(quick_slots.ConsumeOwnershipChange()) save_lookup_done_=false;
+    // Recomputed every sample, never just once at the ownership-change
+    // moment: the very first readable sample after a save loads can still
+    // report an empty collection for a frame or two before it settles (the
+    // collection reader's own consistency check only proves internally
+    // coherent, not finished loading), which would otherwise wedge the
+    // one-shot ownership-change signal on an identity of 0 for the rest of
+    // the session. Recomputing is cheap and the lookup below still only
+    // runs once a usable (nonzero) identity is actually available.
+    save_identity_=SaveIdentity(value);
+    if(!save_lookup_done_ && save_table_loaded_ && save_identity_) {
+      if(const auto found=save_table_.Find(*save_identity_)) quick_slots.SetManual(*found);
+      save_lookup_done_=true;
+    }
+    if(quick_slots.dirty() && save_table_loaded_) {
+      // Only clear once actually handled: if the restore hasn't finished
+      // yet, retry next sample rather than silently losing the edit.
+      if(save_identity_) save_table_.Store(*save_identity_,quick_slots.manual());
+      quick_slots.ClearDirty();
+    }
+    if(save_table_loaded_) {
+      const auto encoded=save_table_.Encode();
+      save_bridge.QueueWrites(encoded);
+    }
+    I("echo.saveslot.restore.pending",save_bridge.restore_pending());
+    I("echo.saveslot.restore.slot",static_cast<int64_t>(save_bridge.restore_slot()));
+    I("echo.saveslot.enforce.any",save_bridge.restore_pending() || save_bridge.writes_pending());
+    for(size_t i=0;i<SaveSlotBridge::Count;++i) {
+      const auto& key=IndexedKeys(save_slot_keys_,i,BuildSaveSlotKeys);
+      I(key.pending,save_bridge.write_pending(i));
+      I(key.packed,save_bridge.write_value(i));
+    }
     const bool quick_visible=home_shown && !ui_held && (home_page==3 || home_page==4) &&
       !stamp_kind && !warp_open && quick_slots.ready() &&
       !(home_page==4 && swordfighter_display_active && ready && ready->prologue.size()==5);
     I("echo.quick.visible",quick_visible);
+    I("echo.quick.assign.ready",quick_visible && home_page==3 && intent.kind==IntentKind::None);
     I("echo.quick.equip.ready",quick_visible && home_page==4 && intent.kind==IntentKind::None && context.valid && context.context==NativeContext::FieldHud);
     for(size_t i=0;i<QuickSlots::Count;++i) {
       const auto& key=IndexedKeys(quick_slot_keys_,i,BuildQuickKeys);
@@ -1873,14 +1979,28 @@ EdenDsmodBool Action(void* instance,const char* action,int64_t argument) {
       self.drive.Cancel();const auto tick=self.host.get_tick(self.host.userdata);
       self.intent={Module::IntentKind::Sort,value,0xffff,target,false,false,0,tick,tick};return true;
     }
-    if(name=="quick_equip") {
+    if(name=="saveslot_restore_packet")return self.save_bridge.RestorePacket(argument);
+    if(name=="saveslot_persist_ack")return argument>=0 && argument<static_cast<int64_t>(SaveSlotBridge::Count) && self.save_bridge.AcknowledgeWrite(static_cast<size_t>(argument));
+    if(name=="quick_equip" || name.starts_with("quick_assign_")) {
       if(!self.home_ready || self.ui_held || self.intent.kind!=Module::IntentKind::None || self.warp_open || self.stamp_kind)return false;
       const auto token=static_cast<uint64_t>(argument);if((token>>24)!=self.home_epoch)return false;
       const auto fresh=self.Read();if(!Module::SameOwnership(self.observed,fresh))return false;
       self.quick_slots.Sync(self.ShortcutSnapshot(fresh));
       const auto id=static_cast<uint16_t>(token);
-      const auto slot=(token>>16)&255;
-      if(self.home_page!=4 || slot>=QuickSlots::Count || self.quick_slots.Target(slot)!=id)return false;
+      if(name=="quick_equip") {
+        const auto slot=(token>>16)&255;
+        if(self.home_page!=4 || slot>=QuickSlots::Count || self.quick_slots.Target(slot)!=id)return false;
+        self.context=ReadContext(Reader(self.host),self.host.main_base,HostBuild(self.host));
+        if(fresh.selector.equipped_valid && fresh.selector.equipped_native_id==id)return true;
+        return self.EquipY(id,fresh);
+      }
+      if(self.home_page!=3 || ((token>>16)&255)!=3 || name.size()!=14 || name.back()<'0' || name.back()>'2')return false;
+      // Notebooks only changes the slot's option. Y changes only when the slot
+      // being replaced is the one currently on Y (owner, 2026-10-23).
+      const auto slot=static_cast<size_t>(name.back()-'0');
+      const bool was_y=self.quick_slots.active()==slot;
+      if(!self.quick_slots.Assign(slot,id))return false;
+      if(!was_y)return true;
       self.context=ReadContext(Reader(self.host),self.host.main_base,HostBuild(self.host));
       if(fresh.selector.equipped_valid && fresh.selector.equipped_native_id==id)return true;
       return self.EquipY(id,fresh);
