@@ -1158,11 +1158,6 @@ if(BUILD_TESTING AND NOT ANDROID)
   add_test(NAME dsmod-echoes-quick-slots COMMAND dsmod-echoes-quick-slots-test)
 endif()
 
-if(BUILD_TESTING AND NOT ANDROID)
-  add_executable(dsmod-echoes-quick-slot-bridge-test echoes_quick_slot_bridge_test.cpp)
-  add_test(NAME dsmod-echoes-quick-slot-bridge COMMAND dsmod-echoes-quick-slot-bridge-test)
-endif()
-
 # Pokemon Sword (title 0100ABF008968000), 1.3.2 (+Isle of Armor/Crown Tundra AOC, optional).
 # ABI glue, a build-id gate for the known build (and a "please update" path for other catalogued
 # Sword builds), and a reader layer whose domains (party/trainer/bag/dex/location/dens/battle)

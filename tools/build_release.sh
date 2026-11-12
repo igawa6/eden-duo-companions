@@ -220,7 +220,7 @@ if want cotl; then
 fi
 if want echoes; then
   # shellcheck disable=SC2046
-  pkg EchoesOfWisdom EchoesOfWisdom "${ECHOES_VERSION:-1.0.1}" --min-runtime 22 \
+  pkg EchoesOfWisdom EchoesOfWisdom "${ECHOES_VERSION:-1.0.2}" --min-runtime 22 \
     --module "linux-x86_64=$ECHOES_LINUX_SO" --module "android-arm64-v8a=$ECHOES_ANDROID_SO" \
     $(build_ids EchoesOfWisdom)
 fi

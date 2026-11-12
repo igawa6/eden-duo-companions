@@ -38,7 +38,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 18 | [The Legend of Zelda: Breath of the Wild](#the-legend-of-zelda-breath-of-the-wild) | `01007EF00011E000` | 1.6.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/breath-of-the-wild-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/2nd-Poll-Next-Switch-Game-on-Eden-Duo-Q6B3284653"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 | 19 | [Castlevania: Belmont's Curse](#castlevania-belmonts-curse) | `0100BA4026E94000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/castlevania-belmonts-curse-1.0.0) | 🥇<br><a href="https://www.reddit.com/user/gymgooner123"><img src="https://img.shields.io/badge/gymgooner123-FF4500?style=flat-square&logo=reddit&logoColor=white" style="vertical-align: middle;" alt="gymgooner123"></a> |
 | 20 | [Super Mario Odyssey](#super-mario-odyssey) | `0100000000010000` | 1.4.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/super-mario-odyssey-1.0.0) | 🥈<br><a href="https://ko-fi.com/s/9e92af191b"><img src="https://img.shields.io/badge/Chip_In-C0C0C0?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Chip In"></a> |
-| 21 | [The Legend of Zelda: Echoes of Wisdom](#the-legend-of-zelda-echoes-of-wisdom) | `01008CF01BAAC000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/echoes-of-wisdom-1.0.1) | 🗳️<br><a href="https://ko-fi.com/polls/3rd-Poll-Next-Switch-Game-on-Eden-Duo-C7J128KB48"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
+| 21 | [The Legend of Zelda: Echoes of Wisdom](#the-legend-of-zelda-echoes-of-wisdom) | `01008CF01BAAC000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/echoes-of-wisdom-1.0.2) | 🗳️<br><a href="https://ko-fi.com/polls/3rd-Poll-Next-Switch-Game-on-Eden-Duo-C7J128KB48"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 | 22 | [Dave the Diver](#dave-the-diver) | `010097F018538000` | 1.0.6.1267 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/dave-the-diver-1.0.0) | ⭐<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a> |
 | 23 | [Persona 3 Portable](#persona-3-portable) | `0100DCD01525A000` | 1.0.0 (base game) | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/persona-3-portable-1.0.1) | ⭐<br><a href="https://github.com/jschroeder1"><img src="https://img.shields.io/badge/jschroeder1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="jschroeder1"></a> |
 | 24 | [Fire Emblem Engage](#fire-emblem-engage) | `0100A6301214E000` | 2.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/fire-emblem-engage-1.0.0) | 🥇<br><a href="https://ko-fi.com/igawa6/commissions"><img src="https://img.shields.io/badge/Anon.-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Anon."></a> |
@@ -652,7 +652,7 @@ Requires Eden Duo 1.3.2.2 or newer.
 
 🗳️ <a href="https://ko-fi.com/polls/3rd-Poll-Next-Switch-Game-on-Eden-Duo-C7J128KB48"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a>
 
-`01008CF01BAAC000` · game version 1.1.0 · companion 1.0.1
+`01008CF01BAAC000` · game version 1.1.0 · companion 1.0.2
 
 | Map | Notebooks | Equipment |
 |:---:|:---:|:---:|
@@ -661,8 +661,8 @@ Requires Eden Duo 1.3.2.2 or newer.
 Zelda's map, Echoes and gear on the second screen, so you can swap, eat and plan without opening the pause menu.
 
 - **Map.** The map of Hyrule with the game's own icons and place names, where you are, your rupees and the area you are in. Place map pins (flag, heart, chest, diamond) and travel to any waypoint you have unlocked.
-- **Echo circles.** Three circles beside the map hold your favourite Echoes. Tap one and it is set on Y right away, with the top-screen icon updating too. During Swordfighter Form the circles show the Form's Bow, Sword and Bomb.
-- **Notebooks.** Every Echo and Automaton you have learned, with its cost, description and favourite mark. Tap an Echo, then a circle, to put it in that circle.
+- **Echo circles.** Three circles beside the map hold your favourite Echoes first, then your most recently used ones, always for the save you're on. Tap one and it is set on Y right away, with the top-screen icon updating too. During Swordfighter Form the circles show the Form's Bow, Sword and Bomb.
+- **Notebooks.** Every Echo and Automaton you have learned, with its cost, description and favourite mark. Favourite an Echo here to bring it to the circles beside the map.
 - **Equipment.** Equip and remove accessories and change outfits straight from the second screen.
 - **Items.** Your ingredients with their counts. Tap Eat to recover hearts without opening the menu.
 - **Link's opening** has its own view with his Bow, Sword and Bomb. Title, loading and the pause menu keep a calm screen instead of flickering.

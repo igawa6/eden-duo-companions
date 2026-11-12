@@ -21,7 +21,7 @@
   "font": "module:echoes/body-font",
   "font_atlas": "module:echoes/body-atlas?p={p}",
   "font_page_h": 512,
-  "_about": "Native Equipment, Items and Notebooks with Echo/Automaton shortcuts and native held grids for update 1.1.0. Physical Right/Left D-pad holds own native selection and release. Touch jumps to verified native selections and refreshes the original carousel; sort tabs request one native sort operation. Field terrain follows native discovery, story and weather; supported locations show Zelda\u2019s native marker. No game artwork, strings or font files are bundled.",
+  "_about": "Native Equipment, Items and Notebooks with Echo shortcuts that follow your own favourites and Last Used order, and native held grids for update 1.1.0. Physical Right/Left D-pad holds own native selection and release. Touch jumps to verified native selections and refreshes the original carousel; sort tabs request one native sort operation. Field terrain follows native discovery, story and weather; supported locations show Zelda\u2019s native marker. No game artwork, strings or font files are bundled.",
   "_development": "Selected native Notebook/Map/ActorSelect redesign; mock geometry reviewed. Desktop and Thor NCE field/held selection exercised; major-dungeon live qualification pending.",
   "flags": {
     "eow_stamp0": 0,
@@ -47,10 +47,7 @@
     "eow_stamp20": 0,
     "eow_stamp21": 0,
     "eow_stamp22": 0,
-    "eow_stamp23": 0,
-    "eow_quickslot0": 0,
-    "eow_quickslot1": 0,
-    "eow_quickslot2": 0
+    "eow_stamp23": 0
   },
   "persist_flags": [
     "eow_stamp0",
@@ -76,10 +73,7 @@
     "eow_stamp20",
     "eow_stamp21",
     "eow_stamp22",
-    "eow_stamp23",
-    "eow_quickslot0",
-    "eow_quickslot1",
-    "eow_quickslot2"
+    "eow_stamp23"
   ],
   "derived": [
     {
@@ -626,170 +620,6 @@
     {
       "name": "echo.stamp.persist.23.match",
       "expr": "echo.stamp.persist.23.pending && @flag:eow_stamp23 == echo.stamp.23.packed"
-    },
-    {
-      "name": "echo.quickslot.restore.pick.0",
-      "expr": "echo.quickslot.restore.slot == 0 ? @flag:eow_quickslot0 : 0"
-    },
-    {
-      "name": "echo.quickslot.restore.pick.1",
-      "expr": "echo.quickslot.restore.slot == 1 ? @flag:eow_quickslot1 : 0"
-    },
-    {
-      "name": "echo.quickslot.restore.pick.2",
-      "expr": "echo.quickslot.restore.slot == 2 ? @flag:eow_quickslot2 : 0"
-    },
-    {
-      "name": "echo.quickslot.restore.value",
-      "terms": [
-        "echo.quickslot.restore.pick.0",
-        "echo.quickslot.restore.pick.1",
-        "echo.quickslot.restore.pick.2"
-      ]
-    },
-    {
-      "name": "echo.quickslot.restore.invalid",
-      "expr": "echo.quickslot.restore.pending && (echo.quickslot.restore.value < 0 || echo.quickslot.restore.value >= 65536 || floor(echo.quickslot.restore.value) != echo.quickslot.restore.value)"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.0.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 1) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.0.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 1) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.1.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 2) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.1.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 2) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.2.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 4) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.2.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 4) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.3.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 8) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.3.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 8) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.4.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 16) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.4.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 16) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.5.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 32) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.5.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 32) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.6.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 64) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.6.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 64) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.7.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 128) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.7.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 128) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.8.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 256) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.8.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 256) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.9.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 512) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.9.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 512) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.10.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 1024) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.10.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 1024) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.11.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 2048) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.11.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 2048) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.12.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 4096) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.12.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 4096) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.13.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 8192) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.13.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 8192) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.14.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 16384) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.14.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 16384) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.15.0",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 32768) % 2 == 0"
-    },
-    {
-      "name": "echo.quickslot.restore.bit.15.1",
-      "expr": "echo.quickslot.restore.pending && !echo.quickslot.restore.invalid && floor(echo.quickslot.restore.value / 32768) % 2 == 1"
-    },
-    {
-      "name": "echo.quickslot.persist.0.match",
-      "expr": "echo.quickslot.persist.0.pending && @flag:eow_quickslot0 == echo.quickslot.0.packed"
-    },
-    {
-      "name": "echo.quickslot.persist.1.match",
-      "expr": "echo.quickslot.persist.1.pending && @flag:eow_quickslot1 == echo.quickslot.1.packed"
-    },
-    {
-      "name": "echo.quickslot.persist.2.match",
-      "expr": "echo.quickslot.persist.2.pending && @flag:eow_quickslot2 == echo.quickslot.2.packed"
     },
     {
       "name": "echo.dungeon.floor.menu.1",
@@ -1490,7 +1320,7 @@
     },
     {
       "name": "echo.enforce.any",
-      "expr": "echo.drive.any || echo.stamp.enforce.any || echo.warp.input.any || echo.quickslot.enforce.any"
+      "expr": "echo.drive.any || echo.stamp.enforce.any || echo.warp.input.any"
     },
     {
       "name": "echo.warp.confirm.show",
@@ -2104,162 +1934,6 @@
     },
     {
       "action": "stamp_persist_ack_23",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_reject",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_0_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_0_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_1_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_1_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_2_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_2_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_3_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_3_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_4_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_4_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_5_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_5_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_6_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_6_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_7_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_7_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_8_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_8_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_9_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_9_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_10_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_10_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_11_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_11_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_12_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_12_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_13_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_13_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_14_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_14_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_15_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_restore_15_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_persist_write_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_persist_ack_0",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_persist_write_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_persist_ack_1",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_persist_write_2",
-      "every_ms": 0
-    },
-    {
-      "action": "quickslot_persist_ack_2",
       "every_ms": 0
     },
     {
@@ -4267,279 +3941,6 @@
       "enabled_bind": "echo.stamp.persist.23.match",
       "haptic": "off"
     },
-    "quickslot_restore_reject": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": -1,
-      "enabled_bind": "echo.quickslot.restore.invalid",
-      "haptic": "off"
-    },
-    "quickslot_restore_0_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 0,
-      "enabled_bind": "echo.quickslot.restore.bit.0.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_0_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 1,
-      "enabled_bind": "echo.quickslot.restore.bit.0.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_1_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 2,
-      "enabled_bind": "echo.quickslot.restore.bit.1.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_1_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 3,
-      "enabled_bind": "echo.quickslot.restore.bit.1.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_2_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 4,
-      "enabled_bind": "echo.quickslot.restore.bit.2.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_2_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 5,
-      "enabled_bind": "echo.quickslot.restore.bit.2.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_3_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 6,
-      "enabled_bind": "echo.quickslot.restore.bit.3.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_3_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 7,
-      "enabled_bind": "echo.quickslot.restore.bit.3.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_4_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 8,
-      "enabled_bind": "echo.quickslot.restore.bit.4.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_4_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 9,
-      "enabled_bind": "echo.quickslot.restore.bit.4.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_5_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 10,
-      "enabled_bind": "echo.quickslot.restore.bit.5.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_5_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 11,
-      "enabled_bind": "echo.quickslot.restore.bit.5.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_6_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 12,
-      "enabled_bind": "echo.quickslot.restore.bit.6.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_6_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 13,
-      "enabled_bind": "echo.quickslot.restore.bit.6.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_7_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 14,
-      "enabled_bind": "echo.quickslot.restore.bit.7.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_7_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 15,
-      "enabled_bind": "echo.quickslot.restore.bit.7.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_8_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 16,
-      "enabled_bind": "echo.quickslot.restore.bit.8.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_8_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 17,
-      "enabled_bind": "echo.quickslot.restore.bit.8.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_9_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 18,
-      "enabled_bind": "echo.quickslot.restore.bit.9.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_9_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 19,
-      "enabled_bind": "echo.quickslot.restore.bit.9.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_10_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 20,
-      "enabled_bind": "echo.quickslot.restore.bit.10.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_10_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 21,
-      "enabled_bind": "echo.quickslot.restore.bit.10.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_11_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 22,
-      "enabled_bind": "echo.quickslot.restore.bit.11.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_11_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 23,
-      "enabled_bind": "echo.quickslot.restore.bit.11.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_12_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 24,
-      "enabled_bind": "echo.quickslot.restore.bit.12.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_12_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 25,
-      "enabled_bind": "echo.quickslot.restore.bit.12.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_13_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 26,
-      "enabled_bind": "echo.quickslot.restore.bit.13.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_13_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 27,
-      "enabled_bind": "echo.quickslot.restore.bit.13.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_14_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 28,
-      "enabled_bind": "echo.quickslot.restore.bit.14.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_14_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 29,
-      "enabled_bind": "echo.quickslot.restore.bit.14.1",
-      "haptic": "off"
-    },
-    "quickslot_restore_15_0": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 30,
-      "enabled_bind": "echo.quickslot.restore.bit.15.0",
-      "haptic": "off"
-    },
-    "quickslot_restore_15_1": {
-      "kind": "module",
-      "action": "quickslot_restore_packet",
-      "argument": 31,
-      "enabled_bind": "echo.quickslot.restore.bit.15.1",
-      "haptic": "off"
-    },
-    "quickslot_persist_write_0": {
-      "kind": "set_value",
-      "flag": "eow_quickslot0",
-      "value": "$echo.quickslot.0.packed",
-      "enabled_bind": "echo.quickslot.persist.0.pending",
-      "haptic": "off"
-    },
-    "quickslot_persist_ack_0": {
-      "kind": "module",
-      "action": "quickslot_persist_ack",
-      "argument": 0,
-      "enabled_bind": "echo.quickslot.persist.0.match",
-      "haptic": "off"
-    },
-    "quickslot_persist_write_1": {
-      "kind": "set_value",
-      "flag": "eow_quickslot1",
-      "value": "$echo.quickslot.1.packed",
-      "enabled_bind": "echo.quickslot.persist.1.pending",
-      "haptic": "off"
-    },
-    "quickslot_persist_ack_1": {
-      "kind": "module",
-      "action": "quickslot_persist_ack",
-      "argument": 1,
-      "enabled_bind": "echo.quickslot.persist.1.match",
-      "haptic": "off"
-    },
-    "quickslot_persist_write_2": {
-      "kind": "set_value",
-      "flag": "eow_quickslot2",
-      "value": "$echo.quickslot.2.packed",
-      "enabled_bind": "echo.quickslot.persist.2.pending",
-      "haptic": "off"
-    },
-    "quickslot_persist_ack_2": {
-      "kind": "module",
-      "action": "quickslot_persist_ack",
-      "argument": 2,
-      "enabled_bind": "echo.quickslot.persist.2.match",
-      "haptic": "off"
-    },
     "drive_left": {
       "kind": "button",
       "button": "RStick(-1,0)",
@@ -4734,27 +4135,6 @@
       "action": "quick_equip",
       "argument": "$payload",
       "enabled_bind": "echo.quick.equip.ready",
-      "haptic": "confirm"
-    },
-    "quick_assign_0": {
-      "kind": "module",
-      "action": "quick_assign_0",
-      "argument": "$payload",
-      "enabled_bind": "echo.quick.assign.ready",
-      "haptic": "confirm"
-    },
-    "quick_assign_1": {
-      "kind": "module",
-      "action": "quick_assign_1",
-      "argument": "$payload",
-      "enabled_bind": "echo.quick.assign.ready",
-      "haptic": "confirm"
-    },
-    "quick_assign_2": {
-      "kind": "module",
-      "action": "quick_assign_2",
-      "argument": "$payload",
-      "enabled_bind": "echo.quick.assign.ready",
       "haptic": "confirm"
     },
     "combat_native_x": {
@@ -5896,8 +5276,7 @@
           "src_bind": "echo.inspect.cell.{i}.icon",
           "payload": "$echo.inspect.cell.{i}.token",
           "on_tap": "inspect",
-          "tap_enabled_bind": "echo.inspect.input",
-          "select_group": "echo_shortcuts"
+          "tap_enabled_bind": "echo.inspect.input"
         },
         {
           "type": "image",
@@ -6008,8 +5387,7 @@
           "src_bind": "echo.inspect.cell.{i}.icon",
           "payload": "$echo.inspect.cell.{i}.token",
           "on_tap": "inspect",
-          "tap_enabled_bind": "echo.inspect.input",
-          "select_group": "echo_shortcuts"
+          "tap_enabled_bind": "echo.inspect.input"
         },
         {
           "type": "image",
@@ -6261,10 +5639,9 @@
             196
           ],
           "need_bind": "echo.quick.visible",
-          "drop_action": "quick_assign_0",
-          "accept_group": "echo_shortcuts",
-          "highlight_src": "module:echoes/assets/quick-ring",
-          "tap_enabled_bind": "echo.quick.assign.ready",
+          "on_tap": "quick_equip",
+          "payload": "$echo.quick.0.token",
+          "tap_enabled_bind": "echo.quick.equip.ready",
           "id": "echo_notebook_piece_34"
         },
         {
@@ -6337,10 +5714,9 @@
             196
           ],
           "need_bind": "echo.quick.visible",
-          "drop_action": "quick_assign_1",
-          "accept_group": "echo_shortcuts",
-          "highlight_src": "module:echoes/assets/quick-ring",
-          "tap_enabled_bind": "echo.quick.assign.ready",
+          "on_tap": "quick_equip",
+          "payload": "$echo.quick.1.token",
+          "tap_enabled_bind": "echo.quick.equip.ready",
           "id": "echo_notebook_piece_40"
         },
         {
@@ -6413,10 +5789,9 @@
             196
           ],
           "need_bind": "echo.quick.visible",
-          "drop_action": "quick_assign_2",
-          "accept_group": "echo_shortcuts",
-          "highlight_src": "module:echoes/assets/quick-ring",
-          "tap_enabled_bind": "echo.quick.assign.ready",
+          "on_tap": "quick_equip",
+          "payload": "$echo.quick.2.token",
+          "tap_enabled_bind": "echo.quick.equip.ready",
           "id": "echo_notebook_piece_46"
         },
         {

@@ -3,7 +3,6 @@
 #include "echoes_assets.h"
 #include "echoes_quick_slots.h"
 #include "echoes_helper_mailbox.h"
-#include "echoes_quick_slot_bridge.h"
 #include "echoes_drive.h"
 #include "echoes_direct_select.h"
 #include "echoes_direct_sort.h"
@@ -159,10 +158,6 @@ struct Module {
   QuickSlots quick_slots;
   // Guest helper (load plan): sets Y through the native setter in-game.
   helper::HelperMailbox helper;
-  QuickSlotFlagBridge quick_bridge;
-  QuickSlotFlagBridge::Restored quick_restored;
-  bool quick_restored_applied{};
-  uint64_t quick_owner{},quick_save{};
   MapIconAssets map_icons;
   SelectorDrive drive;
   MenuDrive menu_drive;
@@ -509,16 +504,13 @@ struct Module {
         std::find(inventory.equipped_accessories.begin(),inventory.equipped_accessories.end(),
                   entry.mask)!=inventory.equipped_accessories.end();
   }
+  // Echoes' own favourites/Last Used readers never cover Automatons, so a
+  // machine can only ever reach a quick-slot circle through this merged
+  // eligibility set -- unchanged from before, kept solely for consistency.
   LiveSnapshot ShortcutSnapshot(const LiveSnapshot& value) const {
     auto joined=value;
-    if(value.automatons.ownership_valid) {
+    if(value.automatons.ownership_valid)
       joined.learned_native_ids.insert(joined.learned_native_ids.end(),value.automatons.owned_native_ids.begin(),value.automatons.owned_native_ids.end());
-    } else {
-      // Unknown machine ownership must not erase a persisted machine shortcut.
-      const bool machines=std::any_of(quick_slots.slots().begin(),quick_slots.slots().end(),IsAutomaton) ||
-        std::any_of(quick_restored.begin(),quick_restored.end(),[](const auto& id){return id && IsAutomaton(*id);});
-      if(machines)joined.collection_valid=false;
-    }
     return joined;
   }
   std::vector<uint16_t> InspectionList(const ReadyResources& ready,const LiveSnapshot& value,
@@ -1675,33 +1667,13 @@ struct Module {
         }
       }
     }
-    quick_bridge.AdvanceRestore(quick_restored);
-    if(value.compatible && value.collection_valid &&
-       (quick_owner!=value.collection_source.access_object || quick_save!=value.collection_source.save_data)) {
-      quick_owner=value.collection_source.access_object;quick_save=value.collection_source.save_data;
-      quick_restored_applied=false;
-    }
+    // Recomputed from authenticated live data every sample; nothing here is
+    // ever persisted, so the rail can never carry a previous save's Echoes.
     quick_slots.Sync(ShortcutSnapshot(value));
-    if(quick_slots.ready() && quick_bridge.status()==QuickSlotRestoreStatus::Ready) {
-      if(!quick_restored_applied) {
-        for(size_t i=0;i<3;++i)if(quick_restored[i])quick_slots.Assign(i,*quick_restored[i]);
-        quick_restored_applied=true;
-      }
-      quick_bridge.QueueWrites(quick_slots.slots());
-      for(size_t i=0;i<3;++i)quick_restored[i]=quick_slots.slots()[i]==QuickSlots::Empty?std::nullopt:std::optional<uint16_t>(quick_slots.slots()[i]);
-    }
-    I("echo.quickslot.restore.pending",quick_bridge.restore_pending());
-    I("echo.quickslot.restore.slot",quick_bridge.restore_slot());
-    I("echo.quickslot.enforce.any",quick_bridge.restore_pending() || quick_bridge.writes_pending());
-    for(size_t i=0;i<3;++i) {
-      I("echo.quickslot.persist."+std::to_string(i)+".pending",quick_bridge.write_pending(i));
-      I("echo.quickslot."+std::to_string(i)+".packed",quick_bridge.write_value(i));
-    }
     const bool quick_visible=home_shown && !ui_held && (home_page==3 || home_page==4) &&
       !stamp_kind && !warp_open && quick_slots.ready() &&
       !(home_page==4 && swordfighter_display_active && ready && ready->prologue.size()==5);
     I("echo.quick.visible",quick_visible);
-    I("echo.quick.assign.ready",quick_visible && quick_restored_applied && home_page==3 && intent.kind==IntentKind::None);
     I("echo.quick.equip.ready",quick_visible && home_page==4 && intent.kind==IntentKind::None && context.valid && context.context==NativeContext::FieldHud);
     for(size_t i=0;i<QuickSlots::Count;++i) {
       const auto& key=IndexedKeys(quick_slot_keys_,i,BuildQuickKeys);
@@ -1901,28 +1873,14 @@ EdenDsmodBool Action(void* instance,const char* action,int64_t argument) {
       self.drive.Cancel();const auto tick=self.host.get_tick(self.host.userdata);
       self.intent={Module::IntentKind::Sort,value,0xffff,target,false,false,0,tick,tick};return true;
     }
-    if(name=="quickslot_restore_packet")return self.quick_bridge.RestorePacket(argument);
-    if(name=="quickslot_persist_ack")return argument>=0 && argument<3 && self.quick_bridge.AcknowledgeWrite(static_cast<size_t>(argument));
-    if(name=="quick_equip" || name.starts_with("quick_assign_")) {
+    if(name=="quick_equip") {
       if(!self.home_ready || self.ui_held || self.intent.kind!=Module::IntentKind::None || self.warp_open || self.stamp_kind)return false;
       const auto token=static_cast<uint64_t>(argument);if((token>>24)!=self.home_epoch)return false;
       const auto fresh=self.Read();if(!Module::SameOwnership(self.observed,fresh))return false;
       self.quick_slots.Sync(self.ShortcutSnapshot(fresh));
       const auto id=static_cast<uint16_t>(token);
-      if(name=="quick_equip") {
-        const auto slot=(token>>16)&255;
-        if(self.home_page!=4 || slot>=QuickSlots::Count || self.quick_slots.Target(slot)!=id)return false;
-        self.context=ReadContext(Reader(self.host),self.host.main_base,HostBuild(self.host));
-        if(fresh.selector.equipped_valid && fresh.selector.equipped_native_id==id)return true;
-        return self.EquipY(id,fresh);
-      }
-      if(!self.quick_restored_applied || self.home_page!=3 || ((token>>16)&255)!=3 || name.size()!=14 || name.back()<'0' || name.back()>'2')return false;
-      // Notebooks only changes the slot's option. Y changes only when the slot
-      // being replaced is the one currently on Y (owner, 2026-10-23).
-      const auto slot=static_cast<size_t>(name.back()-'0');
-      const bool was_y=self.quick_slots.active()==slot;
-      if(!self.quick_slots.Assign(slot,id))return false;
-      if(!was_y)return true;
+      const auto slot=(token>>16)&255;
+      if(self.home_page!=4 || slot>=QuickSlots::Count || self.quick_slots.Target(slot)!=id)return false;
       self.context=ReadContext(Reader(self.host),self.host.main_base,HostBuild(self.host));
       if(fresh.selector.equipped_valid && fresh.selector.equipped_native_id==id)return true;
       return self.EquipY(id,fresh);

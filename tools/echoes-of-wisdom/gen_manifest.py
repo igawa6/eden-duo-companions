@@ -11,7 +11,6 @@ font glyphs and messages come from the player's own game/session.
 import json
 import math
 from stamp_manifest import pieces as stamp_pieces
-from quick_slot_manifest import pieces as quick_slot_pieces
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -86,11 +85,9 @@ def manifest():
     for mode in range(5):
         actions[f"sort_to_{mode}"]={"kind":"module","action":"sort_to","argument":mode,
             "enabled_bind":"echo.touch.input","haptic":"off"}
-    quick_bridge = quick_slot_pieces()
     bridge = stamp_pieces()
     actions.update(bridge["actions"])
-    actions.update(quick_bridge["actions"])
-    enforce = list(bridge["enforce"])+list(quick_bridge["enforce"])
+    enforce = list(bridge["enforce"])
     for name, direction in (("left", "-1,0"), ("right", "1,0"), ("neutral", "0,0")):
         key = f"drive_{name}"
         actions[key] = {
@@ -178,10 +175,8 @@ def manifest():
         return widgets
 
     actions["quick_equip"]={"kind":"module","action":"quick_equip","argument":"$payload","enabled_bind":"echo.quick.equip.ready","haptic":"off"}
-    for slot in range(3):
-        actions[f"quick_assign_{slot}"]={"kind":"module","action":f"quick_assign_{slot}","argument":"$payload","enabled_bind":"echo.quick.assign.ready","haptic":"off"}
 
-    def rail(assign=False):
+    def rail():
         widgets=[]
         for k,cy in enumerate((280,551,799)):
             cx=RAIL_X+(14 if k==0 else -18 if k==1 else 0)
@@ -194,12 +189,8 @@ def manifest():
                 {"type":"image","rect":cost_rect(left,DISC,top+6,110),"src_bind":prefix+"cost","need_bind":prefix+"valid"},
                 {"type":"image","rect":[left-14,top+DISC-70,76,76],"src":"module:echoes/assets/badge/y/76/76","need_bind":prefix+"active"},
             ]
-            target={"type":"image","rect":[left,top,DISC,DISC],"need_bind":"echo.quick.visible","haptic":"off"}
-            if assign:
-                target.update(drop_action=f"quick_assign_{k}",accept_group="echo_shortcuts",highlight_src="module:echoes/assets/quick-ring",tap_enabled_bind="echo.quick.assign.ready")
-            else:
-                target.update(on_tap="quick_equip",payload="$"+prefix+"token",tap_enabled_bind="echo.quick.equip.ready")
-            widgets.append(target)
+            widgets.append({"type":"image","rect":[left,top,DISC,DISC],"need_bind":"echo.quick.visible","haptic":"off",
+                             "on_tap":"quick_equip","payload":"$"+prefix+"token","tap_enabled_bind":"echo.quick.equip.ready"})
         return widgets
 
     for badge in ("x","y","a"):
@@ -261,7 +252,7 @@ def manifest():
                 return {"type":"image","rect":rect,"repeat":512,"repeat_bind":"echo.inspect.count","repeat_cols":7,"repeat_dx":131,"repeat_row_dy":130,"scroll":scroll_id,"need_bind":"echo.notebook.echoes",**extra}
             widgets += [
                 echo_cell([24,132,128,128],src="module:echoes/assets/cell/128/128"),
-                echo_cell([24,132,128,128],id="notebook_cell_{i}",src_bind="echo.inspect.cell.{i}.icon",payload="$echo.inspect.cell.{i}.token",on_tap="inspect",tap_enabled_bind="echo.inspect.input",select_group="echo_shortcuts",haptic="off"),
+                echo_cell([24,132,128,128],id="notebook_cell_{i}",src_bind="echo.inspect.cell.{i}.icon",payload="$echo.inspect.cell.{i}.token",on_tap="inspect",tap_enabled_bind="echo.inspect.input",haptic="off"),
                 echo_cell(cost_rect(24,128,142,72),src_bind="echo.inspect.cell.{i}.cost"),
                 echo_cell([24,132,128,128],src="module:echoes/assets/cursor/128/128",need_bind="echo.inspect.cell.{i}.echo_selected"),
                 echo_cell([26,222,36,36],src_bind="echo.inspect.cell.{i}.favorite"),
@@ -271,7 +262,7 @@ def manifest():
                 return {"type":"image","rect":rect,"repeat":6,"repeat_bind":"echo.inspect.count","repeat_cols":3,"repeat_dx":310,"repeat_row_dy":260,"scroll":"inspect_automatons","need_bind":"echo.notebook.machines",**extra}
             widgets += [
                 machine_cell([24,132,300,250],src="module:echoes/assets/cell/300/250"),
-                machine_cell([59,142,230,230],id="automaton_cell_{i}",src_bind="echo.inspect.cell.{i}.icon",payload="$echo.inspect.cell.{i}.token",on_tap="inspect",tap_enabled_bind="echo.inspect.input",select_group="echo_shortcuts",haptic="off"),
+                machine_cell([59,142,230,230],id="automaton_cell_{i}",src_bind="echo.inspect.cell.{i}.icon",payload="$echo.inspect.cell.{i}.token",on_tap="inspect",tap_enabled_bind="echo.inspect.input",haptic="off"),
                 machine_cell([24,132,300,250],src="module:echoes/assets/cursor/300/250",need_bind="echo.inspect.cell.{i}.machine_selected"),
                 machine_cell([256,314,48,48],src_bind="echo.inspect.cell.{i}.equipped_icon",need_bind="echo.inspect.cell.{i}.machine_equipped"),
             ]
@@ -285,7 +276,7 @@ def manifest():
             widgets += [
                 {"type":"image","rect":[0,0,64,64],"x_bind":"echo.inspect.favorite.x","y_bind":"echo.inspect.favorite.y","src_bind":"echo.inspect.favorite.image","need_bind":"echo.inspect.favorite.known"},
                 {"type":"image","rect":[0,0,112,112],"x_bind":"echo.inspect.favorite.x","y_bind":"echo.inspect.favorite.y","on_tap":"favorite_selected","payload":"$echo.inspect.selected.token","need_bind":"echo.inspect.favorite.known","tap_enabled_bind":"echo.inspect.input","haptic":"off"},
-                *rail(assign=True),*navigation(back=True),
+                *rail(),*navigation(back=True),
             ]
             description_scrolls=[{"id":f"{scroll_id}_description_{height}","rect":[24,680+height+64,930,948-(680+height+64)],"content_h_bind":"echo.inspect.description.h","show_bind":f"echo.inspect.description.{height}.show","reset_bind":"echo.inspect.detail.epoch","fling":True,"bar_w":8,"bar":"#FFF3D99D","bar_track":"#00151B25"} for height in (64,136,180)]
         inspection_pages.append({"id":page_id,"name":"","widgets":widgets,"scrolls":[{"id":scroll_id,"rect":[16,132,938,518] if page_id=="notebook" else [16,110,788,838],"row_h":130 if page_id=="notebook" else 154,"cols":7 if page_id=="notebook" else 5,"show_bind":"echo.notebook.echoes" if page_id=="notebook" else "echo.inspect.populated","reset_bind":"echo.inspect.epoch","follow_bind":"echo.inspect.index","fling":True,"bar_w":12,"bar":"#FFF3D99D","bar_track":"#00151B25"},*([{ "id":"inspect_automatons","rect":[16,130,938,528],"row_h":260,"cols":3,"show_bind":"echo.notebook.machines","reset_bind":"echo.inspect.epoch","follow_bind":"echo.inspect.index","fling":True,"bar_w":12,"bar":"#FFF3D99D"}] if page_id=="notebook" else []),*description_scrolls]})
@@ -430,23 +421,23 @@ def manifest():
         "load_plan": "load-plans/<build>.json", "load_plan_module": "main",
         "font": "module:echoes/body-font",
         "font_atlas": "module:echoes/body-atlas?p={p}", "font_page_h": 512,
-        "_about": "Native Equipment, Items and Notebooks with Echo/Automaton shortcuts and native held grids "
-                  "for update 1.1.0. "
+        "_about": "Native Equipment, Items and Notebooks with Echo shortcuts that follow your own "
+                  "favourites and Last Used order, and native held grids for update 1.1.0. "
                   "Physical Right/Left D-pad holds own native selection and release. "
                   "Touch jumps to verified native selections and refreshes the original carousel; sort tabs request one native sort operation. "
                   "Field terrain follows native discovery, story and weather; supported locations show Zelda’s native marker. "
                   "No game artwork, strings or font files are bundled.",
         "_development": "Selected native Notebook/Map/ActorSelect redesign; mock geometry reviewed. "
                         "Desktop and Thor NCE field/held selection exercised; major-dungeon live qualification pending.",
-        "flags": {**bridge["flags"],**quick_bridge["flags"]},
-        "persist_flags": bridge["persist_flags"]+quick_bridge["persist_flags"],
+        "flags": {**bridge["flags"]},
+        "persist_flags": bridge["persist_flags"],
         "derived": [
-            *bridge["derived"],*quick_bridge["derived"],
+            *bridge["derived"],
             *[{"name":f"echo.dungeon.floor.menu.{n}","expr":f"echo.dungeon.floor.menu && echo.dungeon.floor.rows == {n}"} for n in range(1,11)],
             *[{"name":f"{gate}.slot.{slot}.reset","expr":f"{gate}.slot.{slot}.visible && 'view_custom:echo_{scope}_map_{slot}'"} for scope,gate in (("field","echo.map"),("dungeon","echo.dungeon")) for slot in range(64)],
             {"name":"echo.map.reset.show","terms":[f"{gate}.slot.{slot}.reset" for gate in ("echo.map","echo.dungeon") for slot in range(64)]},
             *[{"name":f"echo.prologue.description.{height}.show","expr":f"echo.prologue.ready && echo.prologue.name.h == {height}"} for height in (64,136,180)],
-            {"name":"echo.enforce.any","expr":"echo.drive.any || echo.stamp.enforce.any || echo.warp.input.any || echo.quickslot.enforce.any"},
+            {"name":"echo.enforce.any","expr":"echo.drive.any || echo.stamp.enforce.any || echo.warp.input.any"},
             {"name":"echo.warp.confirm.show","expr":"echo.warp.panel && echo.warp.selected"},
             {"name":"echo.stamp.closed","expr":"echo.stamp.ready && !echo.stamp.panel"},
             *[{"name":f"echo.stamp.kind.{kind}","expr":f"echo.stamp.panel && echo.stamp.kind == {kind}"} for kind in (1,4,5,6)],
