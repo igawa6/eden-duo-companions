@@ -175,6 +175,12 @@ struct Module {
   bool save_table_loaded_{};
   bool save_lookup_done_{}; // false from an ownership change until the one-time table lookup actually runs
   std::optional<uint32_t> save_identity_{}; // this save's current identity, recomputed every sample
+  // The identity last used for a lookup/store/migrate THIS save session --
+  // the baseline a later identity reading is compared against to tell a
+  // same-save drift (learned a new Echo/Automaton: follow it) from a real
+  // save switch (ConsumeOwnershipChange() already cleared this to nullopt,
+  // so no drift-migration ever fires across a switch).
+  std::optional<uint32_t> save_identity_known_{};
   // Guest helper (load plan): sets Y through the native setter in-game.
   helper::HelperMailbox helper;
   MapIconAssets map_icons;
@@ -1743,7 +1749,12 @@ struct Module {
     // keyed by this save's own identity, so a different save can never
     // show it and an app restart does not lose it.
     quick_slots.Sync(ShortcutSnapshot(value));
-    if(quick_slots.ConsumeOwnershipChange()) save_lookup_done_=false;
+    if(quick_slots.ConsumeOwnershipChange()) {
+      save_lookup_done_=false;
+      // A real save switch never migrates: the previous identity belonged
+      // to the save that just went away, not to whatever loads next.
+      save_identity_known_.reset();
+    }
     // Recomputed every sample, never just once at the ownership-change
     // moment: the very first readable sample after a save loads can still
     // report an empty collection for a frame or two before it settles (the
@@ -1755,12 +1766,21 @@ struct Module {
     save_identity_=SaveIdentity(value);
     if(!save_lookup_done_ && save_table_loaded_ && save_identity_) {
       if(const auto found=save_table_.Find(*save_identity_)) quick_slots.SetManual(*found);
+      save_identity_known_=save_identity_;
       save_lookup_done_=true;
+    } else if(save_lookup_done_ && save_table_loaded_ && save_identity_ && save_identity_known_ &&
+              *save_identity_!=*save_identity_known_) {
+      // Same save (no ownership change happened above), but the identity
+      // itself drifted -- most commonly the player just learned a new Echo
+      // or Automaton. Follow it so a hand assignment keeps matching rather
+      // than silently orphaning under the old key.
+      save_table_.Migrate(*save_identity_known_,*save_identity_);
+      save_identity_known_=save_identity_;
     }
     if(quick_slots.dirty() && save_table_loaded_) {
       // Only clear once actually handled: if the restore hasn't finished
       // yet, retry next sample rather than silently losing the edit.
-      if(save_identity_) save_table_.Store(*save_identity_,quick_slots.manual());
+      if(save_identity_) { save_table_.Store(*save_identity_,quick_slots.manual()); save_identity_known_=save_identity_; }
       quick_slots.ClearDirty();
     }
     if(save_table_loaded_) {

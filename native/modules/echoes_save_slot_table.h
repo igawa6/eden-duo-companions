@@ -70,6 +70,41 @@ class SaveSlotTable {
   size_t TrackedCount() const {
     size_t n = 0; for (const auto& bucket : buckets_) if (bucket.used) ++n; return n;
   }
+  // Follows an identity DRIFT within the same save session (the save's own
+  // identity components -- learned-Echo count, Automaton mask -- changed
+  // without a save switch, e.g. the player just learned a new Echo): moves
+  // whatever is tracked under `from` to key `to` instead of orphaning it,
+  // so a hand assignment made earlier this same save keeps matching after
+  // the drift. Never called across a real save switch (Module's own
+  // concern: it only calls this when its one-shot ownership-change signal
+  // did NOT fire between two different identity readings).
+  // - No-op when `from`/`to` are equal, or either is the reserved 0, or
+  //   nothing is tracked under `from` (nothing to move).
+  // - If `to` already names a DIFFERENT tracked bucket (an identity
+  //   collision, the same risk every lookup already accepts), that
+  //   bucket's contents are overwritten with `from`'s -- the save that
+  //   just drifted into this identity is, by definition, the one actually
+  //   playing right now, so its own assignment wins.
+  // - Otherwise `from`'s bucket is relabelled to `to` in place, keeping
+  //   its slots untouched, and its age is bumped (a drift is activity).
+  void Migrate(uint32_t from, uint32_t to) {
+    if (!from || !to || from == to) return;
+    Bucket* source = nullptr;
+    for (auto& bucket : buckets_) if (bucket.used && bucket.identity == from) { source = &bucket; break; }
+    if (!source) return;
+    for (auto& bucket : buckets_) {
+      if (&bucket == source) continue;
+      if (bucket.used && bucket.identity == to) {
+        bucket.slots = source->slots;
+        bucket.age = NextGeneration();
+        source->used = false; source->identity = 0; source->age = 0;
+        source->slots = {QuickSlots::Empty, QuickSlots::Empty, QuickSlots::Empty};
+        return;
+      }
+    }
+    source->identity = to;
+    source->age = NextGeneration();
+  }
 
  private:
   uint16_t NextGeneration() {

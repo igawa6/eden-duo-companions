@@ -63,5 +63,60 @@ int main() {
   for (uint32_t i=1;i<SaveSlotTable::Buckets;++i)
     check(full.Find(0x1000u+i).has_value()); // every touched save survived
 
+  // G: Migrate follows a same-save identity drift (e.g. the player just
+  // learned a new Echo, changing the identity without a save switch): the
+  // pins stay reachable under the NEW identity, and the OLD identity is
+  // freed rather than left behind as an orphaned bucket -- this is the
+  // "learn an Echo mid-session -> pins kept" scenario.
+  SaveSlotTable g;
+  g.Store(0x5000u, {1,2,3});
+  check(g.TrackedCount()==1);
+  g.Migrate(0x5000u, 0x5001u); // drift: same save, identity moved on
+  check(g.TrackedCount()==1); // still one save tracked, not two
+  check(!g.Find(0x5000u).has_value()); // the old key is gone
+  check(*g.Find(0x5001u) == SaveSlotTable::Slots{1,2,3}); // pins intact under the new key
+
+  // H: Migrate is a deliberate, explicit call -- it never fires on its own,
+  // so a real save switch (which simply never calls it) shows nothing of
+  // the previous save, exactly like loading any other never-visited save.
+  // This is the "switch save -> no migration" contrast: Find() on the new
+  // save's own (different) identity returns nothing, never 0x5001's pins.
+  check(!g.Find(0x6000u).has_value());
+
+  // I: Migrate no-ops when there is nothing to move, or the two identities
+  // are the same, or either is the reserved 0 -- never fabricates a bucket.
+  SaveSlotTable h;
+  h.Migrate(0, 0x7000u);
+  h.Migrate(0x7000u, 0);
+  h.Migrate(0x7000u, 0x7000u);
+  h.Migrate(0x7000u, 0x7001u); // 0x7000 was never stored -- nothing to move
+  check(h.TrackedCount()==0);
+  check(!h.Find(0x7000u).has_value() && !h.Find(0x7001u).has_value());
+
+  // J: if the identity drifts onto one that ALREADY has a different
+  // save's entry (an identity collision -- the same risk every lookup
+  // already accepts), the drifting save's own pins win; the old bucket is
+  // freed, so the table never grows past what it tracked before.
+  SaveSlotTable i;
+  i.Store(0x8000u, {5,6,7});   // some other save, already at this key
+  i.Store(0x8001u, {8,9,10});  // the save that is about to drift
+  check(i.TrackedCount()==2);
+  i.Migrate(0x8001u, 0x8000u);
+  check(i.TrackedCount()==1); // the two buckets collapsed into one
+  check(*i.Find(0x8000u) == SaveSlotTable::Slots{8,9,10}); // the drifting save's own pins
+  check(!i.Find(0x8001u).has_value());
+
+  // K: "restart after drift -> pins restored" -- Migrate then an
+  // Encode/Decode round-trip (what an app restart does) must still find
+  // the pins under the save's now-current identity.
+  SaveSlotTable j;
+  j.Store(0x9000u, {E,11,E});
+  j.Migrate(0x9000u, 0x9002u); // the save drifted once more before restart
+  const auto raw2 = j.Encode();
+  SaveSlotTable restarted;
+  restarted.Decode(raw2);
+  check(*restarted.Find(0x9002u) == SaveSlotTable::Slots{E,11,E});
+  check(!restarted.Find(0x9000u).has_value());
+
   std::cout<<checks<<" save-slot-table checks passed\n";
 }
