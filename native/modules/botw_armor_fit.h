@@ -38,10 +38,10 @@ inline ArmorFitPlan armor_fit(const EdenDsmodHostApi& h,const Snapshot& pouch,
   out.refresh_head=target.type==5 && out.head_actor!=equipment.slots[3].name;
   out.target_actor=target.type==4 ? out.head_actor : target.actor;
   uint64_t vt{},again{};
-  if(!read(h,h.main_base+inventory_offsets(h).info_data_root,out.info_data) || out.info_data%8 ||
+  if(!read(h,h.main_base+inventory_offsets(h)->info_data_root,out.info_data) || out.info_data%8 ||
      out.info_data<0x10000 || out.info_data>UINT64_MAX-8 ||
-     !read(h,out.info_data,vt) || vt!=h.main_base+inventory_offsets(h).info_data_vtable ||
-     !read(h,h.main_base+inventory_offsets(h).info_data_root,again) || again!=out.info_data)return {};
+     !read(h,out.info_data,vt) || vt!=h.main_base+inventory_offsets(h)->info_data_vtable ||
+     !read(h,h.main_base+inventory_offsets(h)->info_data_root,again) || again!=out.info_data)return {};
   out.valid=true;return out;
 }
 } // namespace botw

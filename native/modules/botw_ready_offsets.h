@@ -28,6 +28,7 @@ struct ReadyOffsets {
   uint32_t pane_shift;
   std::array<uint32_t,4> champion_timers,champion_counts;
   uint64_t physics_body_vtable;
+  uint32_t effect_timers;
 };
 inline constexpr ReadyOffsets Ready160{
   0x2BD1208, // float_flag_vtable
@@ -52,6 +53,7 @@ inline constexpr ReadyOffsets Ready160{
   0,
   {0x1E18,0x1DF4,0x1E00,0x1E0C}, {0,0x1CC8,0x1CD0,0x1CCC},
   0x2BCE588, // physics_body_vtable
+  0x1ED8, // effect_timers
 };
 inline constexpr ReadyOffsets Ready190{
   0x1D21BB0, // float_flag_vtable
@@ -76,8 +78,9 @@ inline constexpr ReadyOffsets Ready190{
   24,
   {0x1E1C,0x1DF8,0x1E04,0x1E10}, {0,0x1CCC,0x1CD4,0x1CD0},
   0x1D1F000, // physics_body_vtable
+  0x1EDC, // effect_timers
 };
-inline const ReadyOffsets& ready_offsets(const EdenDsmodHostApi& h) {
-  return matches_build(h,InventoryBuild190) ? Ready190 : Ready160;
+inline const ReadyOffsets* ready_offsets(const EdenDsmodHostApi& h) {
+  return matches_build(h,InventoryBuild190) ? &Ready190 : matches_build(h,Build) ? &Ready160 : nullptr;
 }
 } // namespace botw

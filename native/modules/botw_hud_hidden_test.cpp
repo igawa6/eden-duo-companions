@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Iteration 11 item E: hidden companion = native HUD back. tick() mirrors the host's
-// __aux_present into mailbox+2048 (0 shown / 1 hidden) on edges only; the guest helper
+// __aux_present into mailbox+2048 (1 shown / 0 native) on edges only; the guest helper
 // (prototype/companion-hud.inc, prototype/tests/hud-hook-test.py) acts on it.
 #include "01007EF00011E000.cpp"
 #include "botw_test_fixture.h"
@@ -36,60 +36,20 @@ struct HudHiddenFixture : Fixture {
   void step() {tick(&state,&h);}
 };
 int main() {
-  unsigned cases=0;
-  {
-    // Companion shown from boot: fresh mailbox is already 0 (hide rules), nothing written.
-    HudHiddenFixture f;
-    for(int i=0;i<5;++i)f.step();
-    assert(f.hud_stores()==0 && f.get(2048)==0);++cases;
-    // Hidden (lid closed / companion toggle / one screen): exactly one write of 1.
-    f.aux=0;f.step();
-    assert(f.hud_stores()==1 && f.get(2048)==1);++cases;
-    // Hidden ticks stay cheap: no further HUD store, nothing published, one mailbox load each.
-    const unsigned loads=f.loads,publishes=f.publishes;
-    for(int i=0;i<100;++i)f.step();
-    assert(f.hud_stores()==1 && f.publishes==publishes && f.loads==loads+100);++cases;
-    // Hidden ticks keep retiring a pending request (existing behaviour).
-    bool cancelled=false;
-    for(auto& s:f.stores){if(s.first==72)cancelled=true;}
-    assert(cancelled);++cases;
-    // Re-shown: exactly one write back to 0 (re-apply our hide rules), then steady.
-    f.aux=1;f.stores.clear();
-    for(int i=0;i<10;++i)f.step();
-    assert(f.hud_stores()==1 && f.get(2048)==0);++cases;
-    // Rapid toggles: one write per edge, never more.
-    f.stores.clear();
-    for(int i=0;i<6;++i){f.aux=i%2==0 ? 0 : 1;f.step();f.step();}
-    assert(f.hud_stores()==6 && f.get(2048)==0);++cases;
-    // A fresh process / re-zeroed mailbox while hidden: re-asserted on the next tick.
-    f.aux=0;f.step();f.mb(2048,0);f.stores.clear();f.step();
-    assert(f.hud_stores()==1 && f.get(2048)==1);++cases;
-    // The guest-owned latch (+2052) is never written by the module.
-    for(auto& s:f.stores){assert(s.first!=2052);}
-    ++cases;
-  }
-  {
-    // Host without the __aux_present key (older runtime): fallback keeps the companion rules.
-    HudHiddenFixture f;f.aux_key=false;
-    for(int i=0;i<3;++i)f.step();
-    assert(f.hud_stores()==0 && f.get(2048)==0);++cases;
-  }
-  {
-    // Host without get_i64 at all: companion rules, no crash.
-    HudHiddenFixture f;f.h.get_i64=nullptr;f.mb(2048,1);
-    f.step();
-    assert(f.get(2048)==0);++cases;
-  }
-  {
-    // No host extensions (mailbox unavailable): nothing written, no crash.
-    HudHiddenFixture f;f.state.bridge.configure(nullptr);f.stores.clear();f.aux=0;
-    f.step();f.step();
-    assert(f.stores.empty() && f.get(2048)==0);++cases;
-  }
-  {
-    // Boot hidden (lid closed at launch): first tick writes 1.
-    HudHiddenFixture f;f.aux=0;f.step();
-    assert(f.get(2048)==1 && f.hud_stores()==1);++cases;
-  }
-  std::cout<<cases<<" hidden-companion native HUD cases passed\n";
+  HudHiddenFixture f;
+  assert(f.get(2048)==0); // Missing module / untouched mailbox keeps native HUD.
+  f.step();assert(f.get(2048)==1&&f.hud_stores()==1);
+  for(int i=0;i<100;++i){f.step();}
+  assert(f.hud_stores()==1);
+  f.mb(4,120);f.step();assert(f.get(2048)==121);
+  f.stores.clear();
+  f.aux=0;f.step();assert(f.get(2048)==0&&f.hud_stores()==1);
+  for(int i=0;i<100;++i){f.step();}
+  assert(f.hud_stores()==1);
+  f.aux=1;f.step();assert(f.get(2048)==121&&f.hud_stores()==2);
+  for(auto [at,value]:f.stores){(void)value;assert(at!=2052);}
+  auto* state=new State;state->bridge.configure(&f.ext);
+  destroy(state);assert(f.get(2048)==0);
+  f.state.bridge.configure(nullptr);f.stores.clear();f.step();assert(f.stores.empty());
+  std::cout<<"native HUD zero/default, shown/hidden edges, detach and missing mailbox passed\n";
 }

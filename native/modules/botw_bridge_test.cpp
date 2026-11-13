@@ -67,6 +67,11 @@ int main() {
   {BridgeFixture f;assert(f.choose());assert(f.get<uint32_t>(8)==1 && f.get<uint32_t>(72)==1);
    assert(f.get<uint64_t>(40)==f.Two && f.stores.back()==8 && f.state.bridge.pending==1);
    assert(f.state.quick.armed && f.state.quick.shown==botw::QuickKind::Weapon && f.state.gear.valid && !f.choose());++passed;}
+  // The exclusive food-job claim reserves UINT32_MAX as its busy value.
+  for(uint32_t seq:{UINT32_MAX-1,UINT32_MAX}) {
+    BridgeFixture f;f.mb(8,seq);f.mb(12,seq);assert(f.choose());
+    assert(f.get<uint32_t>(8)==1);++passed;
+  }
   auto refuse=[&](auto change,int64_t index=0){BridgeFixture f;change(f);assert(!f.choose(index));assert(f.get<uint32_t>(8)==0);++passed;};
   refuse([](auto& f){f.state.quick.armed=false;});
   refuse([](auto& f){f.texts["page"]="inventory";});

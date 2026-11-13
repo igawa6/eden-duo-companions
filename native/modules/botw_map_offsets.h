@@ -116,7 +116,7 @@ inline constexpr MapOffsets Map190{
   0x1D0E500, // root_pane_vtable
   0x5270, 0x3DB0,
 };
-inline const MapOffsets& map_offsets(const EdenDsmodHostApi& h) {
-  return matches_build(h,InventoryBuild190)?Map190:Map160;
+inline const MapOffsets* map_offsets(const EdenDsmodHostApi& h) {
+  return matches_build(h,InventoryBuild190) ? &Map190 : matches_build(h,Build) ? &Map160 : nullptr;
 }
 }

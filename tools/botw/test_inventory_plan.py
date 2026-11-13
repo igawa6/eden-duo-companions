@@ -11,14 +11,23 @@ from record_frame_probe import branch_target
 
 
 class InventoryPlanTests(unittest.TestCase):
-    def test_production_plan_stays_byte_identical(self):
+    def test_production_plan_matches_reviewed_r6(self):
         with tempfile.TemporaryDirectory() as work:
             plan=production.build_plan(Path(work))
         import json
         data=(json.dumps(plan,indent=2)+"\n").encode()
         self.assertEqual(hashlib.sha256(data).hexdigest(),
-                         "7291c17d15188f12b5d0026689fbfb1a77b8fcf9bd321a906b1c85458fc097fc")
+                         "c65d04f6bee1f20e32952f9b8220dc468d49fcc233717c198206d7ca276d89be")
         self.assertNotEqual(plan['build_id'],inventory.BUILD_ID)
+
+    def test_runtime22_guest_instruction_compatibility(self):
+        for build in [production.BUILD_ID,inventory.BUILD_ID]:
+            with tempfile.TemporaryDirectory() as work:
+                plan=production.build_plan(Path(work),build)
+            code=bytes.fromhex(plan['guest_code']['bytes'])
+            for (word,) in struct.iter_unpack('<I',code):
+                self.assertNotEqual(word & 0xFF000000,0xD4000000)
+                self.assertFalse(word & 0xFF000000 == 0xD5000000 and word != 0xD503201F)
 
     def test_evidence_sites_preserve_tail_and_player_call(self):
         with tempfile.TemporaryDirectory() as work:

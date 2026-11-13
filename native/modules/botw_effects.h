@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include "botw_player_equipment.h"
+#include "botw_ready_offsets.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -47,9 +48,9 @@ inline ActiveEffects active_effects_from(const std::array<uint32_t,12>& level,co
   out.valid=true;return out;
 }
 inline ActiveEffects active_effects(const EdenDsmodHostApi& h,uint64_t player) {
-  if(!player || player>UINT64_MAX-0x2100)return {};
+  if(!ready_supported(h) || !player || player>UINT64_MAX-0x2100)return {};
   std::array<uint32_t,12> a{},b{};std::array<float,36> t{};
-  if(!read(h,player+0x1FF0,a) || !read(h,player+0x1ED8,t) || !read(h,player+0x1FF0,b) || a!=b)return {};
+  if(!read(h,player+0x1FF0,a) || !read(h,player+ready_offsets(h)->effect_timers,t) || !read(h,player+0x1FF0,b) || a!=b)return {};
   return active_effects_from(a,t);
 }
 inline void format_effect_time(int seconds,char (&out)[16]) {

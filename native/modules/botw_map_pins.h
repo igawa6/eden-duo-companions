@@ -11,15 +11,15 @@ struct MapPins {
 inline MapPins map_pins(const EdenDsmodHostApi& h) {
   if(!map_build_supported(h))return {};
   UiSample ui{},after{};
-  if(h.main_size<(inventory_offsets(h).screen_root+8) || h.main_base>UINT64_MAX-(inventory_offsets(h).screen_root+8) ||
+  if(h.main_size<(inventory_offsets(h)->screen_root+8) || h.main_base>UINT64_MAX-(inventory_offsets(h)->screen_root+8) ||
      !ui_sample(h,ui) || !hud_context(ui) || !main_field_stage(h))return {};
   struct Root {
     uint64_t object{},vtable{},array{};int32_t count{},capacity{};
     bool operator==(const Root&) const = default;
   } root{},last{};
   auto read_root=[&](Root& r) {
-    return read(h,h.main_base+map_offsets(h).root,r.object) && r.object && r.object%8==0 &&
-      r.object<=UINT64_MAX-0x668 && read(h,r.object,r.vtable) && r.vtable==h.main_base+map_offsets(h).vtable &&
+    return read(h,h.main_base+map_offsets(h)->root,r.object) && r.object && r.object%8==0 &&
+      r.object<=UINT64_MAX-0x668 && read(h,r.object,r.vtable) && r.vtable==h.main_base+map_offsets(h)->vtable &&
       read(h,r.object+0x658,r.count) && read(h,r.object+0x65C,r.capacity) && r.count==5 && r.capacity==5 &&
       read(h,r.object+0x660,r.array) && r.array && r.array%8==0 && r.array<=UINT64_MAX-40;
   };
@@ -32,7 +32,7 @@ inline MapPins map_pins(const EdenDsmodHostApi& h) {
   std::array<Pin,5> pins{};MapPins out;
   auto read_pin=[&](unsigned i,Pin& p) {
     if(!read(h,root.array+i*8,p.pointer) || !p.pointer || p.pointer%8 || p.pointer>UINT64_MAX-0x48 ||
-       !read(h,p.pointer,p.vtable) || p.vtable!=h.main_base+map_offsets(h).pin_vtable ||
+       !read(h,p.pointer,p.vtable) || p.vtable!=h.main_base+map_offsets(h)->pin_vtable ||
        !read(h,p.pointer+8,p.backing) || !read(h,p.pointer+0x40,p.slot) || p.slot!=int32_t(i))return false;
     // Native deletion keeps old kind/coordinates. The backing record is the presence signal.
     if(!p.backing)return true;

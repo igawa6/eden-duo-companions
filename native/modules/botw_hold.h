@@ -35,7 +35,7 @@ inline HeldCarry held_carry(const EdenDsmodHostApi& h){
   if(!inventory_supported(h)||!ui_sample(h,before)||before.flags!=0x1E09000000ULL)return {};
   auto pointer=[](uint64_t p,uint64_t size){return p>=0x10000&&p%8==0&&p<=UINT64_MAX-size;};
   auto capture=[&](HeldCarry& v){uint64_t vt{};
-    if(!read(h,h.main_base+inventory_offsets(h).carry_root,v.root)||!pointer(v.root,0xA7C)||!read(h,v.root,vt)||vt!=h.main_base+inventory_offsets(h).carry_vtable||
+    if(!read(h,h.main_base+inventory_offsets(h)->carry_root,v.root)||!pointer(v.root,0xA7C)||!read(h,v.root,vt)||vt!=h.main_base+inventory_offsets(h)->carry_vtable||
        !read(h,v.root+0x300,v.link)||!read(h,v.root+0x308,v.generation)||!read(h,v.root+0x30C,v.acquired)||v.acquired>1||
        !read(h,v.root+0x310,v.request)||!read(h,v.root+0xA78,v.flags)||(v.flags&~0x40u))return false;
     // B7C840 skips +310 when generation is invalid; B7C940 creates afresh.
@@ -43,10 +43,10 @@ inline HeldCarry held_carry(const EdenDsmodHostApi& h){
     // state. Preserve exact type checks for active/busy states and raw-pointer
     // stability in every capture; never dereference an inactive dangling record.
     const bool idle=v.generation==UINT32_MAX&&!v.acquired&&!v.flags;
-    if(v.request&&(!pointer(v.request,8)||(!idle&&(!read(h,v.request,vt)||vt!=h.main_base+inventory_offsets(h).carry_record_vtable))))return false;
+    if(v.request&&(!pointer(v.request,8)||(!idle&&(!read(h,v.request,vt)||vt!=h.main_base+inventory_offsets(h)->carry_record_vtable))))return false;
     if(v.generation!=UINT32_MAX){uint32_t id{},actor_id{};uint64_t backlink{},name{};int32_t capacity{};std::array<char,9> actor_name{};
       if(!pointer(v.link,0x58)||!read(h,v.link+0x40,id)||id!=v.generation||!read(h,v.link+0x48,v.actor)||!pointer(v.actor,0x70)||
-         !read(h,v.actor,v.actor_vtable)||v.actor_vtable!=h.main_base+inventory_offsets(h).carry_actor_vtable||
+         !read(h,v.actor,v.actor_vtable)||v.actor_vtable!=h.main_base+inventory_offsets(h)->carry_actor_vtable||
          !read(h,v.actor+0x60,actor_id)||actor_id!=v.generation||!read(h,v.actor+0x64,v.actor_state)||(v.actor_state&0xffu)!=1||
          !read(h,v.actor+0x68,backlink)||backlink!=v.link||!read(h,v.actor+0x10,name)||name!=v.actor+0x1C||
          !read(h,v.actor+0x18,capacity)||capacity!=64||!read(h,name,actor_name)||std::memcmp(actor_name.data(),"CarryBox",9))return false;
@@ -62,8 +62,8 @@ inline HeldTray held_tray(const EdenDsmodHostApi& h) {
   if(!inventory_supported(h) || !ui_sample(h,before) || !inventory_context(context(h)))return {};
   const auto first=pouch(h);if(!first.valid)return {};
   uint64_t manager{},vt{};
-  if(!read(h,h.main_base+inventory_offsets(h).pouch_root,manager) || !manager || manager%8 ||
-     manager>UINT64_MAX-0x444F0 || !read(h,manager,vt) || vt!=h.main_base+inventory_offsets(h).pouch_vtable)return {};
+  if(!read(h,h.main_base+inventory_offsets(h)->pouch_root,manager) || !manager || manager%8 ||
+     manager>UINT64_MAX-0x444F0 || !read(h,manager,vt) || vt!=h.main_base+inventory_offsets(h)->pouch_vtable)return {};
   // Capture all raw list links: reservations may retain a valid stock-zero node.
   struct Links {uint64_t item{},next{},prev{};bool operator==(const Links&)const=default;};
   auto members=[&](std::vector<Links>& out){
@@ -91,7 +91,7 @@ inline HeldTray held_tray(const EdenDsmodHostApi& h) {
       int32_t type{},capacity{};uint8_t equipped{};uint64_t name{},name_vt{};
       if(!read(h,v.address+0x18,type)||type!=7||!read(h,v.address+0x20,v.remaining)||v.remaining<0||v.remaining>999999||
          !read(h,v.address+0x24,equipped)||equipped||!read(h,v.address+0x25,v.in_inventory)||v.in_inventory>1||
-         !read(h,v.address+0x28,name_vt)||name_vt!=h.main_base+inventory_offsets(h).pouch_string_vtable||
+         !read(h,v.address+0x28,name_vt)||name_vt!=h.main_base+inventory_offsets(h)->pouch_string_vtable||
          !read(h,v.address+0x30,name)||name!=v.address+0x3C||!read(h,v.address+0x38,capacity)||capacity!=64)return false;
       for(unsigned k=0;k<64;++k){uint8_t c{};if(!read(h,name+k,c))return false;if(!c)break;
         if(!((c>='a'&&c<='z')||(c>='A'&&c<='Z')||(c>='0'&&c<='9')||c=='_'))return false;
@@ -104,7 +104,7 @@ inline HeldTray held_tray(const EdenDsmodHostApi& h) {
   };
   HeldTray out,last;if(!capture(out)||!capture(last)||out!=last||!members(again)||links!=again)return {};
   const auto stable=pouch(h);uint64_t root{},end_vt{};
-  if(!stable.valid||stable.items.size()!=first.items.size()||!read(h,h.main_base+inventory_offsets(h).pouch_root,root)||root!=manager||
+  if(!stable.valid||stable.items.size()!=first.items.size()||!read(h,h.main_base+inventory_offsets(h)->pouch_root,root)||root!=manager||
      !read(h,manager,end_vt)||end_vt!=vt||!ui_sample(h,after)||before!=after||!inventory_context(context(h)))return {};
   for(size_t i=0;i<first.items.size();++i){const auto&a=first.items[i];const auto&b=stable.items[i];
     if(a.address!=b.address||a.actor!=b.actor||a.type!=b.type||a.value!=b.value||a.equipped!=b.equipped)return {};

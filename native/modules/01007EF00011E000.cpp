@@ -324,6 +324,7 @@ void *create(const EdenDsmodHostApi *, const char *) {
   return new (std::nothrow) State;
 }
 void destroy(void *p) {
+  static_cast<State*>(p)->bridge.sync_native_hud(false);
   static_cast<State*>(p)->bridge.cancel();delete static_cast<State *>(p);
 }
 // Perf instrumentation (coordinator-requested per-reader ranking).

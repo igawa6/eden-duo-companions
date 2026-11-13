@@ -11,8 +11,8 @@ struct Environment {
 // The manual world override byte is deliberately not used as effective weather.
 inline Environment environment(const EdenDsmodHostApi& h) {
   UiSample ui{},after{};
-  if (!ready_supported(h) || !ui_sample(h,ui) || !hud_context(ui) || h.main_size<(ready_offsets(h).world_root+8) ||
-      h.main_base>UINT64_MAX-(ready_offsets(h).world_root+8)) return {};
+  if (!ready_supported(h) || !ui_sample(h,ui) || !hud_context(ui) || h.main_size<(ready_offsets(h)->world_root+8) ||
+      h.main_base>UINT64_MAX-(ready_offsets(h)->world_root+8)) return {};
   struct Sample {
     uint64_t world{},world_vtable{},array{},weather{},weather_vtable{},temp{},temp_vtable{};
     int32_t count{},capacity{},climate{};
@@ -21,17 +21,17 @@ inline Environment environment(const EdenDsmodHostApi& h) {
     bool operator==(const Sample&) const = default;
   } a{},z{};
   auto sample=[&](Sample& s) {
-    return read(h,h.main_base+ready_offsets(h).world_root,s.world) && s.world%8==0 && s.world<=UINT64_MAX-0x7E0 &&
-      read(h,s.world,s.world_vtable) && s.world_vtable==h.main_base+ready_offsets(h).world_vtable &&
+    return read(h,h.main_base+ready_offsets(h)->world_root,s.world) && s.world%8==0 && s.world<=UINT64_MAX-0x7E0 &&
+      read(h,s.world,s.world_vtable) && s.world_vtable==h.main_base+ready_offsets(h)->world_vtable &&
       read(h,s.world+0x5C0,s.count) && s.count==9 &&
       read(h,s.world+0x5C4,s.capacity) && s.capacity==9 &&
       read(h,s.world+0x5C8,s.array) && s.array%8==0 && s.array<=UINT64_MAX-72 &&
       read(h,s.world+0x780,s.climate) && s.climate>=0 && s.climate<20 &&
       read(h,s.array+24,s.weather) && s.weather%8==0 && s.weather<=UINT64_MAX-0x398 &&
-      read(h,s.weather,s.weather_vtable) && s.weather_vtable==h.main_base+ready_offsets(h).weather_vtable &&
+      read(h,s.weather,s.weather_vtable) && s.weather_vtable==h.main_base+ready_offsets(h)->weather_vtable &&
       read(h,s.weather+0x284,s.forecast) &&
       read(h,s.array+32,s.temp) && s.temp%8==0 && s.temp<=UINT64_MAX-0x90 &&
-      read(h,s.temp,s.temp_vtable) && s.temp_vtable==h.main_base+ready_offsets(h).temperature_vtable &&
+      read(h,s.temp,s.temp_vtable) && s.temp_vtable==h.main_base+ready_offsets(h)->temperature_vtable &&
       read(h,s.temp+0x40,s.temperature) && read(h,s.temp+0x20,s.base) && read(h,s.temp+0x60,s.instant) &&
       std::isfinite(s.temperature) && s.temperature>=-100.f && s.temperature<=100.f &&
       std::isfinite(s.base) && std::isfinite(s.instant);

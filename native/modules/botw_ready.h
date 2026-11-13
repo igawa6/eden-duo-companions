@@ -38,7 +38,7 @@ inline int durability_percent(const Item& item,uint32_t modifier_flags=0,uint32_
 struct GearModifier {bool valid{};uint32_t flags{},value{};};
 inline GearModifier gear_modifier(const EdenDsmodHostApi& h,uint64_t address) {
   GearModifier out;uint64_t vt{},name{};
-  if(!inventory_supported(h) || !address || address>UINT64_MAX-0x90 || !read(h,address+0x28,vt) || vt!=h.main_base+inventory_offsets(h).pouch_string_vtable ||
+  if(!inventory_supported(h) || !address || address>UINT64_MAX-0x90 || !read(h,address+0x28,vt) || vt!=h.main_base+inventory_offsets(h)->pouch_string_vtable ||
      !read(h,address+0x30,name) || name!=address+0x3C ||
      !read(h,address+0x88,out.flags) || !read(h,address+0x80,out.value))return {};
   out.valid=true;return out;

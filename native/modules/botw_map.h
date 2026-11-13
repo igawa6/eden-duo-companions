@@ -31,11 +31,11 @@ inline bool map_masks(const EdenDsmodHostApi& h,uint64_t head,std::array<uint16_
 inline bool main_field_stage(const EdenDsmodHostApi& h) {
   if(!ready_supported(h))return false;
   // Exact-build scene/request type strings. Both must agree; other stages are withheld.
-  for(const uint64_t off:{ready_offsets(h).stage_current,ready_offsets(h).stage_requested}) {
+  for(const uint64_t off:{ready_offsets(h)->stage_current,ready_offsets(h)->stage_requested}) {
     std::array<uint8_t,56> b{};uint64_t vt{},ptr{};int32_t cap{};
     if(!read(h,h.main_base+off,b))return false;
     std::memcpy(&vt,b.data(),8);std::memcpy(&ptr,b.data()+8,8);std::memcpy(&cap,b.data()+16,4);
-    if(vt!=h.main_base+ready_offsets(h).stage_vtable||ptr!=h.main_base+off+20||cap!=32||
+    if(vt!=h.main_base+ready_offsets(h)->stage_vtable||ptr!=h.main_base+off+20||cap!=32||
        std::memcmp(b.data()+20,"MainField\0",10)!=0)return false;
   }
   // Integration 2026-10-18 (states RE-FINDINGS section 3): the two strings above stay
@@ -43,10 +43,10 @@ inline bool main_field_stage(const EdenDsmodHostApi& h) {
   // there. The current map type FixedSafeString (main+0x2BE1708: "MainField" / "CDungeon" /
   // "TitleMenu") withholds them when it is a valid string other than MainField.
   {
-    const uint64_t off=ready_offsets(h).map_type;std::array<uint8_t,56> b{};uint64_t vt{},ptr{};int32_t cap{};
+    const uint64_t off=ready_offsets(h)->map_type;std::array<uint8_t,56> b{};uint64_t vt{},ptr{};int32_t cap{};
     if(read(h,h.main_base+off,b)){
       std::memcpy(&vt,b.data(),8);std::memcpy(&ptr,b.data()+8,8);std::memcpy(&cap,b.data()+16,4);
-      if(vt==h.main_base+ready_offsets(h).stage_vtable&&ptr==h.main_base+off+20&&cap==32&&
+      if(vt==h.main_base+ready_offsets(h)->stage_vtable&&ptr==h.main_base+off+20&&cap==32&&
          std::memchr(b.data()+20,0,32)!=nullptr&&std::memcmp(b.data()+20,"MainField\0",10)!=0)return false;
     }
   }
@@ -54,10 +54,10 @@ inline bool main_field_stage(const EdenDsmodHostApi& h) {
 }
 inline MapSnapshot map_snapshot(const EdenDsmodHostApi& h) {
   UiSample ui{},after{};MapSnapshot out;
-  if(!map_build_supported(h)||h.main_size<(inventory_offsets(h).screen_root+8)||h.main_base>UINT64_MAX-(inventory_offsets(h).screen_root+8)||!ui_sample(h,ui)||!hud_context(ui))return {};
+  if(!map_build_supported(h)||h.main_size<(inventory_offsets(h)->screen_root+8)||h.main_base>UINT64_MAX-(inventory_offsets(h)->screen_root+8)||!ui_sample(h,ui)||!hud_context(ui))return {};
   uint64_t p{},p2{},vt{},vt2{};uint32_t mask{},mask2{};
-  if(!read(h,h.main_base+map_offsets(h).root,p)||p%8||p>UINT64_MAX-0x124||
-     !read(h,p,vt)||vt!=h.main_base+map_offsets(h).vtable||!read(h,p+0x120,mask)||(mask&~0x7FFFu)||
+  if(!read(h,h.main_base+map_offsets(h)->root,p)||p%8||p>UINT64_MAX-0x124||
+     !read(h,p,vt)||vt!=h.main_base+map_offsets(h)->vtable||!read(h,p+0x120,mask)||(mask&~0x7FFFu)||
      ui.manager>UINT64_MAX-0x63E90||!map_masks(h,ui.manager+0x627E8,out.masks)||
      !map_masks(h,ui.manager+0x63E78,out.subfilters)||!map_masks(h,ui.manager+0x63E78,out.submasks,2))return {};
   constexpr std::array<uint32_t,6> hashes={0x25718F36,0xBBDE4235,0x22D7138F,0x55D02319,0xCBB4B6BA,0xF44A4DAA};
@@ -65,7 +65,7 @@ inline MapSnapshot map_snapshot(const EdenDsmodHostApi& h) {
   for(auto v:out.masks)if(v&~0x7FFFu)return {};
   for(auto v:out.submasks)if(v&~0x3Fu)return {};
   out.main_field=main_field_stage(h);
-  if(!read(h,h.main_base+map_offsets(h).root,p2)||p2!=p||!read(h,p,vt2)||vt2!=vt||
+  if(!read(h,h.main_base+map_offsets(h)->root,p2)||p2!=p||!read(h,p,vt2)||vt2!=vt||
      !read(h,p+0x120,mask2)||mask2!=mask||main_field_stage(h)!=out.main_field||
      !ui_sample(h,after)||after!=ui)return {};
   for(unsigned i=0;i<6;++i){bool v{};if(!rune_upgrade(h,hashes[i],v)||v!=out.changes[i])return {};}
@@ -128,11 +128,11 @@ inline MapPosition map_position(const EdenDsmodHostApi& h) {
   UiSample ui{},after{};
   if(!map_build_supported(h)||!ui_sample(h,ui)||!hud_context(ui)||!main_field_stage(h))return {};
   uint64_t p{},p2{},vt{},actor{},avt{};std::array<float,3> a{},z{};
-  if(!read(h,h.main_base+inventory_offsets(h).player_info_root,p)||p%8||p>UINT64_MAX-0x94||!read(h,p,vt)||
-     vt!=h.main_base+inventory_offsets(h).player_info_vtable||!read(h,p+0x60,actor)||actor%8||!read(h,actor,avt)||
-     avt!=h.main_base+inventory_offsets(h).player_vtable||!read(h,p+0x88,a))return {};
+  if(!read(h,h.main_base+inventory_offsets(h)->player_info_root,p)||p%8||p>UINT64_MAX-0x94||!read(h,p,vt)||
+     vt!=h.main_base+inventory_offsets(h)->player_info_vtable||!read(h,p+0x60,actor)||actor%8||!read(h,actor,avt)||
+     avt!=h.main_base+inventory_offsets(h)->player_vtable||!read(h,p+0x88,a))return {};
   for(auto v:a)if(!std::isfinite(v)||std::abs(v)>50000.f)return {};
-  if(!read(h,p+0x88,z)||a!=z||!read(h,h.main_base+inventory_offsets(h).player_info_root,p2)||p2!=p||
+  if(!read(h,p+0x88,z)||a!=z||!read(h,h.main_base+inventory_offsets(h)->player_info_root,p2)||p2!=p||
      !main_field_stage(h)||!ui_sample(h,after)||ui!=after)return {};
   MapPosition out{true,a[0],-a[2]}; // map world y grows north; game z grows south
   // Native Actor transform: third column is forward, fourth is translation.

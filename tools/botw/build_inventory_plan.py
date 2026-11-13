@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 """Build a measured 1.9.0 helper plan.
 
-Standalone entry points retain the isolated area subsets used during verification.
+Import-only area subsets are retained for verification; only the production builder writes plans.
 The production builder selects travel=True to include all verified action routes.
 Only install a changed plan into a stopped disposable label during development.
 """
 from __future__ import annotations
 
-import argparse
-import json
-import tempfile
 from pathlib import Path
 
 from build_helper_plan import HELPER, RELOCATION_RE, RELOCATION_KINDS, tool
@@ -163,16 +160,3 @@ def build_plan(work: Path, *, ready: bool = False, quests: bool = False, shortcu
                               replacement=branch_word(0, 0, True).hex(),
                               relocations=[dict(offset=0, kind="aarch64_branch26", target="code", addend=food_hook)])],
                 guest_code=dict(bytes=code.hex(), relocations=relocations))
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args()
-    with tempfile.TemporaryDirectory() as work:
-        plan = build_plan(Path(work))
-    with args.output.open("x") as output:
-        output.write(json.dumps(plan, indent=2)+"\n")
-    print(f"{args.output}: inventory evidence only, {len(plan['guest_code']['relocations'])} relocations")
-
-if __name__ == "__main__":
-    main()

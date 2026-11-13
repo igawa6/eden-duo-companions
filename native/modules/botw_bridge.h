@@ -127,16 +127,15 @@ struct SelectionBridge {
   bool load(uint32_t at,uint32_t& value) const {
     return ext.load_u32 && ext.load_u32(ext.userdata,at,&value);
   }
-  // Iteration 11 item E (owner: "hidden companion = native HUD back"). The guest helper
-  // (companion-hud.inc) reads mailbox+2048 every UI frame: 0 = companion shown, apply our HUD
-  // hide rules (minimap draw tree off, Dungeon pose on the five side gauges); 1 = companion
-  // hidden, leave the minimap drawn and re-apply the native pose once (guest latch +2052).
-  // Written only when the mailbox disagrees (an edge, a fresh process, or a helper that
-  // re-zeroed it), so steady ticks cost one mailbox load and no store.
+  // Opt-in suppression: a zero mailbox keeps the native HUD when the module is absent.
+  // Stamp = guest frame + 1, refreshed each tick; it expires after 60 guest frames.
+  // The guest restores its native pose once on expiry/detach (latch +2052).
   static constexpr uint32_t hud_native_at=2048;
   bool sync_native_hud(bool aux_present) const {
     if(!ext.load_u32 || !ext.store_u32)return false;
-    const uint32_t want=aux_present ? 0u : 1u;
+    uint32_t frame{};
+    if(aux_present && !load(4,frame))return false;
+    const uint32_t want=aux_present ? (frame==UINT32_MAX ? 1u : frame+1u) : 0u;
     uint32_t have{};
     if(load(hud_native_at,have) && have==want)return false;
     return ext.store_u32(ext.userdata,hud_native_at,want)!=0;
@@ -179,7 +178,7 @@ struct SelectionBridge {
         const bool scoped=healthy && !epoch_changed && request_epoch==epoch && inventory_scope() && context(h)==UiContext::World;
         uint64_t manager{};int32_t category{-1};
         const bool confirmed=result==1 && scoped && pouch(h).valid &&
-          read(h,h.main_base+inventory_offsets(h).pouch_root,manager) && read(h,manager+0x44800,category) && category==sort_category &&
+          read(h,h.main_base+inventory_offsets(h)->pouch_root,manager) && read(h,manager+0x44800,category) && category==sort_category &&
           (sort_category>=4 || sort_mode(sort_category)==1-sort_before);
         if(result==1 && scoped && !confirmed && now-requested<std::chrono::seconds(3)){
           status="Sorting";return;
@@ -290,7 +289,7 @@ struct SelectionBridge {
         const auto destination=valid_scope ? quest_destination(h) : CurrencySnapshot{};
         uint64_t map{},selected{};
         const bool confirmed=result==1 && destination.valid && destination.value==target_quest_index &&
-          read(h,h.main_base+ready_offsets(h).map_root,map) && map==target_map &&
+          read(h,h.main_base+ready_offsets(h)->map_root,map) && map==target_map &&
           read(h,map+0x3A0,selected) && selected==target;
         if (result==1 && valid_scope && !confirmed && now-requested<std::chrono::milliseconds(500)) {
           status="Awaiting native quest update";return;
@@ -360,10 +359,10 @@ struct SelectionBridge {
     UiSample ui{};
     if (!ui_sample(host,ui) || ui.flags!=0x1E09000000ULL) return false;
     uint64_t manager{};
-    if (!read(host,host.main_base+inventory_offsets(host).pouch_root,manager) || manager%8 || !manager) return false;
+    if (!read(host,host.main_base+inventory_offsets(host)->pouch_root,manager) || manager%8 || !manager) return false;
     uint32_t sequence{},ack{},beat{};
     if (!load(8,sequence) || !load(12,ack) || sequence!=ack || !load(4,beat)) return false;
-    if (++sequence==0) ++sequence;
+    if (++sequence==0 || sequence==UINT32_MAX) sequence=1;
     auto u32=[&](uint32_t at,uint32_t v){return ext.store_u32(ext.userdata,at,v)!=0;};
     auto u64=[&](uint32_t at,uint64_t v){return ext.store_u64(ext.userdata,at,v)!=0;};
     cancel();
@@ -387,10 +386,10 @@ struct SelectionBridge {
     const auto fresh=warp::point(host,n);
     if(!fresh.valid||fresh!=display||!fresh.enabled()){warp_refusal=512;return false;}
     UiSample ui{};uint64_t evt{};
-    if(!ui_sample(host,ui)||ui.flags!=0x1E09000000ULL||!read(host,host.main_base+warp_offsets(host).event_root,evt)||!evt){warp_refusal=1024;return false;}
+    if(!ui_sample(host,ui)||ui.flags!=0x1E09000000ULL||!read(host,host.main_base+warp_offsets(host)->event_root,evt)||!evt){warp_refusal=1024;return false;}
     uint32_t sequence{},ack{},beat{};
     if(!load(8,sequence)||!load(12,ack)||sequence!=ack||!load(4,beat)){warp_refusal=2048;return false;}
-    if(++sequence==0)++sequence;
+    if(++sequence==0 || sequence==UINT32_MAX)sequence=1;
     auto u32=[&](uint32_t at,uint32_t v){return ext.store_u32(ext.userdata,at,v)!=0;};
     auto u64=[&](uint32_t at,uint64_t v){return ext.store_u64(ext.userdata,at,v)!=0;};
     cancel();
@@ -416,7 +415,7 @@ struct SelectionBridge {
     const auto& flag=fresh.unlock[size_t(id)];
     uint32_t sequence{},ack{},beat{};
     if(!load(8,sequence) || !load(12,ack) || sequence!=ack || !load(4,beat))return false;
-    if(++sequence==0)++sequence;
+    if(++sequence==0 || sequence==UINT32_MAX)sequence=1;
     UiSample ui{};if(!ui_sample(host,ui) || ui.flags!=0x1E09000000ULL)return false;
     auto u32=[&](uint32_t at,uint32_t v){return ext.store_u32(ext.userdata,at,v)!=0;};
     auto u64=[&](uint32_t at,uint64_t v){return ext.store_u64(ext.userdata,at,v)!=0;};
@@ -448,7 +447,7 @@ struct SelectionBridge {
     status="Map bridge busy";
     uint32_t sequence{},ack{},beat{};
     if(!load(8,sequence) || !load(12,ack) || sequence!=ack || !load(4,beat))return false;
-    if(++sequence==0)++sequence;
+    if(++sequence==0 || sequence==UINT32_MAX)sequence=1;
     auto u32=[&](uint32_t at,uint32_t value){return ext.store_u32(ext.userdata,at,value)!=0;};
     auto u64=[&](uint32_t at,uint64_t value){return ext.store_u64(ext.userdata,at,value)!=0;};
     auto f32=[&](uint32_t at,float f){uint32_t bits;std::memcpy(&bits,&f,4);return u32(at,bits);};
@@ -482,7 +481,7 @@ struct SelectionBridge {
     const auto action=inventory_hold(host,address,display,put_away,&stage);if(!action.valid){hold_refusal=stage<<16;return false;}
     uint32_t sequence{},ack{},beat{};
     if(!load(8,sequence)||!load(12,ack)||sequence!=ack||!load(4,beat)){hold_refusal=16;return false;}
-    if(++sequence==0)++sequence;
+    if(++sequence==0 || sequence==UINT32_MAX)sequence=1;
     auto u32=[&](uint32_t at,uint32_t value){return ext.store_u32(ext.userdata,at,value)!=0;};
     auto u64=[&](uint32_t at,uint64_t value){return ext.store_u64(ext.userdata,at,value)!=0;};
     cancel();
@@ -515,7 +514,7 @@ struct SelectionBridge {
     const auto action=inventory_consume(host,address,display);if(!action.valid)return false;
     uint32_t sequence{},ack{},beat{};
     if(!load(8,sequence) || !load(12,ack) || sequence!=ack || !load(4,beat))return false;
-    if(++sequence==0)++sequence;
+    if(++sequence==0 || sequence==UINT32_MAX)sequence=1;
     auto u32=[&](uint32_t at,uint32_t v){return ext.store_u32(ext.userdata,at,v)!=0;};
     auto u64=[&](uint32_t at,uint64_t v){return ext.store_u64(ext.userdata,at,v)!=0;};
     cancel();
@@ -558,7 +557,7 @@ struct SelectionBridge {
        (from_card && (action.item.type<4 || action.item.type>6)))return false;
     uint32_t sequence{},ack{},beat{};
     if(!load(8,sequence) || !load(12,ack) || sequence!=ack || !load(4,beat))return false;
-    if(++sequence==0)++sequence;
+    if(++sequence==0 || sequence==UINT32_MAX)sequence=1;
     const auto& old=action.equipment.slots[action.slot==6 ? 2 : action.slot];
     auto u32=[&](uint32_t at,uint32_t v){return ext.store_u32(ext.userdata,at,v)!=0;};
     auto u64=[&](uint32_t at,uint64_t v){return ext.store_u64(ext.userdata,at,v)!=0;};
@@ -612,21 +611,21 @@ struct SelectionBridge {
     uint64_t manager{},map{},gamedata{},vt{},array{},entry{};int32_t count{},handle{};uint32_t dlc{};
     UiSample ui{},after{};
     if(!ui_sample(host,ui) || ui.flags!=0x1E09000000ULL ||
-       !read(host,host.main_base+quest_offsets(host).root,manager) || manager%8 || manager>UINT64_MAX-0xC8 ||
-       !read(host,manager,vt) || vt!=host.main_base+quest_offsets(host).manager_vtable ||
+       !read(host,host.main_base+quest_offsets(host)->root,manager) || manager%8 || manager>UINT64_MAX-0xC8 ||
+       !read(host,manager,vt) || vt!=host.main_base+quest_offsets(host)->manager_vtable ||
        !read(host,manager+0xB8,count) || count<1 || count>512 || chosen->index<0 || chosen->index>=count ||
        !read(host,manager+0xC0,array) || array%8 || array>UINT64_MAX-uint64_t(count)*8 ||
        !read(host,array+uint64_t(chosen->index)*8,entry) || entry!=address ||
        !read(host,address+0xD8,dlc) || (dlc&~1u) ||
-       !read(host,host.main_base+ready_offsets(host).map_root,map) || map%8 || map>UINT64_MAX-0x3A8 ||
-       !read(host,map,vt) || vt!=host.main_base+ready_offsets(host).map_vtable ||
-       !read(host,host.main_base+inventory_offsets(host).gamedata_root,gamedata) || gamedata%8 ||
-       !read(host,gamedata,vt) || vt!=host.main_base+inventory_offsets(host).gamedata_vtable ||
-       !read(host,host.main_base+quest_offsets(host).destination_handle,handle) || handle<0 ||
+       !read(host,host.main_base+ready_offsets(host)->map_root,map) || map%8 || map>UINT64_MAX-0x3A8 ||
+       !read(host,map,vt) || vt!=host.main_base+ready_offsets(host)->map_vtable ||
+       !read(host,host.main_base+inventory_offsets(host)->gamedata_root,gamedata) || gamedata%8 ||
+       !read(host,gamedata,vt) || vt!=host.main_base+inventory_offsets(host)->gamedata_vtable ||
+       !read(host,host.main_base+quest_offsets(host)->destination_handle,handle) || handle<0 ||
        !ui_sample(host,after) || after!=ui) return false;
     uint32_t sequence{},ack{},beat{};
     if(!load(8,sequence) || !load(12,ack) || sequence!=ack || !load(4,beat))return false;
-    if(++sequence==0)++sequence;
+    if(++sequence==0 || sequence==UINT32_MAX)sequence=1;
     auto u32=[&](uint32_t at,uint32_t v){return ext.store_u32(ext.userdata,at,v)!=0;};
     auto u64=[&](uint32_t at,uint64_t v){return ext.store_u64(ext.userdata,at,v)!=0;};
     cancel();
@@ -656,8 +655,8 @@ struct SelectionBridge {
       const auto fresh=runes(host);
       if (!fresh.valid || !rune_display.valid || fresh.ids!=rune_display.ids ||
           fresh.count!=rune_display.count || index>=fresh.count ||
-          !read(host,ui.array+45*8,screen) || screen>UINT64_MAX-(0x3868+shortcut_offsets(host).screen_shift) ||
-          !read(host,screen+(0x3864+shortcut_offsets(host).screen_shift),highlight) || highlight!=fresh.highlighted ||
+          !read(host,ui.array+45*8,screen) || screen>UINT64_MAX-(0x3868+shortcut_offsets(host)->screen_shift) ||
+          !read(host,screen+(0x3864+shortcut_offsets(host)->screen_shift),highlight) || highlight!=fresh.highlighted ||
           fresh.selected!=rune_display.selected || fresh.highlighted!=rune_display.highlighted) return false;
       selector=4;identity=uint64_t(fresh.ids[index]);initial=fresh.selected;count=fresh.count;
     } else {
@@ -678,11 +677,11 @@ struct SelectionBridge {
         if(shown==QuickKind::Arrow)return false;
         uint64_t ctl{},vt{};uint32_t cells{},flat{};
         std::array<int32_t,21> mapping{};
-        if(!read(host,screen+(0x3790+shortcut_offsets(host).screen_shift),ctl)||!ctl||ctl%8||ctl>UINT64_MAX-0x400||
-           !read(host,ctl,vt)||vt!=host.main_base+shortcut_offsets(host).controller_vtable||
+        if(!read(host,screen+(0x3790+shortcut_offsets(host)->screen_shift),ctl)||!ctl||ctl%8||ctl>UINT64_MAX-0x400||
+           !read(host,ctl,vt)||vt!=host.main_base+shortcut_offsets(host)->controller_vtable||
            !read(host,ctl+0x2AC,cells)||cells<1||cells>21||
            !read(host,ctl+0x2DC,flat)||flat>=cells||
-           !host.read_memory(host.userdata,screen+(0x386C+shortcut_offsets(host).screen_shift),mapping.data(),cells*4)||
+           !host.read_memory(host.userdata,screen+(0x386C+shortcut_offsets(host)->screen_shift),mapping.data(),cells*4)||
            mapping[flat]!=fresh.highlighted||std::count(mapping.begin(),mapping.begin()+cells,-1)!=1)return false;
       } else {identity=fresh.items[index].address;value=fresh.items[index].value;}
       initial=fresh.initial;highlight=fresh.highlighted;count=int32_t(fresh.items.size());
@@ -690,7 +689,7 @@ struct SelectionBridge {
     }
     uint32_t sequence{},ack{},beat{};
     if (!load(8,sequence) || !load(12,ack) || sequence!=ack || !load(4,beat)) return false;
-    if (++sequence==0) ++sequence;
+    if (++sequence==0 || sequence==UINT32_MAX) sequence=1;
     auto u32=[&](uint32_t at,uint32_t v){return ext.store_u32(ext.userdata,at,v)!=0;};
     auto u64=[&](uint32_t at,uint64_t v){return ext.store_u64(ext.userdata,at,v)!=0;};
     cancel();

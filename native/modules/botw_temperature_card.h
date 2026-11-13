@@ -231,16 +231,16 @@ inline TemperatureSample temperature_sample(const EdenDsmodHostApi& h,uint64_t p
   auto get=[&](Raw& r) {
     if(ui.manager>UINT64_MAX-0x80 || !read(h,ui.manager+0x68,r.uim) || r.uim[0xC]!=1 ||
        !read(h,player+0x200C,r.food) || !read(h,player+0x2028,r.armor) ||
-       !read(h,player+0x2084,r.limits) || !read(h,player+0x1ED8+7*12,r.timers))return false;
+       !read(h,player+0x2084,r.limits) || !read(h,player+ready_offsets(h)->effect_timers+7*12,r.timers))return false;
     r.hud_state=2;
-    if(!(ui.array<=UINT64_MAX-37*8 && read(h,ui.array+37*8,r.hud) && r.hud && r.hud%8==0 && r.hud<=UINT64_MAX-(0x36E0+ready_offsets(h).pane_shift) &&
-         read(h,r.hud,r.hud_vt) && r.hud_vt==h.main_base+ready_offsets(h).hud_vtable && read(h,r.hud+(0x36D8+ready_offsets(h).pane_shift),r.meter) && r.meter && r.meter%8==0 &&
-         r.meter<=UINT64_MAX-0x1E0 && read(h,r.meter,r.meter_vt) && r.meter_vt==h.main_base+ready_offsets(h).temperature_pane_vtable && read(h,r.meter+0x1D8,r.hud_state)))
+    if(!(ui.array<=UINT64_MAX-37*8 && read(h,ui.array+37*8,r.hud) && r.hud && r.hud%8==0 && r.hud<=UINT64_MAX-(0x36E0+ready_offsets(h)->pane_shift) &&
+         read(h,r.hud,r.hud_vt) && r.hud_vt==h.main_base+ready_offsets(h)->hud_vtable && read(h,r.hud+(0x36D8+ready_offsets(h)->pane_shift),r.meter) && r.meter && r.meter%8==0 &&
+         r.meter<=UINT64_MAX-0x1E0 && read(h,r.meter,r.meter_vt) && r.meter_vt==h.main_base+ready_offsets(h)->temperature_pane_vtable && read(h,r.meter+0x1D8,r.hud_state)))
       r.hud_state=2;
     // Player physics component (Player vtable+0x308 = main+0x1C14300): *(Player+0x6A8)+0x60 element 0, +0x40.
     r.comp_ok=read(h,player+0x6A8,r.physics) && r.physics && r.physics%8==0 && r.physics<=UINT64_MAX-0x88 &&
       read(h,r.physics+0x58,r.count) && r.count>0 && r.count<64 && read(h,r.physics+0x60,r.bodies) && r.bodies%8==0 &&
-      r.bodies>=0x10000 && r.bodies<=UINT64_MAX-0x200 && read(h,r.bodies+0x40,r.comp_vt) && r.comp_vt==h.main_base+ready_offsets(h).physics_body_vtable &&
+      r.bodies>=0x10000 && r.bodies<=UINT64_MAX-0x200 && read(h,r.bodies+0x40,r.comp_vt) && r.comp_vt==h.main_base+ready_offsets(h)->physics_body_vtable &&
       read(h,r.bodies+0x40+0x180,r.resist) && r.resist<=3;
     return true;
   };

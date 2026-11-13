@@ -12,12 +12,16 @@ companion_map_restore:
     mov w17, #1
     b companion_map_visibility
 companion_map_hide:
-    // Item E (iteration 11): mailbox+2048 != 0 = the companion screen is hidden, so the
-    // native minimap stays drawn (companion_map_restore already re-showed it this frame).
+    // Suppression requires explicit host opt-in. Zero keeps the native minimap drawn.
     adrp x9, bridge_mailbox
     add x9, x9, :lo12:bridge_mailbox
     ldr w10, [x9, #2048]
-    cbnz w10, hud_map_return
+    cbz w10, hud_map_return
+    ldr w11, [x9, #4]
+    add w11, w11, #1
+    sub w11, w11, w10
+    cmp w11, #60
+    b.hi hud_map_return
     mov w17, #0
 companion_map_visibility:
     adrp x9, ui_root
@@ -50,6 +54,17 @@ hud_map_scope:
     add x11, x11, :lo12:hud_map_vtable
     cmp x10, x11
     b.ne hud_map_return
+    // Verify the owning screen's layout identity as well as its class and slot.
+    ldr x10, [x9, #0xd0]
+    cbz x10, hud_map_return
+    ldrh w11, [x10, #8]
+    cmp w11, #0x30 // final zero digit followed by NUL
+    b.ne hud_map_return
+    ldr x10, [x10]
+    adr x11, hud_app_map_name
+    ldr x11, [x11]
+    cmp x10, x11
+    b.ne hud_map_return
     add x9, x9, #3, lsl #12
     ldr x9, [x9, #hud_map_root_field]
     cbz x9, hud_map_return
@@ -58,6 +73,8 @@ hud_map_scope:
     add x11, x11, :lo12:hud_root_vtable
     cmp x10, x11
     b.ne hud_map_return
+    ldr x10, [x9, #0x18]
+    cbnz x10, hud_map_return // Root must have no parent.
     ldr x10, [x9, #0xb8]
     adr x11, hud_root_name
     ldr x11, [x11]
@@ -160,14 +177,17 @@ hud_binding_ok:
     add x19, x19, #16
     subs w23, w23, #1
     b.ne hud_validate_binding
-    // Item E (iteration 11): mailbox+2048 = module's HUD mode (0 companion shown, 1 native
-    // HUD); mailbox+2052 = guest-owned "native pose re-applied" latch. While native, apply the
-    // native animator's OWN frame once (undoing the companion pose), then leave the panes to
-    // the game. Any companion-mode World frame clears the latch.
+    // Nonzero = companion shown. Zero (including a missing module) restores native pose.
     adrp x9, bridge_mailbox
     add x9, x9, :lo12:bridge_mailbox
     ldr w10, [x9, #2048]
-    cbz w10, hud_pose_companion
+    cbz w10, hud_pose_native
+    ldr w11, [x9, #4]
+    add w11, w11, #1
+    sub w11, w11, w10
+    cmp w11, #60
+    b.ls hud_pose_companion
+hud_pose_native:
     ldr w10, [x9, #2052]
     cbnz w10, hud_pose_return
     mov w10, #1
@@ -271,6 +291,8 @@ hud_pose_animate:
     ret
 .p2align 3
 hud_root_name: .asciz "RootPane"
+.p2align 3
+hud_app_map_name: .asciz "AppMap_00"
 .p2align 3
 hud_binding_names:
     .asciz "Pa_SoundGauge_00"

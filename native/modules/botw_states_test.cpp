@@ -86,15 +86,15 @@ int main() {
   check(botw::shrine_number("CDungeon","Dungeon05")==-1);check(botw::shrine_number("CDungeon","DungeonX53")==-1);
   // Event name chain (layout observed live: root vt, list vt, count, selected index, SafeString).
   {LiveFixture f(scen("n3-msg"));using namespace botw::states;const uint64_t R=0x8000000,L=0x8100000,AR=0x8200000,E=0x8300000,T=0x8400000;
-   f.put<uint64_t>(Fixture::M+EventRoot,R);f.put<uint64_t>(R,Fixture::M+EventRootVt);f.put<uint64_t>(R+0x1D2B8,L);
-   f.put<uint64_t>(L,Fixture::M+EventListVt);f.put<uint32_t>(L+8,2);f.put<uint64_t>(L+0x10,AR);f.put<int32_t>(L+0x1F0,0);
+   f.put<uint64_t>(Fixture::M+botw::Warp160.event_root,R);f.put<uint64_t>(R,Fixture::M+botw::Warp160.event_vtable);f.put<uint64_t>(R+0x1D2B8,L);
+   f.put<uint64_t>(L,Fixture::M+botw::Warp160.event_list_vtable);f.put<uint32_t>(L+8,2);f.put<uint64_t>(L+0x10,AR);f.put<int32_t>(L+0x1F0,0);
    for(unsigned b=0;b<8;++b)f.put<uint8_t>(L+0x1E8+b,b==0?1:0);
    f.put<uint64_t>(AR,0);f.put<uint64_t>(AR+8,E);f.put<uint64_t>(E+0x18,T);
    const char n[40]="Demo701_0";for(unsigned b=0;b<40;++b)f.put<uint8_t>(T+b,uint8_t(n[b]));
    std::string out;check(botw::event_name(f.h,out)&&out=="Demo701_0");check(game_states(f.h).event_name=="Demo701_0");
    f.put<uint64_t>(R+0x1D2B8,0);check(botw::event_name(f.h,out)&&out.empty());f.put<uint64_t>(R+0x1D2B8,L);
    f.put<uint32_t>(L+8,1);check(!botw::event_name(f.h,out));f.put<uint32_t>(L+8,2);
-   f.put<uint64_t>(L,0);check(!botw::event_name(f.h,out));f.put<uint64_t>(L,Fixture::M+EventListVt);
+   f.put<uint64_t>(L,0);check(!botw::event_name(f.h,out));f.put<uint64_t>(L,Fixture::M+botw::Warp160.event_list_vtable);
    f.put<uint8_t>(T+9,1);check(!botw::event_name(f.h,out));}
   // Slate flag through the GameData reader (World signature required; title -> unknown).
   for(int value=0;value<2;++value){LiveFixture f(scen("n3-sor-loaded"));

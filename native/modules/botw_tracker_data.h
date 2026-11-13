@@ -102,8 +102,8 @@ template<class Flags> inline TrackerData tracker_data_records(Flags& f,const Map
   return out;
 }
 struct TrackerDlcSample {uint64_t root{},vtable{};uint32_t version{};bool valid{};bool operator==(const TrackerDlcSample&)const=default;};
-inline TrackerDlcSample tracker_dlc_sample(const EdenDsmodHostApi& h){TrackerDlcSample s;if(!quests_supported(h)||h.main_size<quest_offsets(h).dlc_root+8||h.main_base>UINT64_MAX-(quest_offsets(h).dlc_root+8))return s;
- s.valid=read(h,h.main_base+quest_offsets(h).dlc_root,s.root)&&s.root>=0x10000&&s.root%8==0&&s.root<=UINT64_MAX-(quest_offsets(h).dlc_version+4)&&read(h,s.root,s.vtable)&&s.vtable==h.main_base+quest_offsets(h).dlc_vtable&&read(h,s.root+quest_offsets(h).dlc_version,s.version)&&s.version<=0xFFFF;return s;}
+inline TrackerDlcSample tracker_dlc_sample(const EdenDsmodHostApi& h){TrackerDlcSample s;if(!quests_supported(h)||h.main_size<quest_offsets(h)->dlc_root+8||h.main_base>UINT64_MAX-(quest_offsets(h)->dlc_root+8))return s;
+ s.valid=read(h,h.main_base+quest_offsets(h)->dlc_root,s.root)&&s.root>=0x10000&&s.root%8==0&&s.root<=UINT64_MAX-(quest_offsets(h)->dlc_version+4)&&read(h,s.root,s.vtable)&&s.vtable==h.main_base+quest_offsets(h)->dlc_vtable&&read(h,s.root+quest_offsets(h)->dlc_version,s.version)&&s.version<=0xFFFF;return s;}
 inline TrackerData tracker_data(const EdenDsmodHostApi& h,const MapLandmarks& landmarks,TrackerFlagReader* cache=nullptr){
  TrackerFlagReader local;auto& flags=cache?*cache:local;const bool ready=flags.begin(h);const auto dlc=ready?tracker_dlc_sample(h):TrackerDlcSample{};
  const auto qs=ready?quests(h,true):QuestSnapshot{};

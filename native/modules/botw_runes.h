@@ -20,15 +20,15 @@ inline RuneFlag rune_flag(const EdenDsmodHostApi& h,uint32_t hash) {
     bool operator==(const Roots&) const = default;
   } a{},z{};
   auto roots=[&](Roots& r) {
-    return read(h,h.main_base+inventory_offsets(h).gamedata_root,r.manager) && r.manager%8==0 &&
+    return read(h,h.main_base+inventory_offsets(h)->gamedata_root,r.manager) && r.manager%8==0 &&
       r.manager<=UINT64_MAX-0xBE8 && read(h,r.manager,r.vtable) &&
-      r.vtable==h.main_base+inventory_offsets(h).gamedata_vtable && read(h,r.manager+0xBE0,r.holder) && r.holder%8==0 &&
+      r.vtable==h.main_base+inventory_offsets(h)->gamedata_vtable && read(h,r.manager+0xBE0,r.holder) && r.holder%8==0 &&
       read(h,r.holder,r.bank) && r.bank%8==0 && r.bank<=UINT64_MAX-24 &&
       read(h,r.bank+8,r.count) && read(h,r.bank+12,r.capacity) &&
       r.count>0 && r.count<=65536 && r.capacity>=r.count && r.capacity<=65536 &&
       read(h,r.bank+16,r.array) && r.array%8==0 && r.array<=UINT64_MAX-uint64_t(r.count)*8;
   };
-  if (!ready_supported(h) || h.main_size<(inventory_offsets(h).gamedata_root+8) || h.main_base>UINT64_MAX-(inventory_offsets(h).gamedata_root+8) || !roots(a)) return {};
+  if (!ready_supported(h) || h.main_size<(inventory_offsets(h)->gamedata_root+8) || h.main_base>UINT64_MAX-(inventory_offsets(h)->gamedata_root+8) || !roots(a)) return {};
   struct Flag {
     uint64_t vtable{};
     uint8_t type{},properties{},config{},value{};
@@ -38,7 +38,7 @@ inline RuneFlag rune_flag(const EdenDsmodHostApi& h,uint32_t hash) {
   static_assert(sizeof(Flag)==16);
   auto flag=[&](int32_t index,uint64_t& p,Flag& b) {
     return index>=0 && index<a.count && read(h,a.array+uint64_t(index)*8,p) &&
-      p%8==0 && read(h,p,b) && b.vtable==h.main_base+inventory_offsets(h).bool_flag_vtable && b.type==0;
+      p%8==0 && read(h,p,b) && b.vtable==h.main_base+inventory_offsets(h)->bool_flag_vtable && b.type==0;
   };
   int32_t lo=0,hi=a.count; uint64_t p{};
   for (unsigned step=0;lo<hi && step<17;++step) {
@@ -66,12 +66,12 @@ inline RuneSnapshot runes(const EdenDsmodHostApi& h) {
     bool operator==(const List&) const = default;
   } a{},z{};
   auto list=[&](List& l) {
-    return read(h,u.array+45*8,l.screen) && l.screen<=UINT64_MAX-(0x386C+shortcut_offsets(h).screen_shift) &&
-      read(h,l.screen+(0x3850+shortcut_offsets(h).screen_shift),l.capacity) && l.capacity==8 &&
-      read(h,l.screen+(0x3858+shortcut_offsets(h).screen_shift),l.buffer) && l.buffer%4==0 &&
-      read(h,l.screen+(0x3868+shortcut_offsets(h).screen_shift),l.count) && l.count>0 && l.count<=8 &&
-      read(h,l.screen+(0x3860+shortcut_offsets(h).screen_shift),l.selected) && l.selected>=0 && l.selected<l.count &&
-      read(h,l.screen+(0x3864+shortcut_offsets(h).screen_shift),l.highlighted) && l.highlighted>=0 && l.highlighted<l.count;
+    return read(h,u.array+45*8,l.screen) && l.screen<=UINT64_MAX-(0x386C+shortcut_offsets(h)->screen_shift) &&
+      read(h,l.screen+(0x3850+shortcut_offsets(h)->screen_shift),l.capacity) && l.capacity==8 &&
+      read(h,l.screen+(0x3858+shortcut_offsets(h)->screen_shift),l.buffer) && l.buffer%4==0 &&
+      read(h,l.screen+(0x3868+shortcut_offsets(h)->screen_shift),l.count) && l.count>0 && l.count<=8 &&
+      read(h,l.screen+(0x3860+shortcut_offsets(h)->screen_shift),l.selected) && l.selected>=0 && l.selected<l.count &&
+      read(h,l.screen+(0x3864+shortcut_offsets(h)->screen_shift),l.highlighted) && l.highlighted>=0 && l.highlighted<l.count;
   };
   std::array<int32_t,8> ids{},again{};
   if (!list(a) || !read(h,a.buffer,ids)) return out;

@@ -18,8 +18,8 @@ inline MapMoving map_moving(const EdenDsmodHostApi& h) {
   if(!map_build_supported(h))return {};
   UiSample ui{},after{};if(!ui_sample(h,ui)||!hud_context(ui)||!main_field_stage(h))return {};
   uint64_t obj{},vt{},again{};
-  if(!read(h,h.main_base+map_offsets(h).root,obj)||!obj||obj%8||obj>UINT64_MAX-0x378||
-     !read(h,obj,vt)||vt!=h.main_base+map_offsets(h).vtable)return {};
+  if(!read(h,h.main_base+map_offsets(h)->root,obj)||!obj||obj%8||obj>UINT64_MAX-0x378||
+     !read(h,obj,vt)||vt!=h.main_base+map_offsets(h)->vtable)return {};
   constexpr int kinds[]={8,9,7,10,8,9,7,10,18};
   struct Record {
     uint64_t pointer{},vtable{},source{};int32_t kind{},seen{},cached{};
@@ -29,7 +29,7 @@ inline MapMoving map_moving(const EdenDsmodHostApi& h) {
   auto record=[&](unsigned i,Record& r){
     const auto off=i<8?0x320+i*8:0x370;
     if(!read(h,obj+off,r.pointer)||!r.pointer||r.pointer%8||r.pointer>UINT64_MAX-0x92||
-       !read(h,r.pointer,r.vtable)||r.vtable!=h.main_base+(i<8?map_offsets(h).beast_vtable:map_offsets(h).horse_vtable)||
+       !read(h,r.pointer,r.vtable)||r.vtable!=h.main_base+(i<8?map_offsets(h)->beast_vtable:map_offsets(h)->horse_vtable)||
        !read(h,r.pointer+0x1C,r.kind)||r.kind!=kinds[i]||
        !read(h,r.pointer+0x3C,r.flags)||!read(h,r.pointer+0x28,r.xyz))return false;
     r.flags&=i<8?0x88090:0x10;
@@ -53,7 +53,7 @@ inline MapMoving map_moving(const EdenDsmodHostApi& h) {
        (visible&&out.entries[j].visible&&out.entries[j].kind==r.kind))return {};
     out.entries[i]={visible,r.kind,r.xyz};}
   for(unsigned i=0;i<records.size();++i){Record r{};if(!record(i,r)||r!=records[i])return {};}
-  if(!read(h,h.main_base+map_offsets(h).root,again)||again!=obj||!read(h,obj,again)||again!=vt||
+  if(!read(h,h.main_base+map_offsets(h)->root,again)||again!=obj||!read(h,obj,again)||again!=vt||
      !main_field_stage(h)||!ui_sample(h,after)||after!=ui)return {};
   out.valid=true;return out;
 }

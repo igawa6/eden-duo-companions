@@ -26,26 +26,26 @@ inline InventoryConsume inventory_consume(const EdenDsmodHostApi& h,uint64_t add
   int32_t count{},offset{},first{},cells{},cell{},life{};uint8_t recursive{};
   auto pointer=[&](uint64_t p,uint64_t size){return p && p%8==0 && p<=UINT64_MAX-size;};
   if(!out.equipment.valid || !ui_sample(h,out.ui) || out.ui.flags!=0x1E09000000ULL ||
-     !read(h,h.main_base+inventory_offsets(h).pouch_root,out.manager) || !pointer(out.manager,0x443C0) ||
-     !read(h,out.manager,vt) || vt!=h.main_base+inventory_offsets(h).pouch_vtable ||
+     !read(h,h.main_base+inventory_offsets(h)->pouch_root,out.manager) || !pointer(out.manager,0x443C0) ||
+     !read(h,out.manager,vt) || vt!=h.main_base+inventory_offsets(h)->pouch_vtable ||
      !read(h,out.manager+0x78,count) || count<1 || count>420 ||
      !read(h,out.manager+0x7C,offset) || offset!=8 ||
      !read(h,out.manager+0x49,recursive) || recursive!=1 ||
-     !read(h,h.main_base+inventory_offsets(h).eat_player_root,root) || !pointer(root,0x50) ||
-     !read(h,root,vt) || vt!=h.main_base+inventory_offsets(h).eat_root_vtable ||
+     !read(h,h.main_base+inventory_offsets(h)->eat_player_root,root) || !pointer(root,0x50) ||
+     !read(h,root,vt) || vt!=h.main_base+inventory_offsets(h)->eat_root_vtable ||
      !read(h,root+0x48,out.preview) || !pointer(out.preview,8) ||
-     !read(h,out.preview,vt) || vt!=h.main_base+inventory_offsets(h).pause_player_vtable ||
+     !read(h,out.preview,vt) || vt!=h.main_base+inventory_offsets(h)->pause_player_vtable ||
      !read(h,out.equipment.player+0x848,life) || life<1 || life>120 ||
-     !read(h,h.main_base+inventory_offsets(h).screen_root,manager) || !pointer(manager,0x38) ||
+     !read(h,h.main_base+inventory_offsets(h)->screen_root,manager) || !pointer(manager,0x38) ||
      !read(h,manager+0x28,cells) || cells!=99 ||
      !read(h,manager+0x30,array) || !pointer(array,99*8) ||
-     !read(h,array+46*8,out.screen) || !pointer(out.screen,(0x3A10+inventory_offsets(h).pause_shift)) ||
-     !read(h,out.screen,vt) || vt!=h.main_base+inventory_offsets(h).inventory_screen_vtable ||
-     !read(h,out.screen+(0x3610+inventory_offsets(h).pause_shift),ptr) || ptr!=out.manager ||
-     !read(h,out.screen+(0x3630+inventory_offsets(h).pause_shift),selected) || selected!=0 ||
-     !read(h,out.screen+(0x3638+inventory_offsets(h).pause_shift),cell) || cell!=0 ||
-     !read(h,out.screen+(0x3A08+inventory_offsets(h).pause_shift),out.column) || !pointer(out.column,0xCE0) ||
-     !read(h,out.column,vt) || vt!=h.main_base+inventory_offsets(h).inventory_column_vtable ||
+     !read(h,array+46*8,out.screen) || !pointer(out.screen,(0x3A10+inventory_offsets(h)->pause_shift)) ||
+     !read(h,out.screen,vt) || vt!=h.main_base+inventory_offsets(h)->inventory_screen_vtable ||
+     !read(h,out.screen+(0x3610+inventory_offsets(h)->pause_shift),ptr) || ptr!=out.manager ||
+     !read(h,out.screen+(0x3630+inventory_offsets(h)->pause_shift),selected) || selected!=0 ||
+     !read(h,out.screen+(0x3638+inventory_offsets(h)->pause_shift),cell) || cell!=0 ||
+     !read(h,out.screen+(0x3A08+inventory_offsets(h)->pause_shift),out.column) || !pointer(out.column,0xCE0) ||
+     !read(h,out.column,vt) || vt!=h.main_base+inventory_offsets(h)->inventory_column_vtable ||
      !read(h,out.column+0x134,first) || first!=29 ||
      !read(h,out.column+0xCD0,cells) || cells!=20 ||
      !read(h,out.column+0xCD8,ptr) || !pointer(ptr,8) ||

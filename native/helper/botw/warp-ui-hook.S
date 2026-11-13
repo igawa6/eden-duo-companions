@@ -26,6 +26,7 @@
 .global botw_ui_hook
 botw_ui_hook:
     stp x29, x30, [sp, #-80]!
+    mov x29, sp
     stp x19, x20, [sp, #16]
     stp x21, x22, [sp, #32]
     stp x23, x24, [sp, #48]
@@ -1030,6 +1031,17 @@ consume_use_ready:
     cbnz x10, consume_invalid
     ldr w10, [x9, #(0x3638+pause_shift)]
     cbnz w10, consume_invalid
+    // The next native Eat column must start strictly beyond index 29.
+    ldr x10, [x9, #(0x3a10+pause_shift)]
+    cbz x10, consume_invalid
+    ldr x11, [x10]
+    adrp x12, inventory_column_vtable
+    add x12, x12, :lo12:inventory_column_vtable
+    cmp x11, x12
+    b.ne consume_invalid
+    ldr w10, [x10, #0x134]
+    cmp w10, #29
+    b.ls consume_invalid
     ldr x9, [x9, #(0x3a08+pause_shift)]
     ldr x10, [x19, #376]
     cmp x9, x10
@@ -1113,7 +1125,8 @@ consume_not_confirmed:
     bl native_pouch_unlock
     mov w9, #3
     str w9, [x19, #16]
-    str w20, [x19, #12]
+    add x9, x19, #12
+    stlr w20, [x9]
     b done
 
 // Finish an already committed native creation request on the player calc
@@ -1527,6 +1540,7 @@ inventory_hash_return:
 .global botw_player_food_hook
 botw_player_food_hook:
     stp x29, x30, [sp, #-64]!
+    mov x29, sp
     stp x19, x20, [sp, #16]
     mov x20, x0
     bl native_player_food_predicate
@@ -1536,6 +1550,9 @@ botw_player_food_hook:
     add x9, x19, #416
     ldar w10, [x9]
     cbz w10, player_food_done
+    cmn w10, #1
+    b.eq player_food_done
+    str w10, [sp, #48]
     adrp x9, player_info_root
     ldr x9, [x9, :lo12:player_info_root]
     cbz x9, player_food_done
@@ -1569,12 +1586,31 @@ botw_player_food_hook:
     movk x11, #0x1e, lsl #32
     cmp x10, x11
     b.ne player_food_done
+    mov w13, #1
+    b player_food_try_claim
+player_food_stale:
+    mov w13, #2
+player_food_try_claim:
+    // Claim after player validation. -1 stays busy until result publication.
+    add x9, x19, #416
+player_food_claim:
+    ldaxr w10, [x9]
+    ldr w11, [sp, #48]
+    cmp w10, w11
+    b.ne player_food_unclaimed
+    mov w11, #-1
+    stlxr w12, w11, [x9]
+    cbnz w12, player_food_claim
+    mov w10, w13
+    cmp w13, #2
+    b.eq player_food_complete
     mov x0, x20
     bl native_player_food_apply
     mov w10, #1
     b player_food_complete
-player_food_stale:
-    mov w10, #2
+player_food_unclaimed:
+    // No store on a lost claim; the next exclusive load replaces the reservation.
+    b player_food_done
 player_food_complete:
     str w10, [x19, #420]
     add x9, x19, #416

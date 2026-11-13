@@ -124,7 +124,7 @@ inline constexpr InventoryOffsets Inventory190{
   0x18,
   0x1E3B188, 0x1D210E0, 0x1D21A20, 0x1D21AE8,
 };
-inline const InventoryOffsets& inventory_offsets(const EdenDsmodHostApi& h) {
-  return matches_build(h,InventoryBuild190) ? Inventory190 : Inventory160;
+inline const InventoryOffsets* inventory_offsets(const EdenDsmodHostApi& h) {
+  return matches_build(h,InventoryBuild190) ? &Inventory190 : matches_build(h,Build) ? &Inventory160 : nullptr;
 }
 } // namespace botw

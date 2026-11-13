@@ -10,13 +10,10 @@
 #include "botw_warp_offsets.h"
 #include <string>
 namespace botw::warp {
-inline constexpr uint64_t MapRoot=0x2CA63B0,MapVtable=0x2B86848,ShrineVtable=0x2B86010,TowerVtable=0x2B86A00;
-inline constexpr uint64_t EventRoot=0x2CC56D8,EventVtable=0x2BCF2F8,EventCurrent=0x1D2B8,LatchRoot=0x2CD1590;
-inline constexpr uint64_t PlayerInfo=0x2CA1140,PlayerInfoVtable=0x2B7BE80,PlayerVtable=0x2B7BEA8;
 // Travel Medallion (DLC WarpDLC, iteration 12 item 13a):
 // the MapData+480 singleton record (class 2B875E8, kind 42, placed = +3C bit4, position +28) and
 // the native Travel producer's own destination strings (0x10F0074 DLC branch).
-inline constexpr uint64_t MedallionSlot=0x480,MedallionVtable=0x2B875E8,MedallionMapName=0x2651911,MedallionPosName=0x269652D;
+inline constexpr uint64_t MedallionSlot=0x480;
 inline constexpr int MedallionKind=42;
 // Pseudo landmarks index for the medallion (point()/request_warp()/TravelUi keep one index type);
 // far above the 151 shrine+tower slots.
@@ -44,13 +41,13 @@ struct Point {
 inline Point medallion_point(const EdenDsmodHostApi& h) {
   auto once=[&](Point& p) {
     uint64_t data{},vt{};int32_t kind{};
-    if(!warp_build_supported(h)||h.main_size<map_offsets(h).root+8||h.main_size<warp_offsets(h).medallion_map+64||h.main_size<warp_offsets(h).medallion_pos+64||
-       !read(h,h.main_base+map_offsets(h).root,data)||!data||data%8||data>UINT64_MAX-0x500||
-       !read(h,data,vt)||vt!=h.main_base+map_offsets(h).vtable||!read(h,data+MedallionSlot,p.record)||!p.record||p.record%8||p.record>UINT64_MAX-0x70||
-       !read(h,p.record,vt)||vt!=h.main_base+map_offsets(h).medallion_vtable||!read(h,p.record+0x1C,kind)||kind!=MedallionKind||
+    if(!warp_build_supported(h)||h.main_size<map_offsets(h)->root+8||h.main_size<warp_offsets(h)->medallion_map+64||h.main_size<warp_offsets(h)->medallion_pos+64||
+       !read(h,h.main_base+map_offsets(h)->root,data)||!data||data%8||data>UINT64_MAX-0x500||
+       !read(h,data,vt)||vt!=h.main_base+map_offsets(h)->vtable||!read(h,data+MedallionSlot,p.record)||!p.record||p.record%8||p.record>UINT64_MAX-0x70||
+       !read(h,p.record,vt)||vt!=h.main_base+map_offsets(h)->medallion_vtable||!read(h,p.record+0x1C,kind)||kind!=MedallionKind||
        !read(h,p.record+0x3C,p.state)||!read(h,p.record+0x28,p.xyz))return false;
     p.kind=MedallionKind;p.index=0;p.data=data;p.entry=0;
-    p.map_ptr=h.main_base+warp_offsets(h).medallion_map;p.pos_ptr=h.main_base+warp_offsets(h).medallion_pos;
+    p.map_ptr=h.main_base+warp_offsets(h)->medallion_map;p.pos_ptr=h.main_base+warp_offsets(h)->medallion_pos;
     if(!cstr(h,p.map_ptr,p.map)||p.map!="MainField/WarpIcon"||!cstr(h,p.pos_ptr,p.pos)||p.pos!="WarpPoint01")return false;
     p.message="Obj_WarpDLC";
     for(float v:p.xyz)if(!std::isfinite(v))return false;
@@ -66,15 +63,15 @@ inline Point point(const EdenDsmodHostApi& h,unsigned n) {
   if(n==MedallionIndex)return medallion_point(h);
   auto once=[&](Point& p) {
     uint64_t data{},vt{},arr{};int32_t sc{},scap{},tc{},tcap{};
-    if(!warp_build_supported(h)||h.main_size<map_offsets(h).root+8||!read(h,h.main_base+map_offsets(h).root,data)||!data||data%8||data>UINT64_MAX-0x320||
-       !read(h,data,vt)||vt!=h.main_base+map_offsets(h).vtable||!read(h,data+0x2F0,sc)||!read(h,data+0x2F4,scap)||
+    if(!warp_build_supported(h)||h.main_size<map_offsets(h)->root+8||!read(h,h.main_base+map_offsets(h)->root,data)||!data||data%8||data>UINT64_MAX-0x320||
+       !read(h,data,vt)||vt!=h.main_base+map_offsets(h)->vtable||!read(h,data+0x2F0,sc)||!read(h,data+0x2F4,scap)||
        !read(h,data+0x310,tc)||!read(h,data+0x314,tcap)||sc<0||sc>scap||scap>136||tc<0||tc>tcap||tcap>15)return false;
     const bool tower=n>=unsigned(sc);const unsigned i=tower?n-unsigned(sc):n;
     if(i>=unsigned(tower?tc:sc)||!read(h,data+(tower?0x318:0x2F8),arr)||!arr||arr%8)return false;
     p.kind=tower?3:2;p.index=i;p.data=data;
     int32_t kind{};
     if(!read(h,arr+uint64_t(i)*8,p.record)||!p.record||p.record%8||p.record>UINT64_MAX-0x70||
-       !read(h,p.record,vt)||vt!=h.main_base+(tower?map_offsets(h).tower_vtable:map_offsets(h).shrine_vtable)||!read(h,p.record+0x1C,kind)||kind!=p.kind||
+       !read(h,p.record,vt)||vt!=h.main_base+(tower?map_offsets(h)->tower_vtable:map_offsets(h)->shrine_vtable)||!read(h,p.record+0x1C,kind)||kind!=p.kind||
        !read(h,p.record+0x3C,p.state)||(tower&&(!read(h,p.record+0x64,p.tower_open)||p.tower_open>1))||!read(h,p.record+0x28,p.xyz)||!read(h,p.record+0x58,p.entry)||!p.entry||p.entry%4||
        p.entry>UINT64_MAX-0x40)return false;
     uint64_t msg{};
@@ -95,11 +92,11 @@ inline Env env(const EdenDsmodHostApi& h) {
     e.menu=ui.flags==0x1E09000004ULL;
     e.loading=(ui.flags&0x800000ULL)!=0;
     uint64_t evt{},vt{},cur{};
-    if(!read(h,h.main_base+warp_offsets(h).event_root,evt)||!evt||evt%8||!read(h,evt,vt)||vt!=h.main_base+warp_offsets(h).event_vtable||
-       !read(h,evt+warp_offsets(h).event_current,cur))return false;
+    if(!read(h,h.main_base+warp_offsets(h)->event_root,evt)||!evt||evt%8||!read(h,evt,vt)||vt!=h.main_base+warp_offsets(h)->event_vtable||
+       !read(h,evt+warp_offsets(h)->event_current,cur))return false;
     e.event=cur!=0||(ui.flags&0x800ULL)!=0;
     uint64_t l{};uint8_t latch{};
-    if(read(h,h.main_base+warp_offsets(h).latch_root,l)&&l&&read(h,l+0x28,l)&&l&&read(h,l+0x98,l)&&l){if(!read(h,l+0x28,latch))return false;}
+    if(read(h,h.main_base+warp_offsets(h)->latch_root,l)&&l&&read(h,l+0x28,l)&&l&&read(h,l+0x98,l)&&l){if(!read(h,l+0x28,latch))return false;}
     e.latch=latch!=0;
     // Native loading screens (ScreenMgr slots 69/78): state +FE or a positive request +FD.
     for(unsigned slot:{69u,78u}){uint64_t s{};uint8_t st{};int8_t rq{};

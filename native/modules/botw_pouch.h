@@ -25,13 +25,14 @@ template <class T> bool read(const EdenDsmodHostApi &h, uint64_t p, T &out) {
 }
 inline Snapshot pouch(const EdenDsmodHostApi &h) {
   Snapshot out;
-  if (h.title_id != 0x01007EF00011E000ULL || h.main_size < (inventory_offsets(h).pouch_root+8) ||
-      h.main_base > UINT64_MAX - (inventory_offsets(h).pouch_root+8))
+  if (!inventory_supported(h))return out;
+  if (h.title_id != 0x01007EF00011E000ULL || h.main_size < (inventory_offsets(h)->pouch_root+8) ||
+      h.main_base > UINT64_MAX - (inventory_offsets(h)->pouch_root+8))
     return out;
   if (!inventory_supported(h))
     return out;
   uint64_t mgr{};
-  if (!read(h, h.main_base + inventory_offsets(h).pouch_root, mgr) || mgr % 8 ||
+  if (!read(h, h.main_base + inventory_offsets(h)->pouch_root, mgr) || mgr % 8 ||
       mgr > UINT64_MAX - 0x80)
     return out;
   const uint64_t head = mgr + 0x68;
@@ -90,7 +91,7 @@ inline Snapshot pouch(const EdenDsmodHostApi &h) {
       std::memcmp(&a, &z, sizeof(a)))
     return {};
   uint64_t again{};
-  if (!read(h, h.main_base + inventory_offsets(h).pouch_root, again) || again != mgr)
+  if (!read(h, h.main_base + inventory_offsets(h)->pouch_root, again) || again != mgr)
     return {};
   out.valid = true;
   return out;

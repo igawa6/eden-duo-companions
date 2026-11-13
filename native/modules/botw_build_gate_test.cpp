@@ -32,6 +32,9 @@ int main() {
     assert(false && "unsupported build attempted guest read");
     return false;
   };
+  assert(!botw::inventory_offsets(f.h)&&!botw::ready_offsets(f.h)&&!botw::quest_offsets(f.h)&&
+         !botw::shortcut_offsets(f.h)&&!botw::map_offsets(f.h)&&!botw::warp_offsets(f.h)&&!botw::state_offsets(f.h));
+  assert(!botw::active_effects(f.h,0x100000).valid);
   assert(botw::context(f.h) == botw::UiContext::Unknown);
   assert(!botw::pouch(f.h).valid);
   assert(!botw::currency(f.h).valid);

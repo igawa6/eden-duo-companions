@@ -21,12 +21,12 @@ inline MapKoroks map_koroks(const EdenDsmodHostApi& h) {
     bool operator==(const Roots&)const=default;
   } root{},last{};
   auto roots=[&](Roots& r){
-    return read(h,h.main_base+map_offsets(h).root,r.map)&&ptr(r.map,0x378)&&
-      read(h,r.map,r.map_vt)&&r.map_vt==h.main_base+map_offsets(h).vtable&&
+    return read(h,h.main_base+map_offsets(h)->root,r.map)&&ptr(r.map,0x378)&&
+      read(h,r.map,r.map_vt)&&r.map_vt==h.main_base+map_offsets(h)->vtable&&
       read(h,r.map+0x360,r.count)&&read(h,r.map+0x364,r.cap)&&r.count==900&&r.cap==900&&
       read(h,r.map+0x368,r.array)&&ptr(r.array,900*8)&&
-      read(h,h.main_base+inventory_offsets(h).gamedata_root,r.manager)&&ptr(r.manager,0xC2C)&&
-      read(h,r.manager,r.manager_vt)&&r.manager_vt==h.main_base+inventory_offsets(h).gamedata_vtable&&
+      read(h,h.main_base+inventory_offsets(h)->gamedata_root,r.manager)&&ptr(r.manager,0xC2C)&&
+      read(h,r.manager,r.manager_vt)&&r.manager_vt==h.main_base+inventory_offsets(h)->gamedata_vtable&&
       read(h,r.manager+0xBE0,r.holder)&&ptr(r.holder,8)&&read(h,r.holder,r.bank)&&ptr(r.bank,24)&&
       read(h,r.bank+8,r.flag_count)&&read(h,r.bank+12,r.flag_cap)&&
       r.flag_count>0&&r.flag_count<=r.flag_cap&&r.flag_cap<=65536&&
@@ -51,7 +51,7 @@ inline MapKoroks map_koroks(const EdenDsmodHostApi& h) {
   std::array<Record,900> records{};
   auto record=[&](unsigned i,Record& r){
     const auto p=pointers[i];uint64_t vt{};int32_t kind{};
-    if(!ptr(p,0x60)||!read(h,p,vt)||vt!=h.main_base+map_offsets(h).korok_vtable||
+    if(!ptr(p,0x60)||!read(h,p,vt)||vt!=h.main_base+map_offsets(h)->korok_vtable||
        !read(h,p+0x1C,kind)||kind!=17||!read(h,p+0x28,r.xyz)||
        !read(h,p+0x50,r.source)||!ptr(r.source,12,4)||
        !read(h,r.source,r.name)||!ptr(r.name,1,1)||!read(h,r.source+8,r.handle)||r.handle==UINT32_MAX)return false;
@@ -60,7 +60,7 @@ inline MapKoroks map_koroks(const EdenDsmodHostApi& h) {
     if(!(root.mode&0x8000)){if(r.handle>INT32_MAX)return false;index=r.handle;}
     else {if((r.handle>>24)!=root.generation)return false;index=r.handle&0xFFFFFF;}
     if(index>=uint32_t(root.flag_count)||!read(h,root.flags+uint64_t(index)*8,r.flag)||
-       !ptr(r.flag,16)||!read(h,r.flag,r.data)||r.data.vt!=h.main_base+inventory_offsets(h).bool_flag_vtable||
+       !ptr(r.flag,16)||!read(h,r.flag,r.data)||r.data.vt!=h.main_base+inventory_offsets(h)->bool_flag_vtable||
        r.data.type||r.data.hash!=korok_flag_hashes[i])return false;
     for(float v:r.xyz)if(!std::isfinite(v))return false;
     return std::abs(r.xyz[0])<=6000&&std::abs(r.xyz[1])<=10000&&std::abs(r.xyz[2])<=5000;

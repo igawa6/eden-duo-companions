@@ -11,7 +11,7 @@ inline constexpr WarpOffsets Warp190{0x1E3A638,0x1D1FCE8,0x1D201A0,0x1D2B8,0x1E4
 inline bool warp_build_supported(const EdenDsmodHostApi& h) {
   return map_build_supported(h);
 }
-inline const WarpOffsets& warp_offsets(const EdenDsmodHostApi& h) {
-  return matches_build(h,InventoryBuild190)?Warp190:Warp160;
+inline const WarpOffsets* warp_offsets(const EdenDsmodHostApi& h) {
+  return matches_build(h,InventoryBuild190) ? &Warp190 : matches_build(h,Build) ? &Warp160 : nullptr;
 }
 }
