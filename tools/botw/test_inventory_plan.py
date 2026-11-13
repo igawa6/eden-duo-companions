@@ -11,14 +11,27 @@ from record_frame_probe import branch_target
 
 
 class InventoryPlanTests(unittest.TestCase):
-    def test_production_plan_matches_reviewed_r6(self):
+    def test_production_plan_matches_reviewed_r7(self):
         with tempfile.TemporaryDirectory() as work:
             plan=production.build_plan(Path(work))
         import json
         data=(json.dumps(plan,indent=2)+"\n").encode()
         self.assertEqual(hashlib.sha256(data).hexdigest(),
-                         "c65d04f6bee1f20e32952f9b8220dc468d49fcc233717c198206d7ca276d89be")
+                         "bd2345fcda1fcfe0d9280ef266accfb88221900b9a718f7b789690785ddf7bd9")
         self.assertNotEqual(plan['build_id'],inventory.BUILD_ID)
+
+    def test_food_claim_exclusive_window(self):
+        for build in [production.BUILD_ID,inventory.BUILD_ID]:
+            with tempfile.TemporaryDirectory() as work:
+                plan=production.build_plan(Path(work),build)
+            words=list(struct.unpack('<'+'I'*(len(plan['guest_code']['bytes'])//8),
+                                     bytes.fromhex(plan['guest_code']['bytes'])))
+            at=words.index(0x885FFD2A)  # ldaxr w10,[x9]
+            self.assertEqual(words.count(0x885FFD2A),1)
+            self.assertEqual(words[at-2:at],[0xB94033EE,0x1280000B])  # preload observed / -1
+            self.assertEqual(words[at+1],0x6B0E015F)  # cmp w10,w14
+            self.assertEqual(words[at+2]&0xFF00001F,0x54000001)  # b.ne loser
+            self.assertEqual(words[at+3],0x880CFD2B)  # stlxr w12,w11,[x9]
 
     def test_runtime22_guest_instruction_compatibility(self):
         for build in [production.BUILD_ID,inventory.BUILD_ID]:

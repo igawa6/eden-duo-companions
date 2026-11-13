@@ -7,8 +7,9 @@
 #include <cmath>
 #include <cstdio>
 namespace botw {
-// Active timed food/elixir effects on the validated Player (exact 1.6.0): 12 levels (u32) at
-// Player+0x1FF0 and 12 timer triples (f32 frames at 30 fps) at Player+0x1ED8; the third float of
+// Active timed food/elixir effects on the validated Player (exact supported builds): 12 levels (u32) at
+// Player+0x1FF0 and 12 timer triples (f32 frames at 30 fps) at the per-build timer base
+// (1.6: Player+0x1ED8; 1.9: Player+0x1EDC); the third float of
 // every triple is the -1 sentinel. Slot -> native HUD effect, live-probed one slot at a time
 // against the native HUD (iteration 14 item 5): 2 Speed Up (Hasty
 // also fills 0 and 1, which the HUD does not list), 5 Attack Up, 6 Defense Up, 7 Heat Resistance,

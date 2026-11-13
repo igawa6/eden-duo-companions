@@ -12,7 +12,7 @@
 //  * Armor levels Player+0x2028 heat / +0x202C cold / +0x2030 flame guard = sum of the worn
 //    pieces' armorEffect.EffectLevel (main+0x1693A00/0x1693E30/0x1693C20, combos count through
 //    main+0x168F270); food levels are effect slots 7/8/9 (Player+0x200C/+0x2010/+0x2014), timers
-//    Player+0x1ED8+12*slot (frames at 30 fps).
+//    Player+effect_timers+12*slot (per-build base: 1.6 0x1ED8, 1.9 0x1EDC; frames at 30 fps).
 //  * Fire: UIManager+0x78 = area fire level (physics +0x90 byte 0x17), +0x7C = contact fire level
 //    (byte 0x16) (main+0xF3B730); main+0x15C96BC burns when the level > physics+0x180 =
 //    min(armor+food flame guard,2) (3 with the flame-guard set bonus).

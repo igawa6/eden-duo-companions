@@ -1593,12 +1593,12 @@ player_food_stale:
 player_food_try_claim:
     // Claim after player validation. -1 stays busy until result publication.
     add x9, x19, #416
+    ldr w14, [sp, #48]
+    mov w11, #-1
 player_food_claim:
     ldaxr w10, [x9]
-    ldr w11, [sp, #48]
-    cmp w10, w11
+    cmp w10, w14
     b.ne player_food_unclaimed
-    mov w11, #-1
     stlxr w12, w11, [x9]
     cbnz w12, player_food_claim
     mov w10, w13
