@@ -33,7 +33,7 @@ struct PlayerHealth {
   bool operator==(const PlayerHealth&) const = default;
 };
 inline PlayerHealth player_health(const EdenDsmodHostApi& h,uint64_t info,uint64_t player) {
-  if(!supported(h) || info<0x10000 || info%8 || info>UINT64_MAX-0xA8 ||
+  if(!ready_supported(h) || info<0x10000 || info%8 || info>UINT64_MAX-0xA8 ||
      player<0x10000 || player%8 || player>UINT64_MAX-0x2450)return {};
   auto sample=[&](PlayerHealth& s) {
     float base{};

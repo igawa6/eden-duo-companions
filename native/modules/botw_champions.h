@@ -16,20 +16,20 @@ using ChampionAbilities=std::array<ChampionAbility,4>;
 inline ChampionAbilities champion_abilities(const EdenDsmodHostApi& h) {
   ChampionAbilities out{};
   UiSample before{},after{};
-  if (!supported(h)||h.main_size<0x2CA1148||h.main_base>UINT64_MAX-0x2CA1148||
+  if (!ready_supported(h)||h.main_size<inventory_offsets(h).player_info_root+8||h.main_base>UINT64_MAX-(inventory_offsets(h).player_info_root+8)||
       !ui_sample(h,before)||!hud_context(before)) return out;
   struct Player {uint64_t info{},info_vt{},actor{},actor_vt{};bool operator==(const Player&)const=default;};
   auto ptr=[](uint64_t p,uint64_t span){return p>=0x10000&&p%8==0&&p<=UINT64_MAX-span;};
   auto player=[&](Player& p){
-    return read(h,h.main_base+0x2CA1140,p.info)&&ptr(p.info,0x68)&&
-      read(h,p.info,p.info_vt)&&p.info_vt==h.main_base+0x2B7BE80&&
-      read(h,p.info+0x60,p.actor)&&ptr(p.actor,0x1E24)&&
-      read(h,p.actor,p.actor_vt)&&p.actor_vt==h.main_base+0x2B7BEA8;
+    return read(h,h.main_base+inventory_offsets(h).player_info_root,p.info)&&ptr(p.info,0x68)&&
+      read(h,p.info,p.info_vt)&&p.info_vt==h.main_base+inventory_offsets(h).player_info_vtable&&
+      read(h,p.info+0x60,p.actor)&&ptr(p.actor,ready_offsets(h).champion_timers[0]+12)&&
+      read(h,p.actor,p.actor_vt)&&p.actor_vt==h.main_base+inventory_offsets(h).player_vtable;
   };
   Player a{},z{};
   if(!player(a))return out;
-  constexpr uint32_t timer_offsets[]={0x1E18,0x1DF4,0x1E00,0x1E0C};
-  constexpr uint32_t count_offsets[]={0,0x1CC8,0x1CD0,0x1CCC};
+  const auto& timer_offsets=ready_offsets(h).champion_timers;
+  const auto& count_offsets=ready_offsets(h).champion_counts;
   struct Raw {float frames{},rate{};int32_t count{};bool operator==(const Raw&)const=default;};
   for(unsigned i=0;i<4;++i){
     auto sample=[&](Raw& v){

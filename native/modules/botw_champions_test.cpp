@@ -12,6 +12,7 @@ struct ChampionFixture:Fixture {
   for(auto offset:{0x1CC8,0x1CCC,0x1CD0})put<int32_t>(Player+offset,3);
  }
 };
+#ifndef BOTW_CHAMPION_FIXTURE_ONLY
 int main(){
  using F=ChampionFixture;unsigned cases{};
  {F f;auto a=botw::champion_abilities(f.h);for(unsigned i=0;i<4;++i){assert(a[i].valid&&!a[i].recharging&&a[i].seconds==0&&a[i].charges==(i?3:1));++cases;}}
@@ -50,3 +51,5 @@ int main(){
  for(const auto& [n,text]:std::array<std::pair<int,const char*>,6>{{{0,"0:00"},{1,"0:01"},{65,"1:05"},{1080,"18:00"},{5999,"99:59"},{6000,"1h40"}}}){assert(botw::champion_countdown(n)==text);++cases;}
  std::cout<<cases<<" Champion live reader/charges/cooldown/race/compaction cases passed\n";
 }
+
+#endif

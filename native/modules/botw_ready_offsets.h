@@ -30,6 +30,8 @@ struct ReadyOffsets {
   uint64_t map_type;
   uint64_t stage_vtable;
   uint32_t pane_shift;
+  std::array<uint32_t,4> champion_timers,champion_counts;
+  uint64_t physics_body_vtable;
 };
 inline constexpr ReadyOffsets Ready160{
   0x2BD1208, // float_flag_vtable
@@ -52,6 +54,8 @@ inline constexpr ReadyOffsets Ready160{
   0x2BE1708, // map_type
   0x2A701C8, // stage_vtable
   0,
+  {0x1E18,0x1DF4,0x1E00,0x1E0C}, {0,0x1CC8,0x1CD0,0x1CCC},
+  0x2BCE588, // physics_body_vtable
 };
 inline constexpr ReadyOffsets Ready190{
   0x1D21BB0, // float_flag_vtable
@@ -74,6 +78,8 @@ inline constexpr ReadyOffsets Ready190{
   0x1DAE3A0, // map_type
   0x1BC4E70, // stage_vtable
   24,
+  {0x1E1C,0x1DF8,0x1E04,0x1E10}, {0,0x1CCC,0x1CD4,0x1CD0},
+  0x1D1F000, // physics_body_vtable
 };
 inline const ReadyOffsets& ready_offsets(const EdenDsmodHostApi& h) {
 #ifdef BOTW_190_READY_EVIDENCE
