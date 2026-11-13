@@ -33,10 +33,10 @@ inline GearSnapshot gear(const EdenDsmodHostApi& h, const Snapshot& pouch) {
   } a{},z{};
   auto fields=[&](Fields& f) {
     return ui.array<=UINT64_MAX-45*8 && read(h,ui.array+45*8,f.screen) &&
-      f.screen%8==0 && f.screen<=UINT64_MAX-0x38CD &&
-      read(h,f.screen+0x37B0,f.slots) && read(h,f.screen+0x3860,f.initial) &&
-      read(h,f.screen+0x3864,f.highlighted) && read(h,f.screen+0x3868,f.count) &&
-      read(h,f.screen+0x38CC,f.close_mode) && f.close_mode==3 &&
+      f.screen%8==0 && f.screen<=UINT64_MAX-(0x38CD+shortcut_offsets(h).screen_shift) &&
+      read(h,f.screen+(0x37B0+shortcut_offsets(h).screen_shift),f.slots) && read(h,f.screen+(0x3860+shortcut_offsets(h).screen_shift),f.initial) &&
+      read(h,f.screen+(0x3864+shortcut_offsets(h).screen_shift),f.highlighted) && read(h,f.screen+(0x3868+shortcut_offsets(h).screen_shift),f.count) &&
+      read(h,f.screen+(0x38CC+shortcut_offsets(h).screen_shift),f.close_mode) && f.close_mode==3 &&
       f.count>=0 && f.count<=(type==2 ? 6 : 20) && f.initial>=-1 && f.initial<f.count &&
       f.highlighted>=-1 && f.highlighted<f.count;
   };

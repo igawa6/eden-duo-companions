@@ -168,6 +168,9 @@ struct SelectionBridge {
 #ifdef BOTW_190_QUEST_EVIDENCE
       quest_supported=level>=2;
 #endif
+#ifdef BOTW_190_RUNES_EVIDENCE
+      world_rune_supported=level>=11;cursor_supported=level>=12;
+#endif
     }
 #endif
     if (healthy) note_beat(beat,now);
@@ -650,7 +653,7 @@ struct SelectionBridge {
     const auto now=Clock::now();
     uint32_t guest_epoch{};
     if (!healthy || !cursor_supported || pending || !epoch || session_epoch()!=epoch ||
-        !load(4092,guest_epoch) || guest_epoch!=epoch || !scope() || !supported(host) ||
+        !load(4092,guest_epoch) || guest_epoch!=epoch || !scope() || !shortcut_supported(host) ||
         now-sampled>std::chrono::milliseconds(100) ||
         !beat_fresh(now) || index< -1 || index>=20) return false;
     const auto native=native_quick(host);
@@ -664,8 +667,8 @@ struct SelectionBridge {
       const auto fresh=runes(host);
       if (!fresh.valid || !rune_display.valid || fresh.ids!=rune_display.ids ||
           fresh.count!=rune_display.count || index>=fresh.count ||
-          !read(host,ui.array+45*8,screen) || screen>UINT64_MAX-0x3868 ||
-          !read(host,screen+0x3864,highlight) || highlight!=fresh.highlighted ||
+          !read(host,ui.array+45*8,screen) || screen>UINT64_MAX-(0x3868+shortcut_offsets(host).screen_shift) ||
+          !read(host,screen+(0x3864+shortcut_offsets(host).screen_shift),highlight) || highlight!=fresh.highlighted ||
           fresh.selected!=rune_display.selected || fresh.highlighted!=rune_display.highlighted) return false;
       selector=4;identity=uint64_t(fresh.ids[index]);initial=fresh.selected;count=fresh.count;
     } else {
@@ -686,11 +689,11 @@ struct SelectionBridge {
         if(shown==QuickKind::Arrow)return false;
         uint64_t ctl{},vt{};uint32_t cells{},flat{};
         std::array<int32_t,21> mapping{};
-        if(!read(host,screen+0x3790,ctl)||!ctl||ctl%8||ctl>UINT64_MAX-0x400||
-           !read(host,ctl,vt)||vt!=host.main_base+0x2B858B0||
+        if(!read(host,screen+(0x3790+shortcut_offsets(host).screen_shift),ctl)||!ctl||ctl%8||ctl>UINT64_MAX-0x400||
+           !read(host,ctl,vt)||vt!=host.main_base+shortcut_offsets(host).controller_vtable||
            !read(host,ctl+0x2AC,cells)||cells<1||cells>21||
            !read(host,ctl+0x2DC,flat)||flat>=cells||
-           !host.read_memory(host.userdata,screen+0x386C,mapping.data(),cells*4)||
+           !host.read_memory(host.userdata,screen+(0x386C+shortcut_offsets(host).screen_shift),mapping.data(),cells*4)||
            mapping[flat]!=fresh.highlighted||std::count(mapping.begin(),mapping.begin()+cells,-1)!=1)return false;
       } else {identity=fresh.items[index].address;value=fresh.items[index].value;}
       initial=fresh.initial;highlight=fresh.highlighted;count=int32_t(fresh.items.size());

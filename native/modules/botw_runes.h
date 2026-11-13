@@ -66,12 +66,12 @@ inline RuneSnapshot runes(const EdenDsmodHostApi& h) {
     bool operator==(const List&) const = default;
   } a{},z{};
   auto list=[&](List& l) {
-    return read(h,u.array+45*8,l.screen) && l.screen<=UINT64_MAX-0x386C &&
-      read(h,l.screen+0x3850,l.capacity) && l.capacity==8 &&
-      read(h,l.screen+0x3858,l.buffer) && l.buffer%4==0 &&
-      read(h,l.screen+0x3868,l.count) && l.count>0 && l.count<=8 &&
-      read(h,l.screen+0x3860,l.selected) && l.selected>=0 && l.selected<l.count &&
-      read(h,l.screen+0x3864,l.highlighted) && l.highlighted>=0 && l.highlighted<l.count;
+    return read(h,u.array+45*8,l.screen) && l.screen<=UINT64_MAX-(0x386C+shortcut_offsets(h).screen_shift) &&
+      read(h,l.screen+(0x3850+shortcut_offsets(h).screen_shift),l.capacity) && l.capacity==8 &&
+      read(h,l.screen+(0x3858+shortcut_offsets(h).screen_shift),l.buffer) && l.buffer%4==0 &&
+      read(h,l.screen+(0x3868+shortcut_offsets(h).screen_shift),l.count) && l.count>0 && l.count<=8 &&
+      read(h,l.screen+(0x3860+shortcut_offsets(h).screen_shift),l.selected) && l.selected>=0 && l.selected<l.count &&
+      read(h,l.screen+(0x3864+shortcut_offsets(h).screen_shift),l.highlighted) && l.highlighted>=0 && l.highlighted<l.count;
   };
   std::array<int32_t,8> ids{},again{};
   if (!list(a) || !read(h,a.buffer,ids)) return out;

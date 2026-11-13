@@ -20,17 +20,17 @@ inline WorldRunes world_runes(const EdenDsmodHostApi& h) {
   bool operator==(const Roots&) const = default;
  } a{},z{};
  auto roots=[&](Roots& r) {
-  return read(h,h.main_base+0x2C9A668,r.state) && r.state && ! (r.state%8) && r.state<=UINT64_MAX-0x244 &&
-   read(h,r.state,r.state_vt) && r.state_vt==h.main_base+0x2B4DD40 && read(h,r.state+0x240,r.current) && r.current>=-1 && r.current<=7 &&
-   read(h,ui.array+45*8,r.screen) && r.screen && !(r.screen%8) && r.screen<=UINT64_MAX-0x36EC &&
-   read(h,r.screen,r.screen_vt) && r.screen_vt==h.main_base+0x2BA1D40 && read(h,r.screen+0x36E8,r.screen_current) && r.screen_current>=-1 && r.screen_current<=7 &&
-   read(h,h.main_base+0x2CC5FE8,r.game_data) && r.game_data && !(r.game_data%8) && r.game_data<=UINT64_MAX-0xBE9 &&
-   read(h,r.game_data,r.game_vt) && r.game_vt==h.main_base+0x2BD07E0 && read(h,r.game_data+0xBE8,r.permission) && r.permission<=1 &&
+  return read(h,h.main_base+ready_offsets(h).rune_root,r.state) && r.state && ! (r.state%8) && r.state<=UINT64_MAX-0x244 &&
+   read(h,r.state,r.state_vt) && r.state_vt==h.main_base+ready_offsets(h).rune_vtable && read(h,r.state+0x240,r.current) && r.current>=-1 && r.current<=7 &&
+   read(h,ui.array+45*8,r.screen) && r.screen && !(r.screen%8) && r.screen<=UINT64_MAX-(0x36EC+shortcut_offsets(h).screen_shift) &&
+   read(h,r.screen,r.screen_vt) && r.screen_vt==h.main_base+shortcut_offsets(h).screen_vtable && read(h,r.screen+(0x36E8+shortcut_offsets(h).screen_shift),r.screen_current) && r.screen_current>=-1 && r.screen_current<=7 &&
+   read(h,h.main_base+inventory_offsets(h).gamedata_root,r.game_data) && r.game_data && !(r.game_data%8) && r.game_data<=UINT64_MAX-0xBE9 &&
+   read(h,r.game_data,r.game_vt) && r.game_vt==h.main_base+inventory_offsets(h).gamedata_vtable && read(h,r.game_data+0xBE8,r.permission) && r.permission<=1 &&
    read(h,r.game_data+0xBE0,r.holder) && r.holder && !(r.holder%8) && read(h,r.holder,r.bank) && r.bank && !(r.bank%8) && r.bank<=UINT64_MAX-24 &&
    read(h,r.bank+8,r.count) && read(h,r.bank+12,r.capacity) && r.count>0 && r.count<=r.capacity && r.capacity<=65536 &&
    read(h,r.bank+16,r.flags) && r.flags && !(r.flags%8) && r.flags<=UINT64_MAX-uint64_t(r.count)*8 &&
-   read(h,h.main_base+0x2CC4A40,r.dlc) && r.dlc && !(r.dlc%8) && r.dlc<=UINT64_MAX-0xD4 &&
-   read(h,r.dlc,r.dlc_vt) && r.dlc_vt==h.main_base+0x2BCD5C0 && read(h,r.dlc+0xD0,r.dlc_version) && r.dlc_version<=0xFFFF;
+   read(h,h.main_base+quest_offsets(h).dlc_root,r.dlc) && r.dlc && !(r.dlc%8) && r.dlc<=UINT64_MAX-(quest_offsets(h).dlc_version+4) &&
+   read(h,r.dlc,r.dlc_vt) && r.dlc_vt==h.main_base+quest_offsets(h).dlc_vtable && read(h,r.dlc+quest_offsets(h).dlc_version,r.dlc_version) && r.dlc_version<=0xFFFF;
  };
  if(!roots(a))return {};
  WorldRunes out;

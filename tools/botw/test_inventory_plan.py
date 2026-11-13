@@ -63,6 +63,21 @@ class InventoryPlanTests(unittest.TestCase):
         self.assertNotIn(production.SYMBOLS['native_destination_set'],targets)
         self.assertNotIn(production.SYMBOLS['native_warp'],targets)
 
+    def test_shortcut_plan_supplies_option_getter_bank_argument(self):
+        with tempfile.TemporaryDirectory() as work:
+            plan=inventory.build_plan(Path(work),shortcuts=True)
+        code=bytes.fromhex(plan['guest_code']['bytes'])
+        targets={r['addend'] for r in plan['guest_code']['relocations']
+                 if r['target']=='main'}
+        self.assertTrue({0x1E2D538,0x1E2D598,0x1CDB958,0xD6BFA0,
+                         0xE278C0,0xD6696C,0xE25A18,0x1DA6928} <= targets)
+        calls=[r for r in plan['guest_code']['relocations']
+               if r['target']=='main' and r['addend']==0xD349D0
+               and r['kind']=='aarch64_branch26']
+        self.assertEqual(len(calls),1)
+        at=calls[0]['offset']
+        self.assertEqual(code[at-4:at].hex(),'e1031f2a')  # mov w1,wzr
+
 
 if __name__=='__main__':
     unittest.main()

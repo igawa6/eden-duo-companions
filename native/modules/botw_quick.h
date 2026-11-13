@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include "botw_context.h"
+#include "botw_shortcut_offsets.h"
 namespace botw {
 enum class QuickKind { None, Weapon, Pending, Bow, Shield, Rune, Arrow };
 struct NativeQuick {
@@ -8,6 +9,7 @@ struct NativeQuick {
   QuickKind kind{};
 };
 inline NativeQuick native_quick(const EdenDsmodHostApi &h) {
+  if(!shortcut_supported(h))return {};
   UiSample a{}, b{};
   if (!ui_sample(h,a)) return {};
   struct Fields {
@@ -19,9 +21,9 @@ inline NativeQuick native_quick(const EdenDsmodHostApi &h) {
   auto fields = [&](Fields& f) {
     return a.array <= UINT64_MAX - 45*8 &&
       read(h,a.array+45*8,f.screen) && f.screen%8==0 &&
-      f.screen <= UINT64_MAX-0x3728 && read(h,f.screen,f.vtable) &&
-      f.vtable==h.main_base+0x2BA1D40 && read(h,f.screen+0x150,f.state) &&
-      read(h,f.screen+0x3720,f.selector) && read(h,f.screen+0x3724,f.selector_copy) &&
+      f.screen <= UINT64_MAX-(0x3728+shortcut_offsets(h).screen_shift) && read(h,f.screen,f.vtable) &&
+      f.vtable==h.main_base+shortcut_offsets(h).screen_vtable && read(h,f.screen+(0x150+shortcut_offsets(h).screen_shift),f.state) &&
+      read(h,f.screen+(0x3720+shortcut_offsets(h).screen_shift),f.selector) && read(h,f.screen+(0x3724+shortcut_offsets(h).screen_shift),f.selector_copy) &&
       read(h,a.manager+0x64C24,f.category) && read(h,a.manager+0x64C58,f.held);
   };
   if (!fields(x) || !fields(y) || x!=y || !ui_sample(h,b) || a!=b) return {};
@@ -31,7 +33,7 @@ inline NativeQuick native_quick(const EdenDsmodHostApi &h) {
   if (held_direction && held_direction!=0x10000 && held_direction!=0x40000 &&
       held_direction!=0x80000) return {};
   if (a.flags==0x1E09000000ULL && x.category==0 &&
-      x.state==h.main_base+0x2BA1B50)
+      x.state==h.main_base+shortcut_offsets(h).world_state)
     return {true,held_direction ? QuickKind::Pending : QuickKind::None};
   // ScreenMainShortCut's own type distinguishes contextual bow/arrow modes.
   // ZR is not authoritative: the bow can remain drawn after ZR is released.
@@ -45,11 +47,11 @@ inline NativeQuick native_quick(const EdenDsmodHostApi &h) {
     case 4: kind=QuickKind::Rune; direction=0x10000; break;
   }
   if (direction && held_direction==direction && x.category==3) {
-    if (a.flags==0x1E09000004ULL && x.state==h.main_base+0x2BA1C10)
+    if (a.flags==0x1E09000004ULL && x.state==h.main_base+shortcut_offsets(h).menu_state)
       return {true,kind};
     if ((a.flags==0x1E09000000ULL || a.flags==0x1E09000004ULL) &&
-        (x.state==h.main_base+0x2BA1B50 || x.state==h.main_base+0x2BA1C10 ||
-         x.state==h.main_base+0x2BA1C70))
+        (x.state==h.main_base+shortcut_offsets(h).world_state || x.state==h.main_base+shortcut_offsets(h).menu_state ||
+         x.state==h.main_base+shortcut_offsets(h).end_state))
       return {true,QuickKind::Pending};
   }
   // The native selector clears/switches its type pair while entering another
@@ -59,8 +61,8 @@ inline NativeQuick native_quick(const EdenDsmodHostApi &h) {
       x.selector>=-1 && x.selector<=4 && x.selector_copy>=-1 && x.selector_copy<=4 &&
       (x.selector!=x.selector_copy || x.selector==-1) &&
       (a.flags==0x1E09000000ULL || a.flags==0x1E09000004ULL) &&
-      (x.state==h.main_base+0x2BA1B50 || x.state==h.main_base+0x2BA1C10 ||
-       x.state==h.main_base+0x2BA1C70)) return {true,QuickKind::Pending};
+      (x.state==h.main_base+shortcut_offsets(h).world_state || x.state==h.main_base+shortcut_offsets(h).menu_state ||
+       x.state==h.main_base+shortcut_offsets(h).end_state)) return {true,QuickKind::Pending};
   return {};
 }
 struct QuickOverlay {

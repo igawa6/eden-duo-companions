@@ -3,6 +3,7 @@
 #include "botw_world_runes_fixture.h"
 #include <cassert>
 #include <iostream>
+namespace {
 struct WorldRuneBridgeFixture:WorldRuneFixture {
  std::array<uint8_t,4096> mailbox{};State state;uint32_t fail=UINT32_MAX,change_epoch=UINT32_MAX;
  template<class T> void mb(unsigned at,T value){std::memcpy(mailbox.data()+at,&value,sizeof(value));}
@@ -19,6 +20,8 @@ struct WorldRuneBridgeFixture:WorldRuneFixture {
  }
  bool request(int id=2){return state.bridge.request_world_rune(id,botw::world_runes(h));}
 };
+} // namespace
+#ifndef BOTW_WORLD_RUNE_FIXTURE_ONLY
 // Touch Rune picker: "select" moves the focus only; "touch_confirm" queues the change.
 int main(){using F=WorldRuneBridgeFixture;unsigned cases{};
  {F f;assert(f.request());assert(f.get<uint32_t>(20)==10 && f.get<uint32_t>(712)==2 && f.get<uint64_t>(696)==f.flags[0x795E7BBC]);++cases;}
@@ -37,3 +40,5 @@ int main(){using F=WorldRuneBridgeFixture;unsigned cases{};
  {F f;for(auto h:botw::RuneUnlockHashes)f.flag(h,false);assert(on_action(&f.state,"quick_help",3));sample(&f.state,&f.h);assert(f.values["botw.quick.empty"]==1 && !on_action(&f.state,"select",0));assert(on_action(&f.state,"quick_close",0) && !f.get<uint32_t>(8));++cases;}
  std::cout<<cases<<" World Rune bridge/scope/deferred/native-confirmation cases passed\n";
 }
+
+#endif

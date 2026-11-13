@@ -1,14 +1,26 @@
 // Private BOTW 1.6.0 UI-thread bridge. Addresses are linked from the pinned build.
 .text
+.set shortcuts_enabled, 1
+.set quests_enabled, 1
 .set hud_enabled, 1
 .ifdef BOTW_INVENTORY_ONLY
+.set shortcuts_enabled, 0
+.set quests_enabled, 0
 .set hud_enabled, 0
 .endif
 .ifdef BOTW_READY
 .set hud_enabled, 1
 .endif
+.ifdef BOTW_QUESTS
+.set quests_enabled, 1
+.endif
+.ifdef BOTW_SHORTCUTS
+.set shortcuts_enabled, 1
+.endif
+.set dlc_version_field, 0xd0
 .set pause_shift, 0
 .ifdef BOTW_190
+.set dlc_version_field, 0xd8
 .set pause_shift, 24
 .endif
 .global botw_ui_hook
@@ -91,6 +103,12 @@ pending_request:
     b.eq inventory_request
     cmp w12, #6
     b.eq inventory_request
+    .ifdef BOTW_SHORTCUTS
+    cmp w12, #10
+    b.eq world_rune_request
+    cmp w12, #4
+    b.ls shortcut_request
+    .endif
     b refused
     .else
     cmp w12, #14
@@ -113,6 +131,9 @@ pending_request:
     b.eq inventory_request
     cmp w12, #6
     b.eq inventory_request
+    .endif
+    .if shortcuts_enabled
+shortcut_request:
     cmp x10, x11
     b.ne refused
     ldr w10, [x9, #0xc24]
@@ -155,21 +176,26 @@ direction_check:
     add x10, x10, :lo12:screen_vtable
     cmp x9, x10
     b.ne refused
-    ldr x9, [x21, #0x150]
+    ldr x9, [x21, #(0x150+pause_shift)]
+    .ifdef BOTW_190
+    adrp x10, menu_state
+    add x10, x10, :lo12:menu_state
+    .else
     sub x10, x10, #0x130
+    .endif
     cmp x9, x10
     b.ne refused
-    ldr w9, [x21, #0x3720]
+    ldr w9, [x21, #(0x3720+pause_shift)]
     cmp w9, w11
     b.ne refused
-    ldr w9, [x21, #0x3724]
+    ldr w9, [x21, #(0x3724+pause_shift)]
     cmp w9, w11
     b.ne refused
-    mov w9, #0x38cc
+    mov w9, #(0x38cc+pause_shift)
     ldrb w9, [x21, x9]
     cmp w9, #3
     b.ne refused
-    ldr w9, [x21, #0x3868]
+    ldr w9, [x21, #(0x3868+pause_shift)]
     ldr w10, [x19, #56]
     cmp w9, w10
     b.ne refused
@@ -196,11 +222,11 @@ cursor_empty_index:
     ldr x9, [x19, #80]
     cbnz x9, refused
 cursor_index_valid:
-    ldr w9, [x21, #0x3860]
+    ldr w9, [x21, #(0x3860+pause_shift)]
     ldr w10, [x19, #28]
     cmp w9, w10
     b.ne refused
-    ldr w9, [x21, #0x3864]
+    ldr w9, [x21, #(0x3864+pause_shift)]
     ldr w10, [x19, #60]
     cmp w9, w10
     b.ne refused
@@ -208,7 +234,7 @@ cursor_index_valid:
     b.eq rune_identity
     cmn w24, #1
     b.eq commit
-    mov w9, #0x37b0
+    mov w9, #(0x37b0+pause_shift)
     add x9, x21, x9
     ldr x23, [x9, x24, lsl #3]
     ldr x9, [x19, #40]
@@ -242,10 +268,10 @@ cursor_index_valid:
     b.ne refused
     b commit
 rune_identity:
-    ldr w9, [x21, #0x3850]
+    ldr w9, [x21, #(0x3850+pause_shift)]
     cmp w9, #8
     b.ne refused
-    ldr x9, [x21, #0x3858]
+    ldr x9, [x21, #(0x3858+pause_shift)]
     cbz x9, refused
     ldr w9, [x9, x24, lsl #2]
     ldr w10, [x19, #40]
@@ -271,7 +297,7 @@ commit:
     // Screen+3790 is the native shortcut controller (1191F94). Resolve the
     // visible cell through the same 386C map used by native R-stick updates,
     // including the optional -1 unequip cell. Never assume cell==pouch index.
-    ldr x23, [x21, #0x3790]
+    ldr x23, [x21, #(0x3790+pause_shift)]
     cbz x23, refused
     tst x23, #7
     b.ne refused
@@ -289,7 +315,7 @@ commit:
     ldr w9, [x23, #0x2dc]
     cmp w9, w12
     b.hs refused
-    mov w10, #0x386c
+    mov w10, #(0x386c+pause_shift)
     add x10, x21, x10
     ldr w9, [x10, x9, lsl #2]
     ldr w11, [x19, #60]
@@ -353,7 +379,7 @@ cursor_group_found:
     mov w3, #1
     bl native_cursor_set
     tbz w0, #0, refused
-    str w24, [x21, #0x3864]
+    str w24, [x21, #(0x3864+pause_shift)]
     mov x0, x21
     bl native_cursor_name
     // Native shortcut callback derives/applies horizontal pane scrolling from
@@ -361,12 +387,9 @@ cursor_group_found:
     mov x0, x23
     bl native_cursor_scroll
     b successful
-.include "quest-ui-actions.inc"
     .endif
-    .ifdef BOTW_INVENTORY_ONLY
-    .ifdef BOTW_QUESTS
+    .if quests_enabled
     .include "quest-ui-actions.inc"
-    .endif
     .endif
 successful:
     mov w9, #1
@@ -1923,276 +1946,15 @@ map_stage_failed:
     mov w0, #0
     ret
 
-// World-only native Rune switch. Scratch mailbox640..748 is kind-specific.
-world_rune_request:
-    sub x11, x11, #4
-    cmp x10, x11
-    b.ne refused
-    add x9, x22, #0x64, lsl #12
-    ldr w10, [x9, #0xc24]
-    cbnz w10, refused
-    ldr w9, [x9, #0xc58]
-    mov w10, #0xd0000
-    tst w9, w10
-    b.ne refused
-    ldr w24, [x19, #712]
-    cmp w24, #7
-    b.hi refused
-    adrp x9, screen_root
-    ldr x9, [x9, :lo12:screen_root]
-    cbz x9, refused
-    ldr w10, [x9, #0x28]
-    cmp w10, #99
-    b.ne refused
-    ldr x9, [x9, #0x30]
-    cbz x9, refused
-    ldr x21, [x9, #360]
-    cbz x21, refused
-    ldr x9, [x19, #640]
-    cmp x21, x9
-    b.ne refused
-    ldr x9, [x21]
-    adrp x10, screen_vtable
-    add x10, x10, :lo12:screen_vtable
-    cmp x9, x10
-    b.ne refused
-    ldr x9, [x21, #0x150]
-    adrp x10, shortcut_world_state
-    add x10, x10, :lo12:shortcut_world_state
-    cmp x9, x10
-    b.ne refused
-    ldr w9, [x21, #0x36e8]
-    add w10, w9, #1
-    cmp w10, #8
-    b.hi refused
-    ldr w10, [x19, #720]
-    cmp w9, w10
-    b.ne refused
-    adrp x9, rune_state_root
-    ldr x23, [x9, :lo12:rune_state_root]
-    cbz x23, refused
-    ldr x9, [x19, #648]
-    cmp x23, x9
-    b.ne refused
-    ldr x9, [x23]
-    adrp x10, rune_state_vtable
-    add x10, x10, :lo12:rune_state_vtable
-    cmp x9, x10
-    b.ne refused
-    ldr w9, [x23, #0x240]
-    add w10, w9, #1
-    cmp w10, #8
-    b.hi refused
-    ldr w10, [x19, #716]
-    cmp w9, w10
-    b.ne refused
-    adrp x9, gamedata_root
-    ldr x22, [x9, :lo12:gamedata_root]
-    cbz x22, refused
-    ldr x9, [x19, #656]
-    cmp x22, x9
-    b.ne refused
-    ldr x9, [x22]
-    adrp x10, gamedata_manager_vtable
-    add x10, x10, :lo12:gamedata_manager_vtable
-    cmp x9, x10
-    b.ne refused
-    ldrb w9, [x22, #0xbe8]
-    cmp w9, #1
-    b.hi refused
-    ldr w10, [x19, #728]
-    cmp w9, w10
-    b.ne refused
-    ldr x9, [x22, #0xbe0]
-    cbz x9, refused
-    ldr x10, [x19, #672]
-    cmp x9, x10
-    b.ne refused
-    ldr x9, [x9]
-    cbz x9, refused
-    ldr x10, [x19, #680]
-    cmp x9, x10
-    b.ne refused
-    ldr w10, [x9, #8]
-    cbz w10, refused
-    mov w11, #1
-    lsl w11, w11, #16
-    cmp w10, w11
-    b.hi refused
-    ldr w11, [x19, #708]
-    cmp w10, w11
-    b.ne refused
-    ldr w11, [x9, #12]
-    cmp w10, w11
-    b.hi refused
-    mov w12, #1
-    lsl w12, w12, #16
-    cmp w11, w12
-    b.hi refused
-    ldr x9, [x9, #16]
-    cbz x9, refused
-    ldr x11, [x19, #688]
-    cmp x9, x11
-    b.ne refused
-    ldr w11, [x19, #704]
-    cmp w11, w10
-    b.hs refused
-    ldr x9, [x9, x11, lsl #3]
-    cbz x9, refused
-    ldr x10, [x19, #696]
-    cmp x9, x10
-    b.ne refused
-    ldr x10, [x9]
-    adrp x11, bool_flag_vtable
-    add x11, x11, :lo12:bool_flag_vtable
-    cmp x10, x11
-    b.ne refused
-    ldrb w10, [x9, #8]
-    cbnz w10, refused
-    adr x10, world_rune_hashes
-    ldr w10, [x10, x24, lsl #2]
-    ldr w11, [x9, #12]
-    cmp w10, w11
-    b.ne refused
-    ldrb w10, [x9, #11]
-    tbz w10, #0, refused
-    ldrb w10, [x9, #9]
-    ldr w11, [x19, #732]
-    cmp w10, w11
-    b.ne refused
-    ldrb w11, [x22, #0xbe8]
-    cbz w11, world_rune_permission_ok
-    tbz w10, #0, refused
-world_rune_permission_ok:
-    adrp x9, dlc_root
-    ldr x9, [x9, :lo12:dlc_root]
-    cbz x9, refused
-    ldr x10, [x19, #664]
-    cmp x9, x10
-    b.ne refused
-    ldr x10, [x9]
-    adrp x11, dlc_vtable
-    add x11, x11, :lo12:dlc_vtable
-    cmp x10, x11
-    b.ne refused
-    ldr w9, [x9, #0xd0]
-    lsr w10, w9, #16
-    cbnz w10, refused
-    ldr w10, [x19, #724]
-    cmp w9, w10
-    b.ne refused
-    cmp w24, #6
-    b.ne world_rune_option
-    cmp w9, #0x300
-    b.lo refused
-world_rune_option:
-    cmp w24, #7
-    b.ne world_rune_commit
-    adrp x9, amiibo_option_handle
-    ldr w0, [x9, :lo12:amiibo_option_handle]
-    bl native_option_bool
-    tbz w0, #0, refused
-world_rune_commit:
-    // Final permit/epoch/World checks immediately precede the ordinary route.
-    add x9, x19, #8
-    ldar w9, [x9]
-    cmp w9, w20
-    b.ne refused
-    add x9, x19, #72
-    ldar w9, [x9]
-    cmp w9, w20
-    b.ne refused
-    add x9, x19, #4092
-    ldar w9, [x9]
-    ldr w10, [x19, #88]
-    cmp w9, w10
-    b.ne refused
-    adrp x9, ui_root
-    ldr x9, [x9, :lo12:ui_root]
-    ldr x10, [x19, #48]
-    cmp x9, x10
-    b.ne refused
-    add x9, x9, #0x64, lsl #12
-    ldr x9, [x9, #0xc30]
-    mov x10, #0
-    movk x10, #0x900, lsl #16
-    movk x10, #0x1e, lsl #32
-    cmp x9, x10
-    b.ne refused
-    // Recheck changing identities/availability after the native option query.
-    adrp x9, rune_state_root
-    ldr x9, [x9, :lo12:rune_state_root]
-    cmp x9, x23
-    b.ne refused
-    ldr w9, [x23, #0x240]
-    ldr w10, [x19, #716]
-    cmp w9, w10
-    b.ne refused
-    ldr w9, [x21, #0x36e8]
-    ldr w10, [x19, #720]
-    cmp w9, w10
-    b.ne refused
-    adrp x9, gamedata_root
-    ldr x9, [x9, :lo12:gamedata_root]
-    cmp x9, x22
-    b.ne refused
-    ldrb w9, [x22, #0xbe8]
-    ldr w10, [x19, #728]
-    cmp w9, w10
-    b.ne refused
-    ldr x9, [x22, #0xbe0]
-    ldr x10, [x19, #672]
-    cmp x9, x10
-    b.ne refused
-    ldr x9, [x9]
-    ldr x10, [x19, #680]
-    cmp x9, x10
-    b.ne refused
-    ldr x9, [x9, #16]
-    ldr x10, [x19, #688]
-    cmp x9, x10
-    b.ne refused
-    ldr w10, [x19, #704]
-    ldr x9, [x9, x10, lsl #3]
-    ldr x10, [x19, #696]
-    cmp x9, x10
-    b.ne refused
-    adr x10, world_rune_hashes
-    ldr w10, [x10, x24, lsl #2]
-    ldr w11, [x9, #12]
-    cmp w10, w11
-    b.ne refused
-    ldrb w10, [x9, #11]
-    tbz w10, #0, refused
-    ldrb w9, [x9, #9]
-    ldr w10, [x19, #732]
-    cmp w9, w10
-    b.ne refused
-    adrp x9, ui_root
-    ldr x9, [x9, :lo12:ui_root]
-    add x9, x9, #0x64, lsl #12
-    ldr w10, [x9, #0xc24]
-    cbnz w10, refused
-    ldr w9, [x9, #0xc58]
-    mov w10, #0xd0000
-    tst w9, w10
-    b.ne refused
-    mov x0, x21
-    mov w1, w24
-    bl native_rune_resolve
-    ldr w24, [x21, #0x36e8]
-    add x0, x23, #0x220
-    bl native_pouch_lock
-    str w24, [x23, #0x240]
-    add x0, x23, #0x220
-    bl native_pouch_unlock
-    b successful
-world_rune_hashes:
-    .word 0x191bccf9,0x191bccf9,0x795e7bbc,0x7504085d
-    .word 0x5992b256,0xf7dd3e03,0xc9328299,0x89ebcae4
+.include "world-rune-ui-actions.inc"
 
 // Exact1.6 native Y entry: watchpoint at manager+0x44800, main+0x10C48D0.
 // The native function owns its lock; never wrap it in a second pouch lock.
+    .endif
+    .ifdef BOTW_INVENTORY_ONLY
+    .ifdef BOTW_SHORTCUTS
+    .include "world-rune-ui-actions.inc"
+    .endif
     .endif
 sort_request:
     adrp x9, pouch_root
