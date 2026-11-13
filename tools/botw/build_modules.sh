@@ -5,10 +5,8 @@
 #       tools/botw/build_modules.sh [output dir]
 #
 # Writes <out>/{linux-x86_64,android-arm64-v8a}/01007EF00011E000.so, stripped with
-# llvm-strip --strip-all as shipped. With GCC 16.2 and NDK r28c (28.2.13676358) the stripped
-# modules match the 1.0.0 release byte for byte:
-#   linux-x86_64       6b05fceff784af02bc54d4bcae53e516ce221f81a1488bf1f3357b95e9864e22
-#   android-arm64-v8a  f81166da554637cb89a57e689af96c06c2678231a19e181aa2a76fe2f34f5251
+# llvm-strip --strip-all. Both game builds use the same per-build module; the matching
+# load plan supplies each game's native helper addresses. Requires NDK r28c.
 # The CMake target dsmod-breath-of-the-wild builds the same source with the project's flags.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)

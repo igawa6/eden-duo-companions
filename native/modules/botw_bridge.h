@@ -162,23 +162,6 @@ struct SelectionBridge {
     armor_supported=level>=5;arrows_supported=level>=6;remove_supported=level>=7;
     remove_armor_supported=level>=8;consume_supported=level>=9;map_supported=level>=10;
     world_rune_supported=level>=11;cursor_supported=level>=12;hold_supported=level>=13;warp_supported=level>=14;sort_supported=level>=15;
-#ifdef BOTW_190_INVENTORY_EVIDENCE
-    if(matches_build(h,InventoryBuild190)) {
-      quest_supported=map_supported=world_rune_supported=cursor_supported=warp_supported=false;
-#ifdef BOTW_190_QUEST_EVIDENCE
-      quest_supported=level>=2;
-#endif
-#ifdef BOTW_190_WARP_EVIDENCE
-      warp_supported=level>=14;
-#endif
-#ifdef BOTW_190_MAP_EVIDENCE
-      map_supported=level>=10;
-#endif
-#ifdef BOTW_190_RUNES_EVIDENCE
-      world_rune_supported=level>=11;cursor_supported=level>=12;
-#endif
-    }
-#endif
     if (healthy) note_beat(beat,now);
     healthy=healthy && heartbeat_at.time_since_epoch().count() &&
       now-heartbeat_at<health_window();

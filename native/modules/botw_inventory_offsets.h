@@ -17,17 +17,9 @@ inline bool matches_build(const EdenDsmodHostApi& h, const char* build) {
   }
   return true;
 }
-// Full support remains limited to 1.6.0 until every reader/action is verified.
-inline bool supported(const EdenDsmodHostApi& h) {return matches_build(h,Build);}
-inline bool inventory_supported(const EdenDsmodHostApi& h) {
-  if (supported(h)) return true;
-#ifdef BOTW_190_INVENTORY_EVIDENCE
-  // Compile only for an isolated, disposable inventory verification package.
-  return matches_build(h,InventoryBuild190);
-#else
-  return false;
-#endif
-}
+// Exact full build IDs only; each reader selects its matching measured table.
+inline bool supported(const EdenDsmodHostApi& h) {return matches_build(h,Build)||matches_build(h,InventoryBuild190);}
+inline bool inventory_supported(const EdenDsmodHostApi& h) {return supported(h);}
 struct InventoryOffsets {
   uint64_t pouch_root;
   uint64_t pouch_vtable;
@@ -133,11 +125,6 @@ inline constexpr InventoryOffsets Inventory190{
   0x1E3B188, 0x1D210E0, 0x1D21A20, 0x1D21AE8,
 };
 inline const InventoryOffsets& inventory_offsets(const EdenDsmodHostApi& h) {
-#ifdef BOTW_190_INVENTORY_EVIDENCE
   return matches_build(h,InventoryBuild190) ? Inventory190 : Inventory160;
-#else
-  (void)h;
-  return Inventory160;
-#endif
 }
 } // namespace botw

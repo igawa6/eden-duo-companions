@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#define BOTW_190_INVENTORY_EVIDENCE
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsubobject-linkage"
 #pragma GCC diagnostic ignored "-Wreturn-type"
@@ -22,7 +21,7 @@ static void update_food(InventoryBridgeFixture& f) {
 int main() {
   using F=InventoryBridgeFixture;
   {F f;update_food(f);assert(supports(botw::InventoryBuild190));
-    assert(!botw::supported(f.h)&&botw::inventory_supported(f.h));
+    assert(botw::supported(f.h)&&botw::inventory_supported(f.h));
     const auto request=botw::inventory_consume(f.h,F::Two,f.state.data);
     assert(request.valid&&request.screen==F::FoodScreen&&request.column==F::Column);
     assert(on_action(&f.state,"inventory_consume",0));
@@ -33,7 +32,7 @@ int main() {
     assert(f.state.bridge.pending&&std::string(f.state.bridge.status)=="Eating");
     f.mb<uint32_t>(416,0);f.mb<uint32_t>(420,1);f.state.bridge.poll(f.h,{});
     assert(!f.state.bridge.pending&&std::string(f.state.bridge.status)=="Consumed");
-    assert(!f.state.bridge.quest_supported&&!f.state.bridge.map_supported&&!f.state.bridge.warp_supported);
+    assert(f.state.bridge.quest_supported&&!f.state.bridge.map_supported&&!f.state.bridge.warp_supported); // DUOC predates Map/Travel
   }
   for(unsigned fault=0;fault<4;++fault){F f;update_food(f);
     if(fault==0)f.put(F::FoodScreen,F::M+0x2BA7240);

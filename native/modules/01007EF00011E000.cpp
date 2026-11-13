@@ -317,9 +317,7 @@ void defer_recent(State& s,const botw::Item& item,bool remove=false) {
   s.recent_action_at=std::chrono::steady_clock::now();s.recent_deferred=true;
 }
 EdenDsmodBool supports(const char *b) {
-#ifdef BOTW_190_INVENTORY_EVIDENCE
   if (b && std::strcmp(b, botw::InventoryBuild190) == 0) return true;
-#endif
   return b && std::strcmp(b, botw::Build) == 0;
 }
 void *create(const EdenDsmodHostApi *, const char *) {

@@ -102,6 +102,18 @@ class InventoryPlanTests(unittest.TestCase):
             self.assertEqual(code[at-4:at].hex(),'e1031f2a')
         self.assertNotIn(production.SYMBOLS['native_warp'],targets)
 
+    def test_production_build_selection_is_exact(self):
+        with tempfile.TemporaryDirectory() as work:
+            plan=production.build_plan(Path(work),inventory.BUILD_ID)
+        self.assertEqual(plan['build_id'],inventory.BUILD_ID)
+        self.assertEqual(plan['patches'][0]['offset'],0xE79530)
+        self.assertEqual(plan['patches'][0]['expected'],'6fb4ff17')
+        self.assertTrue(any(r['addend']==0xE81A30 and r['target']=='main'
+                            for r in plan['guest_code']['relocations']))
+        with tempfile.TemporaryDirectory() as work:
+            for bad in [inventory.BUILD_ID[:16],inventory.BUILD_ID[:-1]+'1','',production.BUILD_ID.lower()]:
+                with self.assertRaises(ValueError):production.build_plan(Path(work),bad)
+
 
 if __name__=='__main__':
     unittest.main()

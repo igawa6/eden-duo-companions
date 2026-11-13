@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#define BOTW_190_INVENTORY_EVIDENCE
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #define main equipment_fixture_main
@@ -17,7 +16,7 @@ int main() {
   static_assert(botw::Inventory190.carry_actor_vtable==0x1CBB040);
   static_assert(botw::Inventory190.weapon_actor_vtable==0x1C3F330);
   static_assert(botw::Inventory190.armor_actor_vtable==0x1BC2210);
-  {E f;update_fixture(f);assert(!botw::supported(f.h));assert(botw::inventory_supported(f.h));
+  {E f;update_fixture(f);assert(botw::supported(f.h));assert(botw::inventory_supported(f.h));
     const auto s=botw::player_equipment(f.h);assert(s.valid&&s.player==E::Player);
     for(unsigned i=0;i<6;++i)assert(s.slots[i].name=="Equipment_"+std::to_string(i));}
   for(unsigned i=0;i<6;++i)for(unsigned fault=0;fault<5;++fault){E f;update_fixture(f);

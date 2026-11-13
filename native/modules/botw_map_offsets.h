@@ -3,11 +3,7 @@
 #include "botw_shortcut_offsets.h"
 namespace botw {
 inline bool map_build_supported(const EdenDsmodHostApi& h) {
-#ifdef BOTW_190_MAP_EVIDENCE
   return shortcut_supported(h);
-#else
-  return supported(h);
-#endif
 }
 struct MapOffsets {
   uint64_t root;
@@ -121,10 +117,6 @@ inline constexpr MapOffsets Map190{
   0x5270, 0x3DB0,
 };
 inline const MapOffsets& map_offsets(const EdenDsmodHostApi& h) {
-#ifdef BOTW_190_MAP_EVIDENCE
   return matches_build(h,InventoryBuild190)?Map190:Map160;
-#else
-  (void)h;return Map160;
-#endif
 }
 }

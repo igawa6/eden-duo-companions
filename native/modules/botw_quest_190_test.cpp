@@ -1,7 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#define BOTW_190_INVENTORY_EVIDENCE
-#define BOTW_190_READY_EVIDENCE
-#define BOTW_190_QUEST_EVIDENCE
 #define BOTW_QUEST_FIXTURE_ONLY
 #include "botw_quest_bridge_test.cpp"
 #include "botw_inventory_update_fixture.h"
@@ -23,7 +20,7 @@ struct Quest190Fixture:QuestBridgeFixture {
 } // namespace
 int main() {
   using F=Quest190Fixture;
-  {F f;assert(!botw::supported(f.h)&&botw::quests_supported(f.h));
+  {F f;assert(botw::supported(f.h)&&botw::quests_supported(f.h));
     auto q=botw::quests(f.h);assert(q.valid&&q.entries.size()==1&&q.entries[0].name=="GanonQuest"&&q.entries[0].message=="Desc");
     const auto dlc=botw::tracker_dlc_sample(f.h);assert(dlc.valid&&dlc.version==0x300);
     botw::TrackerFlagReader flags;assert(flags.begin(f.h));assert(flags.integer(0x5ED42D75)==-1);assert(flags.boolean(0x7609DE2C)==false);assert(flags.finish());

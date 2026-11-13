@@ -1,9 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#define BOTW_190_INVENTORY_EVIDENCE
-#define BOTW_190_READY_EVIDENCE
-#define BOTW_190_QUEST_EVIDENCE
-#define BOTW_190_RUNES_EVIDENCE
-#define BOTW_190_MAP_EVIDENCE
 #include "01007EF00011E000.cpp"
 #include "botw_inventory_update_fixture.h"
 #define BOTW_MAP_FIXTURE_ONLY
@@ -104,7 +99,7 @@ template<class F> void map_update(F& f) {
 }
 }
 int main() {
-  {MapFixture f;map_update(f);assert(!botw::supported(f.h)&&botw::map_build_supported(f.h));assert(botw::map_snapshot(f.h).valid);auto p=botw::map_position(f.h);assert(p.valid&&p.x==-2988&&p.y==1941);f.race=MapFixture::Data+0x120;assert(!botw::map_snapshot(f.h).valid);}
+  {MapFixture f;map_update(f);assert(botw::supported(f.h)&&botw::map_build_supported(f.h));assert(botw::map_snapshot(f.h).valid);auto p=botw::map_position(f.h);assert(p.valid&&p.x==-2988&&p.y==1941);f.race=MapFixture::Data+0x120;assert(!botw::map_snapshot(f.h).valid);}
   {AreaFixture f;map_update(f);assert(botw::map_area(f.h).valid);}
   {PinFixture f;map_update(f);assert(botw::map_pins(f.h).valid);}
   {PlacesFixture f;map_update(f);assert(botw::map_places(f.h).valid);}

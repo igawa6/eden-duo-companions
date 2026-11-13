@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#define BOTW_190_INVENTORY_EVIDENCE
-#define BOTW_190_READY_EVIDENCE
 #define BOTW_CHAMPION_FIXTURE_ONLY
 #include "botw_champions_test.cpp"
 #include "botw_inventory_update_fixture.h"

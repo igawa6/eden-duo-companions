@@ -1,7 +1,8 @@
 # The Legend of Zelda: Breath of the Wild companion
 
-Title `01007EF00011E000`, game version 1.6.0 (build `8E9978D50BDD20B4…`), with or without the DLC.
-Companion 1.0.0 for Eden Duo 1.3.2 (runtime 22) or newer.
+Title `01007EF00011E000`, game versions 1.6.0 (`8E9978D50BDD20B4…`) and 1.9.0
+(`CD57B23FA4BBAD65…`), with or without the DLC.
+Companion 1.1.0 for Eden Duo 1.3.2 (runtime 22) or newer.
 
 The Sheikah Slate moves to the second screen: equip, eat, plan and travel without opening the
 pause menu.
@@ -28,7 +29,7 @@ rings and markers); `dualscreen/ASSETS.provenance.json` declares them.
 |---|---|
 | `dualscreen/manifest.json` | Pages, widgets, actions and bindings. |
 | `dualscreen/8E9978D50BDD20B4.json` | Per-build data file (empty object; the module reads everything live). |
-| `dualscreen/load-plans/<build id>.json` | Guest load plan: the helper code plus two patched call sites, gated to 1.6.0. |
+| `dualscreen/load-plans/<build id>.json` | Guest load plan: the helper code plus two patched call sites, gated to each exact build. |
 | `dualscreen/assets/` | Code-drawn UI images. |
 | `native/modules/01007EF00011E000.cpp`, `botw_*.h` | The native module (one translation unit) and its readers, pages and action bridge. |
 | `native/modules/botw_*_test.cpp` | Host unit tests. |
@@ -36,7 +37,7 @@ rings and markers); `dualscreen/ASSETS.provenance.json` declares them.
 | `tools/botw/` | Rebuild scripts for the load plan and the release modules. |
 
 This README sits outside `dualscreen/` on purpose: the packager archives `dualscreen/` as is,
-and keeping the README out leaves the archive identical to the published 1.0.0 zip.
+and excludes source documentation from the portable archive.
 
 ## Rebuilding
 
@@ -75,3 +76,9 @@ With the byte-identical modules this reproduces the published
 The manifest and the code-drawn assets are committed as package source. The scripts that first
 generated them worked on local research data and game files, so they are not part of this
 repository.
+
+For the 1.9.0 load plan, pass `--build-id CD57B23FA4BBAD65803D9788C01821EE00000000000000000000000000000000`
+to `tools/botw/build_helper_plan.py`. The default remains the byte-identical 1.6.0 plan.
+
+After packaging with `tools/build_dualscreen_package.py`, run `tools/compact_zip.py` on the
+archive so its manifest stays below the 4 MiB installer limit.

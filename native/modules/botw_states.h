@@ -27,11 +27,7 @@ struct StateOffsets {uint64_t map_type,map_name,string_vtable,pause_inventory,pa
 inline constexpr StateOffsets States160{states::MapType,states::MapName,states::StringVt,states::PauseInventory,states::PauseSystem,states::PauseLog,0x150};
 inline constexpr StateOffsets States190{0x1DAE3A0,0x1DAE3D8,0x1BC4E70,0x1E2F148,0x1E2F3E8,0x1E2F448,0x168};
 inline const StateOffsets& state_offsets(const EdenDsmodHostApi& h) {
-#ifdef BOTW_190_MAP_EVIDENCE
   return matches_build(h,InventoryBuild190)?States190:States160;
-#else
-  (void)h;return States160;
-#endif
 }
 struct GameStates {
   bool valid{};

@@ -1,8 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#define BOTW_190_INVENTORY_EVIDENCE
-#define BOTW_190_READY_EVIDENCE
-#define BOTW_190_QUEST_EVIDENCE
-#define BOTW_190_RUNES_EVIDENCE
 #define BOTW_WORLD_RUNE_FIXTURE_ONLY
 #include "botw_world_rune_bridge_test.cpp"
 #include "botw_inventory_update_fixture.h"
@@ -39,7 +35,7 @@ struct Shortcut190Fixture:WorldRuneBridgeFixture {
 }
 int main() {
   using F=Shortcut190Fixture;
-  {F f;assert(!botw::supported(f.h)&&botw::shortcut_supported(f.h));auto r=botw::world_runes(f.h);
+  {F f;assert(botw::supported(f.h)&&botw::shortcut_supported(f.h));auto r=botw::world_runes(f.h);
     assert(r.valid&&r.list.count==8&&r.list.ids[6]==6&&r.list.ids[7]==7&&r.dlc_version==0x300);
     assert(f.request(2));assert(f.get<uint64_t>(640)==f.C&&f.get<uint64_t>(664)==f.D);
     f.mb<uint32_t>(12,1);f.mb<uint32_t>(16,1);f.put<int32_t>(f.R+0x240,2);f.state.bridge.poll(f.h,{});assert(f.state.bridge.pending);

@@ -3,11 +3,7 @@
 #include "botw_inventory_offsets.h"
 namespace botw {
 inline bool ready_supported(const EdenDsmodHostApi& h) {
-#ifdef BOTW_190_READY_EVIDENCE
   return inventory_supported(h);
-#else
-  return supported(h);
-#endif
 }
 struct ReadyOffsets {
   uint64_t float_flag_vtable;
@@ -82,10 +78,6 @@ inline constexpr ReadyOffsets Ready190{
   0x1D1F000, // physics_body_vtable
 };
 inline const ReadyOffsets& ready_offsets(const EdenDsmodHostApi& h) {
-#ifdef BOTW_190_READY_EVIDENCE
   return matches_build(h,InventoryBuild190) ? Ready190 : Ready160;
-#else
-  (void)h;return Ready160;
-#endif
 }
 } // namespace botw

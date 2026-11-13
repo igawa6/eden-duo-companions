@@ -9,17 +9,9 @@ struct WarpOffsets {
 inline constexpr WarpOffsets Warp160{0x2CC56D8,0x2BCF2F8,0x2BCF898,0x1D2B8,0x2CD1590,0x2651911,0x269652D};
 inline constexpr WarpOffsets Warp190{0x1E3A638,0x1D1FCE8,0x1D201A0,0x1D2B8,0x1E465B0,0x15EEDEF,0x161794D};
 inline bool warp_build_supported(const EdenDsmodHostApi& h) {
-#ifdef BOTW_190_WARP_EVIDENCE
   return map_build_supported(h);
-#else
-  return supported(h);
-#endif
 }
 inline const WarpOffsets& warp_offsets(const EdenDsmodHostApi& h) {
-#ifdef BOTW_190_WARP_EVIDENCE
   return matches_build(h,InventoryBuild190)?Warp190:Warp160;
-#else
-  (void)h;return Warp160;
-#endif
 }
 }

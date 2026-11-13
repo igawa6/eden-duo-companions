@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""Build the isolated 1.9.0 inventory evidence plan, never a full-support plan.
+"""Build a measured 1.9.0 helper plan.
 
-The production builder and manifest remain limited to 1.6.0. Only install this
-plan with the matching inventory evidence module in a stopped disposable label.
-The default evidence dispatcher refuses every operation outside inventory/actions
-and leaves native HUD panes alone. The separate Ready builder opts into the
-verified HUD subset; neither builder enables other action areas.
+Standalone entry points retain the isolated area subsets used during verification.
+The production builder selects travel=True to include all verified action routes.
+Only install a changed plan into a stopped disposable label during development.
 """
 from __future__ import annotations
 

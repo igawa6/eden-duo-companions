@@ -1,10 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#define BOTW_190_INVENTORY_EVIDENCE
-#define BOTW_190_READY_EVIDENCE
-#define BOTW_190_QUEST_EVIDENCE
-#define BOTW_190_RUNES_EVIDENCE
-#define BOTW_190_MAP_EVIDENCE
-#define BOTW_190_WARP_EVIDENCE
 #define BOTW_WARP_FIXTURE_ONLY
 #include "botw_warp_test.cpp"
 #include "botw_inventory_update_fixture.h"
@@ -26,7 +20,7 @@ template<class F> void travel_update(F& f) {
 }
 }
 int main(){
-  {WarpFixture f;travel_update(f);assert(warp_build_supported(f.h));assert(!supported(f.h));
+  {WarpFixture f;travel_update(f);assert(warp_build_supported(f.h));assert(supported(f.h));
     assert(warp::point(f.h,0).enabled());assert(!warp::point(f.h,1).enabled());assert(warp::point(f.h,2).enabled());
     assert(warp::point(f.h,warp::MedallionIndex).enabled());auto e=warp::env(f.h);assert(e.valid&&e.world&&!e.event&&!e.prohibited);
     f.put<uint64_t>(WarpFixture::EV+0x1D2C8,0x1234);assert(!warp::env(f.h).event);

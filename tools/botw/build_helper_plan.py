@@ -121,7 +121,12 @@ def tool(name: str, *args: str) -> str:
     return subprocess.run([name, *args], check=True, capture_output=True, text=True).stdout
 
 
-def build_plan(work: Path) -> dict:
+def build_plan(work: Path, build_id: str = BUILD_ID) -> dict:
+    if build_id != BUILD_ID:
+        from build_inventory_plan import BUILD_ID as update_id, build_plan as update_plan
+        if build_id != update_id:
+            raise ValueError("unsupported exact BOTW build ID")
+        return update_plan(work, travel=True)
     obj, binary = work / "hook.o", work / "hook.bin"
     tool("clang", "--target=aarch64-none-elf", "-c", str(HELPER / "warp-ui-hook.S"),
          "-I", str(HELPER), "-o", str(obj))
@@ -174,9 +179,10 @@ def build_plan(work: Path) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--output", type=Path, required=True, help="load-plan JSON to write")
+    parser.add_argument("--build-id", default=BUILD_ID, help="exact 64-character game build ID")
     args = parser.parse_args()
     with tempfile.TemporaryDirectory() as work:
-        plan = build_plan(Path(work))
+        plan = build_plan(Path(work), args.build_id)
     args.output.write_text(json.dumps(plan, indent=2) + "\n")
     print(f"{args.output}: {len(bytes.fromhex(plan['guest_code']['bytes']))} code bytes, "
           f"{len(plan['guest_code']['relocations'])} relocations")

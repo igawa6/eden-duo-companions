@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#define BOTW_190_INVENTORY_EVIDENCE
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #define BOTW_SORT_FIXTURE_ONLY
@@ -18,9 +17,9 @@ int main() {
     assert(!bridge.pending&&std::string(bridge.status)=="Sorted");
   }
   {F f;update_fixture(f);botw::TrackerFlagReader flags;
-    assert(!flags.begin(f.h)); // general trackers remain refused
+    assert(flags.begin(f.h)); // verified general GameData reader now enabled
     assert(flags.begin(f.h,true));
     f.put<uint64_t>(F::F0,0);assert(!flags.observe_boolean(botw::warp::crc("SortTypeWeaponPouch")));
   }
-  std::cout<<"1.9.0 seven-category Sort confirmation and general-tracker refusal passed\n";
+  std::cout<<"1.9.0 seven-category Sort confirmation and general-tracker access passed\n";
 }

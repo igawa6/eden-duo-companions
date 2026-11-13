@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#define BOTW_190_INVENTORY_EVIDENCE
-#define BOTW_190_READY_EVIDENCE
 #include "01007EF00011E000.cpp"
 #include "botw_test_fixture.h"
 #include "botw_inventory_update_fixture.h"
@@ -49,7 +47,7 @@ struct ReadyFixture:Fixture {
 };
 int main() {
   using F=ReadyFixture;
-  {F f;assert(botw::ready_supported(f.h)&&!botw::supported(f.h));
+  {F f;assert(botw::ready_supported(f.h)&&botw::supported(f.h));
     auto c=botw::currency(f.h);assert(c.valid&&c.value==347549);
     auto t=botw::world_clock(f.h);assert(t.valid&&t.minutes==1210);
     auto r=botw::current_rune(f.h);assert(r.valid&&r.id==3&&r.upgraded);
