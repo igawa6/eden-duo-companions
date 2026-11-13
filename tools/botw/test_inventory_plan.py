@@ -87,6 +87,21 @@ class InventoryPlanTests(unittest.TestCase):
         self.assertNotIn(production.SYMBOLS['native_warp'],targets)
         self.assertNotIn(0x1CDD6E8,targets)  # adjacent static identity is not the live area
 
+    def test_travel_getters_all_use_explicit_bank_zero(self):
+        with tempfile.TemporaryDirectory() as work:
+            plan=inventory.build_plan(Path(work),travel=True)
+        code=bytes.fromhex(plan['guest_code']['bytes'])
+        targets={r['addend'] for r in plan['guest_code']['relocations'] if r['target']=='main'}
+        self.assertTrue({0x1E3A638,0x1D1FCE8,0x1E465B0,0x1DA6F48,0xE81A30,
+                         0x1CDD530,0x15EEDEF,0x161794D} <= targets)
+        calls=[r for r in plan['guest_code']['relocations'] if r['target']=='main'
+               and r['addend']==0xD349D0 and r['kind']=='aarch64_branch26']
+        self.assertEqual(len(calls),4)  # amiibo plus all three travel prohibitions
+        for call in calls:
+            at=call['offset']
+            self.assertEqual(code[at-4:at].hex(),'e1031f2a')
+        self.assertNotIn(production.SYMBOLS['native_warp'],targets)
+
 
 if __name__=='__main__':
     unittest.main()

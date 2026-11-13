@@ -2,6 +2,7 @@
 #pragma once
 #include "botw_tracker_flags.h"
 #include "botw_map_offsets.h"
+#include "botw_warp_offsets.h"
 #include <cstdio>
 #include <string_view>
 namespace botw {
@@ -76,15 +77,13 @@ inline bool screen_states(const EdenDsmodHostApi& h,const UiSample& ui,std::arra
 // Name of the current event in the event list (empty when none). Optional detail.
 inline bool event_name(const EdenDsmodHostApi& h,std::string& out) {
   out.clear();
-#ifdef BOTW_190_MAP_EVIDENCE
-  // Event details are a separate gated Travel reader; ordinary scene state does not depend on them.
-  if(matches_build(h,InventoryBuild190))return false;
-#endif
+  if(!warp_build_supported(h))return false;
+  const auto& offsets=warp_offsets(h);
   uint64_t root{},vt{},list{},lvt{},array{},entry{},text{};uint32_t count{};int32_t sel{};int8_t index{};
-  if(!read(h,h.main_base+states::EventRoot,root)||root%8||root>UINT64_MAX-0x1D2C0||!read(h,root,vt)||vt!=h.main_base+states::EventRootVt||
-     !read(h,root+0x1D2B8,list))return false;
+  if(!read(h,h.main_base+offsets.event_root,root)||root%8||root>UINT64_MAX-0x1D2C0||!read(h,root,vt)||vt!=h.main_base+offsets.event_vtable||
+     !read(h,root+offsets.event_current,list))return false;
   if(!list)return true;
-  if(list%8||list>UINT64_MAX-0x200||!read(h,list,lvt)||lvt!=h.main_base+states::EventListVt||!read(h,list+8,count)||count>16||
+  if(list%8||list>UINT64_MAX-0x200||!read(h,list,lvt)||lvt!=h.main_base+offsets.event_list_vtable||!read(h,list+8,count)||count>16||
      !read(h,list+0x10,array)||!read(h,list+0x1F0,sel))return false;
   if(!read(h,list+0x1E8+(sel>=0&&sel<8?sel:0),index)||index<0||uint32_t(index)>=count||array%8||array>UINT64_MAX-0x80||
      !read(h,array+8*uint64_t(index),entry)||!entry||entry%8||entry>UINT64_MAX-0x40||!read(h,entry+0x18,text))return false;

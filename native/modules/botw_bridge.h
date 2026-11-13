@@ -168,6 +168,9 @@ struct SelectionBridge {
 #ifdef BOTW_190_QUEST_EVIDENCE
       quest_supported=level>=2;
 #endif
+#ifdef BOTW_190_WARP_EVIDENCE
+      warp_supported=level>=14;
+#endif
 #ifdef BOTW_190_MAP_EVIDENCE
       map_supported=level>=10;
 #endif
@@ -401,7 +404,7 @@ struct SelectionBridge {
     const auto fresh=warp::point(host,n);
     if(!fresh.valid||fresh!=display||!fresh.enabled()){warp_refusal=512;return false;}
     UiSample ui{};uint64_t evt{};
-    if(!ui_sample(host,ui)||ui.flags!=0x1E09000000ULL||!read(host,host.main_base+warp::EventRoot,evt)||!evt){warp_refusal=1024;return false;}
+    if(!ui_sample(host,ui)||ui.flags!=0x1E09000000ULL||!read(host,host.main_base+warp_offsets(host).event_root,evt)||!evt){warp_refusal=1024;return false;}
     uint32_t sequence{},ack{},beat{};
     if(!load(8,sequence)||!load(12,ack)||sequence!=ack||!load(4,beat)){warp_refusal=2048;return false;}
     if(++sequence==0)++sequence;

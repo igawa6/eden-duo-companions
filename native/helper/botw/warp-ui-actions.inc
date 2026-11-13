@@ -200,12 +200,21 @@ warp_gates:
     adrp x9, warp_prohibition_handles
     add x24, x9, :lo12:warp_prohibition_handles
     ldr w0, [x24]
+    .ifdef BOTW_190
+    mov w1, wzr
+    .endif
     bl native_flag_bool
     tbnz w0, #0, refused
     ldr w0, [x24, #4]
+    .ifdef BOTW_190
+    mov w1, wzr
+    .endif
     bl native_flag_bool
     tbnz w0, #0, refused
     ldr w0, [x24, #8]
+    .ifdef BOTW_190
+    mov w1, wzr
+    .endif
     bl native_flag_bool
     tbnz w0, #0, refused
     // Permit/sequence/epoch exactly as every other route, immediately before the call.

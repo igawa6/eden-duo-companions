@@ -103,6 +103,10 @@ pending_request:
     b.eq inventory_request
     cmp w12, #6
     b.eq inventory_request
+    .ifdef BOTW_WARP
+    cmp w12, #13
+    b.eq warp_request
+    .endif
     .ifdef BOTW_MAP
     cmp w12, #9
     b.eq map_edit_request
@@ -1634,6 +1638,10 @@ sort_request:
 .include "holding-ui-actions.inc"
 .ifndef BOTW_INVENTORY_ONLY
 .include "warp-ui-actions.inc"
+.else
+.ifdef BOTW_WARP
+.include "warp-ui-actions.inc"
+.endif
 .endif
 
 .if hud_enabled

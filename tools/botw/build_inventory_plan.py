@@ -89,7 +89,8 @@ SYMBOLS = dict(
 
 )
 
-def build_plan(work: Path, *, ready: bool = False, quests: bool = False, shortcuts: bool = False, maps: bool = False) -> dict:
+def build_plan(work: Path, *, ready: bool = False, quests: bool = False, shortcuts: bool = False, maps: bool = False, travel: bool = False) -> dict:
+    maps = maps or travel
     obj, binary = work / "inventory.o", work / "inventory.bin"
     symbols = dict(SYMBOLS)
     defines = []
@@ -122,6 +123,12 @@ def build_plan(work: Path, *, ready: bool = False, quests: bool = False, shortcu
                        native_map_place=0xD8AC88,native_map_save_update=0xD8A034,
                        native_map_pin_disable=0xD8226C,native_map_stamp_disable=0xD81D04)
         defines.append("-Wa,-defsym,BOTW_MAP=1")
+    if travel:
+        symbols.update(event_root=0x1E3A638,event_vtable=0x1D1FCE8,warp_latch_root=0x1E465B0,
+                       shrine_vtable=0x1CDC1E0,tower_vtable=0x1CDC410,medallion_vtable=0x1CDD530,
+                       medallion_map_name=0x15EEDEF,medallion_pos_name=0x161794D,
+                       warp_prohibition_handles=0x1DA6F48,native_flag_bool=0xD349D0,native_warp=0xE81A30)
+        defines.append("-Wa,-defsym,BOTW_WARP=1")
     tool("clang", "--target=aarch64-none-elf", "-c", str(HELPER / "warp-ui-hook.S"),
          "-I", str(HELPER), "-Wa,-defsym,BOTW_190=1", "-Wa,-defsym,BOTW_INVENTORY_ONLY=1",
          *defines, "-o", str(obj))

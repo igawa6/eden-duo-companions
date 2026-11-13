@@ -55,6 +55,7 @@ struct WarpBridgeFixture:WarpFixture {
   void beat(){mb<uint32_t>(4,get<uint32_t>(4)+1);bridge.poll(h,{});}
   void guest_ack(uint32_t result){mb<uint32_t>(16,result);mb<uint32_t>(12,get<uint32_t>(8));}
 };
+#ifndef BOTW_WARP_FIXTURE_ONLY
 int main() {
   unsigned cases{};
   // 1. Guard order and texts.
@@ -246,3 +247,5 @@ int main() {
   {assert(SelectionBridge::helper_level(0x484F5544)==14&&SelectionBridge::helper_level(0x474F5544)==13);State s;assert(!on_action(&s,"warp_confirm",0)&&!on_action(&s,"warp_open_map",0)&&!on_action(&s,"warp_cancel",0));cases+=2;}
   std::cout<<cases<<" travel guard/transaction/reader/bridge/controller cases passed\n";
 }
+
+#endif
