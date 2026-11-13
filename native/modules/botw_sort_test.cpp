@@ -20,6 +20,7 @@ struct SortFixture:HoldFixture {
   put<uint8_t>(G+0xBE8,0);put<uint32_t>(G+0xC18,0);put<uint32_t>(G+0xC28,0);mode(false);
  }
 };
+#ifndef BOTW_SORT_FIXTURE_ONLY
 int main(){unsigned cases{};
  for(int cat=0;cat<7;++cat){SortFixture f;botw::SelectionBridge b;b.configure(&f.extensions);b.poll(f.h,{});assert(b.sort_supported);assert(b.sort_mode(cat)==0);++cases;
   const auto held=botw::held_tray(f.h);assert(held.valid&&held.count==0);
@@ -42,3 +43,5 @@ int main(){unsigned cases{};
  assert(std::string(botw::SelectionBridge::sort_label(3,1))=="Sort: Set");++cases;
  std::cout<<cases<<" native sort request, identity, flags, acknowledgement and blocked-state cases passed\n";
 }
+
+#endif

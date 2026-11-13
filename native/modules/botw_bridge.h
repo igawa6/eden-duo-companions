@@ -162,6 +162,11 @@ struct SelectionBridge {
     armor_supported=level>=5;arrows_supported=level>=6;remove_supported=level>=7;
     remove_armor_supported=level>=8;consume_supported=level>=9;map_supported=level>=10;
     world_rune_supported=level>=11;cursor_supported=level>=12;hold_supported=level>=13;warp_supported=level>=14;sort_supported=level>=15;
+#ifdef BOTW_190_INVENTORY_EVIDENCE
+    if(matches_build(h,InventoryBuild190)) {
+      quest_supported=map_supported=world_rune_supported=cursor_supported=warp_supported=false;
+    }
+#endif
     if (healthy) note_beat(beat,now);
     healthy=healthy && heartbeat_at.time_since_epoch().count() &&
       now-heartbeat_at<health_window();
@@ -179,7 +184,7 @@ struct SelectionBridge {
         const bool scoped=healthy && !epoch_changed && request_epoch==epoch && inventory_scope() && context(h)==UiContext::World;
         uint64_t manager{};int32_t category{-1};
         const bool confirmed=result==1 && scoped && pouch(h).valid &&
-          read(h,h.main_base+0x2CA6D50,manager) && read(h,manager+0x44800,category) && category==sort_category &&
+          read(h,h.main_base+inventory_offsets(h).pouch_root,manager) && read(h,manager+0x44800,category) && category==sort_category &&
           (sort_category>=4 || sort_mode(sort_category)==1-sort_before);
         if(result==1 && scoped && !confirmed && now-requested<std::chrono::seconds(3)){
           status="Sorting";return;
@@ -330,7 +335,7 @@ struct SelectionBridge {
     if(category<0||category>6)return -1;
     if(category>=4)return 0;
     constexpr const char* keys[]={"SortTypeWeaponPouch","SortTypeBowPouch","SortTypeShieldPouch","SortTypeArmorPouch"};
-    if(!sort_flags.begin(host))return -1;
+    if(!sort_flags.begin(host,true))return -1;
     const auto value=sort_flags.observe_boolean(warp::crc(keys[category]));
     return sort_flags.finish()&&value ? int(*value) : -1;
   }
@@ -360,7 +365,7 @@ struct SelectionBridge {
     UiSample ui{};
     if (!ui_sample(host,ui) || ui.flags!=0x1E09000000ULL) return false;
     uint64_t manager{};
-    if (!read(host,host.main_base+0x2CA6D50,manager) || manager%8 || !manager) return false;
+    if (!read(host,host.main_base+inventory_offsets(host).pouch_root,manager) || manager%8 || !manager) return false;
     uint32_t sequence{},ack{},beat{};
     if (!load(8,sequence) || !load(12,ack) || sequence!=ack || !load(4,beat)) return false;
     if (++sequence==0) ++sequence;

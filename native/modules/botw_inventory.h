@@ -41,12 +41,12 @@ inline int equipped_arrows(const Snapshot& pouch) {
 // the cached pouch order instead of showing a partially-reordered or duplicated grid.
 inline Snapshot native_order(const EdenDsmodHostApi &h, const Snapshot &pouch) {
   Snapshot out;
-  if (!pouch.valid || pouch.items.empty() || pouch.items.size() > 420)
+  if (!inventory_supported(h) || !pouch.valid || pouch.items.empty() || pouch.items.size() > 420)
     return out;
   uint64_t manager{}, vt{};
-  if (!read(h, h.main_base + 0x2CA6D50, manager) || manager % 8 ||
+  if (!read(h, h.main_base + inventory_offsets(h).pouch_root, manager) || manager % 8 ||
       manager > UINT64_MAX - 0x44230 - 50 * 8 || !read(h, manager, vt) ||
-      vt != h.main_base + 0x2B87780)
+      vt != h.main_base + inventory_offsets(h).pouch_vtable)
     return out;
   const uint64_t sentinel = manager + 0x68;
   std::vector<Item> ordered;

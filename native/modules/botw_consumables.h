@@ -14,13 +14,13 @@ inline bool consume_effect(int effect) {
 }
 // This reads metadata only. Native Eat remains responsible for effects and save.
 inline Consumable consumable(const EdenDsmodHostApi& h,const Item& item) {
-  if(!supported(h) || (item.type!=7 && item.type!=8) || item.equipped || item.value<1 || item.value>999999)return {};
+  if(!inventory_supported(h) || (item.type!=7 && item.type!=8) || item.equipped || item.value<1 || item.value>999999)return {};
   const auto* info=consume_info(item.actor);if(!info)return {};
   std::array<uint8_t,0x98> a{},b{};
   if(item.address%8 || !read(h,item.address,a) || !read(h,item.address,b) || a!=b)return {};
   auto get=[&]<class T>(size_t at){T v{};std::memcpy(&v,a.data()+at,sizeof v);return v;};
   if(get.template operator()<int32_t>(0x18)!=item.type || get.template operator()<int32_t>(0x20)!=item.value ||
-     a[0x24]!=0 || a[0x25]!=1 || get.template operator()<uint64_t>(0x28)!=h.main_base+0x2A6FAF0 ||
+     a[0x24]!=0 || a[0x25]!=1 || get.template operator()<uint64_t>(0x28)!=h.main_base+inventory_offsets(h).pouch_string_vtable ||
      get.template operator()<uint64_t>(0x30)!=item.address+0x3C || get.template operator()<int32_t>(0x38)!=64 ||
      item.actor.size()>=64 || std::memcmp(a.data()+0x3C,item.actor.c_str(),item.actor.size()+1))return {};
   Consumable out;out.recipe=info->recipe;out.use=get.template operator()<int32_t>(0x1C);

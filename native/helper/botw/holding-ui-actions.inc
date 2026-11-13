@@ -433,7 +433,11 @@ holding_tag_found:
     ldr w10, [x10, x12, lsl #2]
     add x10, x9, x10
     stp x9, x10, [sp, #64]
+    .ifdef BOTW_190
+    mov x0, x27
+    .else
     ldr w0, [x27, #0x60]
+    .endif
     add x1, sp, #64
     mov w2, #0x906f
     movk w2, #0x9b44, lsl #16
@@ -537,6 +541,19 @@ holding_copy_name:
     str wzr, [sp, #80]
     add x0, sp, #112
     mov x1, x27
+    .ifdef BOTW_190
+    // Exact native close call: name, heap, -1, false, null, holding=true,
+    // and its two forward/up offsets. No register is inherited from unlock.
+    mov w2, #-1
+    mov w3, wzr
+    mov x4, xzr
+    mov w5, #1
+    mov w9, #0xcccd
+    movk w9, #0x3f4c, lsl #16
+    fmov s0, w9
+    movk w9, #0xbf4c, lsl #16
+    fmov s1, w9
+    .endif
     bl native_hold_spawn
     adrp x9, pouch_root
     ldr x9, [x9, :lo12:pouch_root]

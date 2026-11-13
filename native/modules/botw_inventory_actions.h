@@ -17,7 +17,7 @@ struct InventoryEquip {
 // equipment actor. Head/upper plans include native fitting and paired completion.
 inline InventoryEquip inventory_equip(const EdenDsmodHostApi& h,uint64_t address,
                                      const Snapshot& display,bool lower_armor=false,bool all_armor=false,bool arrows=false,bool remove=false,bool remove_armor=false) {
-  if (!supported(h) || !display.valid || context(h)!=UiContext::World) return {};
+  if (!inventory_supported(h) || !display.valid || context(h)!=UiContext::World) return {};
   const auto fresh=pouch(h);
   if (!fresh.valid) return {};
   const Item *shown=nullptr,*target=nullptr;
@@ -33,11 +33,11 @@ inline InventoryEquip inventory_equip(const EdenDsmodHostApi& h,uint64_t address
   out.equipment=player_equipment(h);
   if(!out.equipment.valid || !ui_sample(h,out.ui) || out.ui.flags!=0x1E09000000ULL) return {};
   uint64_t vt{};int32_t count{},offset{},capacity{};
-  if(!read(h,h.main_base+0x2CA6D50,out.manager) || out.manager%8 ||
-     out.manager>UINT64_MAX-0x80 || !read(h,out.manager,vt) || vt!=h.main_base+0x2B87780 ||
+  if(!read(h,h.main_base+inventory_offsets(h).pouch_root,out.manager) || out.manager%8 ||
+     out.manager>UINT64_MAX-0x80 || !read(h,out.manager,vt) || vt!=h.main_base+inventory_offsets(h).pouch_vtable ||
      !read(h,out.manager+0x78,count) || count<1 || count>420 ||
      !read(h,out.manager+0x7C,offset) || offset!=8 ||
-     address>UINT64_MAX-0x90 || !read(h,address+0x28,vt) || vt!=h.main_base+0x2A6FAF0 ||
+     address>UINT64_MAX-0x90 || !read(h,address+0x28,vt) || vt!=h.main_base+inventory_offsets(h).pouch_string_vtable ||
      !read(h,address+0x30,out.name) || out.name!=address+0x3C ||
      !read(h,address+0x38,capacity) || capacity!=64 ||
      !read(h,address+0x88,out.modifier_flags) || !read(h,address+0x80,out.modifier_value)) return {};
@@ -79,10 +79,10 @@ inline InventoryEquip inventory_equip(const EdenDsmodHostApi& h,uint64_t address
       }
     }
     if(!found)return {};
-    constexpr uint64_t defaults[]={0x2CA68F0,0x2CA6920,0x2CA6900,0x2CA6930,0x2CA6940,0x2CA6950};
-    constexpr uint64_t names[]={0x265BC1E,0x2640BC8,0x2635EDB,0x262092C,0x2667123,0x2661AFE};
+    const auto& defaults=inventory_offsets(h).defaults;
+    const auto& names=inventory_offsets(h).default_names;
     uint64_t vtable{},name{};
-    if(!read(h,h.main_base+defaults[out.slot],vtable) || vtable!=h.main_base+0x2A6E6C0 ||
+    if(!read(h,h.main_base+defaults[out.slot],vtable) || vtable!=h.main_base+inventory_offsets(h).native_string_vtable ||
        !read(h,h.main_base+defaults[out.slot]+8,name) || name!=h.main_base+names[out.slot])return {};
     out.remove=true;
   }

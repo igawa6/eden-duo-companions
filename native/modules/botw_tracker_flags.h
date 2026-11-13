@@ -32,8 +32,8 @@ class TrackerFlagReader {
   static bool ptr(uint64_t p,uint64_t n){return p>=0x10000&&p%8==0&&p<=UINT64_MAX-n;}
   bool roots(Roots& r)const {
     const auto& h=*host;
-    return read(h,h.main_base+0x2CC5FE8,r.manager)&&ptr(r.manager,0xC2C)&&
-      read(h,r.manager,r.vt)&&r.vt==h.main_base+0x2BD07E0&&
+    return read(h,h.main_base+inventory_offsets(h).gamedata_root,r.manager)&&ptr(r.manager,0xC2C)&&
+      read(h,r.manager,r.vt)&&r.vt==h.main_base+inventory_offsets(h).gamedata_vtable&&
       read(h,r.manager+0xBE0,r.holder)&&ptr(r.holder,8)&&read(h,r.holder,r.bank)&&ptr(r.bank,0x28)&&
       read(h,r.bank+8,r.bool_count)&&read(h,r.bank+12,r.bool_cap)&&
       r.bool_count>0&&r.bool_count<=r.bool_cap&&r.bool_cap<=65536&&
@@ -48,7 +48,7 @@ class TrackerFlagReader {
     const auto count=integer?root.int_count:root.bool_count;
     return index>=0&&index<count&&read(*host,(integer?root.ints:root.bools)+uint64_t(index)*8,id.pointer)&&
       ptr(id.pointer,sizeof(F))&&read(*host,id.pointer,f)&&
-      f.vt==host->main_base+(integer?0x2BD1140:0x2BD1078)&&f.type==unsigned(integer)&&((id.index=index),true);
+      f.vt==host->main_base+(integer?inventory_offsets(*host).int_flag_vtable:inventory_offsets(*host).bool_flag_vtable)&&f.type==unsigned(integer)&&((id.index=index),true);
   }
   template<class F> bool resolve(uint32_t hash,bool integer,Identity& id,F& f) {
     if(!valid_||observations.size()>=4096)return false;
@@ -66,9 +66,9 @@ class TrackerFlagReader {
   }
 public:
   void clear(){cache.clear();observations.clear();root={};previous={};host=nullptr;valid_=false;}
-  bool begin(const EdenDsmodHostApi& h){
+  bool begin(const EdenDsmodHostApi& h,bool inventory=false){
     host=&h;valid_=false;observations.clear();Roots now{};
-    if(!supported(h)||h.main_size<0x2CC5FF0||h.main_base>UINT64_MAX-0x2CC5FF0||
+    if(!(inventory?inventory_supported(h):supported(h))||h.main_size<inventory_offsets(h).gamedata_root+8||h.main_base>UINT64_MAX-(inventory_offsets(h).gamedata_root+8)||
        !ui_sample(h,ui)||!hud_context(ui)||!roots(now)){cache.clear();return false;}
     if(now!=previous) cache.clear();
     root=previous=now;valid_=true;return true;

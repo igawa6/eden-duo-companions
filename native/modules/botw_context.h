@@ -11,17 +11,17 @@ struct UiSample {
   bool operator==(const UiSample &) const = default;
 };
 inline bool ui_sample(const EdenDsmodHostApi &h, UiSample &s) {
-  constexpr uint64_t End = 0x2CC2498;
-  if (!supported(h) || h.main_size < End || h.main_base > UINT64_MAX - End)
+  const uint64_t End = inventory_offsets(h).screen_root+8;
+  if (!inventory_supported(h) || h.main_size < End || h.main_base > UINT64_MAX - End)
     return false;
-  if (!read(h, h.main_base + 0x2CBDB80, s.manager) ||
-      !read(h, h.main_base + 0x2CC2490, s.screens) ||
+  if (!read(h, h.main_base + inventory_offsets(h).ui_root, s.manager) ||
+      !read(h, h.main_base + inventory_offsets(h).screen_root, s.screens) ||
       s.manager % 8 || s.screens % 8 || s.manager > UINT64_MAX - 0x64C38 ||
       s.screens > UINT64_MAX - 0x38 ||
       !read(h, s.manager, s.manager_vtable) ||
       !read(h, s.screens, s.screens_vtable) ||
-      s.manager_vtable != h.main_base + 0x2BB1AB8 ||
-      s.screens_vtable != h.main_base + 0x2BBEA98 ||
+      s.manager_vtable != h.main_base + inventory_offsets(h).ui_vtable ||
+      s.screens_vtable != h.main_base + inventory_offsets(h).screens_vtable ||
       !read(h, s.manager + 0x64C30, s.flags) ||
       !read(h, s.screens + 0x28, s.count) || s.count != 99 ||
       !read(h, s.screens + 0x30, s.array) || s.array % 8 ||

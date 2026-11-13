@@ -1,16 +1,24 @@
 // Private BOTW 1.6.0 UI-thread bridge. Addresses are linked from the pinned build.
 .text
+.set pause_shift, 0
+.ifdef BOTW_190
+.set pause_shift, 24
+.endif
 .global botw_ui_hook
 botw_ui_hook:
     stp x29, x30, [sp, #-80]!
     stp x19, x20, [sp, #16]
     stp x21, x22, [sp, #32]
     stp x23, x24, [sp, #48]
+    .ifndef BOTW_INVENTORY_ONLY
     bl companion_map_restore
+    .endif
     bl native_ui_update
     stp x0, x1, [sp, #64]
+    .ifndef BOTW_INVENTORY_ONLY
     bl companion_hud_pose
     bl companion_map_hide
+    .endif
 .global mailbox_adrp, mailbox_add
 mailbox_adrp:
     adrp x19, bridge_mailbox
@@ -59,6 +67,21 @@ pending_request:
     movk x11, #0x900, lsl #16
     movk x11, #0x1e, lsl #32
     ldr w12, [x19, #20]
+    .ifdef BOTW_INVENTORY_ONLY
+    cmp w12, #14
+    b.eq sort_request
+    cmp w12, #11
+    b.eq holding_request
+    cmp w12, #12
+    b.eq holding_request
+    cmp w12, #8
+    b.eq inventory_request
+    cmp w12, #7
+    b.eq inventory_request
+    cmp w12, #6
+    b.eq inventory_request
+    b refused
+    .else
     cmp w12, #14
     b.eq sort_request
     cmp w12, #13
@@ -416,6 +439,7 @@ quest_commit:
     ldr w1, [x19, #24]
     mov w2, w24
     bl native_destination_set
+    .endif
 successful:
     mov w9, #1
     b acknowledge
@@ -1040,14 +1064,14 @@ consume_use_ready:
     add x11, x11, :lo12:inventory_screen_vtable
     cmp x10, x11
     b.ne consume_invalid
-    ldr x10, [x9, #0x3610]
+    ldr x10, [x9, #(0x3610+pause_shift)]
     cmp x10, x21
     b.ne consume_invalid
-    ldr x10, [x9, #0x3630]
+    ldr x10, [x9, #(0x3630+pause_shift)]
     cbnz x10, consume_invalid
-    ldr w10, [x9, #0x3638]
+    ldr w10, [x9, #(0x3638+pause_shift)]
     cbnz w10, consume_invalid
-    ldr x9, [x9, #0x3a08]
+    ldr x9, [x9, #(0x3a08+pause_shift)]
     ldr x10, [x19, #376]
     cmp x9, x10
     b.ne consume_invalid
@@ -1088,13 +1112,13 @@ consume_commit:
     str w10, [x9, #0x130]
     ldr w10, [x19, #308]
     str w10, [x9, #0xc78]
-    str x23, [x0, #0x3630]
+    str x23, [x0, #(0x3630+pause_shift)]
     mov w10, #29
-    str w10, [x0, #0x3638]
+    str w10, [x0, #(0x3638+pause_shift)]
     bl native_eat
     ldr x9, [x19, #368]
-    str xzr, [x9, #0x3630]
-    str wzr, [x9, #0x3638]
+    str xzr, [x9, #(0x3630+pause_shift)]
+    str wzr, [x9, #(0x3638+pause_shift)]
     ldr x9, [x19, #376]
     ldr w10, [x19, #400]
     str w10, [x9, #0x130]
@@ -1604,6 +1628,7 @@ player_food_done:
 
 // DUOD native map adapter. Private mailbox640..799; no Pouch overlap.
 // Exact World, MainField, root/array membership and marker identity are mandatory.
+    .ifndef BOTW_INVENTORY_ONLY
 map_edit_request:
     sub x11, x11, #4
     cmp x10, x11
@@ -2240,6 +2265,7 @@ world_rune_hashes:
 
 // Exact1.6 native Y entry: watchpoint at manager+0x44800, main+0x10C48D0.
 // The native function owns its lock; never wrap it in a second pouch lock.
+    .endif
 sort_request:
     adrp x9, pouch_root
     ldr x21, [x9, :lo12:pouch_root]
@@ -2266,10 +2292,15 @@ sort_request:
     b.hi refused
     mov x0, x21
     mov w1, w24
+    .ifdef BOTW_190
+    mov w2, wzr
+    .endif
     bl native_sort_items
     b successful
 
 .include "holding-ui-actions.inc"
+.ifndef BOTW_INVENTORY_ONLY
 .include "warp-ui-actions.inc"
 
 .include "companion-hud.inc"
+.endif

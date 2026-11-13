@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
-#include "core/mods/dsmod_module_abi.h"
+#include "botw_inventory_offsets.h"
 #include <array>
 #include <cstdint>
 #include <cstring>
 #include <string>
 #include <vector>
 namespace botw {
-inline constexpr char Build[] =
-    "8E9978D50BDD20B4C8395A106C27FFDE00000000000000000000000000000000";
 struct Item {
   std::string actor;
   int32_t type{}, value{};
@@ -25,25 +23,15 @@ template <class T> bool read(const EdenDsmodHostApi &h, uint64_t p, T &out) {
          h.is_mapped(h.userdata, p, sizeof(T)) &&
          h.read_memory(h.userdata, p, &out, sizeof(T));
 }
-inline bool supported(const EdenDsmodHostApi &h) {
-  std::array<uint8_t, 32> expected{};
-  for (unsigned i = 0; i < 32; i++) {
-    auto hex = [](char c) { return c <= '9' ? c - '0' : c - 'A' + 10; };
-    expected[i] = uint8_t((hex(Build[i * 2]) << 4) | hex(Build[i * 2 + 1]));
-  }
-  if (std::memcmp(expected.data(), h.build_id, 32))
-    return false;
-  return h.title_id == 0x01007EF00011E000ULL;
-}
 inline Snapshot pouch(const EdenDsmodHostApi &h) {
   Snapshot out;
-  if (h.title_id != 0x01007EF00011E000ULL || h.main_size < 0x2CA6D58 ||
-      h.main_base > UINT64_MAX - 0x2CA6D58)
+  if (h.title_id != 0x01007EF00011E000ULL || h.main_size < (inventory_offsets(h).pouch_root+8) ||
+      h.main_base > UINT64_MAX - (inventory_offsets(h).pouch_root+8))
     return out;
-  if (!supported(h))
+  if (!inventory_supported(h))
     return out;
   uint64_t mgr{};
-  if (!read(h, h.main_base + 0x2CA6D50, mgr) || mgr % 8 ||
+  if (!read(h, h.main_base + inventory_offsets(h).pouch_root, mgr) || mgr % 8 ||
       mgr > UINT64_MAX - 0x80)
     return out;
   const uint64_t head = mgr + 0x68;
@@ -102,7 +90,7 @@ inline Snapshot pouch(const EdenDsmodHostApi &h) {
       std::memcmp(&a, &z, sizeof(a)))
     return {};
   uint64_t again{};
-  if (!read(h, h.main_base + 0x2CA6D50, again) || again != mgr)
+  if (!read(h, h.main_base + inventory_offsets(h).pouch_root, again) || again != mgr)
     return {};
   out.valid = true;
   return out;
