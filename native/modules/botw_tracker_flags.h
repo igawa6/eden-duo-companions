@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include "botw_hud.h"
+#include "botw_quest_offsets.h"
 #include <optional>
 #include <unordered_map>
 #include <vector>
@@ -68,7 +69,7 @@ public:
   void clear(){cache.clear();observations.clear();root={};previous={};host=nullptr;valid_=false;}
   bool begin(const EdenDsmodHostApi& h,bool inventory=false){
     host=&h;valid_=false;observations.clear();Roots now{};
-    if(!(inventory?inventory_supported(h):supported(h))||h.main_size<inventory_offsets(h).gamedata_root+8||h.main_base>UINT64_MAX-(inventory_offsets(h).gamedata_root+8)||
+    if(!(inventory?inventory_supported(h):quests_supported(h))||h.main_size<inventory_offsets(h).gamedata_root+8||h.main_base>UINT64_MAX-(inventory_offsets(h).gamedata_root+8)||
        !ui_sample(h,ui)||!hud_context(ui)||!roots(now)){cache.clear();return false;}
     if(now!=previous) cache.clear();
     root=previous=now;valid_=true;return true;

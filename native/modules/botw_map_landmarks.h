@@ -2,6 +2,7 @@
 #pragma once
 #include "botw_key.h"
 #include "botw_map.h"
+#include "botw_quest_offsets.h"
 namespace botw {
 struct MapLandmarks {
   struct Entry {
@@ -15,7 +16,7 @@ struct MapLandmarks {
 };
 inline MapLandmarks map_landmarks(const EdenDsmodHostApi& h) {
   UiSample ui{},after{};
-  if(h.main_size<0x2CBDB88 || h.main_base>UINT64_MAX-0x2CBDB88 ||
+  if(!quests_supported(h) || h.main_size<ready_offsets(h).map_root+8 || h.main_base>UINT64_MAX-(ready_offsets(h).map_root+8) ||
      !ui_sample(h,ui) || !hud_context(ui) || !main_field_stage(h))return {};
   struct Root {
     uint64_t object{},vtable{};
@@ -24,8 +25,8 @@ inline MapLandmarks map_landmarks(const EdenDsmodHostApi& h) {
     bool operator==(const Root&) const = default;
   } root{},last{};
   auto read_root=[&](Root& r) {
-    if(!read(h,h.main_base+0x2CA63B0,r.object) || !r.object || r.object%8 ||
-       r.object>UINT64_MAX-0x320 || !read(h,r.object,r.vtable) || r.vtable!=h.main_base+0x2B86848)return false;
+    if(!read(h,h.main_base+ready_offsets(h).map_root,r.object) || !r.object || r.object%8 ||
+       r.object>UINT64_MAX-0x320 || !read(h,r.object,r.vtable) || r.vtable!=h.main_base+ready_offsets(h).map_vtable)return false;
     for(unsigned a=0;a<2;++a) {
       const uint64_t off=a?0x310:0x2F0;const int limit=a?15:136;
       if(!read(h,r.object+off,r.counts[a]) || !read(h,r.object+off+4,r.capacities[a]) ||
@@ -47,7 +48,7 @@ inline MapLandmarks map_landmarks(const EdenDsmodHostApi& h) {
   auto read_record=[&](unsigned a,unsigned i,Record& r) {
     if(!read(h,root.arrays[a]+i*8,r.pointer) || !r.pointer || r.pointer%8 ||
        r.pointer>UINT64_MAX-0x68 || !read(h,r.pointer,r.vtable) ||
-       r.vtable!=h.main_base+(a?0x2B86A00:0x2B86010) ||
+       r.vtable!=h.main_base+(a?quest_offsets(h).tower_vtable:quest_offsets(h).shrine_vtable) ||
        !read(h,r.pointer+0x1C,r.kind) || r.kind!=int32_t(a+2) ||
        !read(h,r.pointer+0x28,r.xyz) || !read(h,r.pointer+0x58,r.source) ||
        !r.source || r.source%4 || r.source>UINT64_MAX-0x20 ||

@@ -165,6 +165,9 @@ struct SelectionBridge {
 #ifdef BOTW_190_INVENTORY_EVIDENCE
     if(matches_build(h,InventoryBuild190)) {
       quest_supported=map_supported=world_rune_supported=cursor_supported=warp_supported=false;
+#ifdef BOTW_190_QUEST_EVIDENCE
+      quest_supported=level>=2;
+#endif
     }
 #endif
     if (healthy) note_beat(beat,now);
@@ -295,7 +298,7 @@ struct SelectionBridge {
         const auto destination=valid_scope ? quest_destination(h) : CurrencySnapshot{};
         uint64_t map{},selected{};
         const bool confirmed=result==1 && destination.valid && destination.value==target_quest_index &&
-          read(h,h.main_base+0x2CA63B0,map) && map==target_map &&
+          read(h,h.main_base+ready_offsets(h).map_root,map) && map==target_map &&
           read(h,map+0x3A0,selected) && selected==target;
         if (result==1 && valid_scope && !confirmed && now-requested<std::chrono::milliseconds(500)) {
           status="Awaiting native quest update";return;
@@ -602,7 +605,7 @@ struct SelectionBridge {
     if(!epoch || session_epoch()!=epoch)quest_refusal|=8;
     if(!load(4092,guest_epoch) || guest_epoch!=epoch)quest_refusal|=16;
     if(!quest_scope())quest_refusal|=32;
-    if(!supported(host))quest_refusal|=64;
+    if(!quests_supported(host))quest_refusal|=64;
     if(now-sampled>std::chrono::milliseconds(100))quest_refusal|=128;
     if(!beat_fresh(now))quest_refusal|=256;
     if(context(host)!=UiContext::World || !display.valid)quest_refusal|=512;
@@ -617,17 +620,17 @@ struct SelectionBridge {
     uint64_t manager{},map{},gamedata{},vt{},array{},entry{};int32_t count{},handle{};uint32_t dlc{};
     UiSample ui{},after{};
     if(!ui_sample(host,ui) || ui.flags!=0x1E09000000ULL ||
-       !read(host,host.main_base+0x2CD1700,manager) || manager%8 || manager>UINT64_MAX-0xC8 ||
-       !read(host,manager,vt) || vt!=host.main_base+0x2BEBA70 ||
+       !read(host,host.main_base+quest_offsets(host).root,manager) || manager%8 || manager>UINT64_MAX-0xC8 ||
+       !read(host,manager,vt) || vt!=host.main_base+quest_offsets(host).manager_vtable ||
        !read(host,manager+0xB8,count) || count<1 || count>512 || chosen->index<0 || chosen->index>=count ||
        !read(host,manager+0xC0,array) || array%8 || array>UINT64_MAX-uint64_t(count)*8 ||
        !read(host,array+uint64_t(chosen->index)*8,entry) || entry!=address ||
        !read(host,address+0xD8,dlc) || (dlc&~1u) ||
-       !read(host,host.main_base+0x2CA63B0,map) || map%8 || map>UINT64_MAX-0x3A8 ||
-       !read(host,map,vt) || vt!=host.main_base+0x2B86848 ||
-       !read(host,host.main_base+0x2CC5FE8,gamedata) || gamedata%8 ||
-       !read(host,gamedata,vt) || vt!=host.main_base+0x2BD07E0 ||
-       !read(host,host.main_base+0x2B7E8D0,handle) || handle<0 ||
+       !read(host,host.main_base+ready_offsets(host).map_root,map) || map%8 || map>UINT64_MAX-0x3A8 ||
+       !read(host,map,vt) || vt!=host.main_base+ready_offsets(host).map_vtable ||
+       !read(host,host.main_base+inventory_offsets(host).gamedata_root,gamedata) || gamedata%8 ||
+       !read(host,gamedata,vt) || vt!=host.main_base+inventory_offsets(host).gamedata_vtable ||
+       !read(host,host.main_base+quest_offsets(host).destination_handle,handle) || handle<0 ||
        !ui_sample(host,after) || after!=ui) return false;
     uint32_t sequence{},ack{},beat{};
     if(!load(8,sequence) || !load(12,ack) || sequence!=ack || !load(4,beat))return false;

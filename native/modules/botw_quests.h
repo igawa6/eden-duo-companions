@@ -2,26 +2,27 @@
 #pragma once
 #include <algorithm>
 #include "botw_hud.h"
+#include "botw_quest_offsets.h"
 #include "botw_inventory.h"
 namespace botw {
 inline CurrencySnapshot quest_destination(const EdenDsmodHostApi& h) {
   UiSample ui{},after{};
-  if (!ui_sample(h,ui) || !hud_context(ui)) return {};
+  if (!quests_supported(h) || !ui_sample(h,ui) || !hud_context(ui)) return {};
   struct Roots {
     uint64_t manager{},vtable{},holder{},bank{},array{};
     int32_t count{},capacity{};
     bool operator==(const Roots&) const = default;
   } a{},z{};
   auto roots=[&](Roots& r) {
-    return read(h,h.main_base+0x2CC5FE8,r.manager) && r.manager%8==0 &&
+    return read(h,h.main_base+inventory_offsets(h).gamedata_root,r.manager) && r.manager%8==0 &&
       r.manager<=UINT64_MAX-0xBE8 && read(h,r.manager,r.vtable) &&
-      r.vtable==h.main_base+0x2BD07E0 && read(h,r.manager+0xBE0,r.holder) && r.holder%8==0 &&
+      r.vtable==h.main_base+inventory_offsets(h).gamedata_vtable && read(h,r.manager+0xBE0,r.holder) && r.holder%8==0 &&
       read(h,r.holder,r.bank) && r.bank%8==0 && r.bank<=UINT64_MAX-0x28 &&
       read(h,r.bank+0x18,r.count) && read(h,r.bank+0x1C,r.capacity) &&
       r.count>0 && r.count<=65536 && r.capacity>=r.count && r.capacity<=65536 &&
       read(h,r.bank+0x20,r.array) && r.array%8==0 && r.array<=UINT64_MAX-uint64_t(r.count)*8;
   };
-  if (h.main_size<0x2CC5FF0 || h.main_base>UINT64_MAX-0x2CC5FF0 || !roots(a)) return {};
+  if (h.main_size<inventory_offsets(h).gamedata_root+8 || h.main_base>UINT64_MAX-(inventory_offsets(h).gamedata_root+8) || !roots(a)) return {};
   struct Flag {
     uint64_t vtable{};
     uint8_t type{},properties{};
@@ -34,7 +35,7 @@ inline CurrencySnapshot quest_destination(const EdenDsmodHostApi& h) {
   static_assert(sizeof(Flag)==40);
   auto flag=[&](int32_t i,uint64_t& p,Flag& v) {
     return i>=0 && i<a.count && read(h,a.array+uint64_t(i)*8,p) && p%8==0 &&
-      read(h,p,v) && v.vtable==h.main_base+0x2BD1140 && v.type==1;
+      read(h,p,v) && v.vtable==h.main_base+inventory_offsets(h).int_flag_vtable && v.type==1;
   };
   int32_t lo=0,hi=a.count;uint64_t p{},p2{};
   for (unsigned step=0;lo<hi && step<17;++step) {
@@ -75,7 +76,7 @@ inline bool quest_string(const EdenDsmodHostApi& h,uint64_t p,std::string& out,b
 }
 inline QuestSnapshot quests(const EdenDsmodHostApi& h,bool include_unstarted=false) {
   UiSample ui{},after{};
-  if(!ui_sample(h,ui)||!hud_context(ui)||h.main_size<0x2CD1708||h.main_base>UINT64_MAX-0x2CD1708)return {};
+  if(!quests_supported(h)||!ui_sample(h,ui)||!hud_context(ui)||h.main_size<quest_offsets(h).root+8||h.main_base>UINT64_MAX-(quest_offsets(h).root+8))return {};
   bool dlc2{},dlc3{};
   if(!rune_upgrade(h,0x7609DE2C,dlc2)||!rune_upgrade(h,0x010EEEBA,dlc3))return {};
   const auto destination=quest_destination(h);if(!destination.valid)return {};
@@ -84,8 +85,8 @@ inline QuestSnapshot quests(const EdenDsmodHostApi& h,bool include_unstarted=fal
     bool operator==(const Roots&) const = default;
   } a{},z{};
   auto roots=[&](Roots& s) {
-    return read(h,h.main_base+0x2CD1700,s.manager)&&s.manager%8==0&&s.manager<=UINT64_MAX-0xF0&&
-      read(h,s.manager,s.vtable)&&s.vtable==h.main_base+0x2BEBA70&&
+    return read(h,h.main_base+quest_offsets(h).root,s.manager)&&s.manager%8==0&&s.manager<=UINT64_MAX-0xF0&&
+      read(h,s.manager,s.vtable)&&s.vtable==h.main_base+quest_offsets(h).manager_vtable&&
       read(h,s.manager+0xB8,s.count)&&s.count>0&&s.count<=512&&
       read(h,s.manager+0xBC,s.capacity)&&s.capacity>=s.count&&s.capacity<=512&&
       read(h,s.manager+0xC0,s.array)&&s.array%8==0&&s.array<=UINT64_MAX-uint64_t(s.count)*8;
@@ -99,7 +100,7 @@ inline QuestSnapshot quests(const EdenDsmodHostApi& h,bool include_unstarted=fal
     if(std::find(seen.begin(),seen.end(),p)!=seen.end())return {};
     seen.push_back(p);
     auto field=[&]<class T>(unsigned offset){T v{};std::memcpy(&v,raw.data()+offset,sizeof(v));return v;};
-    if(field.operator()<uint64_t>(0)!=h.main_base+0x2BEBA90)return {};
+    if(field.operator()<uint64_t>(0)!=h.main_base+quest_offsets(h).quest_vtable)return {};
     const auto state=field.operator()<int32_t>(0xC);
     const auto journal=raw[0x30];const auto aoc=field.operator()<uint32_t>(0xD8);
     if(state<0||state>2||journal>1||(aoc&~7u))return {};
@@ -134,7 +135,7 @@ inline QuestSnapshot quests(const EdenDsmodHostApi& h,bool include_unstarted=fal
       const auto selected=std::max(0,step-1);uint64_t s{},s2{},message{},message2{},vt{};
       std::string message_again;
       if(!read(h,array+uint64_t(selected)*8,s)||s%8||s>UINT64_MAX-0x88||!read(h,s,vt)||
-        vt!=h.main_base+0x2BEBAF0||!read(h,s+0x48,message)||!quest_string(h,message,q.message)||
+        vt!=h.main_base+quest_offsets(h).step_vtable||!read(h,s+0x48,message)||!quest_string(h,message,q.message)||
         !quest_string(h,message,message_again)||message_again!=q.message||
         !read(h,s+0x48,message2)||message2!=message||!read(h,array+uint64_t(selected)*8,s2)||s2!=s)return {};
       }

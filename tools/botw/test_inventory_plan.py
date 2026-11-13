@@ -53,6 +53,16 @@ class InventoryPlanTests(unittest.TestCase):
                           if k.startswith(('warp_','quest_'))} & targets)
         self.assertEqual(plan['build_id'],inventory.BUILD_ID)
 
+    def test_quest_plan_uses_native_rebuild_and_integer_setter(self):
+        with tempfile.TemporaryDirectory() as work:
+            plan=inventory.build_plan(Path(work),quests=True)
+        targets={r['addend'] for r in plan['guest_code']['relocations']
+                 if r['target']=='main'}
+        self.assertTrue({0x1E46720,0x1D3BBD8,0x1E17EF8,0x1CDD6C8,
+                         0x1DA6E60,0xD8A150,0x6B6B3C} <= targets)
+        self.assertNotIn(production.SYMBOLS['native_destination_set'],targets)
+        self.assertNotIn(production.SYMBOLS['native_warp'],targets)
+
 
 if __name__=='__main__':
     unittest.main()

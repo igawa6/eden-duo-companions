@@ -3,6 +3,7 @@
 #include "botw_quest_test_fixture.h"
 #include <cassert>
 #include <iostream>
+namespace {
 struct QuestBridgeFixture:QuestFixture {
   static constexpr uint64_t Map=0xA000000;
   State state;
@@ -28,6 +29,8 @@ struct QuestBridgeFixture:QuestFixture {
   void ack(uint32_t result=1){mb<uint32_t>(12,get<uint32_t>(8));mb(16,result);}
   void readback(){put<int32_t>(Destination+24,0);put(Map+0x3A0,Entry);}
 };
+} // namespace
+#ifndef BOTW_QUEST_FIXTURE_ONLY
 int main(){unsigned passed{};
   {QuestBridgeFixture f;assert(f.choose());assert(f.get<uint32_t>(8)==1&&f.get<uint32_t>(72)==1&&f.stores.back()==8);
    assert(f.get<uint32_t>(20)==5&&f.get<uint32_t>(24)==0&&f.get<uint64_t>(40)==f.Entry);
@@ -100,3 +103,5 @@ int main(){unsigned passed{};
    assert(!on_action(&f.state,"quest_choose",1));sample(&f.state,&f.h);assert(f.values["botw.quest.count"]==1&&!f.get<uint32_t>(8));++passed;}
   std::cout<<passed<<" quest action freshness/scope/queue/native-readback cases passed\n";
 }
+
+#endif

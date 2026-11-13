@@ -89,15 +89,22 @@ SYMBOLS = dict(
 
 )
 
-def build_plan(work: Path, *, ready: bool = False) -> dict:
+def build_plan(work: Path, *, ready: bool = False, quests: bool = False) -> dict:
     obj, binary = work / "inventory.o", work / "inventory.bin"
     symbols = dict(SYMBOLS)
     defines = []
-    if ready:
+    if ready or quests:
         symbols.update(hud_map_vtable=0x1CE8298, hud_root_vtable=0x1D0E500,
                        hud_screen_vtable=0x1CF4C20, hud_anim_vtable=0x1D0EEA0,
                        hud_parts_vtable=0x1D0E318, hud_animate=0x22C60)
         defines.append("-Wa,-defsym,BOTW_READY=1")
+    if quests:
+        symbols.update(quest_root=0x1E46720, quest_manager_vtable=0x1D3BBD8,
+                       map_root=0x1E17EF8, map_vtable=0x1CDD6C8,
+                       gamedata_root=0x1E3B188, gamedata_manager_vtable=0x1D210E0,
+                       destination_handle=0x1DA6E60, native_map_rebuild=0xD8A150,
+                       native_destination_set=0x6B6B3C)
+        defines.append("-Wa,-defsym,BOTW_QUESTS=1")
     tool("clang", "--target=aarch64-none-elf", "-c", str(HELPER / "warp-ui-hook.S"),
          "-I", str(HELPER), "-Wa,-defsym,BOTW_190=1", "-Wa,-defsym,BOTW_INVENTORY_ONLY=1",
          *defines, "-o", str(obj))
