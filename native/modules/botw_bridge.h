@@ -168,6 +168,9 @@ struct SelectionBridge {
 #ifdef BOTW_190_QUEST_EVIDENCE
       quest_supported=level>=2;
 #endif
+#ifdef BOTW_190_MAP_EVIDENCE
+      map_supported=level>=10;
+#endif
 #ifdef BOTW_190_RUNES_EVIDENCE
       world_rune_supported=level>=11;cursor_supported=level>=12;
 #endif

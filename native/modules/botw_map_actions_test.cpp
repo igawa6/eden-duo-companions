@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#ifndef BOTW_MAP_FIXTURE_ONLY
 #include "01007EF00011E000.cpp"
+#endif
 #include "botw_test_fixture.h"
 #include <cassert>
 #include <iostream>
@@ -43,6 +45,7 @@ struct EditBridgeFixture:EditFixture {
  void native_place() {put<int32_t>(N+0x1C,37);put<uint32_t>(N+0x3C,16);put(N+0x28,std::array<float,3>{123,300,456});}
  void save_place(){put<int32_t>(No+10*40+0x18,37);put(Pos+10*72+0x30,std::array<float,3>{123,300,456});}
 };
+#ifndef BOTW_MAP_FIXTURE_ONLY
 int main(){using F=EditFixture;unsigned cases{};
  auto check=[&](auto change,bool valid){F f;change(f);const auto v=botw::map_edit_snapshot(f.h);if(v.valid!=valid)std::cerr<<"case "<<cases+1<<"\n";assert(v.valid==valid);++cases;};
  check([](F&){},true);
@@ -80,3 +83,5 @@ int main(){using F=EditFixture;unsigned cases{};
   assert(on_action(&state,"map_tool",6));assert(on_action(&state,"map_tool",2));sample(&state,&f.h);assert(f.values["botw.map.edit.armed.2"]==1&&f.values["botw.map.edit.armed.6"]==0);++cases;}
  std::cout<<cases<<" map snapshot identity/bounds/race/target cases passed\n";
 }
+
+#endif

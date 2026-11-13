@@ -13,6 +13,7 @@ struct SpecialFixture:Fixture {
   for(uint64_t off:{0x2C9E868ULL,0x2CA4DA0ULL}){std::array<uint8_t,56>b{};uint64_t vt=M+0x2A701C8,p=M+off+20;int32_t cap=32;std::memcpy(b.data(),&vt,8);std::memcpy(b.data()+8,&p,8);std::memcpy(b.data()+16,&cap,4);std::memcpy(b.data()+20,"MainField",10);put(M+off,b);}
  }
 };
+#ifndef BOTW_MAP_FIXTURE_ONLY
 int main(){using F=SpecialFixture;unsigned cases{};auto check=[&](auto change,bool valid){F f;change(f);auto v=botw::map_special(f.h);if(v.valid!=valid)std::cerr<<"case "<<cases+1<<'\n';assert(v.valid==valid);++cases;};
  check([](F&){},true);check([](F&f){f.h.build_id[0]^=1;},false);check([](F&f){f.h.main_size=1;},false);check([](F&f){f.h.main_base=UINT64_MAX-10;},false);
  for(uint64_t at:{F::M+0x2CA63B0,F::Map+0x378,F::Map+0x5A0,F::Array})for(uint64_t p:{0ULL,0x10001ULL,UINT64_MAX-7ULL})check([&](F&f){f.put(at,p);},false);
@@ -43,3 +44,5 @@ int main(){using F=SpecialFixture;unsigned cases{};auto check=[&](auto change,bo
  for(int kind:{19,20,44,42,26}){assert(botw::special_art(kind));++cases;}assert(!botw::special_art(25));++cases;
  std::cout<<cases<<" special marker identity/activation/position/race/publication cases passed\n";
 }
+
+#endif

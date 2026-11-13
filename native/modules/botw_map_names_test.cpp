@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#ifndef BOTW_MAP_FIXTURE_ONLY
 #include "01007EF00011E000.cpp"
+#endif
 #include "botw_test_fixture.h"
 #include <cassert>
 #include <iostream>
@@ -11,6 +13,7 @@ struct NamesFixture:Fixture {
   for(uint64_t off:{0x2C9E868ULL,0x2CA4DA0ULL}){std::array<uint8_t,56>b{};uint64_t vt=M+0x2A701C8,p=M+off+20;int32_t cap=32;std::memcpy(b.data(),&vt,8);std::memcpy(b.data()+8,&p,8);std::memcpy(b.data()+16,&cap,4);std::memcpy(b.data()+20,"MainField",10);put(M+off,b);}
  }
 };
+#ifndef BOTW_MAP_FIXTURE_ONLY
 int main(){using F=NamesFixture;unsigned cases{};auto check=[&](auto change,bool valid){F f;change(f);auto v=botw::map_names(f.h);if(v.valid!=valid)std::cerr<<"case "<<cases+1<<'\n';assert(v.valid==valid);++cases;};
  check([](F&){},true);check([](F&f){f.h.build_id[0]^=1;},false);check([](F&f){f.h.main_size=1;},false);
  auto slot=F::Array+botw::map_name_info[0].index*8;
@@ -43,3 +46,5 @@ int main(){using F=NamesFixture;unsigned cases{};auto check=[&](auto change,bool
  {F f;shifted(f,2,1103);assert(!botw::map_names(f.h).valid);++cases;}
  std::cout<<cases<<" native map name bounds/identity/discovery/race/publication cases passed\n";
 }
+
+#endif

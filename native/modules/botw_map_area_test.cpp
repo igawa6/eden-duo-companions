@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#ifndef BOTW_MAP_FIXTURE_ONLY
 #include "01007EF00011E000.cpp"
+#endif
 #include "botw_test_fixture.h"
 #include <cassert>
 #include <iostream>
@@ -11,6 +13,7 @@ struct AreaFixture:Fixture {
   for(uint64_t off:{0x2C9E868ULL,0x2CA4DA0ULL}){std::array<uint8_t,56>b{};uint64_t vt=M+0x2A701C8,p=M+off+20;int32_t cap=32;std::memcpy(b.data(),&vt,8);std::memcpy(b.data()+8,&p,8);std::memcpy(b.data()+16,&cap,4);std::memcpy(b.data()+20,"MainField",10);put(M+off,b);}
  }
 };
+#ifndef BOTW_MAP_FIXTURE_ONLY
 int main(){using F=AreaFixture;unsigned cases{};auto check=[&](auto change,bool valid){F f;change(f);auto v=botw::map_area(f.h);if(v.valid!=valid)std::cerr<<"case "<<cases+1<<'\n';assert(v.valid==valid);++cases;};
  check([](F&){},true);check([](F&f){f.h.build_id[0]^=1;},false);check([](F&f){f.h.main_size=1;},false);check([](F&f){f.h.main_base=UINT64_MAX-10;},false);
  for(auto at:{F::M+0x2CA63B0,F::Map+0x478})for(uint64_t p:{0ULL,0x10001ULL,UINT64_MAX-7ULL})check([&](F&f){f.put(at,p);},false);
@@ -28,3 +31,5 @@ int main(){using F=AreaFixture;unsigned cases{};auto check=[&](auto change,bool 
  {F f;State s;sample(&s,&f.h);f.h.read_memory=[](void*,uint64_t,void*,size_t)->EdenDsmodBool{throw 1;};s.next={};sample(&s,&f.h);assert(!f.values["botw.ready.area.valid"]&&f.texts["botw.ready.area.key"].empty());++cases;}
  std::cout<<cases<<" native player area bounds/race/context/publication cases passed\n";
 }
+
+#endif

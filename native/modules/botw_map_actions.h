@@ -19,15 +19,15 @@ inline MapEditSnapshot map_edit_snapshot(const EdenDsmodHostApi& h) {
   auto capture=[&](MapEditSnapshot& s) {
     uint64_t vt{},p{};int32_t count{},cap{};
     if(!ui_sample(h,s.ui) || s.ui.flags!=0x1E09000000 || !main_field_stage(h) ||
-       !read(h,h.main_base+0x2CC5FE8,s.gamedata) || !ptr(s.gamedata,0xC2C) ||
-       !read(h,s.gamedata,vt) || vt!=h.main_base+0x2BD07E0 ||
-       !read(h,h.main_base+0x2CA63B0,s.data) || !ptr(s.data,0x8B8) ||
-       !read(h,s.data,vt) || vt!=h.main_base+0x2B86848 ||
-       !read(h,h.main_base+0x2CA63B8,s.controller) || !ptr(s.controller,0x8E8) ||
-       !read(h,s.controller,vt) || vt!=h.main_base+0x2B8AAD8 ||
+       !read(h,h.main_base+inventory_offsets(h).gamedata_root,s.gamedata) || !ptr(s.gamedata,0xC2C) ||
+       !read(h,s.gamedata,vt) || vt!=h.main_base+inventory_offsets(h).gamedata_vtable ||
+       !read(h,h.main_base+map_offsets(h).root,s.data) || !ptr(s.data,0x8B8) ||
+       !read(h,s.data,vt) || vt!=h.main_base+map_offsets(h).vtable ||
+       !read(h,h.main_base+map_offsets(h).controller_root,s.controller) || !ptr(s.controller,0x8E8) ||
+       !read(h,s.controller,vt) || vt!=h.main_base+map_offsets(h).controller_vtable ||
        !read(h,s.controller+0x8D8,p) || p!=s.data ||
        !read(h,s.controller+0x8E0,s.area) || s.area!=s.data+0x850 ||
-       !read(h,s.area,vt) || vt!=h.main_base+0x2B86868 ||
+       !read(h,s.area,vt) || vt!=h.main_base+map_offsets(h).area_vtable ||
        !read(h,s.data+0x610,count) || count!=100 || !read(h,s.data+0x614,cap) || cap!=100 ||
        !read(h,s.data+0x618,s.stamps) || !ptr(s.stamps,800) ||
        !read(h,s.data+0x658,count) || count!=5 || !read(h,s.data+0x65C,cap) || cap!=5 ||
@@ -43,7 +43,7 @@ inline MapEditSnapshot map_edit_snapshot(const EdenDsmodHostApi& h) {
       auto& v=s.markers[i];uint32_t flags{};int32_t slot{};
       if(!read(h,(i<5?s.pins:s.stamps)+(i<5?i:i-5)*8,v.address) || !ptr(v.address,0x48) ||
          !seen.insert(v.address).second || !read(h,v.address,vt) ||
-         vt!=h.main_base+(i<5?0x2B866B0:0x2B874F0) ||
+         vt!=h.main_base+(i<5?map_offsets(h).pin_vtable:map_offsets(h).stamp_vtable) ||
          !read(h,v.address+0x1C,v.kind) || !read(h,v.address+0x3C,flags) ||
          !read(h,v.address+0x28,v.xyz))return false;
       v.active=flags&16;
@@ -56,7 +56,7 @@ inline MapEditSnapshot map_edit_snapshot(const EdenDsmodHostApi& h) {
     return s.free_stamp==first_free;
   };
   MapEditSnapshot a{},b{};
-  if(!supported(h) || !capture(a) || !capture(b) || a!=b || !main_field_stage(h))return {};
+  if(!map_build_supported(h) || !capture(a) || !capture(b) || a!=b || !main_field_stage(h))return {};
   a.valid=true;return a;
 }
 inline int map_edit_target(const MapEditSnapshot& s,unsigned palette) {

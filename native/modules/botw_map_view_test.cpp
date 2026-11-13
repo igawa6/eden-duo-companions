@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Native HUD minimap turn (N_MapSR_00) and camera cone (P_Light_00) reader: chain, names, vtables,
 // bounds, races, context gating, cache re-validation, degree conversion and publication.
+#ifndef BOTW_MAP_FIXTURE_ONLY
 #include "01007EF00011E000.cpp"
+#endif
 #include "botw_test_fixture.h"
 #include <cassert>
 #include <iostream>
@@ -35,6 +37,7 @@ struct ViewFixture:Fixture {
     for(uint64_t off:{0x2C9E868ULL,0x2CA4DA0ULL}){std::array<uint8_t,56>b{};uint64_t vt=M+0x2A701C8,p=M+off+20;int32_t cap=32;std::memcpy(b.data(),&vt,8);std::memcpy(b.data()+8,&p,8);std::memcpy(b.data()+16,&cap,4);std::memcpy(b.data()+20,"MainField",10);put(M+off,b);}
   }
 };
+#ifndef BOTW_MAP_FIXTURE_ONLY
 int main(){using F=ViewFixture;unsigned cases{};
  auto check=[&](auto change,bool valid,bool cone=true){F f;change(f);auto v=botw::map_view(f.h);if(v.valid!=valid)std::cerr<<"case "<<cases<<"\n";assert(v.valid==valid);if(valid)assert(v.cone_valid==cone);++cases;};
  {F f;auto v=botw::map_view(f.h);assert(v.valid&&v.cone_valid&&v.cone_pane==F::Cone);assert(std::abs(v.map_rz-169.6f)<1e-4f&&v.cone_rz==180.f);++cases;}
@@ -82,3 +85,5 @@ int main(){using F=ViewFixture;unsigned cases{};
   for(double r:{0.,37.,190.,359.}){auto q=botw::ready_mark(10,20,700,-300,r);assert(q.visible&&q.rim&&std::abs(std::hypot(q.x-620.,q.y-464.)-398.)<1);}cases+=5;}
  std::cout<<cases<<" native minimap turn/cone chain, guard, race, cache, degree and publication cases passed\n";
 }
+
+#endif

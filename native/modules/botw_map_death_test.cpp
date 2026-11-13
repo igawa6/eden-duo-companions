@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#ifndef BOTW_MAP_FIXTURE_ONLY
 #include "01007EF00011E000.cpp"
+#endif
 #include "botw_map_death.h"
 #include "botw_test_fixture.h"
 #include <cassert>
@@ -12,6 +14,7 @@ struct DeathFixture:Fixture {
  }
  void absent(){put<int32_t>(Manager+0x34,-1);put<int32_t>(Manager+0x38,0);put<uint32_t>(Record+0x3C,0);}
 };
+#ifndef BOTW_MAP_FIXTURE_ONLY
 int main(){using F=DeathFixture;unsigned cases{};auto check=[&](auto change,bool expected){F f;change(f);auto v=botw::map_death(f.h);if(v.valid!=expected)std::cerr<<"case "<<cases+1<<'\n';assert(v.valid==expected);++cases;};
  check([](F&){},true);check([](F&f){f.absent();},true);
  check([](F&f){f.h.build_id[0]^=1;},false);check([](F&f){f.h.main_size=1;},false);check([](F&f){f.h.main_base=UINT64_MAX-10;},false);
@@ -37,3 +40,5 @@ int main(){using F=DeathFixture;unsigned cases{};auto check=[&](auto change,bool
  {F f;f.absent();auto v=botw::map_death(f.h);assert(v.valid&&!v.visible);++cases;}
  std::cout<<cases<<" native death identity/source/visibility/race/publication cases passed\n";
 }
+
+#endif

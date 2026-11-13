@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include "botw_tracker_flags.h"
+#include "botw_map_offsets.h"
 #include <cstdio>
 #include <string_view>
 namespace botw {
@@ -21,6 +22,16 @@ constexpr const char* ScreenNames[ScreenCount]={"PauseMenu_00","AppHome_00","App
 inline uint32_t crc32(std::string_view s){uint32_t c=~0u;for(unsigned char ch:s){c^=ch;for(unsigned b=0;b<8;++b)c=(c>>1)^(0xEDB88320u&uint32_t(-int32_t(c&1)));}return ~c;}
 inline int64_t fnv(std::string_view s){uint32_t k=2166136261u;for(const auto c:s)k=(k^uint8_t(c))*16777619u;return k;}
 }
+struct StateOffsets {uint64_t map_type,map_name,string_vtable,pause_inventory,pause_system,pause_log;uint32_t pause_state;};
+inline constexpr StateOffsets States160{states::MapType,states::MapName,states::StringVt,states::PauseInventory,states::PauseSystem,states::PauseLog,0x150};
+inline constexpr StateOffsets States190{0x1DAE3A0,0x1DAE3D8,0x1BC4E70,0x1E2F148,0x1E2F3E8,0x1E2F448,0x168};
+inline const StateOffsets& state_offsets(const EdenDsmodHostApi& h) {
+#ifdef BOTW_190_MAP_EVIDENCE
+  return matches_build(h,InventoryBuild190)?States190:States160;
+#else
+  (void)h;return States160;
+#endif
+}
 struct GameStates {
   bool valid{};
   bool title{},loading{},event{},dialogue{},cutscene{};
@@ -35,7 +46,7 @@ inline bool fixed_string32(const EdenDsmodHostApi& h,uint64_t off,std::string& o
   std::array<uint8_t,56> b{},again{};uint64_t vt{},ptr{};int32_t cap{};
   if(!read(h,h.main_base+off,b))return false;
   std::memcpy(&vt,b.data(),8);std::memcpy(&ptr,b.data()+8,8);std::memcpy(&cap,b.data()+16,4);
-  if(vt!=h.main_base+states::StringVt||ptr!=h.main_base+off+20||cap!=32)return false;
+  if(vt!=h.main_base+state_offsets(h).string_vtable||ptr!=h.main_base+off+20||cap!=32)return false;
   const auto* s=reinterpret_cast<const char*>(b.data()+20);const auto n=strnlen(s,32);
   if(n==32)return false;
   for(size_t i=0;i<n;++i)if(s[i]<0x20||s[i]>0x7e)return false;
@@ -64,7 +75,12 @@ inline bool screen_states(const EdenDsmodHostApi& h,const UiSample& ui,std::arra
 }
 // Name of the current event in the event list (empty when none). Optional detail.
 inline bool event_name(const EdenDsmodHostApi& h,std::string& out) {
-  out.clear();uint64_t root{},vt{},list{},lvt{},array{},entry{},text{};uint32_t count{};int32_t sel{};int8_t index{};
+  out.clear();
+#ifdef BOTW_190_MAP_EVIDENCE
+  // Event details are a separate gated Travel reader; ordinary scene state does not depend on them.
+  if(matches_build(h,InventoryBuild190))return false;
+#endif
+  uint64_t root{},vt{},list{},lvt{},array{},entry{},text{};uint32_t count{};int32_t sel{};int8_t index{};
   if(!read(h,h.main_base+states::EventRoot,root)||root%8||root>UINT64_MAX-0x1D2C0||!read(h,root,vt)||vt!=h.main_base+states::EventRootVt||
      !read(h,root+0x1D2B8,list))return false;
   if(!list)return true;
@@ -82,13 +98,13 @@ inline int shrine_number(std::string_view type,std::string_view name) {
   int n=0;for(const char c:name.substr(7)){if(c<'0'||c>'9')return -1;n=n*10+(c-'0');}
   return n<=135?n:-1;
 }
-inline const char* menu_screen(uint64_t flags,const std::array<int,states::ScreenCount>& s,uint64_t pause_state,uint64_t main) {
+inline const char* menu_screen(uint64_t flags,const std::array<int,states::ScreenCount>& s,uint64_t pause_state,uint64_t main,const StateOffsets& offsets=States160) {
   using namespace states;
   if(flags!=0x1E09000004ULL)return "";
   if(s[PauseMenu]==2){
-    if(pause_state==main+PauseInventory)return "inventory";
-    if(pause_state==main+PauseSystem)return "system";
-    if(pause_state==main+PauseLog)return "adventure_log";
+    if(pause_state==main+offsets.pause_inventory)return "inventory";
+    if(pause_state==main+offsets.pause_system)return "system";
+    if(pause_state==main+offsets.pause_log)return "adventure_log";
     return "menu";
   }
   if(s[AppHome]==2){
@@ -103,19 +119,19 @@ inline GameStates game_states(const EdenDsmodHostApi& h,TrackerFlagReader* flags
   using namespace states;
   auto once=[&](GameStates& g,uint64_t& pause_ptr)->bool{
     UiSample ui{};std::array<uint64_t,ScreenCount> where{};
-    if(!supported(h)||h.main_size<0x2CC6000||h.main_base>UINT64_MAX-0x2CC6000||!ui_sample(h,ui))return false;
+    if(!map_build_supported(h)||h.main_size<inventory_offsets(h).screen_root+8||h.main_base>UINT64_MAX-(inventory_offsets(h).screen_root+8)||!ui_sample(h,ui))return false;
     const auto f=ui.flags;
     g.title=f==0x1849000000ULL&&ui.slots[1]&&!ui.slots[2];
     g.loading=!g.title&&(f&FlagLoading);
     const bool world_like=!g.title&&!g.loading&&!ui.slots[1]&&ui.slots[2]&&(f>>24)==0x1E09; // 0x1E09xxxxxx
-    if(!screen_states(h,ui,g.screen,&where)||!fixed_string32(h,MapType,g.map_type)||!fixed_string32(h,MapName,g.map_name))return false;
+    if(!screen_states(h,ui,g.screen,&where)||!fixed_string32(h,state_offsets(h).map_type,g.map_type)||!fixed_string32(h,state_offsets(h).map_name,g.map_name))return false;
     g.event=!g.title&&!g.loading&&(f&FlagEvent);
     g.dialogue=!g.title&&!g.loading&&(f&FlagHud)&&
       (g.screen[Message]>=1||g.screen[MessageSp]>=1||g.screen[MessageGet]>=1);
     g.cutscene=g.event&&!g.dialogue;
     if(g.event&&!event_name(h,g.event_name))g.event_name.clear();
-    pause_ptr=0;if(where[PauseMenu]&&!read(h,where[PauseMenu]+0x150,pause_ptr))return false;
-    g.menu_screen=menu_screen(f,g.screen,pause_ptr,h.main_base);
+    pause_ptr=0;if(where[PauseMenu]&&!read(h,where[PauseMenu]+state_offsets(h).pause_state,pause_ptr))return false;
+    g.menu_screen=menu_screen(f,g.screen,pause_ptr,h.main_base,state_offsets(h));
     if(world_like){g.shrine_number=shrine_number(g.map_type,g.map_name);g.shrine=g.shrine_number>=0;}
     else{g.shrine_number=-1;g.shrine=false;}
     if(!world_like){g.map_type.clear();g.map_name.clear();}

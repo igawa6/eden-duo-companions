@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include "botw_hud.h"
+#include "botw_map_offsets.h"
 #include <algorithm>
 #include <cstdio>
 namespace botw {
@@ -53,10 +54,10 @@ inline bool main_field_stage(const EdenDsmodHostApi& h) {
 }
 inline MapSnapshot map_snapshot(const EdenDsmodHostApi& h) {
   UiSample ui{},after{};MapSnapshot out;
-  if(h.main_size<0x2CBDB88||h.main_base>UINT64_MAX-0x2CBDB88||!ui_sample(h,ui)||!hud_context(ui))return {};
+  if(!map_build_supported(h)||h.main_size<(inventory_offsets(h).screen_root+8)||h.main_base>UINT64_MAX-(inventory_offsets(h).screen_root+8)||!ui_sample(h,ui)||!hud_context(ui))return {};
   uint64_t p{},p2{},vt{},vt2{};uint32_t mask{},mask2{};
-  if(!read(h,h.main_base+0x2CA63B0,p)||p%8||p>UINT64_MAX-0x124||
-     !read(h,p,vt)||vt!=h.main_base+0x2B86848||!read(h,p+0x120,mask)||(mask&~0x7FFFu)||
+  if(!read(h,h.main_base+map_offsets(h).root,p)||p%8||p>UINT64_MAX-0x124||
+     !read(h,p,vt)||vt!=h.main_base+map_offsets(h).vtable||!read(h,p+0x120,mask)||(mask&~0x7FFFu)||
      ui.manager>UINT64_MAX-0x63E90||!map_masks(h,ui.manager+0x627E8,out.masks)||
      !map_masks(h,ui.manager+0x63E78,out.subfilters)||!map_masks(h,ui.manager+0x63E78,out.submasks,2))return {};
   constexpr std::array<uint32_t,6> hashes={0x25718F36,0xBBDE4235,0x22D7138F,0x55D02319,0xCBB4B6BA,0xF44A4DAA};
@@ -64,7 +65,7 @@ inline MapSnapshot map_snapshot(const EdenDsmodHostApi& h) {
   for(auto v:out.masks)if(v&~0x7FFFu)return {};
   for(auto v:out.submasks)if(v&~0x3Fu)return {};
   out.main_field=main_field_stage(h);
-  if(!read(h,h.main_base+0x2CA63B0,p2)||p2!=p||!read(h,p,vt2)||vt2!=vt||
+  if(!read(h,h.main_base+map_offsets(h).root,p2)||p2!=p||!read(h,p,vt2)||vt2!=vt||
      !read(h,p+0x120,mask2)||mask2!=mask||main_field_stage(h)!=out.main_field||
      !ui_sample(h,after)||after!=ui)return {};
   for(unsigned i=0;i<6;++i){bool v{};if(!rune_upgrade(h,hashes[i],v)||v!=out.changes[i])return {};}
@@ -125,13 +126,13 @@ inline bool WithinMapView(float world_x, float world_z, const MapViewCull& c) {
 }
 inline MapPosition map_position(const EdenDsmodHostApi& h) {
   UiSample ui{},after{};
-  if(!ui_sample(h,ui)||!hud_context(ui)||!main_field_stage(h))return {};
+  if(!map_build_supported(h)||!ui_sample(h,ui)||!hud_context(ui)||!main_field_stage(h))return {};
   uint64_t p{},p2{},vt{},actor{},avt{};std::array<float,3> a{},z{};
-  if(!read(h,h.main_base+0x2CA1140,p)||p%8||p>UINT64_MAX-0x94||!read(h,p,vt)||
-     vt!=h.main_base+0x2B7BE80||!read(h,p+0x60,actor)||actor%8||!read(h,actor,avt)||
-     avt!=h.main_base+0x2B7BEA8||!read(h,p+0x88,a))return {};
+  if(!read(h,h.main_base+inventory_offsets(h).player_info_root,p)||p%8||p>UINT64_MAX-0x94||!read(h,p,vt)||
+     vt!=h.main_base+inventory_offsets(h).player_info_vtable||!read(h,p+0x60,actor)||actor%8||!read(h,actor,avt)||
+     avt!=h.main_base+inventory_offsets(h).player_vtable||!read(h,p+0x88,a))return {};
   for(auto v:a)if(!std::isfinite(v)||std::abs(v)>50000.f)return {};
-  if(!read(h,p+0x88,z)||a!=z||!read(h,h.main_base+0x2CA1140,p2)||p2!=p||
+  if(!read(h,p+0x88,z)||a!=z||!read(h,h.main_base+inventory_offsets(h).player_info_root,p2)||p2!=p||
      !main_field_stage(h)||!ui_sample(h,after)||ui!=after)return {};
   MapPosition out{true,a[0],-a[2]}; // map world y grows north; game z grows south
   // Native Actor transform: third column is forward, fourth is translation.

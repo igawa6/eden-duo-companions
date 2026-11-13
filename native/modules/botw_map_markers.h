@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include "botw_quests.h"
+#include "botw_map_offsets.h"
 #include <cmath>
 namespace botw {
 struct QuestMapMarkers {
@@ -10,16 +11,16 @@ struct QuestMapMarkers {
 };
 inline QuestMapMarkers quest_map_markers(const EdenDsmodHostApi& h,const QuestSnapshot& journal) {
   UiSample ui{},after{};
-  if(!journal.valid || !ui_sample(h,ui) || !hud_context(ui) ||
-     h.main_size<0x2CD1708 || h.main_base>UINT64_MAX-0x2CD1708)return {};
+  if(!map_build_supported(h) || !journal.valid || !ui_sample(h,ui) || !hud_context(ui) ||
+     h.main_size<(quest_offsets(h).root+8) || h.main_base>UINT64_MAX-(quest_offsets(h).root+8))return {};
   const auto destination=quest_destination(h);if(!destination.valid)return {};
   struct Roots {
     uint64_t map{},vtable{},quest{},array{};int32_t count{},capacity{};
     bool operator==(const Roots&) const = default;
   } a{},z{};
   auto roots=[&](Roots& r) {
-    return read(h,h.main_base+0x2CA63B0,r.map) && r.map && r.map%8==0 && r.map<=UINT64_MAX-0x3C0 &&
-      read(h,r.map,r.vtable) && r.vtable==h.main_base+0x2B86848 && read(h,r.map+0x3A0,r.quest) &&
+    return read(h,h.main_base+map_offsets(h).root,r.map) && r.map && r.map%8==0 && r.map<=UINT64_MAX-0x3C0 &&
+      read(h,r.map,r.vtable) && r.vtable==h.main_base+map_offsets(h).vtable && read(h,r.map+0x3A0,r.quest) &&
       read(h,r.map+0x3B0,r.count) && read(h,r.map+0x3B4,r.capacity) &&
       r.count>=0 && r.capacity>=1 && r.count<=r.capacity && r.capacity<=5 &&
       read(h,r.map+0x3B8,r.array) && r.array && r.array%8==0 &&
@@ -38,14 +39,14 @@ inline QuestMapMarkers quest_map_markers(const EdenDsmodHostApi& h,const QuestSn
   } q{},q_after{};
   const int32_t min_step=(current && current->category==0)?0:1;
   auto quest_guard=[&](QuestGuard& v) {
-    return destination.value>=0 && read(h,h.main_base+0x2CD1700,v.manager) && v.manager &&
+    return destination.value>=0 && read(h,h.main_base+quest_offsets(h).root,v.manager) && v.manager &&
       v.manager%8==0 && v.manager<=UINT64_MAX-0xC8 && read(h,v.manager,v.manager_vtable) &&
-      v.manager_vtable==h.main_base+0x2BEBA70 && read(h,v.manager+0xB8,v.count) &&
+      v.manager_vtable==h.main_base+quest_offsets(h).manager_vtable && read(h,v.manager+0xB8,v.count) &&
       read(h,v.manager+0xBC,v.capacity) && v.count>0 && v.count<=v.capacity && v.capacity<=512 &&
       destination.value<v.count && read(h,v.manager+0xC0,v.array) && v.array%8==0 &&
       v.array<=UINT64_MAX-uint64_t(v.count)*8 && read(h,v.array+uint64_t(destination.value)*8,v.registered) &&
       v.registered==a.quest && a.quest%8==0 && a.quest<=UINT64_MAX-0x144 && read(h,a.quest,v.vtable) &&
-      v.vtable==h.main_base+0x2BEBA90 && read(h,a.quest+12,v.state) && v.state==1 &&
+      v.vtable==h.main_base+quest_offsets(h).quest_vtable && read(h,a.quest+12,v.state) && v.state==1 &&
       read(h,a.quest+0x30,v.journal) && v.journal==1 && read(h,a.quest+0x140,v.step) &&
       read(h,a.quest+0xA0,v.steps) && v.steps>=2 && v.steps<=64 && v.step>=min_step && v.step<v.steps &&
       read(h,a.quest+0xD8,v.dlc) && !(v.dlc&~7u);

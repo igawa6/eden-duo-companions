@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#ifndef BOTW_MAP_FIXTURE_ONLY
 #include "01007EF00011E000.cpp"
+#endif
 #include "botw_test_fixture.h"
 #include <cassert>
 #include <iostream>
@@ -30,6 +32,7 @@ struct KorokFixture:Fixture {
   texts["__page"] = "map";
  }
 };
+#ifndef BOTW_MAP_FIXTURE_ONLY
 int main(){using F=KorokFixture;unsigned cases{};
  auto check=[&](auto change,bool valid){F f;change(f);const auto v=botw::map_koroks(f.h);if(v.valid!=valid)std::cerr<<"case "<<cases+1<<'\n';assert(v.valid==valid);++cases;};
  check([](F&){},true);check([](F&f){f.h.build_id[0]^=1;},false);check([](F&f){f.h.main_size=1;},false);check([](F&f){f.h.main_base=UINT64_MAX-10;},false);
@@ -78,3 +81,5 @@ int main(){using F=KorokFixture;unsigned cases{};
  }
  std::cout<<cases<<" Korok discovery/permissions/handles/spoiler/race/publication cases passed\n";
 }
+
+#endif

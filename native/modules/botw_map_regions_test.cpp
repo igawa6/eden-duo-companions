@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#ifndef BOTW_MAP_FIXTURE_ONLY
 #include "01007EF00011E000.cpp"
+#endif
 #include "botw_test_fixture.h"
 #include <cassert>
 #include <iostream>
@@ -21,6 +23,7 @@ struct RegionsFixture:Fixture {
   for(uint64_t off:{0x2C9E868ULL,0x2CA4DA0ULL}){std::array<uint8_t,56>b{};uint64_t vt=M+0x2A701C8,p=M+off+20;int32_t cap=32;std::memcpy(b.data(),&vt,8);std::memcpy(b.data()+8,&p,8);std::memcpy(b.data()+16,&cap,4);std::memcpy(b.data()+20,"MainField",10);put(M+off,b);}
  }
 };
+#ifndef BOTW_MAP_FIXTURE_ONLY
 int main(){using F=RegionsFixture;unsigned cases{};auto check=[&](auto change,bool valid){F f;change(f);auto v=botw::map_regions(f.h);assert(v.valid==valid);++cases;};
  check([](F&){},true);check([](F&f){f.h.build_id[0]^=1;},false);check([](F&f){f.h.main_size=1;},false);
  for(uint64_t at:{F::M+0x2CA63B0,F::Map+0x460,F::Array+477*8,F::Records+0x50,F::Sources+0x10})for(uint64_t p:{0ULL,UINT64_MAX-7ULL})check([&](F&f){f.put(at,p);},false);
@@ -39,3 +42,5 @@ int main(){using F=RegionsFixture;unsigned cases{};auto check=[&](auto change,bo
  check([](F&f){f.put<int32_t>(F::Map+0x458,1104);f.put<int32_t>(F::Map+0x45C,1104);},false);
  std::cout<<cases<<" native map region identity/bounds/discovery/race/publication cases passed\n";
 }
+
+#endif

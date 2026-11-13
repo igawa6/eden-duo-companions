@@ -27,6 +27,7 @@ struct LiveFixture:Fixture {
   }
 };
 static const bf::Scenario& scen(const char* id){for(const auto& s:bf::scenarios)if(!std::strcmp(s.id,id))return s;std::abort();}
+#ifndef BOTW_STATES_FIXTURE_ONLY
 int main() {
   int cases=0;auto check=[&](bool ok){++cases;if(!ok){std::cerr<<"failure "<<cases<<"\n";std::abort();}};
   using botw::game_states;
@@ -130,3 +131,5 @@ int main() {
    botw::publish_states(f.h,{});check(f.values["botw.state.menu_open"]==0);}  // torn sample = no menu (2026-10-19)
   std::cout<<cases<<" states cases passed\n";
 }
+
+#endif

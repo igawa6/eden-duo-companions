@@ -4,6 +4,7 @@
 namespace botw {
 struct MapDeath { bool valid{},visible{}; std::array<float,3> xyz{}; };
 inline MapDeath map_death(const EdenDsmodHostApi& h) {
+  if(!map_build_supported(h))return {};
   UiSample ui{},after{};
   if(!ui_sample(h,ui)||!hud_context(ui)||!main_field_stage(h))return {};
   struct Snapshot {
@@ -13,16 +14,16 @@ inline MapDeath map_death(const EdenDsmodHostApi& h) {
     bool operator==(const Snapshot&)const=default;
   };
   auto snapshot=[&](Snapshot& s){
-    if(!read(h,h.main_base+0x2CA63B0,s.map)||!s.map||s.map%8||s.map>UINT64_MAX-0x478||
-       !read(h,s.map,s.map_vt)||s.map_vt!=h.main_base+0x2B86848||
+    if(!read(h,h.main_base+map_offsets(h).root,s.map)||!s.map||s.map%8||s.map>UINT64_MAX-0x478||
+       !read(h,s.map,s.map_vt)||s.map_vt!=h.main_base+map_offsets(h).vtable||
        !read(h,s.map+0x468,s.size)||s.size!=1||!read(h,s.map+0x46C,s.capacity)||s.capacity!=1||
        !read(h,s.map+0x470,s.array)||!s.array||s.array%8||s.array>UINT64_MAX-8||
        !read(h,s.array,s.record)||!s.record||s.record%8||s.record>UINT64_MAX-0x44||
-       !read(h,s.record,s.record_vt)||s.record_vt!=h.main_base+0x2B873F8||
+       !read(h,s.record,s.record_vt)||s.record_vt!=h.main_base+map_offsets(h).death_vtable||
        !read(h,s.record+0x1C,s.kind)||s.kind!=24||!read(h,s.record+0x40,s.index)||s.index!=0||
        !read(h,s.record+0x3C,s.flags)||!read(h,s.record+0x28,s.cached)||
-       !read(h,h.main_base+0x2CA3E18,s.manager)||!s.manager||s.manager%8||s.manager>UINT64_MAX-0x3C||
-       !read(h,s.manager,s.manager_vt)||s.manager_vt!=h.main_base+0x2B7D758||
+       !read(h,h.main_base+map_offsets(h).death_root,s.manager)||!s.manager||s.manager%8||s.manager>UINT64_MAX-0x3C||
+       !read(h,s.manager,s.manager_vt)||s.manager_vt!=h.main_base+map_offsets(h).death_manager_vtable||
        !read(h,s.manager+0x34,s.cursor)||!read(h,s.manager+0x38,s.count)||
        s.count<0||s.count>1||s.cursor!=(s.count?0:-1)||!read(h,s.manager+0x28,s.xyz))return false;
     s.flags&=0x10;

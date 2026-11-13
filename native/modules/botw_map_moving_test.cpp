@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#ifndef BOTW_MAP_FIXTURE_ONLY
 #include "01007EF00011E000.cpp"
+#endif
 #include "botw_test_fixture.h"
 #include <cassert>
 #include <iostream>
@@ -23,6 +25,7 @@ struct MovingFixture:Fixture {
   texts["__page"] = "map";
  }
 };
+#ifndef BOTW_MAP_FIXTURE_ONLY
 int main(){using F=MovingFixture;unsigned cases{};auto check=[&](auto change,bool valid){F f;change(f);auto v=botw::map_moving(f.h);if(v.valid!=valid)std::cerr<<"case "<<cases+1<<'\n';assert(v.valid==valid);++cases;};
  check([](F&){},true);check([](F&f){f.h.build_id[0]^=1;},false);check([](F&f){f.h.main_size=1;},false);check([](F&f){f.h.main_base=UINT64_MAX-10;},false);
  for(uint64_t at:{F::M+0x2CA63B0,F::Map+0x320,F::Map+0x370,F::Records+0x58})for(uint64_t p:{0ULL,0x10001ULL,UINT64_MAX-7ULL})check([&](F&f){f.put(at,p);},false);
@@ -65,3 +68,5 @@ int main(){using F=MovingFixture;unsigned cases{};auto check=[&](auto change,boo
  {F f;State s;sample(&s,&f.h);f.h.read_memory=[](void*,uint64_t,void*,size_t)->EdenDsmodBool{throw 1;};s.next={};sample(&s,&f.h);assert(!f.values["botw.map.moving.valid"]);++cases;}
  std::cout<<cases<<" native beast/horse visibility/position/identity/race/publication cases passed\n";
 }
+
+#endif

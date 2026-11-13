@@ -78,6 +78,15 @@ class InventoryPlanTests(unittest.TestCase):
         at=calls[0]['offset']
         self.assertEqual(code[at-4:at].hex(),'e1031f2a')  # mov w1,wzr
 
+    def test_map_plan_adds_independent_map_identities_and_edit_paths(self):
+        with tempfile.TemporaryDirectory() as work:
+            plan=inventory.build_plan(Path(work),maps=True)
+        targets={r['addend'] for r in plan['guest_code']['relocations'] if r['target']=='main'}
+        self.assertTrue({0x1E17BB8,0x1CE0748,0x1CDBFB0,0x1CDD340,0x1CDD438,
+                         0xD8AC88,0xD8A034,0xD8226C,0xD81D04,0x16A1414} <= targets)
+        self.assertNotIn(production.SYMBOLS['native_warp'],targets)
+        self.assertNotIn(0x1CDD6E8,targets)  # adjacent static identity is not the live area
+
 
 if __name__=='__main__':
     unittest.main()

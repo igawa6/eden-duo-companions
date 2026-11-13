@@ -4,8 +4,9 @@
 namespace botw {
 struct MapArea {bool valid{};std::string key;};
 inline MapArea map_area(const EdenDsmodHostApi& h) {
+  if(!map_build_supported(h))return {};
   UiSample ui{},after{};
-  if(h.main_size<0x2CBDB88 || h.main_base>UINT64_MAX-0x2CBDB88 ||
+  if(h.main_size<(inventory_offsets(h).screen_root+8) || h.main_base>UINT64_MAX-(inventory_offsets(h).screen_root+8) ||
      !ui_sample(h,ui) || !hud_context(ui) || !main_field_stage(h))return {};
   struct Sample {
     uint64_t map{},map_vtable{},player{},vtable{},name{};int32_t kind{};
@@ -13,10 +14,10 @@ inline MapArea map_area(const EdenDsmodHostApi& h) {
     bool operator==(const Sample&) const = default;
   } a{},z{};
   auto sample=[&](Sample& s) {
-    if(!read(h,h.main_base+0x2CA63B0,s.map) || !s.map || s.map%8 || s.map>UINT64_MAX-0x480 ||
-       !read(h,s.map,s.map_vtable) || s.map_vtable!=h.main_base+0x2B86848 ||
+    if(!read(h,h.main_base+map_offsets(h).root,s.map) || !s.map || s.map%8 || s.map>UINT64_MAX-0x480 ||
+       !read(h,s.map,s.map_vtable) || s.map_vtable!=h.main_base+map_offsets(h).vtable ||
        !read(h,s.map+0x478,s.player) || !s.player || s.player%8 || s.player>UINT64_MAX-0x50 ||
-       !read(h,s.player,s.vtable) || s.vtable!=h.main_base+0x2B87300 ||
+       !read(h,s.player,s.vtable) || s.vtable!=h.main_base+map_offsets(h).player_marker_vtable ||
        !read(h,s.player+0x1C,s.kind) || s.kind!=25 || !read(h,s.player+0x28,s.xyz) ||
        !read(h,s.player+0x48,s.name) || !s.name || s.name>UINT64_MAX-64 || !read(h,s.name,s.key))return false;
     for(float v:s.xyz)if(!std::isfinite(v))return false;

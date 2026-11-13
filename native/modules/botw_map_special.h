@@ -15,21 +15,22 @@ inline const char* special_art(int kind) {
     case 26:return "Nt_MapIconGuardianL_00^t";default:return nullptr;}
 }
 inline MapSpecial map_special(const EdenDsmodHostApi& h) {
+  if(!map_build_supported(h))return {};
   UiSample ui{},after{};if(!ui_sample(h,ui)||!hud_context(ui)||!main_field_stage(h))return {};
   uint64_t obj{},vt{},again{},array{};int32_t count{},capacity{};
-  if(!read(h,h.main_base+0x2CA63B0,obj)||!obj||obj%8||obj>UINT64_MAX-0x5A8||
-     !read(h,obj,vt)||vt!=h.main_base+0x2B86848||
+  if(!read(h,h.main_base+map_offsets(h).root,obj)||!obj||obj%8||obj>UINT64_MAX-0x5A8||
+     !read(h,obj,vt)||vt!=h.main_base+map_offsets(h).vtable||
      !read(h,obj+0x598,count)||count<0||count>150||
      !read(h,obj+0x59C,capacity)||capacity!=150||count>capacity||
      !read(h,obj+0x5A0,array)||(count&&(!array||array%8||array>UINT64_MAX-150*8)))return {};
   struct Record {uint64_t pointer{},vtable{},source{};int32_t kind{};uint32_t flags{};
     uint8_t enabled{};std::array<float,3> xyz{};bool operator==(const Record&)const=default;};
   constexpr uint64_t offsets[]={0x378,0x380,0x388,0x480};
-  constexpr uint64_t vtables[]={0x2B86D18,0x2B86E10,0x2B86F08,0x2B875E8};
+  const uint64_t vtables[]={map_offsets(h).yunobo_vtable,map_offsets(h).wolf_vtable,map_offsets(h).bike_vtable,map_offsets(h).medallion_vtable};
   constexpr int kinds[]={19,20,44,42};
   auto record=[&](unsigned i,Record& r){
     if(!read(h,i<4?obj+offsets[i]:array+(i-4)*8,r.pointer)||!r.pointer||r.pointer%8||r.pointer>UINT64_MAX-0x80||
-       !read(h,r.pointer,r.vtable)||r.vtable!=h.main_base+(i<4?vtables[i]:0x2B865B8)||
+       !read(h,r.pointer,r.vtable)||r.vtable!=h.main_base+(i<4?vtables[i]:map_offsets(h).guardian_vtable)||
        !read(h,r.pointer+0x1C,r.kind)||r.kind!=(i<4?kinds[i]:26)||
        !read(h,r.pointer+0x3C,r.flags)||!read(h,r.pointer+0x28,r.xyz))return false;
     r.flags&=0x10;
@@ -45,7 +46,7 @@ inline MapSpecial map_special(const EdenDsmodHostApi& h) {
     out.entries[i]={bool(r.flags),r.kind,r.xyz};}
   for(unsigned i=0;i<unsigned(count)+4;++i){Record r{};if(!record(i,r)||r!=records[i])return {};}
   int32_t nc{},cap{};uint64_t ar{};
-  if(!read(h,h.main_base+0x2CA63B0,again)||again!=obj||!read(h,obj,again)||again!=vt||
+  if(!read(h,h.main_base+map_offsets(h).root,again)||again!=obj||!read(h,obj,again)||again!=vt||
      !read(h,obj+0x598,nc)||nc!=count||!read(h,obj+0x59C,cap)||cap!=capacity||!read(h,obj+0x5A0,ar)||ar!=array||
      !main_field_stage(h)||!ui_sample(h,after)||after!=ui)return {};
   out.valid=true;return out;

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#ifndef BOTW_MAP_FIXTURE_ONLY
 #include "01007EF00011E000.cpp"
+#endif
 #include "botw_test_fixture.h"
 #include <iostream>
 #include <cassert>
@@ -20,6 +22,7 @@ struct MapFixture:Fixture {
   for(unsigned i=0;i<6;++i){auto p=Flags+i*16;put(Array+i*8,p);put(p,M+0x2BD1078);put<uint32_t>(p+8,0);put<uint32_t>(p+12,hashes[i]);}
  }
 };
+#ifndef BOTW_MAP_FIXTURE_ONLY
 int main(){using F=MapFixture;unsigned cases{};
  auto check=[&](auto mutate,bool valid){F f;mutate(f);const auto s=botw::map_snapshot(f.h);if(s.valid!=valid)std::cerr<<"Map case "<<cases+1<<"\n";assert(s.valid==valid);++cases;};
  {F f;const auto s=botw::map_snapshot(f.h);assert(s.valid&&s.main_field&&s.revealed==32767&&s.submasks[0]==3&&s.subfilters[0]==1);const auto p=botw::map_position(f.h);assert(p.valid&&p.x==-2988&&p.y==1941);++cases;}
@@ -84,3 +87,5 @@ int main(){using F=MapFixture;unsigned cases{};
   {F f;map_type(f,"TitleMenu");assert(!botw::main_field_stage(f.h));++cases;}}
  std::cout<<cases<<" map cases passed\n";
 }
+
+#endif

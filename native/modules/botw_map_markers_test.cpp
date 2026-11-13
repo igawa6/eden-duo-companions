@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#ifndef BOTW_MAP_FIXTURE_ONLY
 #include "01007EF00011E000.cpp"
+#endif
 #include "botw_map_markers.h"
 #include "botw_quest_test_fixture.h"
 #include <cassert>
@@ -17,6 +19,7 @@ struct MarkerFixture:QuestFixture {
     put(Points,Point);put(Point,std::array<float,3>{-254,0,-1030});
   }
 };
+#ifndef BOTW_MAP_FIXTURE_ONLY
 int main(){using F=MarkerFixture;unsigned cases{};
  auto check=[&](auto change,bool valid,int count=-1){F f;change(f);const auto v=botw::quest_map_markers(f.h,f.journal);if(v.valid!=valid)std::cerr<<"Marker case "<<cases+1<<"\n";assert(v.valid==valid);if(count>=0)assert(v.count==unsigned(count));++cases;};
  {F f;const auto v=botw::quest_map_markers(f.h,f.journal);assert(v.valid&&v.count==1&&(v.positions[0]==std::array<float,3>{-254,0,-1030}));++cases;}
@@ -62,3 +65,5 @@ int main(){using F=MarkerFixture;unsigned cases{};
   f.floats.clear();f.values.clear();f.texts.clear();f.put<uint64_t>(F::U+0x64C30,0x0E09E00000ULL);state.next={};state.quest_next={};sample(&state,&f.h);assert(!f.values["botw.map.quest.valid"]&&!f.values["botw.map.quest.count"]&&!f.values.count("botw.map.quest.0.kind")&&!f.texts.count("botw.map.quest.0.core")&&!f.floats.contains("botw.map.quest.0.x"));++cases;}
  std::cout<<cases<<" native quest map marker cases passed\n";
 }
+
+#endif

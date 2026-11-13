@@ -19,9 +19,6 @@ struct MapView {
   bool operator==(const MapView&) const = default;
 };
 namespace map_view_detail {
-inline constexpr uint64_t ScreenVtable = 0x2B93A50, NullPaneVtable = 0x2C22488,
-  PicturePaneVtable = 0x2BBD870, RootPaneVtable = 0x2BBD968;
-inline constexpr uint64_t SrSlot = 0x5410, RootSlot = 0x3E30;
 // P_Light_00 up to the AppMap RootPane (live 1.6.0 pane tree, exact names).
 inline constexpr std::array<const char*,9> ConePath = {"P_Light_00","N_All_00","Pa_MapIconPlayer_00",
   "N_MapIconPlayer_00","Pa_MapIcon_00","N_MapIcon_00","N_Cut_01","N_InOut_00","RootPane"};
@@ -48,7 +45,7 @@ inline bool cone_chain(const EdenDsmodHostApi& h,uint64_t cone,uint64_t root,Pan
   for(size_t i=0;i<ConePath.size();++i) {
     Pane q{};
     if(!pane(h,p,q) || !named(q,ConePath[i]))return false;
-    if(i==0){if(q.vtable!=h.main_base+PicturePaneVtable)return false;leaf=q;}
+    if(i==0){if(q.vtable!=h.main_base+map_offsets(h).picture_pane_vtable)return false;leaf=q;}
     if(i+1==ConePath.size())return p==root && q.parent==0;
     p=q.parent;
   }
@@ -76,15 +73,15 @@ inline uint64_t find_cone(const EdenDsmodHostApi& h,uint64_t root) {
 inline MapView map_view(const EdenDsmodHostApi& h,uint64_t cached_cone=0) {
   using namespace map_view_detail;
   UiSample ui{},after{};
-  if(h.main_size<0x2C22490 || h.main_base>UINT64_MAX-0x2C22490)return {};
+  if(!map_build_supported(h) || h.main_size<map_offsets(h).null_pane_vtable+8 || h.main_base>UINT64_MAX-(map_offsets(h).null_pane_vtable+8))return {};
   if(!ui_sample(h,ui) || !hud_context(ui) || !main_field_stage(h) || ui.array>UINT64_MAX-43*8)return {};
   uint64_t screen{},screen_vt{},sr{},root{};
   if(!read(h,ui.array+42*8,screen) || !screen || screen%8 || screen>UINT64_MAX-0x5418 ||
-     !read(h,screen,screen_vt) || screen_vt!=h.main_base+ScreenVtable ||
-     !read(h,screen+SrSlot,sr) || !read(h,screen+RootSlot,root))return {};
+     !read(h,screen,screen_vt) || screen_vt!=h.main_base+map_offsets(h).screen_vtable ||
+     !read(h,screen+map_offsets(h).minimap_sr,sr) || !read(h,screen+map_offsets(h).minimap_root,root))return {};
   Pane map{},again{},rootp{};
-  if(!pane(h,sr,map) || map.vtable!=h.main_base+NullPaneVtable || !named(map,"N_MapSR_00") ||
-     !finite_turn(map) || !pane(h,root,rootp) || rootp.vtable!=h.main_base+RootPaneVtable ||
+  if(!pane(h,sr,map) || map.vtable!=h.main_base+map_offsets(h).null_pane_vtable || !named(map,"N_MapSR_00") ||
+     !finite_turn(map) || !pane(h,root,rootp) || rootp.vtable!=h.main_base+map_offsets(h).root_pane_vtable ||
      !named(rootp,"RootPane"))return {};
   MapView out{true,map.rotate[2]};
   Pane leaf{};
@@ -96,7 +93,7 @@ inline MapView map_view(const EdenDsmodHostApi& h,uint64_t cached_cone=0) {
   if(cone && finite_turn(leaf)){out.cone_valid=true;out.cone_rz=leaf.rotate[2];out.cone_pane=cone;}
   // Stable second read of every value and the context.
   uint64_t screen2{},sr2{};
-  if(!read(h,ui.array+42*8,screen2) || screen2!=screen || !read(h,screen+SrSlot,sr2) || sr2!=sr ||
+  if(!read(h,ui.array+42*8,screen2) || screen2!=screen || !read(h,screen+map_offsets(h).minimap_sr,sr2) || sr2!=sr ||
      !pane(h,sr,again) || again.vtable!=map.vtable || again.name!=map.name || again.rotate!=map.rotate ||
      !main_field_stage(h) ||
      !ui_sample(h,after) || after!=ui)return {};

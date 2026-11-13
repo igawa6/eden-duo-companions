@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#ifndef BOTW_MAP_FIXTURE_ONLY
 #include "01007EF00011E000.cpp"
+#endif
 #include "botw_test_fixture.h"
 #include <cassert>
 #include <iostream>
@@ -15,6 +17,7 @@ struct PinFixture:Fixture {
     }
   }
 };
+#ifndef BOTW_MAP_FIXTURE_ONLY
 int main(){using F=PinFixture;unsigned cases{};
  auto check=[&](auto change,bool valid,int count=-1){F f;change(f);auto v=botw::map_pins(f.h);if(v.valid!=valid)std::cerr<<"case "<<cases+1<<'\n';assert(v.valid==valid);if(count>=0)assert(std::count(v.active.begin(),v.active.end(),true)==count);++cases;};
  check([](F&){},true,5);
@@ -51,3 +54,5 @@ int main(){using F=PinFixture;unsigned cases{};
  {F f;State state;sample(&state,&f.h);f.values.clear();f.h.read_memory=[](void*,uint64_t,void*,size_t)->EdenDsmodBool{throw 1;};state.next={};sample(&state,&f.h);assert(!f.values["botw.map.pins.valid"]&&!f.values.count("botw.map.pins.0.kind"));++cases;}
  std::cout<<cases<<" native colored pin bounds/presence/race/context cases passed\n";
 }
+
+#endif

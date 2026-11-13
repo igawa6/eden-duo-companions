@@ -12,8 +12,9 @@ struct SavedMapIcons {
 // Native MapData restores icons from these two GameData arrays at 10AFE40..10B025C.
 // Display attachments in MapData are not the persistent save records.
 inline SavedMapIcons saved_map_icons(const EdenDsmodHostApi& h) {
+  if(!map_build_supported(h))return {};
   UiSample ui{},after{};
-  if(h.main_size<0x2CC5FF0 || h.main_base>UINT64_MAX-0x2CC5FF0 ||
+  if(h.main_size<(inventory_offsets(h).gamedata_root+8) || h.main_base>UINT64_MAX-(inventory_offsets(h).gamedata_root+8) ||
      !ui_sample(h,ui) || !hud_context(ui) || !main_field_stage(h))return {};
   auto ptr=[](uint64_t p,uint64_t size){return p && !(p%8) && p<=UINT64_MAX-size;};
   struct Group {
@@ -27,14 +28,14 @@ inline SavedMapIcons saved_map_icons(const EdenDsmodHostApi& h) {
     bool operator==(const Root&) const = default;
   } root{},last{};
   auto roots=[&](Root& r) {
-    if(!read(h,h.main_base+0x2CC5FE8,r.manager) || !ptr(r.manager,0xC2C) ||
-       !read(h,r.manager,r.vtable) || r.vtable!=h.main_base+0x2BD07E0 ||
+    if(!read(h,h.main_base+inventory_offsets(h).gamedata_root,r.manager) || !ptr(r.manager,0xC2C) ||
+       !read(h,r.manager,r.vtable) || r.vtable!=h.main_base+inventory_offsets(h).gamedata_vtable ||
        !read(h,r.manager+0xBE0,r.holder) || !ptr(r.holder,8) ||
        !read(h,r.holder,r.bank) || !ptr(r.bank,0x118) ||
        !read(h,r.manager+0xC18,r.flags) || !read(h,r.manager+0xC28,r.epoch))return false;
     for(unsigned i=0;i<2;++i) {
       auto& g=r.groups[i];const uint64_t off=i?0x108:0xA8;
-      if(!read(h,h.main_base+0x2B7E7D8+i*4,g.handle) || g.handle==UINT32_MAX ||
+      if(!read(h,h.main_base+map_offsets(h).save_handles+i*4,g.handle) || g.handle==UINT32_MAX ||
          ((r.flags&0x8000) && (g.handle>>24)!=r.epoch))return false;
       const uint32_t index=(r.flags&0x8000)?g.handle&0xFFFFFF:g.handle;
       if(!read(h,r.bank+off,g.groups) || !read(h,r.bank+off+4,g.capacity) ||
@@ -55,12 +56,12 @@ inline SavedMapIcons saved_map_icons(const EdenDsmodHostApi& h) {
   std::array<Record,200> records{};std::set<uint64_t> pointers;SavedMapIcons out;
   auto record=[&](unsigned i,Record& r) {
     if(!read(h,root.groups[0].entries+i*8,r.no) || !ptr(r.no,0x20) ||
-       !read(h,r.no,r.vtable) || r.vtable!=h.main_base+0x2BD1140 ||
+       !read(h,r.no,r.vtable) || r.vtable!=h.main_base+inventory_offsets(h).int_flag_vtable ||
        !read(h,r.no+8,r.type) || r.type!=10 || !read(h,r.no+0x18,r.kind) ||
        !read(h,r.no+0x1C,r.hash) || r.hash!=0x9383490E || r.kind < -1 || r.kind>44)return false;
     if(r.kind==-1)return true; // Deleted entries may retain stale position bytes.
     if(!read(h,root.groups[1].entries+i*8,r.pos) || !ptr(r.pos,0x40) ||
-       !read(h,r.pos,r.pos_vtable) || r.pos_vtable!=h.main_base+0x2BD15F0 ||
+       !read(h,r.pos,r.pos_vtable) || r.pos_vtable!=h.main_base+map_offsets(h).position_flag_vtable ||
        !read(h,r.pos+8,r.pos_type) || r.pos_type!=16 ||
        !read(h,r.pos+0x30,r.xyz) || !read(h,r.pos+0x3C,r.pos_hash) || r.pos_hash!=0xEA9DEF3F)return false;
     for(float v:r.xyz)if(!std::isfinite(v))return false;
