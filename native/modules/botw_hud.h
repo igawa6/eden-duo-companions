@@ -16,6 +16,7 @@ inline bool hud_context(const UiSample& u) {
 // Native HUD11897B0 reads UIManager+70;11897C4 scales by1/2 for its animation.
 // This is a display value only, never an input/action readiness signal.
 inline Noise noise(const EdenDsmodHostApi& h) {
+  if(!ready_supported(h))return {};
   UiSample ui{},after{};float level{},again{};
   if (!ui_sample(h,ui) || !hud_context(ui) ||
       !read(h,ui.manager+0x70,level) || !std::isfinite(level) || level<0.f || level>2.f ||
@@ -24,6 +25,7 @@ inline Noise noise(const EdenDsmodHostApi& h) {
   return {true,level,int32_t(std::lround(level*50.f))};
 }
 inline CurrencySnapshot currency(const EdenDsmodHostApi& h) {
+  if(!ready_supported(h))return {};
   UiSample ui{},after{};
   if (!ui_sample(h,ui) || !hud_context(ui)) return {};
   struct Roots {
@@ -32,15 +34,15 @@ inline CurrencySnapshot currency(const EdenDsmodHostApi& h) {
     bool operator==(const Roots&) const = default;
   } a{},z{};
   auto roots=[&](Roots& r) {
-    return read(h,h.main_base+0x2CC5FE8,r.manager) && r.manager%8==0 &&
+    return read(h,h.main_base+inventory_offsets(h).gamedata_root,r.manager) && r.manager%8==0 &&
       r.manager<=UINT64_MAX-0xBE8 && read(h,r.manager,r.vtable) &&
-      r.vtable==h.main_base+0x2BD07E0 && read(h,r.manager+0xBE0,r.holder) && r.holder%8==0 &&
+      r.vtable==h.main_base+inventory_offsets(h).gamedata_vtable && read(h,r.manager+0xBE0,r.holder) && r.holder%8==0 &&
       read(h,r.holder,r.bank) && r.bank%8==0 && r.bank<=UINT64_MAX-0x28 &&
       read(h,r.bank+0x18,r.count) && read(h,r.bank+0x1C,r.capacity) &&
       r.count>0 && r.count<=65536 && r.capacity>=r.count && r.capacity<=65536 &&
       read(h,r.bank+0x20,r.array) && r.array%8==0 && r.array<=UINT64_MAX-uint64_t(r.count)*8;
   };
-  if (h.main_size<0x2CC5FF0 || h.main_base>UINT64_MAX-0x2CC5FF0 || !roots(a)) return {};
+  if (h.main_size<(inventory_offsets(h).gamedata_root+8) || h.main_base>UINT64_MAX-(inventory_offsets(h).gamedata_root+8) || !roots(a)) return {};
   struct Flag {
     uint64_t vtable{};
     uint8_t type{},properties{};
@@ -53,7 +55,7 @@ inline CurrencySnapshot currency(const EdenDsmodHostApi& h) {
   static_assert(sizeof(Flag)==40);
   auto flag=[&](int32_t i,uint64_t& p,Flag& v) {
     return i>=0 && i<a.count && read(h,a.array+uint64_t(i)*8,p) && p%8==0 &&
-      read(h,p,v) && v.vtable==h.main_base+0x2BD1140 && v.type==1;
+      read(h,p,v) && v.vtable==h.main_base+inventory_offsets(h).int_flag_vtable && v.type==1;
   };
   int32_t lo=0,hi=a.count;uint64_t p{},p2{};
   for (unsigned step=0;lo<hi && step<17;++step) {
@@ -68,6 +70,7 @@ inline CurrencySnapshot currency(const EdenDsmodHostApi& h) {
   return {true,f.value};
 }
 inline CurrentRune current_rune(const EdenDsmodHostApi& h) {
+  if(!ready_supported(h))return {};
   UiSample ui{},after{};
   if (!ui_sample(h,ui) || !hud_context(ui)) return {};
   struct Player {
@@ -75,9 +78,9 @@ inline CurrentRune current_rune(const EdenDsmodHostApi& h) {
     bool operator==(const Player&) const = default;
   } a{},z{};
   auto player=[&](Player& p) {
-    return read(h,h.main_base+0x2C9A668,p.pointer) && p.pointer%8==0 &&
+    return read(h,h.main_base+ready_offsets(h).rune_root,p.pointer) && p.pointer%8==0 &&
       p.pointer<=UINT64_MAX-0x244 && read(h,p.pointer,p.vtable) &&
-      p.vtable==h.main_base+0x2B4DD40 && read(h,p.pointer+0x240,p.id) && p.id>=0 && p.id<=7;
+      p.vtable==h.main_base+ready_offsets(h).rune_vtable && read(h,p.pointer+0x240,p.id) && p.id>=0 && p.id<=7;
   };
   if (!player(a)) return {};
   bool upgraded{},again{};
@@ -87,6 +90,7 @@ inline CurrentRune current_rune(const EdenDsmodHostApi& h) {
   return {true,a.id,upgraded};
 }
 inline WorldClock world_clock(const EdenDsmodHostApi& h) {
+  if(!ready_supported(h))return {};
   UiSample ui{},after{};
   if (!ui_sample(h,ui) || !hud_context(ui)) return {};
   struct Roots {
@@ -95,15 +99,15 @@ inline WorldClock world_clock(const EdenDsmodHostApi& h) {
     bool operator==(const Roots&) const = default;
   } a{},z{};
   auto roots=[&](Roots& r) {
-    return read(h,h.main_base+0x2CC5FE8,r.manager) && r.manager%8==0 &&
+    return read(h,h.main_base+inventory_offsets(h).gamedata_root,r.manager) && r.manager%8==0 &&
       r.manager<=UINT64_MAX-0xBE8 && read(h,r.manager,r.vtable) &&
-      r.vtable==h.main_base+0x2BD07E0 && read(h,r.manager+0xBE0,r.holder) && r.holder%8==0 &&
+      r.vtable==h.main_base+inventory_offsets(h).gamedata_vtable && read(h,r.manager+0xBE0,r.holder) && r.holder%8==0 &&
       read(h,r.holder,r.bank) && r.bank%8==0 && r.bank<=UINT64_MAX-0x38 &&
       read(h,r.bank+0x28,r.count) && read(h,r.bank+0x2C,r.capacity) &&
       r.count>0 && r.count<=65536 && r.capacity>=r.count && r.capacity<=65536 &&
       read(h,r.bank+0x30,r.array) && r.array%8==0 && r.array<=UINT64_MAX-uint64_t(r.count)*8;
   };
-  if (h.main_size<0x2CC5FF0 || h.main_base>UINT64_MAX-0x2CC5FF0 || !roots(a)) return {};
+  if (h.main_size<(inventory_offsets(h).gamedata_root+8) || h.main_base>UINT64_MAX-(inventory_offsets(h).gamedata_root+8) || !roots(a)) return {};
   struct Flag {
     uint64_t vtable{};uint8_t type{},properties{};std::array<uint8_t,2> pad{};
     float initial{},minimum{},maximum{},value{};uint32_t hash{};uint64_t debug{};
@@ -112,7 +116,7 @@ inline WorldClock world_clock(const EdenDsmodHostApi& h) {
   static_assert(sizeof(Flag)==40);
   auto flag=[&](int32_t i,uint64_t& p,Flag& v) {
     return i>=0 && i<a.count && read(h,a.array+uint64_t(i)*8,p) && p%8==0 &&
-      read(h,p,v) && v.vtable==h.main_base+0x2BD1208 && v.type==2;
+      read(h,p,v) && v.vtable==h.main_base+ready_offsets(h).float_flag_vtable && v.type==2;
   };
   int32_t lo=0,hi=a.count;uint64_t p{},p2{};
   for (unsigned step=0;lo<hi && step<17;++step) {
@@ -128,6 +132,7 @@ inline WorldClock world_clock(const EdenDsmodHostApi& h) {
   return {true,(int32_t(f.value*4.f)/5*5)%1440};
 }
 inline Stamina stamina(const EdenDsmodHostApi& h) {
+  if(!ready_supported(h))return {};
   UiSample ui{},after{};
   if (!ui_sample(h,ui) || !hud_context(ui) || ui.flags!=0x1E09000000ULL) return {};
   struct Player {
@@ -136,10 +141,10 @@ inline Stamina stamina(const EdenDsmodHostApi& h) {
     bool operator==(const Player&) const = default;
   } a{},z{};
   auto player=[&](Player& p) {
-    return read(h,h.main_base+0x2CA1140,p.info) && p.info%8==0 && p.info<=UINT64_MAX-0xAC &&
-      read(h,p.info,p.info_vtable) && p.info_vtable==h.main_base+0x2B7BE80 &&
+    return read(h,h.main_base+inventory_offsets(h).player_info_root,p.info) && p.info%8==0 && p.info<=UINT64_MAX-0xAC &&
+      read(h,p.info,p.info_vtable) && p.info_vtable==h.main_base+inventory_offsets(h).player_info_vtable &&
       read(h,p.info+0x60,p.actor) && p.actor%8==0 && p.actor<=UINT64_MAX-0x1870 &&
-      read(h,p.actor,p.actor_vtable) && p.actor_vtable==h.main_base+0x2B7BEA8 &&
+      read(h,p.actor,p.actor_vtable) && p.actor_vtable==h.main_base+inventory_offsets(h).player_vtable &&
       read(h,p.info+0xA4,p.current) && read(h,p.info+0xA8,p.maximum) &&
       read(h,p.actor+0x186C,p.actor_maximum) &&
       std::isfinite(p.current) && std::isfinite(p.maximum) &&

@@ -1,3 +1,11 @@
+.set hud_map_root_field, 0xe30
+.set hud_main_root_field, 0xf70
+.set hud_dungeon_field, 0x628
+.ifdef BOTW_190
+.set hud_map_root_field, 0xdb0
+.set hud_main_root_field, 0xf80
+.set hud_dungeon_field, 0x640
+.endif
 // Exact BOTW1.6.0 native HUD layout. Keep AppMap ticking, hide only its draw tree.
 // World/Menu roots are reacquired on every call; no cached guest pointer survives a scene.
 companion_map_restore:
@@ -43,7 +51,7 @@ hud_map_scope:
     cmp x10, x11
     b.ne hud_map_return
     add x9, x9, #3, lsl #12
-    ldr x9, [x9, #0xe30]
+    ldr x9, [x9, #hud_map_root_field]
     cbz x9, hud_map_return
     ldr x10, [x9]
     adrp x11, hud_root_vtable
@@ -96,8 +104,8 @@ companion_hud_pose:
     cmp x10, x11
     b.ne hud_pose_return
     add x9, x19, #3, lsl #12
-    ldr x20, [x9, #0xf70] // MainScreen RootPane
-    ldr x21, [x9, #0x628] // Native MainScreen_00_Dungeon animator
+    ldr x20, [x9, #hud_main_root_field] // MainScreen RootPane
+    ldr x21, [x9, #hud_dungeon_field] // Native MainScreen_00_Dungeon animator
     cbz x20, hud_pose_return
     cbz x21, hud_pose_return
     ldr x10, [x21]

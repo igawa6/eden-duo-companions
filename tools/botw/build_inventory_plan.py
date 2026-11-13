@@ -3,8 +3,9 @@
 
 The production builder and manifest remain limited to 1.6.0. Only install this
 plan with the matching inventory evidence module in a stopped disposable label.
-The dispatcher refuses every operation outside inventory/actions and does not
-move/hide native HUD panes.
+The default evidence dispatcher refuses every operation outside inventory/actions
+and leaves native HUD panes alone. The separate Ready builder opts into the
+verified HUD subset; neither builder enables other action areas.
 """
 from __future__ import annotations
 
@@ -88,11 +89,18 @@ SYMBOLS = dict(
 
 )
 
-def build_plan(work: Path) -> dict:
+def build_plan(work: Path, *, ready: bool = False) -> dict:
     obj, binary = work / "inventory.o", work / "inventory.bin"
+    symbols = dict(SYMBOLS)
+    defines = []
+    if ready:
+        symbols.update(hud_map_vtable=0x1CE8298, hud_root_vtable=0x1D0E500,
+                       hud_screen_vtable=0x1CF4C20, hud_anim_vtable=0x1D0EEA0,
+                       hud_parts_vtable=0x1D0E318, hud_animate=0x22C60)
+        defines.append("-Wa,-defsym,BOTW_READY=1")
     tool("clang", "--target=aarch64-none-elf", "-c", str(HELPER / "warp-ui-hook.S"),
          "-I", str(HELPER), "-Wa,-defsym,BOTW_190=1", "-Wa,-defsym,BOTW_INVENTORY_ONLY=1",
-         "-o", str(obj))
+         *defines, "-o", str(obj))
     tool("llvm-objcopy", "-O", "binary", "--only-section=.text", str(obj), str(binary))
     code = binary.read_bytes()
     if not code or len(code) % 4 or len(code) > 65536:
@@ -105,7 +113,7 @@ def build_plan(work: Path) -> dict:
                 raise ValueError(f"unparsed relocation: {line}")
             continue
         offset, kind, symbol, sign, addend = match.groups()
-        if kind not in RELOCATION_KINDS or symbol not in SYMBOLS:
+        if kind not in RELOCATION_KINDS or symbol not in symbols:
             raise ValueError(f"unsupported relocation: {line}")
         at = int(offset, 16)
         value = int(addend, 16) * (1 if sign == "+" else -1)
@@ -113,7 +121,7 @@ def build_plan(work: Path) -> dict:
             raise ValueError(f"invalid relocation: {line}")
         relocations.append(dict(offset=at, kind=RELOCATION_KINDS[kind],
                                 target="mailbox" if symbol == "bridge_mailbox" else "main",
-                                addend=SYMBOLS[symbol]+value))
+                                addend=symbols[symbol]+value))
     food_hook = next(int(line.split()[2], 16) for line in
                      tool("llvm-nm", "--defined-only", "--format=posix", str(obj)).splitlines()
                      if line.startswith("botw_player_food_hook "))

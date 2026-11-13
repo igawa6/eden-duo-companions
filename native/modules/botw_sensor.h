@@ -15,10 +15,11 @@ struct Sensor {
 };
 // Map-record-only read of the game's sensor (double-sampled, fail closed).
 inline Sensor sensor_map_state(const EdenDsmodHostApi& h) {
+  if(!ready_supported(h))return {};
   struct M {uint64_t map{},vt{};int32_t mode{};uint8_t enabled{};bool operator==(const M&) const=default;} a{},z{};
   auto get=[&](M& r){
-    return read(h,h.main_base+0x2CA63B0,r.map) && r.map && r.map%8==0 && r.map<=UINT64_MAX-0x38AD &&
-           read(h,r.map,r.vt) && r.vt==h.main_base+0x2B86848 &&
+    return read(h,h.main_base+ready_offsets(h).map_root,r.map) && r.map && r.map%8==0 && r.map<=UINT64_MAX-0x38AD &&
+           read(h,r.map,r.vt) && r.vt==h.main_base+ready_offsets(h).map_vtable &&
            read(h,r.map+0x38A8,r.mode) && r.mode>=0 && r.mode<=2 &&
            read(h,r.map+0x38AC,r.enabled) && r.enabled<=1;
   };
@@ -28,7 +29,7 @@ inline Sensor sensor_map_state(const EdenDsmodHostApi& h) {
 }
 inline Sensor sensor(const EdenDsmodHostApi& h) {
   UiSample ui{},after{};
-  if(!ui_sample(h,ui) || !hud_context(ui) || !main_field_stage(h))return sensor_map_state(h);
+  if(!ready_supported(h) || !ui_sample(h,ui) || !hud_context(ui) || !main_field_stage(h))return sensor_map_state(h);
   struct Reading {
     uint64_t map{},map_vt{},sensor{},sensor_vt{},hud{},hud_vt{},pane{},pane_vt{},animation{},animation_vt{};
     int32_t mode{};uint8_t enabled{};float frame{},applied{};
@@ -36,19 +37,19 @@ inline Sensor sensor(const EdenDsmodHostApi& h) {
   } a{},z{};
   auto get=[&](Reading& r) {
     if(ui.array>UINT64_MAX-38*8 ||
-       !read(h,h.main_base+0x2CA63B0,r.map) || !r.map || r.map%8 || r.map>UINT64_MAX-0x38AD ||
-       !read(h,r.map,r.map_vt) || r.map_vt!=h.main_base+0x2B86848 ||
+       !read(h,h.main_base+ready_offsets(h).map_root,r.map) || !r.map || r.map%8 || r.map>UINT64_MAX-0x38AD ||
+       !read(h,r.map,r.map_vt) || r.map_vt!=h.main_base+ready_offsets(h).map_vtable ||
        !read(h,r.map+0x38A8,r.mode) || r.mode<0 || r.mode>2 ||
        !read(h,r.map+0x38AC,r.enabled) || r.enabled>1 ||
-       !read(h,h.main_base+0x2CA66D0,r.sensor) || !r.sensor || r.sensor%8 ||
-       !read(h,r.sensor,r.sensor_vt) || r.sensor_vt!=h.main_base+0x2B87700 ||
-       !read(h,ui.array+37*8,r.hud) || !r.hud || r.hud%8 || r.hud>UINT64_MAX-0x3D70 ||
-       !read(h,r.hud,r.hud_vt) || r.hud_vt!=h.main_base+0x2BA14E8 ||
-       !read(h,r.hud+0x3D68,r.pane) || !r.pane || r.pane%8 || r.pane>UINT64_MAX-0x160 ||
-       !read(h,r.pane,r.pane_vt) || r.pane_vt!=h.main_base+0x2B8D980 ||
+       !read(h,h.main_base+ready_offsets(h).sensor_root,r.sensor) || !r.sensor || r.sensor%8 ||
+       !read(h,r.sensor,r.sensor_vt) || r.sensor_vt!=h.main_base+ready_offsets(h).sensor_vtable ||
+       !read(h,ui.array+37*8,r.hud) || !r.hud || r.hud%8 || r.hud>UINT64_MAX-(0x3D70+ready_offsets(h).pane_shift) ||
+       !read(h,r.hud,r.hud_vt) || r.hud_vt!=h.main_base+ready_offsets(h).hud_vtable ||
+       !read(h,r.hud+(0x3D68+ready_offsets(h).pane_shift),r.pane) || !r.pane || r.pane%8 || r.pane>UINT64_MAX-0x160 ||
+       !read(h,r.pane,r.pane_vt) || r.pane_vt!=h.main_base+ready_offsets(h).sensor_pane_vtable ||
        !read(h,r.pane+0x144,r.frame) || !std::isfinite(r.frame) || r.frame<0 || r.frame>100 ||
        !read(h,r.pane+0x158,r.animation) || !r.animation || r.animation%8 || r.animation>UINT64_MAX-0x24 ||
-       !read(h,r.animation,r.animation_vt) || r.animation_vt!=h.main_base+0x2BBE308 ||
+       !read(h,r.animation,r.animation_vt) || r.animation_vt!=h.main_base+ready_offsets(h).animator_vtable ||
        !read(h,r.animation+0x20,r.applied) || !std::isfinite(r.applied) ||
        (r.enabled && r.mode!=2 && std::abs(r.applied-r.frame)>.01f))return false;
     return true;

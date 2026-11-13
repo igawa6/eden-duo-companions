@@ -42,6 +42,17 @@ class InventoryPlanTests(unittest.TestCase):
         self.assertEqual(inventory.SYMBOLS['native_info_int'],0x108EF5C)
         self.assertEqual(inventory.SYMBOLS['native_has_tag'],0x108E7A0)
 
+    def test_ready_plan_adds_only_verified_hud_targets(self):
+        with tempfile.TemporaryDirectory() as work:
+            plan=inventory.build_plan(Path(work),ready=True)
+        targets={r['addend'] for r in plan['guest_code']['relocations']
+                 if r['target']=='main'}
+        self.assertTrue({0x1CE8298,0x1D0E500,0x1CF4C20,0x1D0EEA0,
+                         0x1D0E318,0x22C60} <= targets)
+        self.assertFalse({production.SYMBOLS[k] for k in production.SYMBOLS
+                          if k.startswith(('warp_','quest_'))} & targets)
+        self.assertEqual(plan['build_id'],inventory.BUILD_ID)
+
 
 if __name__=='__main__':
     unittest.main()

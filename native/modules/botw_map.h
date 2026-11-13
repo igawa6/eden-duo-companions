@@ -28,12 +28,13 @@ inline bool map_masks(const EdenDsmodHostApi& h,uint64_t head,std::array<uint16_
   return node==head&&first[0]==seen.back()&&read(h,head,last)&&first==last;
 }
 inline bool main_field_stage(const EdenDsmodHostApi& h) {
+  if(!ready_supported(h))return false;
   // Exact-build scene/request type strings. Both must agree; other stages are withheld.
-  for(const uint64_t off:{0x2C9E868ULL,0x2CA4DA0ULL}) {
+  for(const uint64_t off:{ready_offsets(h).stage_current,ready_offsets(h).stage_requested}) {
     std::array<uint8_t,56> b{};uint64_t vt{},ptr{};int32_t cap{};
     if(!read(h,h.main_base+off,b))return false;
     std::memcpy(&vt,b.data(),8);std::memcpy(&ptr,b.data()+8,8);std::memcpy(&cap,b.data()+16,4);
-    if(vt!=h.main_base+0x2A701C8||ptr!=h.main_base+off+20||cap!=32||
+    if(vt!=h.main_base+ready_offsets(h).stage_vtable||ptr!=h.main_base+off+20||cap!=32||
        std::memcmp(b.data()+20,"MainField\0",10)!=0)return false;
   }
   // Integration 2026-10-18 (states RE-FINDINGS section 3): the two strings above stay
@@ -41,10 +42,10 @@ inline bool main_field_stage(const EdenDsmodHostApi& h) {
   // there. The current map type FixedSafeString (main+0x2BE1708: "MainField" / "CDungeon" /
   // "TitleMenu") withholds them when it is a valid string other than MainField.
   {
-    constexpr uint64_t off=0x2BE1708;std::array<uint8_t,56> b{};uint64_t vt{},ptr{};int32_t cap{};
+    const uint64_t off=ready_offsets(h).map_type;std::array<uint8_t,56> b{};uint64_t vt{},ptr{};int32_t cap{};
     if(read(h,h.main_base+off,b)){
       std::memcpy(&vt,b.data(),8);std::memcpy(&ptr,b.data()+8,8);std::memcpy(&cap,b.data()+16,4);
-      if(vt==h.main_base+0x2A701C8&&ptr==h.main_base+off+20&&cap==32&&
+      if(vt==h.main_base+ready_offsets(h).stage_vtable&&ptr==h.main_base+off+20&&cap==32&&
          std::memchr(b.data()+20,0,32)!=nullptr&&std::memcmp(b.data()+20,"MainField\0",10)!=0)return false;
     }
   }

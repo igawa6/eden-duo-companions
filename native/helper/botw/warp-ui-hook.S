@@ -1,5 +1,12 @@
 // Private BOTW 1.6.0 UI-thread bridge. Addresses are linked from the pinned build.
 .text
+.set hud_enabled, 1
+.ifdef BOTW_INVENTORY_ONLY
+.set hud_enabled, 0
+.endif
+.ifdef BOTW_READY
+.set hud_enabled, 1
+.endif
 .set pause_shift, 0
 .ifdef BOTW_190
 .set pause_shift, 24
@@ -10,12 +17,12 @@ botw_ui_hook:
     stp x19, x20, [sp, #16]
     stp x21, x22, [sp, #32]
     stp x23, x24, [sp, #48]
-    .ifndef BOTW_INVENTORY_ONLY
+    .if hud_enabled
     bl companion_map_restore
     .endif
     bl native_ui_update
     stp x0, x1, [sp, #64]
-    .ifndef BOTW_INVENTORY_ONLY
+    .if hud_enabled
     bl companion_hud_pose
     bl companion_map_hide
     .endif
@@ -2301,6 +2308,8 @@ sort_request:
 .include "holding-ui-actions.inc"
 .ifndef BOTW_INVENTORY_ONLY
 .include "warp-ui-actions.inc"
+.endif
 
+.if hud_enabled
 .include "companion-hud.inc"
 .endif
