@@ -41,7 +41,7 @@ and excludes source documentation from the portable archive.
 
 ## Rebuilding
 
-Release modules, with the 1.0.0 flags (stripped hashes are listed in the script):
+Release modules (stripped hashes are listed in the script):
 
 ```sh
 EDEN_SOURCE_ROOT=/path/to/eden-duo ANDROID_NDK=/path/to/ndk/28.2.13676358 \
@@ -51,34 +51,34 @@ EDEN_SOURCE_ROOT=/path/to/eden-duo ANDROID_NDK=/path/to/ndk/28.2.13676358 \
 Or through CMake with the other modules (`native/README.md`): target `dsmod-breath-of-the-wild`,
 and with `-DBUILD_TESTING=ON` one `dsmod-botw-*` test per `botw_*_test.cpp`.
 
-Load plan (needs clang and the LLVM binutils):
+Load plans, one per supported game build (needs clang and the LLVM binutils):
 
 ```sh
 tools/botw/build_helper_plan.py \
     --output packages/BreathOfTheWild/dualscreen/load-plans/8E9978D50BDD20B4C8395A106C27FFDE00000000000000000000000000000000.json
+tools/botw/build_helper_plan.py --build-id CD57B23FA4BBAD65803D9788C01821EE00000000000000000000000000000000 \
+    --output packages/BreathOfTheWild/dualscreen/load-plans/CD57B23FA4BBAD65803D9788C01821EE00000000000000000000000000000000.json
 ```
 
 Package:
 
 ```sh
 tools/build_dualscreen_package.py --package packages/BreathOfTheWild --output dist \
-    --version 1.0.0 --name "Breath of the Wild companion" --min-runtime 22 \
-    --module android-arm64-v8a=build-botw/android-arm64-v8a/01007EF00011E000.so \
+    --version 1.1.0 --min-runtime 22 \
     --module linux-x86_64=build-botw/linux-x86_64/01007EF00011E000.so \
-    --build-id 8E9978D50BDD20B4C8395A106C27FFDE00000000000000000000000000000000
+    --module android-arm64-v8a=build-botw/android-arm64-v8a/01007EF00011E000.so \
+    --build-id 8E9978D50BDD20B4C8395A106C27FFDE00000000000000000000000000000000 \
+    --build-id CD57B23FA4BBAD65803D9788C01821EE00000000000000000000000000000000
 tools/compact_zip.py dist/01007EF00011E000.dsmod.zip
 ```
 
 With the byte-identical modules this reproduces the published
-`01007EF00011E000-BreathOfTheWild-1.0.0.dsmod.zip`
-(sha256 `a6d9ad51a1249662dbde616a488eed8e3cb43ee65d6a1b7f019ea19d28118121`).
+`01007EF00011E000-BreathOfTheWild-1.1.0.dsmod.zip`
+(sha256 `d15996f09ea850fe406d94545d530c61b6bc66680b36efe96578d13367ff998b`).
 
 The manifest and the code-drawn assets are committed as package source. The scripts that first
 generated them worked on local research data and game files, so they are not part of this
 repository.
-
-For the 1.9.0 load plan, pass `--build-id CD57B23FA4BBAD65803D9788C01821EE00000000000000000000000000000000`
-to `tools/botw/build_helper_plan.py`. The default remains the byte-identical 1.6.0 plan.
 
 After packaging with `tools/build_dualscreen_package.py`, run `tools/compact_zip.py` on the
 archive so its manifest stays below the 4 MiB installer limit.
