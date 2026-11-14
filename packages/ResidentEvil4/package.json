@@ -1,0 +1,15 @@
+{
+  "format": 1,
+  "type": "dual-screen-mod",
+  "title_id": "010099A00BC1E000",
+  "name": "Resident Evil 4",
+  "version": "0.1.0-dev.6",
+  "min_runtime": 25,
+  "requires_module": true,
+  "module": {
+    "abi": 1,
+    "build_ids": [
+      "82C2A04A21D3E0B850F273D4149C900300000000000000000000000000000000"
+    ]
+  }
+}

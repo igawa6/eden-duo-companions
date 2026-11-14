@@ -1,0 +1,3458 @@
+{
+ "format": 1,
+ "files": {
+  "assets/castle-overview.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/island-overview.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/r5-badge-1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-badge-2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-badge-3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-badge-4.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-badge-5.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-ammo-badge.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-1x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-1x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-1x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-1x4.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-1x9.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-2x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-2x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-2x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-2x4.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-2x5.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-2x6.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-2x7.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-2x8.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-3x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-3x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-3x5.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-3x7.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-4x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-4x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-5x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-5x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-6x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-7x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-7x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-8x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-108-9x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-1x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-1x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-1x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-1x4.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-1x9.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-2x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-2x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-2x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-2x4.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-2x5.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-2x6.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-2x7.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-2x8.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-3x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-3x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-3x5.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-3x7.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-4x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-4x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-5x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-5x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-6x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-7x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-7x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-8x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-120-9x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-1x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-1x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-1x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-1x4.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-1x9.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-2x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-2x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-2x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-2x4.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-2x5.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-2x6.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-2x7.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-2x8.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-3x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-3x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-3x5.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-3x7.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-4x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-4x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-5x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-5x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-6x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-7x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-7x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-8x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-80-9x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-1x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-1x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-1x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-1x4.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-1x9.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-2x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-2x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-2x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-2x4.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-2x5.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-2x6.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-2x7.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-2x8.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-3x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-3x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-3x5.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-3x7.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-4x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-4x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-5x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-5x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-6x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-7x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-7x3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-8x2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-case-select-96-9x1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-picker-highlight.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-slot-edit-0.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-slot-edit-1.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-slot-edit-2.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/r5-slot-edit-3.png": {
+   "origin": "generated",
+   "source": "prepare_r5.py: ImageDraw fills and outlines only"
+  },
+  "assets/stage5-500.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-501.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-502.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-503.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-504.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-505.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-506.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-507.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-508.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-509.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-50a.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-50b.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-50c.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-50d.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-50e.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-50f.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-510.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-512.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-513.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-514.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-515.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-516.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-517.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-518.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-519.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-51a.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-51b.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-51c.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-51d.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/stage5-51e.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  },
+  "assets/village-overview.png": {
+   "origin": "generated",
+   "source": "prepare_map.py build_overview: transparent 1x1 placeholder, no geometry"
+  }
+ },
+ "runtime_sources": {
+  "module:re4/bg/0": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/10": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/100": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/101": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/102": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/103": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/105": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/107": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/108": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/109": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/11": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/110": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/111": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/112": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/113": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/114": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/115": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/116": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/117": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/118": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/119": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/12": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/121": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/122": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/123": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/124": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/125": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/126": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/127": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/128": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/129": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/13": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/130": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/131": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/132": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/133": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/134": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/135": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/136": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/137": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/138": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/139": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/14": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/140": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/141": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/142": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/143": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/144": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/145": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/146": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/147": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/148": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/149": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/15": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/150": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/151": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/152": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/153": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/154": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/155": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/156": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/157": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/158": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/159": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/16": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/160": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/161": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/162": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/163": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/164": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/165": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/166": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/167": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/168": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/169": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/17": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/170": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/171": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/172": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/173": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/174": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/175": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/176": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/177": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/178": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/179": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/18": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/180": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/181": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/182": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/183": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/184": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/185": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/186": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/187": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/188": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/189": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/19": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/190": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/191": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/192": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/193": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/194": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/195": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/196": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/197": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/198": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/199": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/2": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/20": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/200": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/201": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/202": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/203": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/204": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/205": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/206": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/207": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/21": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/22": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/23": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/24": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/25": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/26": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/27": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/28": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/29": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/3": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/30": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/31": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/32": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/33": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/34": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/35": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/36": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/37": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/38": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/39": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/4": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/40": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/41": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/42": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/43": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/44": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/45": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/46": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/47": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/48": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/49": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/5": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/50": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/51": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/52": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/53": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/54": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/55": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/56": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/57": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/58": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/59": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/6": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/60": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/61": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/62": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/63": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/64": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/65": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/66": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/67": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/68": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/69": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/7": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/70": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/71": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/72": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/73": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/74": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/75": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/76": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/77": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/78": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/79": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/8": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/80": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/81": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/82": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/83": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/84": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/85": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/86": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/87": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/88": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/89": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/9": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/90": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/91": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/92": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/93": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/94": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/95": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/96": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/97": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/98": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/bg/99": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/00/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/01/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/02/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/03/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/04/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/05/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/06/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/07/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/08/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/09/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/0a/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/0c/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/0e/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/10/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/11/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/12/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/13/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/14/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/15/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/16/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/17/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/18/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/19/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/1a/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/1c/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/20/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/21/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/22/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/23/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/25/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/27/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/29/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/2a/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/2c/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/2d/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/2e/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/2f/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/30/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/34/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/35/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/36/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/37/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/38/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/3e/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/3f/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/40/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/41/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/42/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/43/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/44/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/45/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/46/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/47/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/52/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/53/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/6a/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/6d/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/72/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/94/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/95/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/97/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/a8/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/aa/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/background/10": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/background/11": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/background/12": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/background/15": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/c5/120": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/name/012": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/name/013": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/prewarm/0": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/prewarm/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/prewarm/2": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/prewarm/3": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/prewarm/4": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/prewarm/5": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/prewarm/6": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/case/prewarm/7": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/digit/0": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/digit/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/digit/2": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/digit/3": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/digit/4": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/digit/5": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/digit/6": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/digit/7": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/digit/8": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/digit/9": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/0/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/100/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/105/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/109/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/110/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/114/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/124/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/135/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/139/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/144/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/164/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/20/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/21/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/43/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/45/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/51/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/64/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/67/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/83/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/door/90/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/font/atlas/{p}": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/geometry/1/0": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/base": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/10": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/11": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/12": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/13": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/14": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/2": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/3": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/4": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/5": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/6": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/7": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/8": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/hp/wedge/9": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/0f": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/1b": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/1d": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/1e": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/1f": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/31": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/33": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/39": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/3a": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/3b": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/3c": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/3d": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/56": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/57": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/58": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/59": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/5a": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/5b": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/5c": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/5d": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/5e": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/5f": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/60": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/61": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/62": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/63": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/64": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/65": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/66": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/67": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/68": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/69": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/6e": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/6f": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/70": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/74": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/76": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/77": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/7a": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/7b": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/80": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/81": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/82": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/83": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/84": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/85": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/86": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/87": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/88": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/89": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/8a": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/8b": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/8c": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/8d": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/8e": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/8f": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/90": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/91": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/92": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/93": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/96": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/98": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/9a": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/9b": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/9c": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/9d": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/9e": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/9f": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/a1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/a2": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/a3": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/a4": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/a5": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/a6": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/a7": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/b8": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/b9": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/ba": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/bb": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/bc": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/bd": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/be": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/bf": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/c0": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/c1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/c2": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/c3": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/c4": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/c6": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/c7": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/c8": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/c9": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/ca": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/cb": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/cc": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/cd": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/ce": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/cf": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/d0": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/d1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/d2": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/d3": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/d4": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/d5": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/d6": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/d7": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/d8": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/d9": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/da": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/icon/db": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/map/backing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/map/frame/0": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/map/frame/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/map/frame/2": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/map/frame/3": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/map/label/castle": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/map/label/island": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/map/label/village": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/map/legend": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/map/unmapped": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/mark/arrow": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/mark/atlas": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/200/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/201/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/202/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/203/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/204/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/205/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/206/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/207/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/208/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/209/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/20a/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/20b/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/20c/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/20d/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/20e/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/20f/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/210/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/211/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/212/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/213/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/214/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/215/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/216/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/217/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/218/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/219/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/21a/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/21b/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/21d/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/220/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/221/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/222/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/223/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/224/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/225/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/226/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/227/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/228/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/229/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/22a/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/castle/814/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/300/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/301/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/303/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/304/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/305/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/306/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/307/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/308/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/309/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/30a/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/30b/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/30c/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/30d/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/30e/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/30f/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/310/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/311/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/312/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/315/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/316/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/317/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/318/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/31a/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/31b/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/31c/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/31d/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/320/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/321/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/325/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/326/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/327/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/329/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/330/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/331/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/332/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/island/333/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/500/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/501/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/502/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/503/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/504/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/505/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/506/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/507/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/508/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/509/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/50a/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/50b/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/50c/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/50d/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/50e/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/50f/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/510/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/512/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/513/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/514/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/515/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/516/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/517/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/518/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/519/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/51a/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/51b/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/51c/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/51d/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/stage5/51e/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/100/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/101/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/102/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/103/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/104/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/105/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/106/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/107/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/108/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/109/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/10a/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/10b/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/10c/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/10d/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/10e/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/10f/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/117/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/11c/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/11d/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/11e/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/11f/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/room/village/200/1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/01": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/01/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/02": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/02/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/03": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/03/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/0e": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/0e/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/10": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/10/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/17": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/17/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/21": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/21/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/23": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/23/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/25": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/25/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/27": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/27/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/29": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/29/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/2a": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/2a/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/2c": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/2c/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/2d": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/2d/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/2e": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/2e/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/2f": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/2f/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/30": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/30/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/34": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/34/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/35": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/35/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/36": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/36/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/37": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/37/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/38": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/38/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/3e": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/3e/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/40": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/40/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/41": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/41/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/47": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/47/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/52": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/52/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/53": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/53/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/6d": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/6d/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/94": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/slot/94/missing": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/both": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/equipped": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/field": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/field-unmapped": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/follow": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-0": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-10": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-11": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-12": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-13": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-14": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-2": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-3": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-4": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-5": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-6": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-7": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-8": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/hp-9": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/key-items": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/loading-band": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/mercenaries": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/nav": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/neutral": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/picker": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/picker-number-1": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/picker-number-2": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/picker-number-3": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/picker-number-4": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/settings": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/standby": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/standby-gray": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/unsupported-band": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/ui/wait": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/01": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/02": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/03": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/0e": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/10": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/17": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/21": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/23": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/25": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/27": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/29": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/2a": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/2c": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/2d": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/2e": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/2f": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/30": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/34": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/35": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/36": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/37": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/38": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/3e": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/40": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/41": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/47": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/52": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/53": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/6d": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  },
+  "module:re4/weapon/94": {
+   "origin": "romfs",
+   "source": "player RomFS; native BIN geometry and texture packs; generated composition instructions"
+  }
+ },
+ "runtime_key_families": [
+  "module:re4/room/<stage>/<room>/<state>[/f<floor>]",
+  "module:re4/door/<angle>/<state>",
+  "module:re4/mark/<name>",
+  "module:re4/bg/<piece>",
+  "module:re4/hp/base",
+  "module:re4/hp/wedge/<1..14>",
+  "module:re4/map/frame/<0..3>",
+  "module:re4/map/backing",
+  "module:re4/map/unmapped",
+  "module:re4/map/frame",
+  "module:re4/map/legend",
+  "module:re4/map/label/<stage>",
+  "module:re4/case/<id>/120",
+  "module:re4/case/background/<columns>",
+  "module:re4/case/name/<id>",
+  "module:re4/weapon/<id>",
+  "module:re4/slot/<id>[/missing]",
+  "module:re4/icon/<id>",
+  "module:re4/digit/<0..9>",
+  "module:re4/ui/<name>",
+  "module:re4/font/atlas",
+  "module:re4/font/atlas/0"
+ ],
+ "font": {
+  "metrics": "romfs:bio4/font/common_p.fnt",
+  "atlas": "module:re4/font/atlas/{p}",
+  "source": "0f000001 texture; worker-derived pixel bounds and advances; immutable module cache"
+ },
+ "deferred_game_files": {},
+ "composition_constants": "Only code-drawn fills, masks, outlines and shadows; native textures are read from player RomFS at runtime"
+}

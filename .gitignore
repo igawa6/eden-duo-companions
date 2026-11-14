@@ -17,3 +17,7 @@ venv/
 
 # Standalone native build directories
 build-*/
+
+
+# Native item-name expectations belong only in external test scratch.
+**/re4_item_names*.h

@@ -1450,3 +1450,89 @@ if(BUILD_TESTING AND NOT ANDROID AND Python3_Interpreter_FOUND)
     add_test(NAME dsmod-kirby-manifest
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/kirby/gen_manifest.py" --check)
 endif()
+
+# RE4 uses the same BC decoder as the other companions, on both module platforms.
+set(RE4_ASSET_SOURCES re4_geometry.cpp re4_font.cpp re4_ui_assets.cpp re4_inventory_assets.cpp re4_map_sprites.cpp re4_map_assets.cpp re4_assets.cpp re4_names.cpp "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp")
+# Keep the reference raster/compositor arithmetic separate on both host and ARM64.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    set_source_files_properties(re4_inventory_assets.cpp re4_ui_assets.cpp re4_map_assets.cpp re4_map_sprites.cpp re4_assets.cpp
+        PROPERTIES COMPILE_OPTIONS "-ffp-contract=off")
+endif()
+if(ANDROID)
+    set(RE4_ZLIB z)
+else()
+    find_package(ZLIB REQUIRED)
+    set(RE4_ZLIB ZLIB::ZLIB)
+endif()
+# Resident Evil 4 Switch 1.0.2: readers + leased native HUD helper, runtime 25 / ABI 1.
+dsmod_add_module(dsmod-resident-evil-4 EXCLUDE_FROM_ALL TITLE 010099A00BC1E000
+    SOURCES 010099A00BC1E000.cpp re4_reader.h re4_hud_host.h re4_slots.h re4_map_bounds.h
+            re4_case_art.h re4_keys_metadata.h re4_equip.h ${RE4_ASSET_SOURCES}
+    INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder"
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions)
+target_link_libraries(dsmod-resident-evil-4 PRIVATE ${RE4_ZLIB})
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-resident-evil-4 KEEP_ASSERTS
+        SOURCES 010099A00BC1E000_test.cpp 010099A00BC1E000.cpp re4_reader.h re4_hud_host.h
+                re4_slots.h re4_map_bounds.h re4_case_art.h re4_keys_metadata.h re4_equip.h ${RE4_ASSET_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    target_link_libraries(dsmod-resident-evil-4-test PRIVATE ${RE4_ZLIB})
+endif()
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-re4-hud-guest KEEP_ASSERTS SOURCES re4_hud_tick_test.cpp)
+    add_executable(dsmod-re4-equip-guest-test re4_equip_tick_test.cpp)
+    add_test(NAME dsmod-re4-equip-guest COMMAND dsmod-re4-equip-guest-test)
+    find_package(Python3 COMPONENTS Interpreter REQUIRED)
+    add_test(NAME dsmod-resident-evil-4-package
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/resident-evil-4/package_test.py")
+endif()
+
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-re4-assets KEEP_ASSERTS
+        SOURCES re4_assets_test.cpp 010099A00BC1E000.cpp ${RE4_ASSET_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    target_link_libraries(dsmod-re4-assets-test PRIVATE ${RE4_ZLIB})
+    add_test(NAME dsmod-re4-assets-fixture COMMAND dsmod-re4-assets-test --fixture)
+    set_tests_properties(dsmod-re4-assets-fixture PROPERTIES SKIP_RETURN_CODE 77)
+endif()
+if(BUILD_TESTING AND NOT ANDROID)
+    add_test(NAME dsmod-re4-assets-golden COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_LIST_DIR}/../../tools/resident-evil-4/asset_golden_test.py"
+        "$<TARGET_FILE:dsmod-re4-assets-test>")
+    set_tests_properties(dsmod-re4-assets-golden PROPERTIES SKIP_RETURN_CODE 77)
+endif()
+
+if(BUILD_TESTING AND NOT ANDROID)
+    add_test(NAME dsmod-re4-map-assets-golden COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_LIST_DIR}/../../tools/resident-evil-4/map_asset_golden_test.py"
+        "$<TARGET_FILE:dsmod-re4-assets-test>")
+    set_tests_properties(dsmod-re4-map-assets-golden PROPERTIES SKIP_RETURN_CODE 77)
+    add_test(NAME dsmod-re4-inventory-ui-golden COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_LIST_DIR}/../../tools/resident-evil-4/inventory_ui_golden_test.py"
+        "$<TARGET_FILE:dsmod-re4-assets-test>")
+    set_tests_properties(dsmod-re4-inventory-ui-golden PROPERTIES SKIP_RETURN_CODE 77)
+endif()
+
+if(BUILD_TESTING AND NOT ANDROID)
+    add_test(NAME dsmod-re4-font-golden COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_LIST_DIR}/../../tools/resident-evil-4/font_golden_test.py"
+        "$<TARGET_FILE:dsmod-re4-assets-test>")
+    set_tests_properties(dsmod-re4-font-golden PROPERTIES SKIP_RETURN_CODE 77)
+endif()
+
+if(BUILD_TESTING AND NOT ANDROID)
+    add_test(NAME dsmod-re4-clean-build COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_LIST_DIR}/../../tools/resident-evil-4/clean_build_test.py"
+        --sdk "${EDEN_SOURCE_ROOT}" --cache "${EDEN_CPM_CACHE}"
+        --fmt "${EDEN_FMT_INCLUDE_DIR}" --json "${EDEN_NLOHMANN_JSON_INCLUDE_DIR}")
+    add_test(NAME dsmod-re4-geometry-golden COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_LIST_DIR}/../../tools/resident-evil-4/geometry_golden_test.py"
+        "$<TARGET_FILE:dsmod-re4-assets-test>")
+    set_tests_properties(dsmod-re4-geometry-golden PROPERTIES SKIP_RETURN_CODE 77)
+    add_test(NAME dsmod-re4-names-golden COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_LIST_DIR}/../../tools/resident-evil-4/names_golden_test.py"
+        "$<TARGET_FILE:dsmod-re4-assets-test>")
+    set_tests_properties(dsmod-re4-names-golden PROPERTIES SKIP_RETURN_CODE 77)
+    add_test(NAME dsmod-re4-repo-hygiene COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_LIST_DIR}/../../tools/resident-evil-4/repo_hygiene_test.py")
+endif()
