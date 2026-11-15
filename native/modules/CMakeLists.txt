@@ -1428,3 +1428,20 @@ if(BUILD_TESTING AND NOT ANDROID)
             "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp" ${WONDER_ZSTD_SOURCES} ${KIRBY_LZ4_SOURCES}
         INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder" "${WONDER_ZSTD_LIB}" "${KIRBY_LZ4_LIB}")
 endif()
+if(BUILD_TESTING AND NOT ANDROID)
+    # the module table, the build gate and the actions it accepts, without a game; the -dev build (KIRBY_DEV, the
+    # research tools) must keep compiling and accept the research actions the release build refuses
+    dsmod_add_test(dsmod-kirby-module KEEP_ASSERTS
+        SOURCES kirby_module_test.cpp ${KIRBY_MODULE_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder" "${WONDER_ZSTD_LIB}" "${KIRBY_LZ4_LIB}"
+        COMPILE_DEFINITIONS KIRBY_DEV=0)
+    dsmod_add_test(dsmod-kirby-module-dev KEEP_ASSERTS
+        SOURCES kirby_module_test.cpp ${KIRBY_MODULE_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder" "${WONDER_ZSTD_LIB}" "${KIRBY_LZ4_LIB}"
+        COMPILE_DEFINITIONS KIRBY_DEV=1)
+endif()
+if(BUILD_TESTING AND NOT ANDROID AND Python3_Interpreter_FOUND)
+    # the committed manifest and effect plans are what tools/kirby/gen_manifest.py makes
+    add_test(NAME dsmod-kirby-manifest
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/kirby/gen_manifest.py" --check)
+endif()

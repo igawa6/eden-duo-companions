@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: Copyright 2026 Fab
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Generate packages/KirbysReturnToDreamLandDeluxe/dualscreen/manifest.json and its effect plans. gen_manifest.py [--dev]"""
+"""Generate packages/KirbysReturnToDreamLandDeluxe/dualscreen/manifest.json and its effect plans. gen_manifest.py [--dev] [--check]"""
 import argparse
 import json
 import math
+import sys
+import tempfile
 from pathlib import Path
 
 PKG = Path(__file__).resolve().parents[2] / "packages" / "KirbysReturnToDreamLandDeluxe" / "dualscreen"
+OUT = PKG  # where the generated files go (a scratch folder with --check)
+GENERATED = ("manifest.json", "shatter.txt", "finale.txt", "soul.txt")
 # the game's 1.0.0 build, the only one the module reads
 BUILD_ID = "FA24EA3C3A512C072A2062556C9C9692B3E6ACE1000000000000000000000000"
 # The order the game's own souvenir menu uses.
@@ -645,7 +649,7 @@ def write_fx_plan(page):
             lines += [f"piece {k + 1} {' '.join(map(str, fx_box(p)))} {pts(p)}" for p in pieces]
         lines += [f"shard {i} {' '.join(map(str, fx_box(p)))} {pts(p)}" for i, p in shards]
     lines += page_lines(page)
-    (PKG / "shatter.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (OUT / "shatter.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def page_lines(page):
@@ -672,7 +676,7 @@ def write_fin_plan(page):
     lines = ["set", f"cut {a[0]} {a[1]} {b[0]} {b[1]} {FIN_OPEN}"]
     lines += [f"piece 1 {' '.join(map(str, fx_box(p)))} {pts(p)}" for p in fin_halves()]
     lines += page_lines(page)
-    (PKG / "finale.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (OUT / "finale.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 # The Arenas' page (user's sketch 2026-10-22, cards 2026-10-24): the Epilogue's bar in yellow, Pause and Remove
@@ -784,7 +788,7 @@ def write_soul_plan(groups):
         boxes.append([x0, y0, x1 - x0, y1 - y0])
         lines.append(f"group {g} {x0} {y0} {x1 - x0} {y1 - y0}")
         lines += page_lines(groups[g])
-    (PKG / "soul.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (OUT / "soul.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
     return boxes[:SOUL_ELEMENTS]
 
 
@@ -1366,12 +1370,23 @@ def manifest(dev):
 
 
 def main():
+    global OUT
     ap = argparse.ArgumentParser()
     ap.add_argument("--dev", action="store_true")
+    ap.add_argument("--check", action="store_true", help="compare with the committed files instead of writing them")
     args = ap.parse_args()
-    out = PKG / "manifest.json"
-    out.write_text(json.dumps(manifest(args.dev), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(out)
+    with tempfile.TemporaryDirectory() as scratch:
+        if args.check:
+            OUT = Path(scratch)
+        out = OUT / "manifest.json"
+        out.write_text(json.dumps(manifest(args.dev), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+        if not args.check:
+            print(out)
+            return
+        stale = [name for name in GENERATED if (OUT / name).read_bytes() != (PKG / name).read_bytes()]
+    if stale:
+        sys.exit("out of date (run tools/kirby/gen_manifest.py): " + ", ".join(stale))
+    print("manifest.json and the effect plans are up to date")
 
 
 if __name__ == "__main__":
