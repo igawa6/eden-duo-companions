@@ -48,6 +48,8 @@ This repository holds the companion source code, packages, documentation and scr
 | 28 | [Cult of the Lamb](#cult-of-the-lamb) | `01002E7016C46000` | 1.5.27, 1.5.28 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/cult-of-the-lamb-1.1.0) | ⭐<br><a href="https://github.com/AlterDigga"><img src="https://img.shields.io/badge/AlterDigga-181717?style=flat-square&logo=github&logoColor=white" alt="AlterDigga"></a> |
 | 29 | [Kirby's Return to Dream Land Deluxe](#kirbys-return-to-dream-land-deluxe) | `01006B601380E000` | 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/kirbys-return-to-dream-land-deluxe-1.0.0) | ⭐<br><img src="https://img.shields.io/badge/fabvx-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="fabvx"> |
 | 30 | [Monster Sanctuary](#monster-sanctuary) | `0100A0F00DA68000` | 2.1.0.32 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/monster-sanctuary-1.0.0) | |
+| 31 | [My Time at Sandrock](#my-time-at-sandrock) | `0100B63016916000` | 1.4.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/my-time-at-sandrock-1.0.0) | |
+| 32 | [Resident Evil 4](#resident-evil-4) | `010099A00BC1E000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/resident-evil-4-1.0.0) | |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -965,24 +967,81 @@ Code: GPL-3.0-or-later.
 |:---:|
 | <img src="screenshots/monster-sanctuary/title.png" width="300" alt="Monster Sanctuary: Title"> |
 
-Your team, the map and the battle commands on the second screen, drawn in the game's own windows, so the top screen stays on the Sanctuary.
+Your team, the map and the battle commands on the second screen, drawn in the game's own windows, so the top screen stays on the Sanctuary. Requires Eden Duo 1.3.2 or newer (runtime 22).
 
 - **Exploration.** Your monsters with their explore abilities. Tap one to make it your follower; its card shows the ability and what it does. A minimap shows where you are and the area name.
 - **Map.** Every area you have explored, with the game's own map icons and your position. Drag to pan, pinch to zoom. The teleporter list fast travels to any teleporter you have unlocked; collapse it for a wider map.
-- **Combat.** Attack, Items, Monster Info, Switch Monster and Retreat, with skills, mana costs and targets, the same as the game's command window. Tap to choose; the buttons keep working too. Combo, damage, difficulty and execution are shown live. During a Keeper Duel's first turn the game's turn-1 rule is shown, and unknown enemies stay `? ? ?`.
+- **Combat.** Attack, Items, Monster Info, Switch Monster and Retreat, with skills, mana costs and targets, the same as the game's command window. Tap to choose; the buttons keep working too. Skill levels open from Select Level. Descriptions that are longer than one line show a page at a time, turning every few seconds or when you tap them. Combo, damage, difficulty and execution are shown live. During a Keeper Duel's first turn the game's turn-1 rule is shown, and unknown enemies stay `? ? ?`.
 - **Hidden battle menu.** The game's command menu, item window and Monster Info card are hidden on the top screen while the second screen shows them, so the battle stays clear. Switch it off in Options to bring them back.
 - **Team.** Your active three and the rest of the team. Swap their order and change equipment from the touch screen. In battle the page is read-only.
 - **Options.** Hide battle menu on top (on by default), Hide combo counter on top, Reduce motion and Haptics. The choices are kept between sessions.
 - **Title, loading and dialogue.** The title and loading screens show the game's backdrop with the spectral familiars; during dialogue the page dims and ignores taps.
-- **Other versions.** On any other game version the companion does not load and shows a notice to update the game.
+- **Actions.** Fast travel, team swap, equipment and battle commands go through the game's own menus with a small in-game helper, so the game's rules still apply.
+- **Limits.** English text only. Game version 2.1.0.32 only; on any other version the companion does not load and shows a notice to update the game. Map icons are drawn at their native size; zoom in to read them. Item lists and the Keeper Duel's first-turn rows keep the game's compact layout, so their touch rows are smaller than the others. Tested on an AYN Thor.
 
-Actions (fast travel, team swap, equipment, battle commands) go through the game's own menus with a small in-game helper, so the game's rules still apply.
+The companion ships no game art: sprites, map, icons, fonts and text are read from your own game files. Monster Sanctuary is by Moi Rai Games.
+Code: GPL-3.0-or-later.
 
-Limits: English text only. Map icons are drawn at their native size; zoom in to read them. Item lists and the Keeper Duel's first-turn rows keep the game's compact layout, so their touch rows are smaller than the others.
+</details>
 
-Requires Eden Duo 1.3.2 or newer and the game updated to Ver 2.1.0.32 (update v524288).
+---
 
-By igawa6. Source: GPL-3.0-or-later. The companion ships no game art: sprites, map, icons, fonts and text are read from your own game files; those assets remain the property of their respective owners.
+<a id="my-time-at-sandrock"></a>
+
+## My Time at Sandrock
+
+<details>
+<summary>Screenshots and details</summary>
+
+`0100B63016916000` · game version 1.4.2 (update v851968) · companion 1.0.0
+
+| Today | Inventory | Social |
+|:---:|:---:|:---:|
+| <img src="screenshots/my-time-at-sandrock/today.png" width="300" alt="My Time at Sandrock: Today"> | <img src="screenshots/my-time-at-sandrock/inventory.png" width="300" alt="My Time at Sandrock: Inventory"> | <img src="screenshots/my-time-at-sandrock/social.png" width="300" alt="My Time at Sandrock: Social"> |
+
+The calendar, accepted missions, inventory, townsfolk and workshop progress on the second screen, read from the running game. Requires Eden Duo 1.4.0 or newer (runtime 25).
+
+- **Today and Mission.** The time, date and gold, the calendar with town events, machine status, and your accepted missions with their objectives, required items and deadlines.
+- **Inventory and Ingredients.** Bag and loaded storage counts, item details, and the cooking recipes you know with their materials.
+- **Social.** The townsfolk you have met, relationship progress, the daily Chat and Gift status, birthdays and the gift preferences you have discovered. In dialogue, a card shows who is speaking.
+- **Workshop and Handbook.** Workshop rankings and your level, and the blueprints you have unlocked with the materials you own.
+- **Map.** Your position outdoors and the terrain you have explored, drawn from your own game files and save.
+- **Settings.** Show the clock or the mission tracker on the top screen, the dialogue card, haptics and reduced motion. The choices are kept between sessions.
+- **Limits.** Landscape and portrait layouts. Game version 1.4.2 only; other builds are refused. Tested on an AYN Thor.
+
+The companion ships no game art and no game text: maps, portraits, icons, fonts and text are read from your own game files. My Time at Sandrock is by Pathea Games.
+Code: GPL-3.0-or-later.
+
+</details>
+
+---
+
+<a id="resident-evil-4"></a>
+
+## Resident Evil 4
+
+<details>
+<summary>Screenshots and details</summary>
+
+`010099A00BC1E000` · game version 1.0.2 (update v131072) · companion 1.0.0
+
+| Field map | Attache Case | Key Items |
+|:---:|:---:|:---:|
+| <img src="screenshots/resident-evil-4/field.png" width="300" alt="Resident Evil 4: Field map"> | <img src="screenshots/resident-evil-4/case.png" width="300" alt="Resident Evil 4: Attache Case"> | <img src="screenshots/resident-evil-4/key-items.png" width="300" alt="Resident Evil 4: Key Items"> |
+
+The field map, your weapons and your Attache Case on the second screen, so the top screen stays on the game. Requires Eden Duo 1.4.0 or newer (runtime 25).
+
+- **Field map.** The village, castle, island and Separate Ways rooms in their native placement, with your live position and facing. The legend follows the game's map: doors Open, Locked or Have key, rooms Entered, Not entered or Sealed, destination and typewriters. Pan and zoom.
+- **Treasures and medallions.** Treasure and blue medallion markers follow the game's own treasure maps and progress. A setting hides them until you want them.
+- **Weapon slots.** Four slots next to the map. Hold a slot to pick an owned weapon or clear it, drag one onto another to swap, tap to equip. Equipping goes through the game's own weapon refresh and only when the game allows it.
+- **Ammo.** Loaded ammo for the weapons it is proven for, and reserve counts where supported. Other weapons show unavailable rather than a guess.
+- **Case and Key Items.** The Attache Case with its live capacity, item positions and rotations, item pictures and names. Key Items lists your keys and treasures by category.
+- **Ashley.** A Wait or Follow button appears when the game lets you give the command.
+- **Settings.** Show the top screen's Leon, Ashley and ammo HUD again, show treasures and medallions, haptics and reduced motion. In the shooting range the page is dimmed and slot equip is refused.
+- **Limits.** Mercenaries shows unavailable. Separate Ways room pictures load as you enter a room, so a revisited room can take a moment to draw. The largest Attache Case keeps the game's proportions, so its cells are small. Game version 1.0.2 only; other builds are refused. Tested on an AYN Thor.
+
+The companion ships no game art: the map, item pictures, icons, item names, fonts and text are read from your own game files. Its buttons and markers are its own art.
+Code: GPL-3.0-or-later.
 
 </details>
 
