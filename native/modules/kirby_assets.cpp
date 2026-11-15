@@ -585,6 +585,33 @@ std::optional<std::u32string> MsbtText(std::span<const u8> s, std::string_view l
     return out;
 }
 
+std::vector<std::string> MsbtLabels(std::span<const u8> s) {
+    // (the label table walked as MsbtRuns walks it)
+    std::vector<std::string> out;
+    if (!Magic(s, "MsgStdBn") || s.size() < 0x20 || U16(s, 8) != 0xFEFF)
+        return out;
+    std::span<const u8> lbl;
+    for (u64 at = 0x20, n = U16(s, 0xE); n > 0 && Fits(s, at, 0x10); --n) {
+        const u64 size = U32(s, at + 4);
+        if (!Fits(s, at + 0x10, size))
+            return out;
+        if (Magic(s.subspan(at), "LBL1"))
+            lbl = s.subspan(at + 0x10, size);
+        at = (at + 0x10 + size + 15) & ~u64{15};
+    }
+    for (u32 g = 0, groups = U32(lbl, 0); g < groups && Fits(lbl, 4 + u64{g} * 8, 8); ++g) {
+        u64 off = U32(lbl, 4 + u64{g} * 8 + 4);
+        for (u32 k = U32(lbl, 4 + u64{g} * 8); k > 0 && Fits(lbl, off, 1); --k) {
+            const u8 len = lbl[off];
+            if (!Fits(lbl, off + 1, len + 4u))
+                return out;
+            out.emplace_back(reinterpret_cast<const char*>(lbl.data() + off + 1), len);
+            off += 1 + len + 4;
+        }
+    }
+    return out;
+}
+
 std::optional<Image> DecodeBntx(std::span<const u8> source, std::string_view texture) {
     const auto b = BntxView(source);
     for (const auto& t : Textures(b))

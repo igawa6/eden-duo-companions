@@ -2562,7 +2562,7 @@ struct Module {
                     const auto& p = KirbyColour::Presets[static_cast<std::size_t>(i)];
                     // (smaller past three, to fit the panel)
                     cans.push_back(KirbyColour::Spray(p, colours.size() <= 3 ? 8 : 6));
-                    names.emplace_back(KirbyColour::NameIn(p, f[1]));
+                    names.emplace_back(KirbyColour::NameIn(p, f[1], romfs));
                 }
             if (names.empty())
                 return std::nullopt;
@@ -7559,7 +7559,7 @@ struct Module {
             const auto& p = preset(f[2]);
             const auto icon = src.texture("lyt/StaffCredit/PartsLang/Lang/PositionIcon05^u");
             const auto kirby = icon ? KirbyColour::FilmKirby(*icon, p) : std::nullopt;
-            const std::u32string name{KirbyColour::NameIn(p, f[1])};
+            const std::u32string name{KirbyColour::NameIn(p, f[1], romfs)};
             const auto rgb = [](KirbyColour::Srgb c) { return KirbyPaint::Rgb{static_cast<float>(c.r), static_cast<float>(c.g), static_cast<float>(c.b)}; };
             return KirbyModes::ColourHeader(src, name, rgb(p.label), rgb(p.shoes), kirby ? &*kirby : nullptr);
         }

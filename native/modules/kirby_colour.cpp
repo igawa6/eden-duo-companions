@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <optional>
+#include <string>
 #include <vector>
 
 namespace KirbyColour {
@@ -184,13 +186,39 @@ Srgb OutlineOf(Srgb skin) {
     return {ch(r), ch(g), ch(b)};
 }
 
-std::u32string_view NameIn(const Preset& p, std::string_view language) {
+namespace {
+// a mask character's name as the game spells it in `language`: the Name/Omen.msbt label whose English text is the
+// preset's English name, read in that language's own file
+std::optional<std::u32string> OmenName(const Preset& p, std::string_view language, const KirbyAssets::RomfsReader& read) {
+    if (!read)
+        return std::nullopt;
+    const auto local = read("/msg/Ark/" + std::string{language} + "/Name/Omen.msbt");
+    if (!local)
+        return std::nullopt;
+    for (const char* english : {"US_English", "EU_English"}) {
+        const auto en = read("/msg/Ark/" + std::string{english} + "/Name/Omen.msbt");
+        if (!en)
+            continue;
+        for (const auto& label : KirbyAssets::MsbtLabels(*en))
+            if (KirbyAssets::MsbtText(*en, label) == p.english) {
+                auto name = KirbyAssets::MsbtText(*local, label);
+                return name && !name->empty() ? name : std::nullopt;
+            }
+    }
+    return std::nullopt;
+}
+} // namespace
+
+std::u32string NameIn(const Preset& p, std::string_view language, const KirbyAssets::RomfsReader& read) {
     if (language.find("Italian") != std::string_view::npos)
-        return p.italian;
+        return std::u32string{p.italian};
     for (const auto& n : LocalNames)
-        if (n.key == p.key && language.find(n.language) != std::string_view::npos)
-            return n.name;
-    return p.english;
+        if (n.key == p.key && language.find(n.language) != std::string_view::npos) {
+            if (!n.name.empty())
+                return std::u32string{n.name};
+            return OmenName(p, n.language, read).value_or(std::u32string{p.english});
+        }
+    return std::u32string{p.english};
 }
 
 // a rainbow outline's can: its shoes' band and rims in the rainbow, red to violet around the can

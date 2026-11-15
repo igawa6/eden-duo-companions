@@ -30,6 +30,8 @@ std::optional<Bytes> SarcMember(std::span<const std::uint8_t> sarc, std::string_
 std::optional<Image> DecodeBntx(std::span<const std::uint8_t> bntx, std::string_view texture);
 /// Text of one MSBT label, control tags dropped.
 std::optional<std::u32string> MsbtText(std::span<const std::uint8_t> msbt, std::string_view label);
+/// Every label of an MSBT, in its label table's order (empty when it is not one).
+std::vector<std::string> MsbtLabels(std::span<const std::uint8_t> msbt);
 /// The same text in runs of one colour (0xRRGGBB from the colour tags; 0 = the pane's own). With `glyphs`,
 /// the size tags (0.2, percent) start runs of their own scale and the button tags become the button font's
 /// private-use characters: 4.n its glyph U+F0xx, 7.n the action's default button (A, B, X, Y = U+F000..F003).

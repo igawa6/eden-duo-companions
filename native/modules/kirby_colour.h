@@ -127,70 +127,66 @@ inline constexpr std::array<Preset, 86> Presets{{
 }};
 constexpr std::size_t Slots = Presets.size();
 
-// names in the game's other languages where they differ from the English one, by the language's msg folder
-// the mask characters' own (Name/Omen.msbt), Hypernova's, and the Vuoto spray's,
-// Hollow Knight's (its Brazilian release: O Cavaleiro Vazio)
+// where a preset's name differs in the game's other languages, by the language's msg folder. The mask characters'
+// names are the game's own: read at run time from the player's Name/Omen.msbt, by the label whose English text is the
+// preset's English name (KirbyColour::NameIn). The others are other games' characters' names (Hollow Knight's
+// Brazilian release: O Cavaleiro Vazio).
 struct LocalName {
     std::string_view key, language;
-    std::u32string_view name;
+    std::u32string_view name{}; // empty: the game's own, from Name/Omen.msbt
 };
-inline constexpr std::array<LocalName, 53> LocalNames{{
-    {"dedede", "EU_French", U"Roi DaDiDou"},
-    {"kine", "EU_French", U"Ken"},
-    {"marx", "EU_French", U"Max"},
-    {"daroach", "EU_French", U"Desroches"},
-    {"zan", "EU_French", U"Zan Pertuisane"},
-    {"nova", "EU_French", U"Comète Nova"},
-    {"dedede", "US_French", U"Roi Dadidou"},
-    {"kine", "US_French", U"Ken"},
-    {"marx", "US_French", U"Max"},
-    {"daroach", "US_French", U"Desroches"},
-    {"zan", "US_French", U"Zan Pertuisane"},
-    {"nova", "US_French", U"Comète Nova"},
-    {"dedede", "EU_German", U"König Dedede"},
-    {"metaknight", "EU_German", U"Meta-Knight"},
-    {"kawasaki", "EU_German", U"Koch Kawasaki"},
-    {"marx", "EU_German", U"Max"},
-    {"susie", "EU_German", U"Susi"},
-    {"francisca", "EU_German", U"Franziska"},
-    {"flamberge", "EU_German", U"Flammberga"},
-    {"zan", "EU_German", U"Partisanne"},
-    {"galacta", "EU_German", U"Ultra-Knight"},
-    {"morpho", "EU_German", U"Morpho-Knight"},
-    {"nova", "EU_German", U"Komet NOVA"},
-    {"dedede", "EU_Spanish", U"Rey Dedede"},
-    {"magolor", "EU_Spanish", U"Maglor"},
-    {"kawasaki", "EU_Spanish", U"Cocinero Kawasaki"},
-    {"taranza", "EU_Spanish", U"Taraña"},
-    {"susie", "EU_Spanish", U"Susi"},
-    {"nova", "EU_Spanish", U"Cometa Nova"},
-    {"dedede", "US_Spanish", U"Rey Dedede"},
-    {"magolor", "US_Spanish", U"Maglor"},
-    {"kawasaki", "US_Spanish", U"Cocinero Kawasaki"},
-    {"taranza", "US_Spanish", U"Taraña"},
-    {"susie", "US_Spanish", U"Susi"},
-    {"nova", "US_Spanish", U"Cometa Nova"},
-    {"dedede", "US_Portuguese", U"Rei Dedede"},
-    {"coo", "US_Portuguese", U"Coru"},
-    {"kawasaki", "US_Portuguese", U"Mestre-cuca Kawasaki"},
-    {"taranza", "US_Portuguese", U"Tarângela"},
-    {"susie", "US_Portuguese", U"Susi"},
-    {"nova", "US_Portuguese", U"Cometa Nova"},
-    {"dedede", "EU_Dutch", U"koning Dedede"},
-    {"kawasaki", "EU_Dutch", U"Kok Kawasaki"},
+inline constexpr std::array<LocalName, 47> LocalNames{{
+    {"dedede", "EU_French"},
+    {"kine", "EU_French"},
+    {"marx", "EU_French"},
+    {"daroach", "EU_French"},
+    {"zan", "EU_French"},
+    {"nova", "EU_French"},
+    {"dedede", "US_French"},
+    {"kine", "US_French"},
+    {"marx", "US_French"},
+    {"daroach", "US_French"},
+    {"zan", "US_French"},
+    {"nova", "US_French"},
+    {"dedede", "EU_German"},
+    {"metaknight", "EU_German"},
+    {"kawasaki", "EU_German"},
+    {"marx", "EU_German"},
+    {"susie", "EU_German"},
+    {"francisca", "EU_German"},
+    {"flamberge", "EU_German"},
+    {"zan", "EU_German"},
+    {"galacta", "EU_German"},
+    {"morpho", "EU_German"},
+    {"nova", "EU_German"},
+    {"dedede", "EU_Spanish"},
+    {"magolor", "EU_Spanish"},
+    {"kawasaki", "EU_Spanish"},
+    {"taranza", "EU_Spanish"},
+    {"susie", "EU_Spanish"},
+    {"nova", "EU_Spanish"},
+    {"dedede", "US_Spanish"},
+    {"magolor", "US_Spanish"},
+    {"kawasaki", "US_Spanish"},
+    {"taranza", "US_Spanish"},
+    {"susie", "US_Spanish"},
+    {"nova", "US_Spanish"},
+    {"dedede", "US_Portuguese"},
+    {"coo", "US_Portuguese"},
+    {"kawasaki", "US_Portuguese"},
+    {"taranza", "US_Portuguese"},
+    {"susie", "US_Portuguese"},
+    {"nova", "US_Portuguese"},
+    {"dedede", "EU_Dutch"},
+    {"kawasaki", "EU_Dutch"},
     {"hollow", "US_Portuguese", U"Vazio"},
     {"sylveon", "EU_French", U"Nymphali"},
     {"sylveon", "US_French", U"Nymphali"},
     {"sylveon", "EU_German", U"Feelinara"},
-    {"hypernova", "EU_French", U"Méganova"},
-    {"hypernova", "US_French", U"Méganova"},
-    {"hypernova", "EU_German", U"Meganova"},
-    {"hypernova", "EU_Spanish", U"Hipernova"},
-    {"hypernova", "US_Spanish", U"Hipernova"},
-    {"hypernova", "US_Portuguese", U"Hipernova"},
 }};
-/// The preset's name in the game's language (its msg folder, e.g. EU_Italian).
-std::u32string_view NameIn(const Preset& p, std::string_view language);
+/// The preset's name in the game's language (its msg folder, e.g. EU_Italian); a mask character's from the player's
+/// romfs through `read`, the English name when that cannot be read.
+std::u32string NameIn(const Preset& p, std::string_view language, const KirbyAssets::RomfsReader& read);
 
 // Magoland's Kirby (the gfx/Yy models) takes his colours from params of his materials, BodyC and OutlineC (whence its
 // outline): cheek, foot and body (linear), BodyC's also in shadow (the pink's CheekColor_NoKey8, Foot/BodyColor_NoKey7;

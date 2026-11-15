@@ -1417,3 +1417,10 @@ dsmod_add_module(dsmod-kirby EXCLUDE_FROM_ALL
     SOURCES ${KIRBY_MODULE_SOURCES}
     EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
     INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder" "${WONDER_ZSTD_LIB}" "${KIRBY_LZ4_LIB}")
+if(BUILD_TESTING AND NOT ANDROID)
+    # the colour presets' names: the mask characters' from Name/Omen.msbt (synthetic files, no game data)
+    dsmod_add_test(dsmod-kirby-names KEEP_ASSERTS
+        SOURCES kirby_names_test.cpp kirby_colour.cpp kirby_assets.cpp
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp" ${WONDER_ZSTD_SOURCES} ${KIRBY_LZ4_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder" "${WONDER_ZSTD_LIB}" "${KIRBY_LZ4_LIB}")
+endif()
