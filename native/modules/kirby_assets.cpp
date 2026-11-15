@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright 2026 Eden DSMod fork
+// SPDX-FileCopyrightText: Copyright 2026 Fab
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SARC, BNTX, deswizzle and BC decode adapted from eden-duo-companions
 // native/modules/wonder_assets.cpp (Eden DSMod fork); .cmp (zstd / LZ4) is Kirby's own wrapper.

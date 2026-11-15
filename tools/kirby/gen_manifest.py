@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: Copyright 2026 Fab
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Generate packages/KirbysReturnToDreamLandDeluxe/dualscreen/manifest.json and its effect plans. gen_manifest.py [--dev]"""
 import argparse
 import json

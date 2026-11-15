@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Copyright 2026 Fab
 // SPDX-License-Identifier: GPL-3.0-or-later
 // The page cut by a sword and broken into shards (internal to the module).
 #pragma once

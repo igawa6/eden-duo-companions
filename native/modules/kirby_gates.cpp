@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Copyright 2026 Fab
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "kirby_gates.h"
 

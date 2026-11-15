@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Copyright 2026 Fab
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Kirby's colours: the presets the colour menu offers, their spray cans (our own pixel art) and Kirby's picture in
 // each colour (the staff roll's film icon, recoloured from the player's own files).

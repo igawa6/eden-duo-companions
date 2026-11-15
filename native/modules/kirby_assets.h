@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright 2026 Eden DSMod fork
+// SPDX-FileCopyrightText: Copyright 2026 Fab
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Adapted from eden-duo-companions native/modules/wonder_assets.h (Eden DSMod fork).
 #pragma once

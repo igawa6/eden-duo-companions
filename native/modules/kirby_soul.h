@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Copyright 2026 Fab
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Magolor Soul's attacks crossing the Arena page (internal to the module): the game's own effect textures
 // (MahoroaBattle2.ptcl) shaped into the bottom screen's tornadoes.

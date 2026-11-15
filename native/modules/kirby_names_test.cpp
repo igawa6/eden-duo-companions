@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Fab
+// SPDX-FileCopyrightText: Copyright 2026 Eden DSMod fork
 // SPDX-License-Identifier: GPL-3.0-or-later
 // The colour presets' names in the game's languages: the mask characters' names read from Name/Omen.msbt of the
 // player's romfs. Synthetic MSBT files built here; no game data.

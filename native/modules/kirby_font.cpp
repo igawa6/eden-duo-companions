@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright 2026 Eden DSMod fork
+// SPDX-FileCopyrightText: Copyright 2026 Fab
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Rasteriser adapted from eden-duo-companions native/modules/wonder_font.cpp (Eden DSMod fork).
 
