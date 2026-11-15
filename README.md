@@ -10,7 +10,7 @@
 
 ---
 
-A companion turns the second screen of a dual-screen Android handheld into a live, touchable panel for the game you are playing: maps, menus, status and more, read from the running game. Each companion ships as a `.dsmod.zip` package and is installed from the game's **Add-ons** menu in Eden Duo.
+A companion turns the second screen of a dual-screen Android handheld into a live, touchable panel for the game you are playing: maps, menus, status and more, read from the running game. Since Eden Duo 1.4.0 a companion can also share a single screen with the game, so a phone, tablet or foldable works too. Each companion ships as a `.dsmod.zip` package and is installed from the game's **Add-ons** menu in Eden Duo.
 
 This repository holds the companion source code, packages, documentation and screenshots. The emulator itself lives in [Eden Duo](https://github.com/igawa6/eden-duo).
 
@@ -68,7 +68,7 @@ Each companion supports exact game version in **Patch Version**. It checks the r
 2. Update the game to the version in **Patch Version**.
 3. Download the game's `.dsmod.zip` from the table above. Do not rename it; the file name carries the title ID, name and version.
 4. In Eden Duo, long-press the game, open **Add-ons** and tap **Install**. In the **Content type** dialog choose **Dual screen mods**, tap **OK**, then select the file. It appears in the Add-ons list as, for example, `Persona5RoyalDS-1.0.0`.
-5. Launch the game. The companion appears on the second screen once gameplay starts.
+5. Launch the game. The companion appears on the second screen, or next to the game on a single screen, once gameplay starts.
 
 ![Installing a companion: Add-ons, Install, Dual screen mods](screenshots/eden-duo/addons_dualscreen.png)
 
@@ -955,17 +955,9 @@ Code: GPL-3.0-or-later.
 
 `0100A0F00DA68000` · game version 2.1.0.32 (update v524288) · companion 1.0.0
 
-| Exploration | Map | Team |
+| Map | Combat | Team |
 |:---:|:---:|:---:|
-| <img src="screenshots/monster-sanctuary/exploration.png" width="300" alt="Monster Sanctuary: Exploration"> | <img src="screenshots/monster-sanctuary/map.png" width="300" alt="Monster Sanctuary: Map"> | <img src="screenshots/monster-sanctuary/team.png" width="300" alt="Monster Sanctuary: Team"> |
-
-| Combat | Items | Target |
-|:---:|:---:|:---:|
-| <img src="screenshots/monster-sanctuary/battle.png" width="300" alt="Monster Sanctuary: Combat"> | <img src="screenshots/monster-sanctuary/items.png" width="300" alt="Monster Sanctuary: Items"> | <img src="screenshots/monster-sanctuary/target.png" width="300" alt="Monster Sanctuary: Target"> |
-
-| Title |
-|:---:|
-| <img src="screenshots/monster-sanctuary/title.png" width="300" alt="Monster Sanctuary: Title"> |
+| <img src="screenshots/monster-sanctuary/map.png" width="300" alt="Monster Sanctuary: Map"> | <img src="screenshots/monster-sanctuary/battle.png" width="300" alt="Monster Sanctuary: Combat"> | <img src="screenshots/monster-sanctuary/team.png" width="300" alt="Monster Sanctuary: Team"> |
 
 Your team, the map and the battle commands on the second screen, drawn in the game's own windows, so the top screen stays on the Sanctuary. Requires Eden Duo 1.3.2 or newer (runtime 22).
 
