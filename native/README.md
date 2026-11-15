@@ -81,6 +81,7 @@ not require a separately distributed `libc++_shared.so`. ACNH diagnostics defaul
 | `dsmod-ce` | `0100C510166F0000.so` |
 | `dsmod-ot0` (development, runtime 22) | `01005270232F2000.so` |
 | `dsmod-cotl` (runtime 22) | `01002E7016C46000.so` |
+| `dsmod-kirby` (runtime 17; research tools with `-DEDEN_KIRBY_BUILD_DEV=ON`, off by default) | `01006B601380E000.so` |
 
 Strip each platform's library with the matching toolchain's `llvm-strip --strip-all` and pass
 only those libraries to [`tools/build_release.sh`](../tools/build_release.sh), as documented in

@@ -46,6 +46,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 26 | [Pokémon Sword](#pokemon-sword) | `0100ABF008968000` | 1.3.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-sword-1.0.2) | 🥇<br><a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a> |
 | 27 | [Pokémon Shield](#pokemon-shield) | `01008DB008C2C000` | 1.3.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-shield-1.0.2) | 🥇<br><a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a> |
 | 28 | [Cult of the Lamb](#cult-of-the-lamb) | `01002E7016C46000` | 1.5.27, 1.5.28 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/cult-of-the-lamb-1.1.0) | ⭐<br><a href="https://github.com/AlterDigga"><img src="https://img.shields.io/badge/AlterDigga-181717?style=flat-square&logo=github&logoColor=white" alt="AlterDigga"></a> |
+| 29 | [Kirby's Return to Dream Land Deluxe](#kirbys-return-to-dream-land-deluxe) | `01006B601380E000` | 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/kirbys-return-to-dream-land-deluxe-1.0.0) | ⭐<br><img src="https://img.shields.io/badge/fabvx-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="fabvx"> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -906,6 +907,42 @@ Code: GPL-3.0-or-later. Tested on an AYN Thor.
 
 ---
 
+<a id="kirbys-return-to-dream-land-deluxe"></a>
+
+## Kirby's Return to Dream Land Deluxe
+
+⭐ Contributed by Fab (fabvx on Discord).
+
+<details>
+<summary>Screenshots and details</summary>
+
+`01006B601380E000` · game version 1.0.0 · companion 1.0.0
+
+| File select | Stage | Magolor Epilogue |
+|:---:|:---:|:---:|
+| <img src="screenshots/kirbys-return-to-dream-land-deluxe/file-select.png" width="300" alt="Kirby's Return to Dream Land Deluxe: File select"> | <img src="screenshots/kirbys-return-to-dream-land-deluxe/stage.png" width="300" alt="Kirby's Return to Dream Land Deluxe: Stage"> | <img src="screenshots/kirbys-return-to-dream-land-deluxe/magolor-epilogue.png" width="300" alt="Kirby's Return to Dream Land Deluxe: Magolor Epilogue"> |
+
+The game's own menus, maps and boss effects on the second screen, from the title screen to the staff roll. Requires Eden Duo 1.1.0 or newer (runtime 17).
+
+- **Title and menus.** A tappable Start, the three save files with Kirby's face and each file's completion, then Story, Extra, the Magolor Epilogue, the Arena, the True Arena and Merry Magoland.
+- **World map.** Pop Star and Halcandra drawn from the game's models. Tap a world to go straight there.
+- **Stage.** Lives, Point Stars, Energy Spheres, the souvenir, amiibo, the battery and a Pause button, with the copy ability's description and moves from the game's pause pages. Options: a still or animated background and the top screen's HUD counters.
+- **Kirby's colours.** 86 colour presets, put on with a spray can. Each save file keeps its own, and more unlock through the story. The colour also shows on the world map and in Merry Magoland.
+- **Boss fights.** The bottom screen shakes, is cut and shatters with Grand Doomer's and Magolor's attacks. Magolor Soul's second phase plays on the True Arena page.
+- **Magolor Epilogue.** Magic moves by technique level, the gauge buttons, options and the Master Crown finale.
+- **Arena and True Arena.** Kirby and the next boss drawn from the game's models, with the round and the time.
+- **Merry Magoland.** Minigames (tap a door or the globe to start one), Missions (pin up to five per file), Masks (wear one with a tap) and Stamp Cards. During an attraction, its ticket, the pinned missions and the Magoland Tour's rounds.
+- **Films, menus and credits.** Cutscenes darken the page behind the logo, Past Adventures, the Jukebox and the Theater close a curtain, and the companion's credits roll over the game's staff roll.
+- **Changes to the game.** The companion includes optional cheats that change the game. The stage cheats give Kirby any copy or super ability. The Epilogue cheats fill Magolor's magic gauge and add magic points, and these are saved with your file the next time the game saves. It also adds two moves the game does not have to the Magolor Epilogue, Heal and Magolor Blast.
+- **Limits.** Game version 1.0.0 only; other builds are refused. Tested on Eden Duo 1.3.0 on desktop and by beta testers on an AYN Thor.
+
+The companion ships no game art: pictures, models, fonts and text are read from your own game files. The battery icon is its own art.
+Code: GPL-3.0-or-later.
+
+</details>
+
+---
+
 ## Contribute to Another Game
 
 Anyone can write a companion for another game, without rebuilding Eden Duo. Start with [**Contribute to Another Game**](docs/CONTRIBUTE.md): what a companion is, what the runtime offers, the reverse-engineering tools, which documents to read in which order, and how to share your companion.
@@ -954,4 +991,4 @@ These companions were developed with AI assistance. The companion modules, the r
 
 ## License
 
-Companion packages and tools are free software, released under the [GNU General Public License v3.0](LICENSE). They are not affiliated with or endorsed by Nintendo, Atlus, SEGA, Sukeban Games, Ysbryd Games, the CTGP-DX team, or the Eden project. All trademarks belong to their respective owners.
+Companion packages and tools are free software, released under the [GNU General Public License v3.0](LICENSE). They are not affiliated with or endorsed by Nintendo, HAL Laboratory, Atlus, SEGA, Sukeban Games, Ysbryd Games, the CTGP-DX team, or the Eden project. All trademarks belong to their respective owners.
