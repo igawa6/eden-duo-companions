@@ -5165,10 +5165,13 @@ struct Module {
         want("epirbtn/" + title_dir + "/pause");
         for (int t = 0; t < 3; ++t)
             want("epitab/" + title_dir + "/" + std::to_string(t));
+        // (named arrays: a range-for over a choice of two initializer lists would read their arrays after they end)
+        static constexpr std::array<int, 2> LearntStates{1, 2};
+        static constexpr std::array<int, 1> LockedStates{0};
         for (int which = 0; which < 4; ++which)
             for (const int state : (which == 0 ? save->cannon : which == 1 ? save->hole : which == 2 ? save->heal : save->blast)
-                                       ? std::initializer_list<int>{1, 2}
-                                       : std::initializer_list<int>{0})
+                                       ? std::span<const int>{LearntStates}
+                                       : std::span<const int>{LockedStates})
                 want("episp/" + title_dir + "/" + std::to_string(which) + "/" + std::to_string(state));
         want("epirbtn/" + title_dir + "/continue");
         // every popup the file has still to show, learnt or not, so it shows whole when its time comes

@@ -160,8 +160,8 @@ std::optional<Image> Missions(const KirbyModes::Sources& src, const std::u32stri
     const std::vector<Ring> yellow{{{1, 213 / 255.0f, 0, 1}, 2 * S}};
     const auto number = [&](const std::u32string& text, float high, float x) {
         const auto font = Font(src, CountFont, high / 1.07f);
-        const auto im = font ? Styled({{text, font, std::nullopt}}, Fill, Fill, White, 2.5f * S, 420, 140, Align::Left, {}, yellow,
-                                      0.13f * high / Squeeze)
+        const std::vector<Run> runs{{text, font, std::nullopt}};
+        const auto im = font ? Styled(runs, Fill, Fill, White, 2.5f * S, 420, 140, Align::Left, {}, yellow, 0.13f * high / Squeeze)
                              : std::nullopt;
         if (!im)
             return;
@@ -510,9 +510,10 @@ std::optional<Image> MissionRow(const KirbyModes::Sources& src, const std::u32st
     const Rgb c{ink.r * 255, ink.g * 255, ink.b * 255};
     // (squeezed into T_MissionText's 690 units when longer, as the game's text panes)
     constexpr float Box = 690 * S;
-    const auto text = selected ? Styled({{title, font, std::nullopt}}, c, c, {255, 255, 255}, 2.5f, static_cast<std::uint32_t>(Box * 2), H, Align::Left,
+    const std::vector<Run> runs{{title, font, std::nullopt}};
+    const auto text = selected ? Styled(runs, c, c, {255, 255, 255}, 2.5f, static_cast<std::uint32_t>(Box * 2), H, Align::Left,
                                         {1.5f, 2.5f, Rgba{0.35f, 0.25f, 0.1f, 0.35f}})
-                               : Styled({{title, font, std::nullopt}}, c, c, c, 0, static_cast<std::uint32_t>(Box * 2), H, Align::Left);
+                               : Styled(runs, c, c, c, 0, static_cast<std::uint32_t>(Box * 2), H, Align::Left);
     if (text) {
         float right = 0;
         for (std::uint32_t y = 0; y < text->height; ++y)
