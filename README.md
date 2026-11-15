@@ -47,9 +47,9 @@ This repository holds the companion source code, packages, documentation and scr
 | 27 | [Pokémon Shield](#pokemon-shield) | `01008DB008C2C000` | 1.3.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-shield-1.0.2) | 🥇<br><a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a> |
 | 28 | [Cult of the Lamb](#cult-of-the-lamb) | `01002E7016C46000` | 1.5.27, 1.5.28 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/cult-of-the-lamb-1.1.0) | ⭐<br><a href="https://github.com/AlterDigga"><img src="https://img.shields.io/badge/AlterDigga-181717?style=flat-square&logo=github&logoColor=white" alt="AlterDigga"></a> |
 | 29 | [Kirby's Return to Dream Land Deluxe](#kirbys-return-to-dream-land-deluxe) | `01006B601380E000` | 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/kirbys-return-to-dream-land-deluxe-1.0.0) | ⭐<br><img src="https://img.shields.io/badge/fabvx-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="fabvx"> |
-| 30 | [Monster Sanctuary](#monster-sanctuary) | `0100A0F00DA68000` | 2.1.0.32 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/monster-sanctuary-1.0.0) | |
-| 31 | [My Time at Sandrock](#my-time-at-sandrock) | `0100B63016916000` | 1.4.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/my-time-at-sandrock-1.0.0) | |
-| 32 | [Resident Evil 4](#resident-evil-4) | `010099A00BC1E000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/resident-evil-4-1.0.0) | |
+| 30 | [Monster Sanctuary](#monster-sanctuary) | `0100A0F00DA68000` | 2.1.0.32 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/monster-sanctuary-1.0.0) | 🥇<br><a href="https://ko-fi.com/igawa6/commissions"><img src="https://img.shields.io/badge/Anon.-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Anon."></a> |
+| 31 | [My Time at Sandrock](#my-time-at-sandrock) | `0100B63016916000` | 1.4.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/my-time-at-sandrock-1.0.0) | 🥇<br><a href="https://ko-fi.com/U7U71VTM7K"><img src="https://img.shields.io/badge/Helen_Tracy-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Helen Tracy"></a> |
+| 32 | [Resident Evil 4](#resident-evil-4) | `010099A00BC1E000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/resident-evil-4-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/4rd-Poll-Next-Switch-Game-on-Eden-Duo-I7Z428XZNI"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -950,6 +950,8 @@ Code: GPL-3.0-or-later.
 
 ## Monster Sanctuary
 
+🥇 <a href="https://ko-fi.com/igawa6/commissions"><img src="https://img.shields.io/badge/Anon.-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Anon."></a>
+
 <details>
 <summary>Screenshots and details</summary>
 
@@ -982,6 +984,8 @@ Code: GPL-3.0-or-later.
 
 ## My Time at Sandrock
 
+🥇 <a href="https://ko-fi.com/U7U71VTM7K"><img src="https://img.shields.io/badge/Helen_Tracy-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Helen Tracy"></a>
+
 <details>
 <summary>Screenshots and details</summary>
 
@@ -1011,6 +1015,8 @@ Code: GPL-3.0-or-later.
 <a id="resident-evil-4"></a>
 
 ## Resident Evil 4
+
+🗳️ <a href="https://ko-fi.com/polls/4rd-Poll-Next-Switch-Game-on-Eden-Duo-I7Z428XZNI"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a>
 
 <details>
 <summary>Screenshots and details</summary>
