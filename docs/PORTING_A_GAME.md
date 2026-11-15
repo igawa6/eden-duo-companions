@@ -183,12 +183,26 @@ A value that cannot pass these steps is not published.
    or `settings` need 17; an analog stick vector or chord in a `button` action needs 20; the
    device/perf values or image `pan_bounds` need 21; a turned map (`view_rotate_bind`), a
    two-axis scroll region, `slant_deg` / `italic`, animated dynamic markers or `preload` need
-   22. The table of which
+   22; `@screen.*`, `canvas_alt` / `rect_alt`, or a `button` action's `L3` / `R3` need 25. The
+   table of which
    runtime added which key is in
    [PACKAGE_FORMAT.md §6](PACKAGE_FORMAT.md#6-runtime-history-and-min_runtime). An older runtime
    ignores keys it does not know and shows its update page only when `min_runtime` is higher
    than its own version.
-5. **Build** with this repository's package builder:
+5. **When to use the pane signals (runtime 25).** `@screen.pane_w` / `pane_h` /
+   `orientation` / `mode` ([PACKAGE_FORMAT.md §3.3](PACKAGE_FORMAT.md#33-value-types)) describe
+   the *companion's own pane*, not the game's screen or the device. Read them only to adapt your
+   OWN layout to a pane shape you did not design for — for example, a derived gate that switches
+   to a denser list when `@screen.orientation` is `"portrait"`, or a module that lays out
+   differently when `@screen.mode` is `"simulated"`. Prefer `canvas_alt` / `rect_alt`
+   ([PACKAGE_FORMAT.md §3.1](PACKAGE_FORMAT.md#31-scalars-parsemanifestjson), §3.5) for a
+   genuinely different layout on a narrow pane — the runtime switches canvases for you, debounced,
+   with your module state and current page untouched; reach for the raw pane values only for
+   finer adjustments `canvas_alt` cannot express (hiding one widget, re-ordering a scroll list).
+   Do not use them to detect Physical vs. Simulated for any purpose other than your own layout:
+   mode selection, "no companion" fallback and Off gating are host-only and not something a
+   package can or should influence.
+6. **Build** with this repository's package builder:
    ```sh
    python3 tools/build_dualscreen_package.py --package packages/<Game> --output out/ \
        --version 1.0.0 [--module android-arm64-v8a=<so> --module linux-x86_64=<so> --abi 1 --build-id <ID>]
@@ -319,6 +333,8 @@ env EDEN_VSYNC=0 EDEN_DSMOD_CMD=/tmp/run/cmd.in \
 | The device battery or FPS/speed/frametime values never show up | The host is older than runtime 21, or the manifest never writes out the `@device.` / `@perf.` key anywhere | Reference the key once in the manifest or data file so it is published; declare `"min_runtime": 21` |
 | A map ignores `view_rotate_bind` and always draws north-up | That host is older than runtime 22 | Declare `"min_runtime": 22` |
 | A scroll region only moves vertically, `scroll_follow` has no effect, and a `"payload": "$tap"` payload is always missing | That host is older than runtime 22, which ignores `axes`, `lock_axis`, `content_w`/`content_h`[`_bind`], `scroll_follow` and `"$tap"` | Declare `"min_runtime": 22` |
+| `@screen.*` never shows up, `canvas_alt` is always ignored, or a `button` action's `L3`/`R3` does nothing | That host is older than runtime 25, or (for `@screen.*`) the manifest/data file never writes the key anywhere so it is never published | Reference the `@screen.` key once so it is published; declare `"min_runtime": 25` |
+| A package hides part of its HUD (or the game's own) and it never comes back after the companion is ejected, collapsed or switched to Simulated and back | The hide was applied once and never re-checked against the companion's actual presence | **SDK rule:** gate every HUD-hide action on `__aux_present` (`get_i64("__aux_present")`, a module; or a `need_bind` / `enabled_bind` on the point it is read into, declaratively) — read it every tick the hide could still be in effect, not only once when it was first applied, so losing the companion (desktop window close, Android eject, mode switch) restores the HUD instead of leaving it hidden with nothing left to show it again |
 | "checksum mismatch; reinstall the package" | Module rebuilt without rebuilding the package | Rebuild with the builder, which rewrites the hashes |
 | Android installer rejects the zip | A non-`.so` file under `modules/`, an upper-case hash, or `package.json` ≠ manifest `module` | Move data files out of `modules/`; use the builder |
 | Direct `adb push` into the app's data dir fails, or files are unreadable | Ownership and permissions of shell-pushed files | Stage via `/data/local/tmp`, copy, then fix permissions; prefer the in-app installer |

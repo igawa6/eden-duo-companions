@@ -23,8 +23,12 @@ Parser locations (all in the [Eden Duo](https://github.com/igawa6/eden-duo) repo
 - `mod_load_plan.cpp`: `DiscoverModLoadPlan`, `ParseWrites`
 - `mod_input_tokens.h`: `InputTokens::ParseChord`, `ParseStick` (action `button` / `button_neg`
   chords and stick vectors, runtime 20)
-- `mod_host_values.h`/`.cpp`: `@device.*` / `@perf.*` values (runtime 21)
+- `mod_host_values.h`/`.cpp`: `@device.*` / `@perf.*` values (runtime 21), `@screen.*` pane
+  geometry (runtime 25)
 - `mod_view_default.h`: pan/zoom bound views and `pan_bounds` (`ClampPanAxis`, runtime 21)
+- `mod_redraw.cpp`: `SelectCanvasAspect`, `ModRuntime::SelectCanvas` / `ApplyCanvasVariant`
+  (`canvas_alt`, runtime 25)
+- `mod_actions.cpp`: `ParseButton` (adds `L3` / `R3` / `StickL` / `StickR`, runtime 25)
 - Android (`src/android/.../utils/DualScreenPackageInstaller.kt`):
   `DualScreenPackageInstaller.validateExtractedPackage`
 
@@ -112,6 +116,7 @@ cell means runtime 13 or earlier. A package that uses a key from runtime N shoul
 | `title_id` | string | — | | Optional for a declarative package; **required** with `module` |
 | `min_runtime` | uint / digit string | — | 11 | See §6 and [ARCHITECTURE.md §4](ARCHITECTURE.md#4-runtime-version-and-min_runtime) |
 | `canvas_w`, `canvas_h` | uint | 0 (panel size) | | Logical canvas; stretched to the panel |
+| `canvas_alt` | object | — | 25 | `{"w", "h", "when": "portrait" (default) \| "narrow"}`: a second canvas size the runtime switches to when it fits the companion pane better than `canvas_w`/`canvas_h` (`SelectCanvasAspect`). "portrait" switches only in a pane taller than wide; "narrow" also switches in a pane narrower, in aspect, than the default canvas while still wider than tall (a Simulated side-by-side column). Debounced ~150 ms. Absent, or a malformed object (missing/zero `w`/`h`), means no alternate canvas — behaviour is unaffected. See §3.5 / §3.6 `rect_alt` |
 | `background` | colour | — | | |
 | `poll_hz` | uint | 60 | | Legacy; the tick is fixed at 60 Hz |
 | `anim_hz` | number | 60 | | 1–240. At ≥60, animations publish every tick |
@@ -196,12 +201,16 @@ Names that binds, derived values and `$refs` can use:
 | `@game.seconds` | 16 | Whole seconds since the emulated system started. Same publishing rule as `@clock.*` |
 | `@device.battery_present`, `@device.battery_pct`, `@device.charging` | 21 | Device battery: present (1/0), level 0–100 (−1 when unknown or absent), charging (1/0). Read at most once a second on Android, every 10 s elsewhere. Published only when the manifest or data file mentions `@device.` (same rule as `@clock.*`) |
 | `@perf.fps`, `@perf.speed_pct`, `@perf.frametime_ms`, `@perf.frametime_x10` | 21 | Game FPS, emulation speed in percent, host time per emulated frame excluding waits (ms), and `frametime_ms` × 10 rounded (a `value` widget draws integers only). Computed over 500 ms windows, so they change at most twice a second; nothing is published before the first window. Published only when the manifest or data file mentions `@perf.`. A module reads every `@device.*` / `@perf.*` value through `get_i64` / `get_f64` regardless of whether the manifest names them (MODULE_GUIDE.md §1.3) |
+| `@screen.pane_w`, `@screen.pane_h` | 25 | The companion pane's own size in panel pixels (not the logical `canvas_w`/`canvas_h`): `AuxRouting::width`/`height`, the same values Fit letterboxes into. Updated every tick, no interval to wait out. Published only when the manifest or data file mentions `@screen.`; a module reads them through `get_i64` regardless |
+| `@screen.orientation`, `@screen.mode` | 25 | Text values: `orientation` is `"landscape"` (pane width ≥ height) or `"portrait"`; `mode` is `"physical"` (a real second display) or `"simulated"` (Stage 1 single-window dual screen). Read-only, best effort — `mode` reflects the *requested* dual-screen setting, not whether a real second display happened to win over it on this exact frame. Same publishing rule as `@screen.pane_w`; a module reads them through `get_text` (`@device.*` / `@perf.*` / `@screen.pane_*` have no `get_text` answer) |
 | `@nav.active`, `@nav.index`, `@nav.count`, `@nav.x`, `@nav.y`, `@nav.w`, `@nav.h` | 17 | Controller focus state (§3.17) |
 | `@chart:<key>` | 17 | Number of samples a chart widget has taken (§3.16) |
 | `@<counter>` | | Button-action counters |
 | `@fade:<name>` | | Fade progress |
 | `view_custom:<key>` | | Custom view state |
 | `@view_zoom:<id>`, `@view_pan_x:<id>`, `@view_pan_y:<id>` | 22 | A `pan_zoom` widget's view as drawn (zoom; pan in widget px at zoom 1, already clamped to `pan_bounds`), next to `view_custom:<id>`. A module reads them from `sample()` too, one tick behind (MODULE_GUIDE.md §1.3) |
+| `@view_touch_x:<id>`, `@view_touch_y:<id>` | 25 | The live finger of a `pan_zoom` gesture on that widget, in canvas px, while one is down -- for drawing an effect under the finger, not for panning (read-only). Absent (not published; a module's `get_i64` / `get_f64` fall back to its default) once the finger lifts or the gesture is cancelled. A module reads them the same one-tick-behind way as `@view_pan_x:<id>` / `@view_pan_y:<id>` |
+| `@view_touch_down:<id>` | 25 | 1 while a finger is down on that `pan_zoom` widget's gesture, else 0 -- always published/answered, unlike `@view_touch_x:<id>` / `@view_touch_y:<id>` above, so a reader can tell "no finger" from "finger at 0,0" |
 
 ### 3.4 Pages
 
@@ -228,6 +237,7 @@ any widget.
 | Key | Default | Since | Meaning |
 |---|---|---|---|
 | `rect` | — | | `[x, y, w, h]` in canvas pixels (exactly 4 numbers) |
+| `rect_alt` | unset | 25 | `[x, y, w, h]`: this widget's rect while the manifest's `canvas_alt` is the active canvas; unset keeps `rect` on both canvases. Swapped in and out atomically on a canvas switch (`ApplyCanvasVariant`); module state and the current page are untouched |
 | `id` | "" | | Target for anims, `origin`, `view_reset` and `nav_order`; names a chart's buffer |
 | `text`, `bind` | "" | | Literal text; published value |
 | `color`, `bg` | `#FFE6ECF2`, 0 | | Foreground and background |
@@ -257,12 +267,12 @@ any widget.
 | Type | Extra keys |
 |---|---|
 | `value` | `names` (index → string), `table`, `pad`, `div`, `mul`, `add`, `suffix`, `max_bind` / `max` / `max_const`, `max_sep`; `group`, `group_sep` (17, §3.14) |
-| `label` | `bind_text` (string point), `text_src` (`msbt:<alias>#<label>`), `text_bind` + `text_map` (int → text or `msbt:`), `wrap_width`, `max_lines`, `line_gap`, `icon_style`; with `auto_w` (17), `bg` and `pill` draw a box or capsule behind the text |
+| `label` | `bind_text` (string point), `text_src` (`msbt:<alias>#<label>`), `text_bind` + `text_map` (int → text or `msbt:`), `wrap_width` (since 25, also `wrap_width_alt`: the same width while the manifest's `canvas_alt` is the active canvas, swapped in and out alongside `rect_alt` by the same canvas switch and restored on the return — §3.5 `rect_alt`; unset keeps the literal `wrap_width` on both canvases), `max_lines`, `line_gap`, `icon_style`; with `auto_w` (17), `bg` and `pill` draw a box or capsule behind the text |
 | `rect` | `frame` (outline px, default 2), `pulse` |
 | `button` | `pill`; `border` (outline px, default 3, since 15), `text_inset` (a left-aligned caption's inset, default 12, since 15) |
 | `bar` | `bind`, `max_bind` / `max`; `frame` (outline px in `color`, default 2, `0` = none, since 15); `fill_dir`, `image` (16, §3.15) |
 | `pips` | `bind`, `max_bind` / `max`; `gap` (px between pips, since 15; default −1 = 8 for sprite pips, a third of a drawn pip); `tint`, `tint_bind`, `tint_colors` (16, §3.15) |
-| `image` | `src`, `src_bind`, `src_names`, `src_thresholds` (`[{le, src}]`), `src_format` (printf of the value), `src_rect` (normalised UV), `empty_src`, `empty_rect`, `fill_bind`, `flip_x`, `flip_y`, `spin` (deg/s), `shake`; `rotate`, `rotate_bind`, `pivot`, `scale_bind`, `tint`, `tint_bind`, `tint_colors`, `fill`, `slice` (16, §3.15) |
+| `image` | `src`, `src_bind`, `src_names`, `src_thresholds` (`[{le, src}]`), `src_format` (printf of the value), `src_rect` (normalised UV), `empty_src`, `empty_rect`, `fill_bind`, `flip_x`, `flip_y`, `spin` (deg/s), `shake`; `rotate`, `rotate_bind`, `pivot`, `scale_bind`, `tint`, `tint_bind`, `tint_colors`, `fill`, `slice` (16, §3.15) `src_hold` (25; bool, default true: while a new `src`/`src_bind` picture is still decoding the widget keeps drawing its previous picture, cross-fading if `src_fade_ms`; false = draws nothing until the new picture lands and nothing if it fails, for identity-changing widgets such as list rows bound to a different item, where the old picture would show the wrong item). |
 | `map` | `area`, `area_bind`, `room_bind`, marker keys (`marker_x_bind`, `marker_y_bind`, `marker_icon`, …), actor keys, `follow_window`, `label_offset` (15). Map-only (`ParseMapWidgetExtras`): `groups`, `label_style`, `on_map_tap`, `on_marker_tap`, `marker_hit_px`, `marker_tap_groups`; `image_bind`, `overlays`, `view_rect_*_bind`, `view_rect_pad` (14). See §3.12 |
 | `chart` | `bind`, `samples`, `interval_ms`, `style`, `min`, `max`, `color`, `bg` (17, §3.16) |
 | any | Pan/zoom: `pan_zoom`, `min_zoom`, `max_zoom`, `view_idle_ms`; on a non-map `pan_zoom` widget, `view_zoom_bind`, `view_cx_bind`, `view_cy_bind`, `view_reset_bind` (15, §3.15); image `pan_bounds` (21, §3.15) |
@@ -319,6 +329,7 @@ apart, inside the region `mem_ui.skm`:
 | `lock_axis` | false | Runtime 22, with `axes: "xy"`: a two-axis drag follows only the axis it started along, so a frozen header row or label column stays readable |
 | `content_w`, `content_h` | 0, 0 | Runtime 22. Content extent in canvas px on that axis, replacing the `row_h` × rows computation — lets one element wider or taller than the rect (a module-rendered pane picture) scroll over its full extent |
 | `content_w_bind`, `content_h_bind` | — | Runtime 22. The same, read from a published value (a live content size) instead of a fixed number |
+| `rect_alt` | unset | Runtime 25. `[x, y, w, h]`: this region's `rect` while the manifest's `canvas_alt` is the active canvas; unset keeps `rect` on both canvases. Swapped in and out atomically on a canvas switch (`ApplyCanvasVariant`), same as a widget's own `rect_alt` (§3.5) — everything the region's rect drives (clip, scrollbar track, hit-testing, content/max offset, `scroll_follow`, two-axis scroll) recomputes from it; the published `@scroll:<id>` offset is untouched by the swap and simply clamps to whichever rect is active. `repeat_cols` / `repeat_dx` / `repeat_row_dy` on a template inside the region are unaffected — only the viewport moves |
 
 ```json
 {"id":"mem_ui.skm","rect":[24,132,472,640],"count_bind":"roster.count","row_h":92,
@@ -371,7 +382,7 @@ dragged or selected widget's payload), `"$<name>"` (any published value, e.g. `$
 
 | Kind | Keys | Real example |
 |---|---|---|
-| `button` | `button` (A B X Y L R ZL ZR Plus Minus DUp DDown DLeft DRight; a stick shove `LX+`, `LY-`, `RX+`, …; since runtime 15 a two-button chord such as `"L+R"`, all pressed on the same tick; since runtime 20 an arbitrary stick vector or diagonal alias, and chords mixing sticks with buttons — see below), `frames` (4), `repeat`, `counter`, `target`, `modulo`, `delta`, `button_neg` (the same chord syntax), `gap` (18 ticks), `hold_map` | `{"kind":"button","button":"Minus","frames":8}` (HollowKnight) |
+| `button` | `button` (A B X Y L R ZL ZR Plus Minus DUp DDown DLeft DRight; since runtime 25 also `L3` / `R3` (aliases `StickL` / `StickR`), the virtual stick clicks; a stick shove `LX+`, `LY-`, `RX+`, …; since runtime 15 a two-button chord such as `"L+R"`, all pressed on the same tick; since runtime 20 an arbitrary stick vector or diagonal alias, and chords mixing sticks with buttons — see below), `frames` (4), `repeat`, `counter`, `target`, `modulo`, `delta`, `button_neg` (the same chord syntax), `gap` (18 ticks), `hold_map` | `{"kind":"button","button":"Minus","frames":8}` (HollowKnight) |
 | `page` | `page`, `transition` (slide_up, slide_down, grow, shrink, fade, none), `duration_ms` (≤2000), `easing`, `shadow`, `origin`. Since runtime 17, `page` may be `"@settings"` (the built-in settings page) or `"@back"` (the page shown when `@settings` opened; §3.18) | `{"kind":"page","page":"map","transition":"fade","duration_ms":200,"easing":"ease_in"}` (LinksAwakening) |
 | `module` | `action` (string passed to the module's `on_action`), `argument`. Since runtime 16, a module that returns false (or throws) **refuses** the action: the `refused` haptic plays and nothing after it runs | `{"kind":"module","action":"calendar_select","argument":"$payload","enabled_bind":"calendar.ready"}` (Persona5Royal) |
 | `flag` / `set_value` | `flag`, `value` (omit to toggle), `cycle` | `{"kind":"flag","flag":"pin_panel"}` (LinksAwakening) |
@@ -380,6 +391,7 @@ dragged or selected widget's payload), `"$<name>"` (any published value, e.g. `$
 | `call` | `fn` (`"$Symbol"` or an address), `args` | `{"kind":"call","fn":"$MaxHealth","args":["$hero_instance"]}` (HollowKnight) |
 | `sequence` | `sequence` (a name in `sequences`) | `{"kind":"sequence","sequence":"hud_on"}` (MetroidDread) |
 | `view_reset` | `view` (widget id) | `{"kind":"view_reset","view":"dread_map"}` (MetroidDread) |
+| `view_zoom_step` | `view` (widget id, like `view_reset`), `factor` (> 1 zooms in, < 1 zooms out; <= 0 or missing refuses the action). Since runtime 25. Steps the view's zoom about its OWN current centre -- the same anchor math a pinch of that size would apply, centred on the view -- clamped to the widget's own zoom limits and, for a map, its follow bounds, or for an image, its `pan_bounds` | `{"kind":"view_zoom_step","view":"sandrock_map","factor":1.25}` (MyTimeAtSandrock) |
 | `map_select` | `group`, `value` | No example in a shipped package |
 
 - **Input chords and stick vectors (runtime 20, `mod_input_tokens.h`).** A `button` /
@@ -607,7 +619,7 @@ The style keys and their defaults are in the `MapStyle` struct in `mod_types_map
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `image_bind` | text point | — | Names the area's base picture (any image source), drawn over the area's world box like the area's own `image` and overriding it. Empty or missing = the area's own |
-| `overlays` | array | — | Pictures placed in world space, over the base picture and under the markers; they pan and zoom with the map. Each has `src` or `src_bind` (a text point naming the key; wins when set), the world box `x0`, `y0`, `x1`, `y1` (the top edge is at the larger y), `show_bind` (gate) and `opacity` (0–1, default 1). Since runtime 24, `mask_bind` (a text point naming an image): that image's alpha, stretched with bilinear filtering over the box, multiplies the overlay's alpha, for example a fog of war the module reads back off the GPU (MODULE_GUIDE §2.7). An empty or missing point draws the overlay unmasked; a named mask that has not loaded yet draws nothing; a turned view (`view_rotate_bind`) skips a masked overlay. An entry without a source or with an empty box is ignored with a warning |
+| `overlays` | array | — | Pictures placed in world space, over the base picture and under the markers; they pan and zoom with the map. Each has `src` or `src_bind` (a text point naming the key; wins when set), the world box `x0`, `y0`, `x1`, `y1` (the top edge is at the larger y), `show_bind` (gate) and `opacity` (0–1, default 1). Since runtime 24, `mask_bind` (a text point naming an image): that image's alpha, stretched with bilinear filtering over the box, multiplies the overlay's alpha, for example a fog of war the module reads back off the GPU (MODULE_GUIDE §2.7). An empty or missing point draws the overlay unmasked; a named mask that has not loaded yet draws nothing; a turned view (`view_rotate_bind`) skips a masked overlay. An entry without a source or with an empty box is ignored with a warning While a replacement `src_bind` / `src_detail_bind` picture or `mask_bind` mask is still decoding, the overlay keeps drawing the one it last drew (the very first load stays off). `src_hold` (25; bool, default true): false turns that hold off, so a pending or failed replacement draws nothing, for overlays whose source changes identity. |
 | `view_rect_x0_bind`, `view_rect_y0_bind`, `view_rect_x1_bind`, `view_rect_y1_bind` | names | — | A bound default view in world units: when all four resolve, the base view (zoom 1, no pan) fits that rect instead of the whole area. Only some of the four: ignored with a warning |
 | `view_rect_pad` | number | 0 | Padding around the view rect, in world units |
 | `label_offset` | `[right, up]` px | `[12, 24]` | Since runtime 15: the area name's offset from the widget's bottom-left corner |
@@ -833,7 +845,10 @@ The last example (`pan_bounds`, runtime 21) is illustrative; no shipped package 
 A `pan_zoom` widget's view, as drawn, is also published every tick as `@view_zoom:<id>` /
 `@view_pan_x:<id>` / `@view_pan_y:<id>` (runtime 22, §3.3), next to `view_custom:<id>`, and a
 native module can read the same three through `get_f64` from its own `sample()`
-(MODULE_GUIDE.md §1.3).
+(MODULE_GUIDE.md §1.3). Runtime 25 adds the gesture's own live finger the same way:
+`@view_touch_x:<id>` / `@view_touch_y:<id>` (canvas px, absent with no finger down) and
+`@view_touch_down:<id>` (1/0, always answered) -- read-only, for an effect drawn under the
+finger during a stroke, not for panning.
 
 ### 3.16 Chart widget (runtime 17, `mod_chart.h`)
 
@@ -1018,6 +1033,7 @@ package format:
 | 22 | Map `view_rotate_bind` turns the whole view clockwise about the widget centre (markers, labels and pins stay upright; the pre-existing `marker_rotate_bind` becomes relative to the turned map); two-axis scroll regions (`axes`, `lock_axis`, `content_w[_bind]` / `content_h[_bind]`, widget `scroll_follow`, `@scroll_x` / `@scroll_max_x`); tap payload `"payload": "$tap"`; text `slant_deg` / `italic`; dynamic-marker `frames` / `frame_ms` / `pulse`; manifest `preload`; `@map_view_rot:<area>` and module read access to every `@map_view_*` key and to `@view_zoom` / `@view_pan_x` / `@view_pan_y:<id>` (also newly published), one tick behind |
 | 23 | `sysfont:` source: the console's shared system fonts as TrueType bytes, real firmware only (empty otherwise), for Korean / Chinese text a game takes from the firmware; a module's `read_romfs` reads it |
 | 24 | The module texture readback extension (with its render-target / sRGB / UNORM / redrawn selector flags) and the manifest's `module.texture_readback` (MODULE_GUIDE §2.7); map overlay `mask_bind` |
+| 25 | Pane geometry: `@screen.pane_w` / `pane_h` / `orientation` / `mode`, published for a package that names them and answered to a module's `get_i64` / `get_text` regardless (same rule as `@device.*` / `@perf.*`). Optional alternate canvas `canvas_alt` (`{"w","h","when"}`) plus per-widget and per-scroll-region `rect_alt` and per-widget `wrap_width_alt` (a label's `wrap_width` swapped alongside `rect_alt`), the runtime switching canvases by aspect fit, debounced, with module state and the current page preserved. Virtual button tokens `L3` / `R3` (aliases `StickL` / `StickR`) for a `button` action. The `view_zoom_step` action: a generic map/image `pan_zoom` +/- zoom step about the view's own current centre, clamped to its zoom limits and follow/pan bounds, like a pinch of that size. A `pan_zoom` gesture's own live finger, read-only: `@view_touch_x:<id>` / `@view_touch_y:<id>` (canvas px, absent with no finger down) and `@view_touch_down:<id>` (1/0, always answered), next to `@view_zoom`/`@view_pan_x`/`@view_pan_y`. Module ABI 1 unchanged Image widget `src_hold: false` opts out of the last-known-good picture hold and cross-fade. Map overlays hold their last picture/mask while a replacement decodes; overlay `src_hold: false` opts out. |
 
 Runtimes 14 and 15 were first released together, so the outline, rise and chord keys, whose exact
 version the source does not record, are listed under 15.
