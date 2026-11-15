@@ -47,6 +47,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 27 | [Pokémon Shield](#pokemon-shield) | `01008DB008C2C000` | 1.3.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-shield-1.0.2) | 🥇<br><a href="https://ko-fi.com/Y1Q8291E0L"><img src="https://img.shields.io/badge/Khaz_Otter-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Khaz Otter"></a> |
 | 28 | [Cult of the Lamb](#cult-of-the-lamb) | `01002E7016C46000` | 1.5.27, 1.5.28 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/cult-of-the-lamb-1.1.0) | ⭐<br><a href="https://github.com/AlterDigga"><img src="https://img.shields.io/badge/AlterDigga-181717?style=flat-square&logo=github&logoColor=white" alt="AlterDigga"></a> |
 | 29 | [Kirby's Return to Dream Land Deluxe](#kirbys-return-to-dream-land-deluxe) | `01006B601380E000` | 1.0.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/kirbys-return-to-dream-land-deluxe-1.0.0) | ⭐<br><img src="https://img.shields.io/badge/fabvx-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="fabvx"> |
+| 30 | [Monster Sanctuary](#monster-sanctuary) | `0100A0F00DA68000` | 2.1.0.32 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/monster-sanctuary-1.0.0) | |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -938,6 +939,50 @@ The game's own menus, maps and boss effects on the second screen, from the title
 
 The companion ships no game art: pictures, models, fonts and text are read from your own game files. The battery icon is its own art.
 Code: GPL-3.0-or-later.
+
+</details>
+
+---
+
+<a id="monster-sanctuary"></a>
+
+## Monster Sanctuary
+
+<details>
+<summary>Screenshots and details</summary>
+
+`0100A0F00DA68000` · game version 2.1.0.32 (update v524288) · companion 1.0.0
+
+| Exploration | Map | Team |
+|:---:|:---:|:---:|
+| <img src="screenshots/monster-sanctuary/exploration.png" width="300" alt="Monster Sanctuary: Exploration"> | <img src="screenshots/monster-sanctuary/map.png" width="300" alt="Monster Sanctuary: Map"> | <img src="screenshots/monster-sanctuary/team.png" width="300" alt="Monster Sanctuary: Team"> |
+
+| Combat | Items | Target |
+|:---:|:---:|:---:|
+| <img src="screenshots/monster-sanctuary/battle.png" width="300" alt="Monster Sanctuary: Combat"> | <img src="screenshots/monster-sanctuary/items.png" width="300" alt="Monster Sanctuary: Items"> | <img src="screenshots/monster-sanctuary/target.png" width="300" alt="Monster Sanctuary: Target"> |
+
+| Title |
+|:---:|
+| <img src="screenshots/monster-sanctuary/title.png" width="300" alt="Monster Sanctuary: Title"> |
+
+Your team, the map and the battle commands on the second screen, drawn in the game's own windows, so the top screen stays on the Sanctuary.
+
+- **Exploration.** Your monsters with their explore abilities. Tap one to make it your follower; its card shows the ability and what it does. A minimap shows where you are and the area name.
+- **Map.** Every area you have explored, with the game's own map icons and your position. Drag to pan, pinch to zoom. The teleporter list fast travels to any teleporter you have unlocked; collapse it for a wider map.
+- **Combat.** Attack, Items, Monster Info, Switch Monster and Retreat, with skills, mana costs and targets, the same as the game's command window. Tap to choose; the buttons keep working too. Combo, damage, difficulty and execution are shown live. During a Keeper Duel's first turn the game's turn-1 rule is shown, and unknown enemies stay `? ? ?`.
+- **Hidden battle menu.** The game's command menu, item window and Monster Info card are hidden on the top screen while the second screen shows them, so the battle stays clear. Switch it off in Options to bring them back.
+- **Team.** Your active three and the rest of the team. Swap their order and change equipment from the touch screen. In battle the page is read-only.
+- **Options.** Hide battle menu on top (on by default), Hide combo counter on top, Reduce motion and Haptics. The choices are kept between sessions.
+- **Title, loading and dialogue.** The title and loading screens show the game's backdrop with the spectral familiars; during dialogue the page dims and ignores taps.
+- **Other versions.** On any other game version the companion does not load and shows a notice to update the game.
+
+Actions (fast travel, team swap, equipment, battle commands) go through the game's own menus with a small in-game helper, so the game's rules still apply.
+
+Limits: English text only. Map icons are drawn at their native size; zoom in to read them. Item lists and the Keeper Duel's first-turn rows keep the game's compact layout, so their touch rows are smaller than the others.
+
+Requires Eden Duo 1.3.2 or newer and the game updated to Ver 2.1.0.32 (update v524288).
+
+By igawa6. Source: GPL-3.0-or-later. The companion ships no game art: sprites, map, icons, fonts and text are read from your own game files; those assets remain the property of their respective owners.
 
 </details>
 

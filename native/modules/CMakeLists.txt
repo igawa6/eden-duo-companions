@@ -998,6 +998,8 @@ include("${CMAKE_CURRENT_LIST_DIR}/chained_echoes.cmake")
 
 # My Time at Sandrock: Stage-8 slice (TimeModule/Bag live reader + font/sprite art via ce_unity).
 include("${CMAKE_CURRENT_LIST_DIR}/my_time_at_sandrock.cmake")
+# Monster Sanctuary (Ver 2.1.0.32): read-only live readers (state, party, battle, map).
+include("${CMAKE_CURRENT_LIST_DIR}/monster_sanctuary.cmake")
 
 # Yoru Tomosu 1.0.0: read-only native history/unlocks and effective-ROMFS composition.
 dsmod_add_module(dsmod-yoru EXCLUDE_FROM_ALL TITLE 0100C2901153C000
