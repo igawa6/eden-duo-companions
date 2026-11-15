@@ -1,0 +1,723 @@
+{
+ "_game": "The Legend of Zelda: Skyward Sword HD (1.0.1, update v65536), 01002DA013484000",
+ "_build_id": "5441AF3C89F97E1D25A8CCF14C742BF82336D8A8",
+ "_source": "Static main .bss addresses verified against the running game: Link position by moonjump/teleport writes, rupees and hearts by writes the HUD reflected.",
+ "points": {
+  "link.x": {
+   "type": "f32",
+   "addr": "main+0x623E7C4"
+  },
+  "link.y": {
+   "type": "f32",
+   "addr": "main+0x623E7C8"
+  },
+  "link.z": {
+   "type": "f32",
+   "addr": "main+0x623E7CC"
+  },
+  "rupees": {
+   "type": "u16",
+   "addr": "main+0x5aeb7b2"
+  },
+  "hearts.q": {
+   "type": "u16",
+   "addr": "main+0x5af005a"
+  },
+  "hearts.base_q": {
+   "type": "u16",
+   "addr": "main+0x5af0056"
+  },
+  "arrows": {
+   "type": "u8",
+   "addr": "main+0x5aeb7b6"
+  },
+  "stage.id": {
+   "type": "u64",
+   "addr": "main+0x5af0070"
+  },
+  "dfl.11": {
+   "type": "u16",
+   "addr": "main+0x5aeb868"
+  },
+  "dfl.12": {
+   "type": "u16",
+   "addr": "main+0x5aeb878"
+  },
+  "dfl.14": {
+   "type": "u16",
+   "addr": "main+0x5aeb898"
+  },
+  "dfl.15": {
+   "type": "u16",
+   "addr": "main+0x5aeb8a8"
+  },
+  "dfl.17": {
+   "type": "u16",
+   "addr": "main+0x5aeb8c8"
+  },
+  "dfl.18": {
+   "type": "u16",
+   "addr": "main+0x5aeb8d8"
+  },
+  "dfl.20": {
+   "type": "u16",
+   "addr": "main+0x5aeb8f8"
+  },
+  "wings": {
+   "type": "u16",
+   "addr": "main+0x6186B32"
+  },
+  "stamina": {
+   "type": "u32",
+   "addr": "main+0x6244B58"
+  },
+  "stage.name": {
+   "type": "cstring",
+   "addr": "main+0x5af0070"
+  },
+  "pouch.id0": {
+   "type": "u16",
+   "addr": "main+0x5aeb514"
+  },
+  "pouch.n0": {
+   "type": "u16",
+   "addr": "main+0x5aeb516"
+  },
+  "pouch.id1": {
+   "type": "u16",
+   "addr": "main+0x5aeb518"
+  },
+  "pouch.n1": {
+   "type": "u16",
+   "addr": "main+0x5aeb51a"
+  },
+  "pouch.id2": {
+   "type": "u16",
+   "addr": "main+0x5aeb51c"
+  },
+  "pouch.n2": {
+   "type": "u16",
+   "addr": "main+0x5aeb51e"
+  },
+  "pouch.id3": {
+   "type": "u16",
+   "addr": "main+0x5aeb520"
+  },
+  "pouch.n3": {
+   "type": "u16",
+   "addr": "main+0x5aeb522"
+  },
+  "pouch.id4": {
+   "type": "u16",
+   "addr": "main+0x5aeb524"
+  },
+  "pouch.n4": {
+   "type": "u16",
+   "addr": "main+0x5aeb526"
+  },
+  "pouch.id5": {
+   "type": "u16",
+   "addr": "main+0x5aeb528"
+  },
+  "pouch.n5": {
+   "type": "u16",
+   "addr": "main+0x5aeb52a"
+  },
+  "pouch.id6": {
+   "type": "u16",
+   "addr": "main+0x5aeb52c"
+  },
+  "pouch.n6": {
+   "type": "u16",
+   "addr": "main+0x5aeb52e"
+  },
+  "pouch.id7": {
+   "type": "u16",
+   "addr": "main+0x5aeb530"
+  },
+  "pouch.n7": {
+   "type": "u16",
+   "addr": "main+0x5aeb532"
+  },
+  "scene.name4": {
+   "type": "u32",
+   "addr": "main+0x182a7f4"
+  },
+  "pouch.r": {
+   "type": "u8",
+   "addr": "main+0x5af0104"
+  },
+  "stock.id0": {
+   "type": "u16",
+   "addr": "main+0x5aeb534"
+  },
+  "stock.n0": {
+   "type": "u16",
+   "addr": "main+0x5aeb536"
+  },
+  "stock.id1": {
+   "type": "u16",
+   "addr": "main+0x5aeb538"
+  },
+  "stock.n1": {
+   "type": "u16",
+   "addr": "main+0x5aeb53a"
+  },
+  "stock.id2": {
+   "type": "u16",
+   "addr": "main+0x5aeb53c"
+  },
+  "stock.n2": {
+   "type": "u16",
+   "addr": "main+0x5aeb53e"
+  },
+  "stock.id3": {
+   "type": "u16",
+   "addr": "main+0x5aeb540"
+  },
+  "stock.n3": {
+   "type": "u16",
+   "addr": "main+0x5aeb542"
+  },
+  "stock.id4": {
+   "type": "u16",
+   "addr": "main+0x5aeb544"
+  },
+  "stock.n4": {
+   "type": "u16",
+   "addr": "main+0x5aeb546"
+  },
+  "stock.id5": {
+   "type": "u16",
+   "addr": "main+0x5aeb548"
+  },
+  "stock.n5": {
+   "type": "u16",
+   "addr": "main+0x5aeb54a"
+  },
+  "stock.id6": {
+   "type": "u16",
+   "addr": "main+0x5aeb54c"
+  },
+  "stock.n6": {
+   "type": "u16",
+   "addr": "main+0x5aeb54e"
+  },
+  "stock.id7": {
+   "type": "u16",
+   "addr": "main+0x5aeb550"
+  },
+  "stock.n7": {
+   "type": "u16",
+   "addr": "main+0x5aeb552"
+  },
+  "stock.id8": {
+   "type": "u16",
+   "addr": "main+0x5aeb554"
+  },
+  "stock.n8": {
+   "type": "u16",
+   "addr": "main+0x5aeb556"
+  },
+  "stock.id9": {
+   "type": "u16",
+   "addr": "main+0x5aeb558"
+  },
+  "stock.n9": {
+   "type": "u16",
+   "addr": "main+0x5aeb55a"
+  },
+  "stock.id10": {
+   "type": "u16",
+   "addr": "main+0x5aeb55c"
+  },
+  "stock.n10": {
+   "type": "u16",
+   "addr": "main+0x5aeb55e"
+  },
+  "stock.id11": {
+   "type": "u16",
+   "addr": "main+0x5aeb560"
+  },
+  "stock.n11": {
+   "type": "u16",
+   "addr": "main+0x5aeb562"
+  },
+  "stock.id12": {
+   "type": "u16",
+   "addr": "main+0x5aeb564"
+  },
+  "stock.n12": {
+   "type": "u16",
+   "addr": "main+0x5aeb566"
+  },
+  "stock.id13": {
+   "type": "u16",
+   "addr": "main+0x5aeb568"
+  },
+  "stock.n13": {
+   "type": "u16",
+   "addr": "main+0x5aeb56a"
+  },
+  "stock.id14": {
+   "type": "u16",
+   "addr": "main+0x5aeb56c"
+  },
+  "stock.n14": {
+   "type": "u16",
+   "addr": "main+0x5aeb56e"
+  },
+  "stock.id15": {
+   "type": "u16",
+   "addr": "main+0x5aeb570"
+  },
+  "stock.n15": {
+   "type": "u16",
+   "addr": "main+0x5aeb572"
+  },
+  "stock.id16": {
+   "type": "u16",
+   "addr": "main+0x5aeb574"
+  },
+  "stock.n16": {
+   "type": "u16",
+   "addr": "main+0x5aeb576"
+  },
+  "stock.id17": {
+   "type": "u16",
+   "addr": "main+0x5aeb578"
+  },
+  "stock.n17": {
+   "type": "u16",
+   "addr": "main+0x5aeb57a"
+  },
+  "stock.id18": {
+   "type": "u16",
+   "addr": "main+0x5aeb57c"
+  },
+  "stock.n18": {
+   "type": "u16",
+   "addr": "main+0x5aeb57e"
+  },
+  "stock.id19": {
+   "type": "u16",
+   "addr": "main+0x5aeb580"
+  },
+  "stock.n19": {
+   "type": "u16",
+   "addr": "main+0x5aeb582"
+  },
+  "stock.id20": {
+   "type": "u16",
+   "addr": "main+0x5aeb584"
+  },
+  "stock.n20": {
+   "type": "u16",
+   "addr": "main+0x5aeb586"
+  },
+  "stock.id21": {
+   "type": "u16",
+   "addr": "main+0x5aeb588"
+  },
+  "stock.n21": {
+   "type": "u16",
+   "addr": "main+0x5aeb58a"
+  },
+  "stock.id22": {
+   "type": "u16",
+   "addr": "main+0x5aeb58c"
+  },
+  "stock.n22": {
+   "type": "u16",
+   "addr": "main+0x5aeb58e"
+  },
+  "stock.id23": {
+   "type": "u16",
+   "addr": "main+0x5aeb590"
+  },
+  "stock.n23": {
+   "type": "u16",
+   "addr": "main+0x5aeb592"
+  },
+  "stock.id24": {
+   "type": "u16",
+   "addr": "main+0x5aeb594"
+  },
+  "stock.n24": {
+   "type": "u16",
+   "addr": "main+0x5aeb596"
+  },
+  "stock.id25": {
+   "type": "u16",
+   "addr": "main+0x5aeb598"
+  },
+  "stock.n25": {
+   "type": "u16",
+   "addr": "main+0x5aeb59a"
+  },
+  "stock.id26": {
+   "type": "u16",
+   "addr": "main+0x5aeb59c"
+  },
+  "stock.n26": {
+   "type": "u16",
+   "addr": "main+0x5aeb59e"
+  },
+  "stock.id27": {
+   "type": "u16",
+   "addr": "main+0x5aeb5a0"
+  },
+  "stock.n27": {
+   "type": "u16",
+   "addr": "main+0x5aeb5a2"
+  },
+  "stock.id28": {
+   "type": "u16",
+   "addr": "main+0x5aeb5a4"
+  },
+  "stock.n28": {
+   "type": "u16",
+   "addr": "main+0x5aeb5a6"
+  },
+  "stock.id29": {
+   "type": "u16",
+   "addr": "main+0x5aeb5a8"
+  },
+  "stock.n29": {
+   "type": "u16",
+   "addr": "main+0x5aeb5aa"
+  },
+  "stock.id30": {
+   "type": "u16",
+   "addr": "main+0x5aeb5ac"
+  },
+  "stock.n30": {
+   "type": "u16",
+   "addr": "main+0x5aeb5ae"
+  },
+  "stock.id31": {
+   "type": "u16",
+   "addr": "main+0x5aeb5b0"
+  },
+  "stock.n31": {
+   "type": "u16",
+   "addr": "main+0x5aeb5b2"
+  },
+  "stock.id32": {
+   "type": "u16",
+   "addr": "main+0x5aeb5b4"
+  },
+  "stock.n32": {
+   "type": "u16",
+   "addr": "main+0x5aeb5b6"
+  },
+  "stock.id33": {
+   "type": "u16",
+   "addr": "main+0x5aeb5b8"
+  },
+  "stock.n33": {
+   "type": "u16",
+   "addr": "main+0x5aeb5ba"
+  },
+  "stock.id34": {
+   "type": "u16",
+   "addr": "main+0x5aeb5bc"
+  },
+  "stock.n34": {
+   "type": "u16",
+   "addr": "main+0x5aeb5be"
+  },
+  "stock.id35": {
+   "type": "u16",
+   "addr": "main+0x5aeb5c0"
+  },
+  "stock.n35": {
+   "type": "u16",
+   "addr": "main+0x5aeb5c2"
+  },
+  "stock.id36": {
+   "type": "u16",
+   "addr": "main+0x5aeb5c4"
+  },
+  "stock.n36": {
+   "type": "u16",
+   "addr": "main+0x5aeb5c6"
+  },
+  "stock.id37": {
+   "type": "u16",
+   "addr": "main+0x5aeb5c8"
+  },
+  "stock.n37": {
+   "type": "u16",
+   "addr": "main+0x5aeb5ca"
+  },
+  "stock.id38": {
+   "type": "u16",
+   "addr": "main+0x5aeb5cc"
+  },
+  "stock.n38": {
+   "type": "u16",
+   "addr": "main+0x5aeb5ce"
+  },
+  "stock.id39": {
+   "type": "u16",
+   "addr": "main+0x5aeb5d0"
+  },
+  "stock.n39": {
+   "type": "u16",
+   "addr": "main+0x5aeb5d2"
+  },
+  "stock.id40": {
+   "type": "u16",
+   "addr": "main+0x5aeb5d4"
+  },
+  "stock.n40": {
+   "type": "u16",
+   "addr": "main+0x5aeb5d6"
+  },
+  "stock.id41": {
+   "type": "u16",
+   "addr": "main+0x5aeb5d8"
+  },
+  "stock.n41": {
+   "type": "u16",
+   "addr": "main+0x5aeb5da"
+  },
+  "stock.id42": {
+   "type": "u16",
+   "addr": "main+0x5aeb5dc"
+  },
+  "stock.n42": {
+   "type": "u16",
+   "addr": "main+0x5aeb5de"
+  },
+  "stock.id43": {
+   "type": "u16",
+   "addr": "main+0x5aeb5e0"
+  },
+  "stock.n43": {
+   "type": "u16",
+   "addr": "main+0x5aeb5e2"
+  },
+  "stock.id44": {
+   "type": "u16",
+   "addr": "main+0x5aeb5e4"
+  },
+  "stock.n44": {
+   "type": "u16",
+   "addr": "main+0x5aeb5e6"
+  },
+  "stock.id45": {
+   "type": "u16",
+   "addr": "main+0x5aeb5e8"
+  },
+  "stock.n45": {
+   "type": "u16",
+   "addr": "main+0x5aeb5ea"
+  },
+  "stock.id46": {
+   "type": "u16",
+   "addr": "main+0x5aeb5ec"
+  },
+  "stock.n46": {
+   "type": "u16",
+   "addr": "main+0x5aeb5ee"
+  },
+  "stock.id47": {
+   "type": "u16",
+   "addr": "main+0x5aeb5f0"
+  },
+  "stock.n47": {
+   "type": "u16",
+   "addr": "main+0x5aeb5f2"
+  },
+  "stock.id48": {
+   "type": "u16",
+   "addr": "main+0x5aeb5f4"
+  },
+  "stock.n48": {
+   "type": "u16",
+   "addr": "main+0x5aeb5f6"
+  },
+  "stock.id49": {
+   "type": "u16",
+   "addr": "main+0x5aeb5f8"
+  },
+  "stock.n49": {
+   "type": "u16",
+   "addr": "main+0x5aeb5fa"
+  },
+  "stock.id50": {
+   "type": "u16",
+   "addr": "main+0x5aeb5fc"
+  },
+  "stock.n50": {
+   "type": "u16",
+   "addr": "main+0x5aeb5fe"
+  },
+  "stock.id51": {
+   "type": "u16",
+   "addr": "main+0x5aeb600"
+  },
+  "stock.n51": {
+   "type": "u16",
+   "addr": "main+0x5aeb602"
+  },
+  "stock.id52": {
+   "type": "u16",
+   "addr": "main+0x5aeb604"
+  },
+  "stock.n52": {
+   "type": "u16",
+   "addr": "main+0x5aeb606"
+  },
+  "stock.id53": {
+   "type": "u16",
+   "addr": "main+0x5aeb608"
+  },
+  "stock.n53": {
+   "type": "u16",
+   "addr": "main+0x5aeb60a"
+  },
+  "stock.id54": {
+   "type": "u16",
+   "addr": "main+0x5aeb60c"
+  },
+  "stock.n54": {
+   "type": "u16",
+   "addr": "main+0x5aeb60e"
+  },
+  "stock.id55": {
+   "type": "u16",
+   "addr": "main+0x5aeb610"
+  },
+  "stock.n55": {
+   "type": "u16",
+   "addr": "main+0x5aeb612"
+  },
+  "stock.id56": {
+   "type": "u16",
+   "addr": "main+0x5aeb614"
+  },
+  "stock.n56": {
+   "type": "u16",
+   "addr": "main+0x5aeb616"
+  },
+  "stock.id57": {
+   "type": "u16",
+   "addr": "main+0x5aeb618"
+  },
+  "stock.n57": {
+   "type": "u16",
+   "addr": "main+0x5aeb61a"
+  },
+  "stock.id58": {
+   "type": "u16",
+   "addr": "main+0x5aeb61c"
+  },
+  "stock.n58": {
+   "type": "u16",
+   "addr": "main+0x5aeb61e"
+  },
+  "stock.id59": {
+   "type": "u16",
+   "addr": "main+0x5aeb620"
+  },
+  "stock.n59": {
+   "type": "u16",
+   "addr": "main+0x5aeb622"
+  },
+  "coll.wa34": {
+   "type": "u16",
+   "addr": "main+0x5aeb788"
+  },
+  "coll.wa36": {
+   "type": "u16",
+   "addr": "main+0x5aeb78a"
+  },
+  "coll.wa38": {
+   "type": "u16",
+   "addr": "main+0x5aeb78c"
+  },
+  "coll.wa3a": {
+   "type": "u16",
+   "addr": "main+0x5aeb78e"
+  },
+  "coll.wa3c": {
+   "type": "u16",
+   "addr": "main+0x5aeb790"
+  },
+  "coll.wa3e": {
+   "type": "u16",
+   "addr": "main+0x5aeb792"
+  },
+  "coll.wa40": {
+   "type": "u16",
+   "addr": "main+0x5aeb794"
+  },
+  "coll.wa42": {
+   "type": "u16",
+   "addr": "main+0x5aeb796"
+  },
+  "coll.wa44": {
+   "type": "u16",
+   "addr": "main+0x5aeb798"
+  },
+  "coll.wa46": {
+   "type": "u16",
+   "addr": "main+0x5aeb79a"
+  },
+  "coll.wa48": {
+   "type": "u16",
+   "addr": "main+0x5aeb79c"
+  },
+  "coll.wa4a": {
+   "type": "u16",
+   "addr": "main+0x5aeb79e"
+  },
+  "coll.wa4c": {
+   "type": "u16",
+   "addr": "main+0x5aeb7a0"
+  },
+  "coll.wa4e": {
+   "type": "u16",
+   "addr": "main+0x5aeb7a2"
+  },
+  "iflag.9f2": {
+   "type": "u16",
+   "addr": "main+0x5aeb746"
+  },
+  "iflag.9f4": {
+   "type": "u16",
+   "addr": "main+0x5aeb748"
+  },
+  "iflag.9f6": {
+   "type": "u16",
+   "addr": "main+0x5aeb74a"
+  },
+  "iflag.9fc": {
+   "type": "u16",
+   "addr": "main+0x5aeb750"
+  },
+  "sflag.12": {
+   "type": "u16",
+   "addr": "main+0x182e20a"
+  },
+  "sflag.28": {
+   "type": "u16",
+   "addr": "main+0x182e220"
+  },
+  "sflag.34": {
+   "type": "u16",
+   "addr": "main+0x182e22c"
+  },
+  "sflag.38": {
+   "type": "u16",
+   "addr": "main+0x182e230"
+  },
+  "sflag.3e": {
+   "type": "u16",
+   "addr": "main+0x182e236"
+  }
+ }
+}

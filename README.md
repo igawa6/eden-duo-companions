@@ -50,6 +50,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 30 | [Monster Sanctuary](#monster-sanctuary) | `0100A0F00DA68000` | 2.1.0.32 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/monster-sanctuary-1.0.0) | 🥇<br><a href="https://ko-fi.com/igawa6/commissions"><img src="https://img.shields.io/badge/Anon.-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Anon."></a> |
 | 31 | [My Time at Sandrock](#my-time-at-sandrock) | `0100B63016916000` | 1.4.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/my-time-at-sandrock-1.0.0) | 🥇<br><a href="https://ko-fi.com/U7U71VTM7K"><img src="https://img.shields.io/badge/Helen_Tracy-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Helen Tracy"></a> |
 | 32 | [Resident Evil 4](#resident-evil-4) | `010099A00BC1E000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/resident-evil-4-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/4rd-Poll-Next-Switch-Game-on-Eden-Duo-I7Z428XZNI"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
+| 33 | [The Legend of Zelda: Skyward Sword HD](#the-legend-of-zelda-skyward-sword-hd) | `01002DA013484000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/skyward-sword-hd-1.0.0) | 🥇<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/eminham-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="eminham"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -1039,6 +1040,40 @@ The field map, your weapons and your Attache Case on the second screen, so the t
 - **Limits.** Mercenaries shows unavailable. Separate Ways room pictures load as you enter a room, so a revisited room can take a moment to draw. The largest Attache Case keeps the game's proportions, so its cells are small. Game version 1.0.2 only; other builds are refused. Tested on an AYN Thor.
 
 The companion ships no game art: the map, item pictures, icons, item names, fonts and text are read from your own game files. Its buttons and markers are its own art.
+Code: GPL-3.0-or-later.
+
+</details>
+
+---
+
+<a id="the-legend-of-zelda-skyward-sword-hd"></a>
+
+## The Legend of Zelda: Skyward Sword HD
+
+🥇 <a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/eminham-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="eminham"></a>
+
+<details>
+<summary>Screenshots and details</summary>
+
+`01002DA013484000` · game version 1.0.1 (update v65536) · companion 1.0.0
+
+| Ready | Map | Flying |
+|:---:|:---:|:---:|
+| <img src="screenshots/skyward-sword-hd/ready.png" width="300" alt="The Legend of Zelda: Skyward Sword HD: Ready"> | <img src="screenshots/skyward-sword-hd/map.png" width="300" alt="The Legend of Zelda: Skyward Sword HD: Map"> | <img src="screenshots/skyward-sword-hd/flying.png" width="300" alt="The Legend of Zelda: Skyward Sword HD: Flying"> |
+
+A minimap, your gear, the Adventure Pouch and every map on the second screen, with touch controls for the sword, so the top screen stays on the game. Requires Eden Duo 1.3.3 or newer (runtime 23).
+
+- **Ready.** A round minimap that follows Link, with the stamina ring, the area name, Gratitude Crystals and Goddess Cubes. Corners for a shield bash, the ZR and R items and an L lock for the free camera, two spin attack buttons, your rupees and the game's own D-pad cluster.
+- **Sword on the touch screen.** Hold and drag the swipe pad to guide the sword, and a quick stroke slashes. A gold trail follows the stroke, drawn under your finger on Eden Duo 1.4.0 or newer. Tap the round map for a stab.
+- **Map.** A map for every stage: the field areas, the Sand Sea, the seven dungeons with the game's floor tabs, the Silent Realms and the Sky. Bird statues, doors, chests, Goddess Chests and people in the game's own colours. Drag to pan, pinch to zoom, Reset to come back to Link.
+- **Flying.** The Sky map with the islands and their names, the Loftwing, the altitude gauge, dash feathers and your beacons.
+- **Gear.** Your sword, shield and the item wheel. Tap or drag an item onto the hub to make it the ZR item, through the game's own wheel.
+- **Bag.** The pouch beside the 60-slot Item Check storage: set the R item, rearrange, store and retrieve by dragging. Collection shows your bugs and treasures with counts. Options: the dungeon layout before you own the map, the game's Simple HUD, and the top screen's D-pad and rupees.
+- **Title and loading.** A standby page on the title screen and the Quest Logs.
+- **Actions.** Equips and pouch and storage moves go through the game's own code with a small in-game helper, and only while you are in play. When something cannot run now, a pill says **Not now**, or **Put away** when Link has an item in his hands.
+- **Limits.** Game version 1.0.1 only; on other builds the companion shows a notice and reads nothing. Tested on an AYN Thor.
+
+The companion ships no game art: maps, icons, fonts and item names are read from your own game files.
 Code: GPL-3.0-or-later.
 
 </details>

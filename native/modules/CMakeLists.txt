@@ -1536,3 +1536,41 @@ if(BUILD_TESTING AND NOT ANDROID)
     add_test(NAME dsmod-re4-repo-hygiene COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_LIST_DIR}/../../tools/resident-evil-4/repo_hygiene_test.py")
 endif()
+
+# The Legend of Zelda: Skyward Sword HD 1.0.1: runtime decoders for the game's Wii-era art (U8,
+# GX TPL, RFNT, LZ11 stage archives + KCL area maps). The game values are declarative points.
+dsmod_add_module(dsmod-sshd EXCLUDE_FROM_ALL TITLE 01002DA013484000
+    SOURCES 01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions)
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-sshd-art KEEP_ASSERTS SOURCES sshd_art_test.cpp sshd_art.cpp sshd_dpad.cpp)
+    dsmod_add_test(dsmod-sshd-dungeon-map KEEP_ASSERTS SOURCES sshd_dungeon_map_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+    dsmod_add_test(dsmod-sshd-beacon KEEP_ASSERTS SOURCES sshd_beacon_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+    dsmod_add_test(dsmod-sshd-crystal KEEP_ASSERTS SOURCES sshd_crystal_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+    dsmod_add_test(dsmod-sshd-pouch KEEP_ASSERTS SOURCES sshd_pouch_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+    dsmod_add_test(dsmod-sshd-spin KEEP_ASSERTS SOURCES sshd_spin_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+    dsmod_add_test(dsmod-sshd-ltoggle KEEP_ASSERTS SOURCES sshd_ltoggle_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+    dsmod_add_test(dsmod-sshd-dpad KEEP_ASSERTS SOURCES sshd_dpad_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+    dsmod_add_test(dsmod-sshd-markers KEEP_ASSERTS SOURCES sshd_markers_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+    dsmod_add_test(dsmod-sshd-hudhide KEEP_ASSERTS SOURCES sshd_hudhide_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+    dsmod_add_test(dsmod-sshd-dungeon KEEP_ASSERTS SOURCES sshd_dungeon_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+    dsmod_add_test(dsmod-sshd-story KEEP_ASSERTS SOURCES sshd_story_test.cpp)
+    dsmod_add_test(dsmod-sshd-cone KEEP_ASSERTS SOURCES sshd_cone_test.cpp)
+    dsmod_add_test(dsmod-sshd-stroke KEEP_ASSERTS SOURCES sshd_stroke_test.cpp)
+    dsmod_add_test(dsmod-sshd-trail KEEP_ASSERTS SOURCES sshd_trail_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+    dsmod_add_test(dsmod-sshd-menugate KEEP_ASSERTS SOURCES sshd_menugate_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+    dsmod_add_test(dsmod-sshd-swipe KEEP_ASSERTS SOURCES sshd_swipe_test.cpp
+        01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
+endif()
