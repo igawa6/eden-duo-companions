@@ -1,0 +1,10 @@
+{
+ "_game": "Kirby's Return to Dream Land Deluxe",
+ "_build": "Ver. 1.0.0",
+ "_layout": "player P = [[[main+0x16325B8]+0x260]+0x140], copy-ability component [P+0x220], id at +0x30. Save block = [[main+0x1632500]+0x258]: souvenir counts at +0x2EF0 (5 x u32: AbilityStar, BalloonBomb, Cracker, EnergyDrink, MaximTomato), reserve slot at +0x2D30 (0 empty, 1..5 = count index + 1)",
+ "points": {
+  "ability": {"type": "u32", "ptr": ["main+0x16325B8", "0x260", "0x140", "0x220", "0x0"], "offset": "0x30"},
+  "souv": {"type": "u32", "ptr": ["main+0x1632500", "0x258", "0x0"], "offset": "0x2EF0", "count": 5, "stride": 4},
+  "reserve": {"type": "u32", "ptr": ["main+0x1632500", "0x258", "0x0"], "offset": "0x2D30"}
+ }
+}

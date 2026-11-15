@@ -1,0 +1,9 @@
+{
+ "format": 1,
+ "type": "dual-screen-mod",
+ "title_id": "01006B601380E000",
+ "name": "Kirby's Return to Dream Land Deluxe dual screen",
+ "version": "1.0.0",
+ "requires_module": true,
+ "min_runtime": 17
+}

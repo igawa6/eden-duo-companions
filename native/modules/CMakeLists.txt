@@ -1361,3 +1361,59 @@ if(BUILD_TESTING AND NOT ANDROID)
             01002E7016C46000.cpp ${COTL_SOURCES}
         INCLUDE_DIRECTORIES ${CE_UNITY_INCLUDE_DIRECTORIES})
 endif()
+
+# Kirby's Return to Dream Land Deluxe: pictures, fonts and models decoded from the player's romfs, whose
+# archives are zstd or LZ4 frames, so LZ4's frame decoder is compiled in next to the zstd decoder.
+file(GLOB KIRBY_LZ4_LIB LIST_DIRECTORIES true "${EDEN_CPM_CACHE}/lz4/*/lib")
+list(LENGTH KIRBY_LZ4_LIB lz4_count)
+if(NOT lz4_count EQUAL 1)
+    message(FATAL_ERROR "Expected one lz4 source in ${EDEN_CPM_CACHE}/lz4; configure the compatible Eden Duo checkout first")
+endif()
+list(GET KIRBY_LZ4_LIB 0 KIRBY_LZ4_LIB)
+set(KIRBY_LZ4_SOURCES
+    "${KIRBY_LZ4_LIB}/lz4.c"
+    "${KIRBY_LZ4_LIB}/lz4hc.c"
+    "${KIRBY_LZ4_LIB}/lz4frame.c"
+    "${KIRBY_LZ4_LIB}/xxhash.c")
+set_source_files_properties(${KIRBY_LZ4_SOURCES} PROPERTIES COMPILE_DEFINITIONS "XXH_NAMESPACE=KIRBY_LZ4_")
+set(KIRBY_MODULE_SOURCES
+    01006B601380E000.cpp
+    kirby_art.cpp
+    kirby_art.h
+    kirby_assets.cpp
+    kirby_assets.h
+    kirby_bfres.h
+    kirby_chara.cpp
+    kirby_chara.h
+    kirby_colour.cpp
+    kirby_colour.h
+    kirby_draw.cpp
+    kirby_draw.h
+    kirby_files.cpp
+    kirby_files.h
+    kirby_font.cpp
+    kirby_font.h
+    kirby_fx.cpp
+    kirby_fx.h
+    kirby_gates.cpp
+    kirby_gates.h
+    kirby_layout.cpp
+    kirby_layout.h
+    kirby_mago.cpp
+    kirby_mago.h
+    kirby_modes.cpp
+    kirby_modes.h
+    kirby_paint.h
+    kirby_planet.cpp
+    kirby_planet.h
+    kirby_soul.cpp
+    kirby_soul.h
+    third_party/stb_truetype.h
+    "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+    ${WONDER_ZSTD_SOURCES}
+    ${KIRBY_LZ4_SOURCES})
+dsmod_add_module(dsmod-kirby EXCLUDE_FROM_ALL
+    TITLE 01006B601380E000
+    SOURCES ${KIRBY_MODULE_SOURCES}
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
+    INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder" "${WONDER_ZSTD_LIB}" "${KIRBY_LZ4_LIB}")

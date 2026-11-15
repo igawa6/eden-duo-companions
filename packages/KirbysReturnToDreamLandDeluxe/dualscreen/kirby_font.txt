@@ -1,0 +1,3 @@
+# Game font for the companion pages: <font>[:<cap height px>][/<edge RRGGBB>], or user:<file>.ttf|.otf from the
+# player's user folder. The module rasterises it at runtime; nothing is shipped.
+FOT-KurokaneStd-EB:45/002262
