@@ -1412,11 +1412,15 @@ set(KIRBY_MODULE_SOURCES
     "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
     ${WONDER_ZSTD_SOURCES}
     ${KIRBY_LZ4_SOURCES})
+# EDEN_KIRBY_BUILD_DEV compiles in the research tools (memory scans driven by gen_manifest.py --dev and user:*.txt
+# probe files); the release module leaves them out.
+option(EDEN_KIRBY_BUILD_DEV "Include the Kirby research tools" OFF)
 dsmod_add_module(dsmod-kirby EXCLUDE_FROM_ALL
     TITLE 01006B601380E000
     SOURCES ${KIRBY_MODULE_SOURCES}
     EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions
-    INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder" "${WONDER_ZSTD_LIB}" "${KIRBY_LZ4_LIB}")
+    INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder" "${WONDER_ZSTD_LIB}" "${KIRBY_LZ4_LIB}"
+    COMPILE_DEFINITIONS KIRBY_DEV=$<BOOL:${EDEN_KIRBY_BUILD_DEV}>)
 if(BUILD_TESTING AND NOT ANDROID)
     # the colour presets' names: the mask characters' from Name/Omen.msbt (synthetic files, no game data)
     dsmod_add_test(dsmod-kirby-names KEEP_ASSERTS

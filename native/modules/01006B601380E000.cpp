@@ -53,6 +53,12 @@ using namespace dsmod_sdk::int_types;
 
 constexpr u64 TitleId = UINT64_C(0x01006B601380E000);
 // 1.0.0, the only release.
+// KIRBY_DEV (CMake EDEN_KIRBY_BUILD_DEV) compiles in the research tools: memory scans and traces driven by the
+// desktop memory console (gen_manifest.py --dev) and user:*.txt probe files. Off in the release build.
+#ifndef KIRBY_DEV
+#define KIRBY_DEV 0
+#endif
+
 constexpr std::string_view BuildId =
     "FA24EA3C3A512C072A2062556C9C9692B3E6ACE1000000000000000000000000";
 constexpr std::string_view KeyPrefix{"module:kirby:"};
@@ -182,6 +188,7 @@ struct Module {
     std::atomic<int> file_tap{-1};
     int use_frames{};
     std::uint32_t bg_frame{};
+#if KIRBY_DEV // research tools (desktop memory console): off in the release build
     std::atomic<bool> scan_requested{false};
     std::atomic<bool> ptrscan_requested{false};
     std::atomic<bool> statescan_requested{false};
@@ -1376,6 +1383,7 @@ struct Module {
                       static_cast<unsigned long long>(comp), ability);
         return buf;
     }
+#endif
 
     EdenDsmodBool LoadImage(const EdenDsmodHostApi* host, const char* key, void* receiver,
                             EdenDsmodImageSink sink) {
@@ -2878,6 +2886,7 @@ struct Module {
                 now = files_queue.size(), ahead = files_ahead.size();
             }
             auto image = RenderFiles(key);
+#if KIRBY_DEV
             if (logger.log) {
                 const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - started).count();
                 logger.log(logger.userdata, EDEN_DSMOD_LOG_INFO,
@@ -2885,6 +2894,7 @@ struct Module {
                             std::to_string(now) + " now + " + std::to_string(ahead) + " ahead")
                                .c_str());
             }
+#endif
             std::scoped_lock lock{files_mutex};
             files_cache[key] = image ? std::make_shared<const KirbyAssets::Image>(std::move(*image)) : nullptr;
         }
@@ -6574,6 +6584,7 @@ struct Module {
     int colour_test_version{};
     u64 colour_test_poll{};
 
+#if KIRBY_DEV
     void ColourTestPoll() {
         const auto bytes = romfs("user:colourtest.txt");
         const std::string text = bytes ? std::string(bytes->begin(), bytes->end()) : std::string{};
@@ -6595,6 +6606,7 @@ struct Module {
             ++colour_test_version;
         }
     }
+#endif
 
     // A puff of smoke around Kirby as a colour goes on, the colour changing under the cloud. A Basil script calls only
     // the natives its own refs list: ChangeEasyMode's Exec (run only when Helper mode is switched) is rewritten to
@@ -6778,6 +6790,7 @@ struct Module {
         return true;
     }
 
+#if KIRBY_DEV
     // research: user:smoketest.txt "<n> [kind=K] [node=N] [scale=S]", a new n puffs (read every half second)
     void SmokeTestPoll(const EdenDsmodHostApi& host) {
         const auto bytes = romfs("user:smoketest.txt");
@@ -6797,6 +6810,7 @@ struct Module {
         if (!text.empty() && !first)
             Smoke(host);
     }
+#endif
 
     // the effects requested through Kirby's hero.effect().normal(): a list at E+0x38 (E = [P+0x140], [E+8] = P), empty
     // while he stands still
@@ -6827,8 +6841,10 @@ struct Module {
                 host.log(host.userdata, EDEN_DSMOD_LOG_INFO, (std::string("Kirby DSMod smoke ") + m).c_str());
         };
         ++smoke_tick;
+#if KIRBY_DEV
         if (smoke_tick % 30 == 0)
             SmokeTestPoll(host);
+#endif
         SmokeSearch(host);
         if (smoke_phase == 1)
             smoke_words = SmokeWords(smoke_kind, smoke_node, smoke_scale);
@@ -6920,8 +6936,10 @@ struct Module {
         colour_known = true;
         // the flags follow the colour wanted: set (not toggled, a rule may run twice in a tick) until their values come back
         colour_storing = colour_file >= 0 && ColourStored(colour_file) != colour_want;
+#if KIRBY_DEV
         if (colour_test_poll++ % 60 == 0)
             ColourTestPoll();
+#endif
         // (a colour on trial takes the file's place: written as preset 1000 + its version)
         const int target = colour_test ? 1000 + colour_test_version : colour_held >= 0 ? colour_held : colour_want;
         // the game's own pink needs nothing until another colour was put on this boot
@@ -7194,17 +7212,21 @@ struct Module {
     std::map<u64, int> yy_trace_pages;
     std::map<u64, std::string> yy_trace_objs;
 
-    void YyTraceLog(const EdenDsmodHostApi& host, const std::string& m) const {
+    void YyTraceLog([[maybe_unused]] const EdenDsmodHostApi& host, [[maybe_unused]] const std::string& m) const {
+#if KIRBY_DEV
         if (yy_trace && host.log)
             host.log(host.userdata, EDEN_DSMOD_LOG_INFO, ("Kirby DSMod yytrace t=" + std::to_string(yy_tick) + " " + m).c_str());
+#endif
     }
 
     void YyTrace(const EdenDsmodHostApi& host, const std::vector<u64>& windows, u64 begin, u64 end) {
         const auto rd = [&](u64 at, auto& out) { return dsmod_sdk::ReadGuest<dsmod_sdk::MissingIsMapped::Reject>(host, at, &out, sizeof out); };
+#if KIRBY_DEV
         if (yy_tick % 60 == 1) {
             const auto t = romfs("user:yytrace.txt");
             yy_trace = t && !t->empty() && (*t)[0] >= '1' && (*t)[0] <= '3' ? (*t)[0] - '0' : 0;
         }
+#endif
         if (!yy_trace)
             return;
         for (const u64 from : windows)
@@ -8109,6 +8131,7 @@ struct Module {
                 soul_groups = KirbyFx::ParseGroups(std::string_view{reinterpret_cast<const char*>(t->data()), t->size()});
         }
         const u64 now = play_tick;
+#if KIRBY_DEV
         if (now >= soul_time_read + 60) {
             soul_time_read = now;
             if (const auto t = romfs("user:soultime.txt")) {
@@ -8118,6 +8141,7 @@ struct Module {
                     soul_cross = static_cast<u64>(cross * 60);
             }
         }
+#endif
         const auto rd = [&](u64 at) {
             u64 v{};
             return at && dsmod_sdk::ReadGuest<dsmod_sdk::MissingIsMapped::Reject>(host, at, &v, 8) ? v : 0;
@@ -8964,11 +8988,13 @@ struct Module {
                 fin_phase = FinPush, log("push");
             }
             if (kind == CutKind && fin_phase == FinPush) {
+#if KIRBY_DEV
                 if (const auto t = romfs("user:finale.txt")) {
                     std::array<int, 4> v{};
                     if (std::sscanf(std::string(t->begin(), t->end()).c_str(), "%d %d %d %d", &v[0], &v[1], &v[2], &v[3]) == 4)
                         fin_times = v;
                 }
+#endif
                 fin_capture = true, fin_phase = FinCarve, fin_cut_at = fin_tick, log("cut");
             }
             const auto [delay, carve, hold, fall] = fin_times;
@@ -10312,6 +10338,7 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
         m->PublishPress(*host);
         m->SoulCaptureNow(*host);
     }
+#if KIRBY_DEV // the research tools
     if (m && m->scan_requested.exchange(false))
         m->ScanPlayer(*host);
     if (m && m->ptrscan_requested.exchange(false))
@@ -10395,6 +10422,7 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
         m->HuntStep(*host);
     if (m && m->star_wait > 0 && --m->star_wait == 0)
         m->use_requested = true;
+#endif
     if (m)
         m->FxShakeOffsets(*host), m->FinaleShakeOffsets(*host);
     // supports_build only accepts 1.0.0, so a running instance always matches.
@@ -10452,10 +10480,12 @@ EdenDsmodBool OnAction(void* p, const char* action, std::int64_t argument) {
         m->soul_tap_pending = true;
         return EDEN_DSMOD_TRUE;
     }
+#if KIRBY_DEV
     if (name == "soul_scream") { // research
         m->soul_force_scream = true;
         return EDEN_DSMOD_TRUE;
     }
+#endif
     if (name == "opt" && argument >= 0 && argument < Module::Options * 2) {
         m->options[static_cast<std::size_t>(argument / 2)] = static_cast<int>(argument % 2);
         m->options_known = true;
@@ -10517,6 +10547,7 @@ EdenDsmodBool OnAction(void* p, const char* action, std::int64_t argument) {
         m->file_tap = static_cast<int>(argument);
         return EDEN_DSMOD_TRUE;
     }
+#if KIRBY_DEV // the research tools (gen_manifest.py --dev)
     if (name == "scan_player")
         m->scan_requested = true;
     else if (name == "bytefind")
@@ -10558,6 +10589,9 @@ EdenDsmodBool OnAction(void* p, const char* action, std::int64_t argument) {
     else
         return EDEN_DSMOD_FALSE;
     return EDEN_DSMOD_TRUE;
+#else
+    return EDEN_DSMOD_FALSE;
+#endif
 }
 
 EdenDsmodBool LoadImageCallback(void* p, const EdenDsmodHostApi* host, const char* key,
@@ -10566,6 +10600,7 @@ EdenDsmodBool LoadImageCallback(void* p, const EdenDsmodHostApi* host, const cha
         if (!p)
             return EDEN_DSMOD_FALSE;
         auto* m = static_cast<Module*>(p);
+#if KIRBY_DEV
         // research: what the host asks for, whether the workers had it drawn, and how long the host waited
         constexpr std::string_view Files{"module:kirby:gen/files/"};
         const std::string_view k = key ? std::string_view{key} : std::string_view{};
@@ -10581,6 +10616,9 @@ EdenDsmodBool LoadImageCallback(void* p, const EdenDsmodHostApi* host, const cha
                           .c_str());
         }
         return loaded;
+#else
+        return m->LoadImage(host, key, receiver, sink);
+#endif
     } catch (...) {
     }
     return EDEN_DSMOD_FALSE;
