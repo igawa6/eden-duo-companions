@@ -862,6 +862,18 @@ const std::vector<BundleNode>& Bundle::Nodes() const {
     return impl->nodes;
 }
 
+std::size_t Bundle::ResidentBytes() const {
+    std::lock_guard lock{impl->mutex};
+    std::size_t bytes = sizeof(Bundle) + sizeof(Impl) +
+                        impl->blocks.capacity() * sizeof(Impl::Block) +
+                        impl->nodes.capacity() * sizeof(BundleNode);
+    for (const auto& node : impl->nodes)
+        bytes += node.path.capacity() + 1;
+    for (const auto& entry : impl->cache)
+        bytes += sizeof(entry) + sizeof(std::vector<u8>) + entry.second->capacity();
+    return bytes;
+}
+
 const BundleNode* Bundle::FindNode(std::string_view name) const {
     for (const auto& n : impl->nodes)
         if (n.path == name)

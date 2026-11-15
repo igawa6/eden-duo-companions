@@ -1,0 +1,6 @@
+# Caller observed wheel (26) or free roam (0); assert the saved return page as well.
+set ui_state [[[[[[main+0x80B8A28]+0xB8]+0x28]+0xB0]+0x70]+0x84]4
+wait-mem readi ${ui_state} == ${end_state} 10
+con "value dlg.active dlg.return_page"
+wait-log 'DSMod value.*dlg.active=0.*dlg.return_page=${return_page}' 10
+shot item26-dialogue-return

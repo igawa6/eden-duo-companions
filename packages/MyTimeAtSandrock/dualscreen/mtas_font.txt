@@ -1,0 +1,1 @@
+decode_font ignores these bytes; the module reads the real SourceHanSans-Medium.otf itself via a pinned romfs byte range (mtas_art.cpp kPinFont). This file only has to be non-empty so the host calls decode_font at all.

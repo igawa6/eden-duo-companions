@@ -1,0 +1,11 @@
+# Precondition: completed one-line Chat entered from Inventory. Supply capture with --var.
+set ui_state [[[[[[main+0x80B8A28]+0xB8]+0x28]+0xB0]+0x70]+0x84]4
+assert-mem readi ${ui_state} == 16
+press A
+wait-mem readi ${ui_state} == 26 10
+wait-log "page_bind 'dlg.return_page'.*page 'inventory'.*done" 10
+con "value ui.state_type dlg.active dlg.return_page"
+wait-log 'DSMod value.*dlg.active=0.*dlg.return_page=4' 10
+shot ${capture}
+press B
+wait-mem readi ${ui_state} == 0 10

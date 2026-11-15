@@ -1,0 +1,7 @@
+# Precondition: native NPC wheel with Chat selected. The loop is advance_dialogue.py,
+# which invokes item26-dialogue-step.route once per completed, changed line.
+set ui_state [[[[[[main+0x80B8A28]+0xB8]+0x28]+0xB0]+0x70]+0x84]4
+assert-mem readi ${ui_state} == 26
+tap 740 1018
+press A
+wait-mem readi ${ui_state} == 16 10

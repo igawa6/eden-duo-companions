@@ -379,6 +379,9 @@ def build_package(
                 "build_ids": module_build_ids,
                 "libraries": libraries,
             }
+            # Runtime 24 opts in at manifest level as well as by the module's export.
+            if source_manifest.get("module", {}).get("texture_readback") is True:
+                package_manifest["module"]["texture_readback"] = True
 
         # The runtime sees dualscreen/manifest.json after extraction. Keep the native metadata
         # there as well as at archive level so installers and the runtime validate the same bytes.

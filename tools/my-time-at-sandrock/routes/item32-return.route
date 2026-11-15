@@ -1,0 +1,13 @@
+con "value mtas.game_loaded mtas.loading mtas.held_ok ui.state_type"
+con "page workshop"
+sleep 500
+shot return-workshop
+con "page handbook"
+sleep 500
+con "page ingredients"
+sleep 500
+con "page social"
+sleep 500
+con "page mission"
+sleep 500
+con "value ws.ok ws.rank_ok hb.ok ing.ok inv.ok player.ok social.ok missions.count"

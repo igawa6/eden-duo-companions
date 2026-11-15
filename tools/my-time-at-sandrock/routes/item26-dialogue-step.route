@@ -1,0 +1,6 @@
+# Called by advance_dialogue.py only after native typing has finished and canClick is true.
+# Recheck state and immutable text identity so a stale sample cannot advance another line.
+set peek [[[[[main+0x80B8A28]+0xB8]+0x28]+0xB0]+0x70]
+assert-mem readi [${peek}+0x84]4 == 16
+assert-mem readi [[[[${peek}+0x50]+0x70]+0x18]+0xD0] == ${line}
+press A

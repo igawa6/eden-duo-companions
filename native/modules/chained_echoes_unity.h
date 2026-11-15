@@ -152,6 +152,8 @@ public:
     ByteSource NodeSource(const BundleNode& node) const;
     /// (compression = block flags & 0x3F, block count, uncompressed bytes) per compression type.
     std::vector<std::array<std::uint64_t, 3>> BlockSummary() const;
+    /// Retained decoded blocks plus bundle table storage (excludes allocator bookkeeping).
+    std::size_t ResidentBytes() const;
     std::string engine_version;
     std::uint32_t format{};
     std::uint32_t header_flags{};

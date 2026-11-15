@@ -1,0 +1,9 @@
+con "page mission"
+sleep 800
+shot portrait-mission
+con "page handbook"
+sleep 800
+shot portrait-handbook
+con "page workshop"
+sleep 800
+shot portrait-workshop

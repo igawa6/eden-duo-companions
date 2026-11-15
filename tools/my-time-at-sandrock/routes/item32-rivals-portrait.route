@@ -1,0 +1,6 @@
+# Portrait canvas. Retain selection and expose the final ranking rows.
+page workshop
+sleep 1500
+drag 500 820 500 590 600
+sleep 800
+shot rivals-portrait

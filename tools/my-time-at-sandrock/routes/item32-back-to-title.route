@@ -1,0 +1,14 @@
+# Native System menu, Save initially focused. Select Back to Title and confirm.
+press DDown
+sleep 250
+press DDown
+sleep 250
+press DDown
+sleep 250
+press DDown
+sleep 250
+press A
+sleep 1500
+press A
+sleep 5000
+con "value mtas.game_loaded mtas.loading mtas.held_ok ui.state_type"

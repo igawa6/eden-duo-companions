@@ -1,0 +1,36 @@
+con "value mtas.game_loaded mtas.loading mtas.held_ok ui.state_type"
+con "page today"
+sleep 1000
+shot hardening-today
+con "page mission"
+sleep 1000
+shot hardening-mission
+con "page inventory"
+sleep 1000
+shot hardening-inventory
+con "page ingredients"
+sleep 1000
+shot hardening-ingredients
+con "page social"
+sleep 1000
+tap 120 300
+sleep 500
+con "page social"
+sleep 500
+shot hardening-social
+con "page npc"
+sleep 1000
+shot hardening-npc
+con "page workshop"
+sleep 1000
+shot hardening-workshop
+con "page handbook"
+sleep 1000
+shot hardening-handbook
+con "page settings"
+sleep 1000
+shot hardening-settings
+con "page map"
+sleep 1000
+shot hardening-map
+con "value map.outdoor map.px map.py map.default_ppw @map_view_cx:sandrock @map_view_cy:sandrock map.screen_x map.screen_y"

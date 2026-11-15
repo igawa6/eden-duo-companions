@@ -1,0 +1,30 @@
+# Cold boot of probe town fixture, imported save slot 11 installed as slot 0.
+call item17-load.route
+set scene_flags [[[[[[main+0x80B6C20]+0x58]+0x58]+0xB8]]+0xB0]4
+page inventory
+sleep 500
+press "stick 0.67 0.74 1100"
+sleep 300
+press A
+wait-mem readi ${scene_flags} >= 256 15
+sleep 150
+con "value mtas.loading time.clock_text"
+tap 348 1018
+wait-log "swallowed by an input_block widget 'loading_veil'" 5
+con animinfo
+shot item18-loading-active
+wait-mem readi ${scene_flags} == 0 30
+sleep 150
+con "value mtas.loading time.clock_text"
+con animinfo
+shot item18-loading-closing
+sleep 1500
+con "value mtas.loading time.clock_text"
+con animinfo
+shot item18-loading-complete
+press Plus
+sleep 500
+con "value mtas.loading ui.state_type"
+press B
+sleep 500
+con "value mtas.loading ui.state_type"

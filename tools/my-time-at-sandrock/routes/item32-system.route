@@ -1,0 +1,8 @@
+# Free roam, native pause opens on Inventory. Two previous tabs reach System.
+press Plus
+sleep 1200
+press L
+sleep 500
+press L
+sleep 1000
+shot native-system

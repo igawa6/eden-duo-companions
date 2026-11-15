@@ -1,0 +1,10 @@
+# Precondition: native interaction wheel, Chat selected; Inventory visible below.
+# Supply speaker and capture with --var. Check the live card, not only Dialog UI state.
+set ui_state [[[[[[main+0x80B8A28]+0xB8]+0x28]+0xB0]+0x70]+0x84]4
+assert-mem readi ${ui_state} == 26
+press A
+wait-mem readi ${ui_state} == 16 10
+wait-log "page_bind 'dlg.active'.*page 'npc'.*done" 10
+con "value ui.state_type dlg.active dlg.return_page npc_detail.name"
+wait-log 'DSMod value.*dlg.active=1.*npc_detail.name="${speaker}"' 10
+shot ${capture}

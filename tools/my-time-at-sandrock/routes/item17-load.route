@@ -1,0 +1,21 @@
+# Precondition: one imported PC fixture slot, cold boot, gdbstub enabled.
+# Dismiss the imported save's Pet Training Guidance before checking free roam.
+sleep 45000
+press A
+sleep 3000
+press B
+sleep 1500
+press A
+sleep 2000
+press A
+sleep 2500
+press A
+sleep 3000
+press A
+sleep 4000
+press A
+set ui_state [[[[[[main+0x80B8A28]+0xB8]+0x28]+0xB0]+0x70]+0x84]4
+wait-mem readi ${ui_state} == 31 90
+press B
+wait-mem readi ${ui_state} == 0 15
+con "value mtas.game_loaded ui.state_type dlg.active dlg.return_page"

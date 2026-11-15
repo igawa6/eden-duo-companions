@@ -1,0 +1,32 @@
+con "value mtas.game_loaded mtas.loading mtas.held_ok ui.state_type"
+con "page today"
+sleep 600
+shot live-today
+con "page mission"
+sleep 600
+shot live-mission
+con "page inventory"
+sleep 600
+shot live-inventory
+con "page ingredients"
+sleep 600
+shot live-ingredients
+con "page social"
+sleep 600
+shot live-social
+con "page npc"
+sleep 600
+shot live-npc
+con "page workshop"
+sleep 600
+shot live-workshop
+con "page handbook"
+sleep 600
+shot live-handbook
+con "page settings"
+sleep 600
+shot live-settings
+con "page map"
+sleep 600
+shot live-map
+con "value ws.ok hb.ok ing.ok inv.ok player.ok social.ok"

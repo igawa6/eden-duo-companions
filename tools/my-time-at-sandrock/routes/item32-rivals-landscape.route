@@ -1,0 +1,6 @@
+# Landscape canvas. Scroll to include the long rival name at its scale-5 floor.
+page workshop
+sleep 1500
+drag 900 460 900 240 600
+sleep 800
+shot rivals-landscape
