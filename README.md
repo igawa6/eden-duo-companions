@@ -281,6 +281,8 @@ Keep the monastery, your students and the battlefield on the second screen:
 
 The companion ships no game art: maps, portraits, icons, fonts and text are read from your own game files. Korean, Japanese and Chinese (Simplified and Traditional) text is drawn with the game's own fonts for those languages.
 
+Compatible with the **Fódlan Reborn** mod (with or without Better Monastery): portraits and your units on the War map come from the mod's files.
+
 </details>
 
 ---
