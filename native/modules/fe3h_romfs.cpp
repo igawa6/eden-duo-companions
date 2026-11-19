@@ -469,16 +469,25 @@ SourcePtr LinkData::Entry(uint32_t id) {
     if (!e || e->stored == 0)
         return nullptr;
     SourcePtr raw;
+    uint64_t stored = e->stored, size = e->size;
     if (e->path.empty()) {
-        raw = FileRange(read_, "DATA1.bin", e->offset, e->stored);
+        raw = FileRange(read_, "DATA1.bin", e->offset, stored);
     } else {
         const size_t file = read_(e->path.c_str(), 0, nullptr, 0);
-        if (file < e->stored)
+        if (file == 0)
             return nullptr;
-        raw = FileRange(read_, e->path, 0, e->stored);
+        if (file < stored) {
+            // A plain loose file shorter than its INFO record is read at its own length, as the
+            // game does: mod tables can overstate it (Fodlan Reborn: 6108 Character_Sheet.g1t
+            // is listed at 17051648 bytes, the file and its G1T header say 9338396).
+            if (e->compressed || stored != size)
+                return nullptr;
+            stored = size = file;
+        }
+        raw = FileRange(read_, e->path, 0, stored);
     }
     if (!e->compressed)
-        return e->stored == e->size ? raw : nullptr;
+        return stored == size ? raw : nullptr;
     SourcePtr plain = KtGz(std::move(raw));
     if (!plain || plain->Size() != e->size)
         return nullptr;
