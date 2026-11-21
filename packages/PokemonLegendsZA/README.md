@@ -52,7 +52,7 @@ Installation menu reference: [Eden Duo](https://github.com/igawa6/eden-duo#insta
 
 ## Credits and feedback
 
-Community companion by Sickops, built for igawa6’s Eden Duo. Pokémon artwork and game text are read at runtime from the player’s own game files. The package includes generated interface graphics and the Noto Sans CJK font under the SIL Open Font License. Source credits include PKHeX and SysBot.NET. The project is independent and uses GPL-3.0-or-later source.
+Community companion by Sickops, built for igawa6’s Eden Duo. Pokémon artwork and game text are read at runtime from the player’s own game files. The package includes generated interface graphics and the Noto Sans CJK font under the SIL Open Font License. Source credits include PKHeX and SysBot.NET. The project is independent and uses GPL-3.0-or-later source. [Support Sickops on Ko-fi](https://ko-fi.com/hyacinthejeandelsickops)
 
 For a bug report, include your device, Eden Duo version, game update, companion version, and the steps to reproduce it. Screenshots of both displays help.
 
