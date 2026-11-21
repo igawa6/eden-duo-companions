@@ -51,6 +51,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 31 | [My Time at Sandrock](#my-time-at-sandrock) | `0100B63016916000` | 1.4.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/my-time-at-sandrock-1.0.0) | 🥇<br><a href="https://ko-fi.com/U7U71VTM7K"><img src="https://img.shields.io/badge/Helen_Tracy-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Helen Tracy"></a> |
 | 32 | [Resident Evil 4](#resident-evil-4) | `010099A00BC1E000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/resident-evil-4-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/4rd-Poll-Next-Switch-Game-on-Eden-Duo-I7Z428XZNI"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 | 33 | [The Legend of Zelda: Skyward Sword HD](#the-legend-of-zelda-skyward-sword-hd) | `01002DA013484000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/skyward-sword-hd-1.0.0) | 🥇<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/eminham-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="eminham"></a> |
+| 34 | [Pokémon Legends: Z-A](#pokemon-legends-za) | `0100F43008C44000` | 2.0.2 | [Build from source](tools/za/README.md) | ⭐<br><a href="https://ko-fi.com/sickops"><img src="https://img.shields.io/badge/Sickops-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Support Sickops on Ko-fi"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -1075,6 +1076,36 @@ A minimap, your gear, the Adventure Pouch and every map on the second screen, wi
 
 The companion ships no game art: maps, icons, fonts and item names are read from your own game files.
 Code: GPL-3.0-or-later.
+
+</details>
+
+---
+
+<a id="pokemon-legends-za"></a>
+
+## Pokémon Legends: Z-A
+
+⭐ <a href="https://ko-fi.com/sickops"><img src="https://img.shields.io/badge/Sickops-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Support Sickops on Ko-fi"></a>
+
+<details>
+<summary>Screenshots and details</summary>
+
+`0100F43008C44000` · game version 2.0.2 · companion 0.38.6
+
+| Team | Map | Pokédex |
+|:---:|:---:|:---:|
+| <img src="screenshots/pokemon-legends-za/01-team.png" width="300" alt="Party and touch move buttons"> | <img src="screenshots/pokemon-legends-za/10-map.png" width="300" alt="Lumiose map with a highlighted mission"> | <img src="screenshots/pokemon-legends-za/05-pokedex.png" width="300" alt="Lumiose Pokédex with Chikorita selected"> |
+
+Keep the game on the main screen and use the touchscreen for the live party, Lumiose map, and reference screens. Tested on Pocket DS with Eden Duo 1.4.0 (runtime 25).
+
+- **Team and moves.** Follow HP and recharge, send out the selected Pokémon, and use moves from the touch controls. Inspect or replace party moves and see power, accuracy, and type.
+- **Map and missions.** Follow your position, filter map points, and jump to known active mission locations. Inspect Wild Zone encounters and Hyperspace distortions, set or clear a waypoint, and request fast travel with the game's confirmation.
+- **Pokédex and Boxes.** Search stored Pokémon and browse the Lumiose, Mega Dimension, and Mega Evolution catalogs. Inspect stats and moves, or swap a boxed Pokémon with a party member.
+- **Bag and planning.** Use supported medicine and held-item actions, follow Mable's research and Z-A Royale progress, and pin goals in the Notebook to build a capture plan.
+
+The companion reads Pokémon artwork, map art, and game text from the player's own game files.
+
+[Full feature list and installation](packages/PokemonLegendsZA/README.md) · [Build the Android package](tools/za/README.md)
 
 </details>
 

@@ -1,0 +1,533 @@
+{
+  "format": 2,
+  "title_id": "0100F43008C44000",
+  "build_id": "B1F12FD919EAE86AB8A978317677E64BCE443D1F000000000000000000000000",
+  "module": "main",
+  "layout": {
+    "segments": [
+      {
+        "location": 0,
+        "size": 51789680
+      },
+      {
+        "location": 51789824,
+        "size": 10870784
+      },
+      {
+        "location": 62660608,
+        "size": 3916848
+      }
+    ],
+    "bss_size": 35638224
+  },
+  "mailbox_size": 4096,
+  "mailbox_epoch_offset": 4092,
+  "patches": [
+    {
+      "offset": 28610512,
+      "expected": "ff4302d1",
+      "replacement": "00000014",
+      "relocations": [
+        {
+          "offset": 0,
+          "kind": "aarch64_branch26",
+          "target": "code",
+          "addend": 0
+        }
+      ]
+    },
+    {
+      "offset": 1587124,
+      "expected": "601c0037",
+      "replacement": "00000014",
+      "relocations": [
+        {
+          "offset": 0,
+          "kind": "aarch64_branch26",
+          "target": "code",
+          "addend": 1676
+        }
+      ]
+    },
+    {
+      "offset": 7012744,
+      "expected": "ffc304d1",
+      "replacement": "00000014",
+      "relocations": [
+        {
+          "offset": 0,
+          "kind": "aarch64_branch26",
+          "target": "code",
+          "addend": 1776
+        }
+      ]
+    }
+  ],
+  "guest_code": {
+    "bytes": "09000090290100912a0940b94a0500112a0900b92afddf882b1100916bfddf885f010b6b602f00542b3100916cfd5f880c2f00352c0080526c7d0d88ad2e0035ff8303d1e00700a9e20f01a9e41702a9e61f03a9e84f04a9f47b05a9e00703ade20f04ade41705ade61f06adf30309aa74fedf886a0640b99f020a6b002b00546a1240b969f23f912bfddf885f010b6b2129005409000090290140b9c9280035691640b9290500513f0d00714828005400000090000040f9e02700b4090040f90a0000904a0100913f010aeb41270054002440f9002700b4090040f90a0000904a0100913f010aeb61260054002040f9010000902100009148010094c02500b4001c50f9802500b4090040f90a0000904a0100913f010aebe1240054008040f901000090210000913c010094402400b400c840f9002400b4090040f90a0000904a0100913f010aeb612300540c3447a90ebc49a9bf010febe1220054bf1900f1a8220054621a40b95f000deb422200542c2200b40e2200b40a0000904a010091090080d28f7969f8cf0000b4f00140f91f020aeb01210054f0ad4e39d0200035290500913f010debe3feff54c07962f8010000902100009118010094c01f00b4092840f9891f00b4291940f9491f00b4290140f96a1640f93f010aebc11e0054691640b93f110071801300543f0d0071c00700543f05007121010054618a43293f0c0071881d0054621d0034497c1053291d003500000094e5000014618a43293f800071821c00545f780071421c005409000090290100912a2d40a9ca1b00b46c010aeb891b00549f0120f1481b00549f0940f2011b00540c0000908c0100914d8540f88d0000b4ae0140f9df010ceb800000545f010beb43ffff54ce000014a90940f93f010deb61190054a9bd44f9aac144f9091900b45f8100f1c1180054cb0380522b080b1b6c7d0653ad010191ae796cf8ce25cb9aee1700360c3380d269250c9b290140f96a1a40f93f010aeb21170054e0031f2a631a40b900000094a0160034b2000014f55bbea9f76301a9f50300aa76de4329c902172a297d1053690a0035df02176b200a0054a90240f929bd40f90a0000904a0100913f010aeb610900540900009029010091298140b9e908003409000090380140f9980800b4aa2a40f9403940f9200800b4000000941f00176bc1070054d6000034e003162a0000009400fc60d320070034604200b9b7010034e003172a0000009400fc60d3604600b909000090200140f9000600b4e103172a00000094694640b93f01006b62050054e00315aae103162a76000034000000940200001400000094aa2a40f9403940f9000000941f00166b01040054b6000034e00318aae103162a2200805200000094f7000034e00318aae103172a22008052e3031f2ae4031f2a0000009416010034e003162a0000009400fc60d3694240b9290500511f00096b8101005417010034e003172a0000009400fc60d3694640b9290500111f00096b81000054f76341a9f55bc2a859000014f76341a9f55bc2a858000014f55bbda9f76301a9f96b02a976de4329783240b9152840f9b93a40f9590900b436090034c97e1053e9080035ff02186ba0080054e97e10530a7f10533f150071280800545f01096b40000054ca070035e93e00530a3f00535f01096b43070054e00319aa00000094e93e00531f00096ba1060054e00319aa00000094e97e10531f00096b010600540900009029010091298140b989050034090000903a0140f93a0500b4e003162a0000009400fc60d3a0040034604200b9013f0053e93e00533f00096b00010054e00315aa00000094e00319aa00000094093f00531f00096b21030054e902184a297d1053e9000034e00315aae1031f2a00000094e00319aa0000009400020035e0031aaae103162a2200805200000094e003162a0000009400fc60d3694240b9290500511f00096ba1000054f96b42a9f76341a9f55bc3a805000014f96b42a9f76341a9f55bc3a8030000142900805202000014e9031f2a6a1640b95f0d007183000054694e00b96a22019154fd9f88692200b96912009134fd9f88693200913ffd9f88e61f46ade41745ade20f44ade00743adf47b45a9e84f44a9e61f43a9e41742a9e20f41a9e00740a9ff830391ff4302d100000014600300b409000090290140f9090300b40a4c409229150a8b2a0940f95f0100eb610200542a5140792a0200342a554079ea0100342a2d40b95f05003180010054201140f91fa000f12901005400a000d1090040f93f0101eba1000054090840f93f0100eb41000054c0035fd6e0031faac0035fd6e92bbea9eb3301a909000090290100912a010491e00100374bfddf88eb0100345ffd9f882b0541b92cfd4fb96b010c4a4b0100352b0941b92c0940b96b010c4bcb00f837eb3341a9e92bc2a8000000145ffd9f88fcffff17eb3341a9e92bc2a800000014e007baa9e20f01a9e41702a9e61f03a9e87b04a9f32b00f91300009073020091693204912afddf88ea1700346a0641b96bfe4fb95f010b6b611600546a0a41b96b0a40b94a010b4bea15f8370a0000904a0100910b0040f95f010beb411600540a1441b95f210071e115005400f040f9a01500b40a0000904a0100910b0040f95f010beb011500540a0840f95f0100eba11400540a1456396a1400360a3c41b95f810071011400546a0e41b95f090071000a00545f0d0071c0090054702641b91f260071e00000541f360071a00000541f3e0071600000541f120071811100540b3045a94b1100b48d010bcbbf0940f1e8100054bf1140f2a11000540f8080527f010ceb401000546135c2a83f000deb80ffff54c80f0054a10f00b4ae0101cbdf4102f1430f0054ef050071040f00542e0440b9df01106be10d00542e004039ae0d08362a2840b96e1241b95f010e6bc00000546e2a41b95f010e6bc10c0054719a40f902000014718e40f9510c00b40e5442f9ce0c00b4c86141b91f054071680c00545f01086b620b0054ce9140f9ee0b00b4ce150a8bc80140f91f0111eba10a0054c80940f9680a00b46a0204915ffd9f883ffd9f8800e00491ff0302d1e00700ade20f01ade41702ade61f03ad00000094e00740ade20f41ade41742ade61f43adff0302912a0080524c0000140b3045a9cb0800b48c010bcb9f0101f1630800549f0940f1280800546b3142a9eb0700b48c010bcb9f4102f1810700546c0540b99f05007121070054ff8302d1e00700ade20f01ade41702ade61f03ade04700f95f0d0071600300546be204916005402d02c0201e23c0201e4208221e6208031f0b50a9526301271e4020231ec8020054a60200540bc441f9eb4300f90b6442b9eb9300b94b0080520b6402b96b9e40f90bc401f900000094e04740f9eb4340f90bc401f9eb9340b90b6402b90200001400000094e04740f960a200f98a008052020000146a008052e00740ade20f41ade41742ade61f43adff8302916b0204917ffd9f88693204913ffd9f880b000014214002913f000deb01f1ff5480ffff174a008052020000146a0080526b0204917ffd9f883ffd9f886b8204916afd9f88f32b40f9e87b44a9e61f43a9e41742a9e20f41a9e007c6a8ffc304d100000014",
+    "relocations": [
+      {
+        "offset": 0,
+        "kind": "aarch64_adrp",
+        "target": "mailbox",
+        "addend": 0
+      },
+      {
+        "offset": 4,
+        "kind": "aarch64_add_lo12",
+        "target": "mailbox",
+        "addend": 0
+      },
+      {
+        "offset": 148,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 101898528
+      },
+      {
+        "offset": 152,
+        "kind": "aarch64_ldr32_lo12",
+        "target": "main",
+        "addend": 101898528
+      },
+      {
+        "offset": 176,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 101758992
+      },
+      {
+        "offset": 180,
+        "kind": "aarch64_ldr64_lo12",
+        "target": "main",
+        "addend": 101758992
+      },
+      {
+        "offset": 192,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 64141512
+      },
+      {
+        "offset": 196,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 64141512
+      },
+      {
+        "offset": 220,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 64144528
+      },
+      {
+        "offset": 224,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 64144528
+      },
+      {
+        "offset": 240,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 64137448
+      },
+      {
+        "offset": 244,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 64137448
+      },
+      {
+        "offset": 268,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 64137072
+      },
+      {
+        "offset": 272,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 64137072
+      },
+      {
+        "offset": 288,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 64492624
+      },
+      {
+        "offset": 292,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 64492624
+      },
+      {
+        "offset": 316,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 65196496
+      },
+      {
+        "offset": 320,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 65196496
+      },
+      {
+        "offset": 376,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 62786856
+      },
+      {
+        "offset": 380,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 62786856
+      },
+      {
+        "offset": 432,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 65184824
+      },
+      {
+        "offset": 436,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 65184824
+      },
+      {
+        "offset": 532,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 47665960
+      },
+      {
+        "offset": 560,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 101754640
+      },
+      {
+        "offset": 564,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 101754640
+      },
+      {
+        "offset": 600,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 64330992
+      },
+      {
+        "offset": 604,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 64330992
+      },
+      {
+        "offset": 732,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 11742164
+      },
+      {
+        "offset": 788,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 47652892
+      },
+      {
+        "offset": 792,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 47652892
+      },
+      {
+        "offset": 804,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 101768768
+      },
+      {
+        "offset": 808,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 101768768
+      },
+      {
+        "offset": 820,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 65811120
+      },
+      {
+        "offset": 824,
+        "kind": "aarch64_ldr64_lo12",
+        "target": "main",
+        "addend": 65811120
+      },
+      {
+        "offset": 844,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 14981952
+      },
+      {
+        "offset": 864,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 2869484
+      },
+      {
+        "offset": 888,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 2869484
+      },
+      {
+        "offset": 900,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 65811232
+      },
+      {
+        "offset": 904,
+        "kind": "aarch64_ldr64_lo12",
+        "target": "main",
+        "addend": 65811232
+      },
+      {
+        "offset": 916,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 10854952
+      },
+      {
+        "offset": 944,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 47652892
+      },
+      {
+        "offset": 952,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 47652984
+      },
+      {
+        "offset": 964,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 14981952
+      },
+      {
+        "offset": 992,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 10854512
+      },
+      {
+        "offset": 1020,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 4757052
+      },
+      {
+        "offset": 1032,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 2869484
+      },
+      {
+        "offset": 1064,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 2869484
+      },
+      {
+        "offset": 1212,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 14977056
+      },
+      {
+        "offset": 1232,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 14976512
+      },
+      {
+        "offset": 1248,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 101768768
+      },
+      {
+        "offset": 1252,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 101768768
+      },
+      {
+        "offset": 1264,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 65811120
+      },
+      {
+        "offset": 1268,
+        "kind": "aarch64_ldr64_lo12",
+        "target": "main",
+        "addend": 65811120
+      },
+      {
+        "offset": 1280,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 2869484
+      },
+      {
+        "offset": 1316,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 7550032
+      },
+      {
+        "offset": 1324,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 14977056
+      },
+      {
+        "offset": 1360,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 2852484
+      },
+      {
+        "offset": 1368,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 14976512
+      },
+      {
+        "offset": 1388,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 10854512
+      },
+      {
+        "offset": 1396,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 2869484
+      },
+      {
+        "offset": 1556,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 28610516
+      },
+      {
+        "offset": 1564,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 65806792
+      },
+      {
+        "offset": 1568,
+        "kind": "aarch64_ldr64_lo12",
+        "target": "main",
+        "addend": 65806792
+      },
+      {
+        "offset": 1684,
+        "kind": "aarch64_adrp",
+        "target": "mailbox",
+        "addend": 0
+      },
+      {
+        "offset": 1688,
+        "kind": "aarch64_add_lo12",
+        "target": "mailbox",
+        "addend": 0
+      },
+      {
+        "offset": 1752,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 1588032
+      },
+      {
+        "offset": 1772,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 1587128
+      },
+      {
+        "offset": 1800,
+        "kind": "aarch64_adrp",
+        "target": "mailbox",
+        "addend": 0
+      },
+      {
+        "offset": 1804,
+        "kind": "aarch64_add_lo12",
+        "target": "mailbox",
+        "addend": 0
+      },
+      {
+        "offset": 1852,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 64954600
+      },
+      {
+        "offset": 1856,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 64954600
+      },
+      {
+        "offset": 1892,
+        "kind": "aarch64_adrp",
+        "target": "main",
+        "addend": 64953672
+      },
+      {
+        "offset": 1896,
+        "kind": "aarch64_add_lo12",
+        "target": "main",
+        "addend": 64953672
+      },
+      {
+        "offset": 2240,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 11032296
+      },
+      {
+        "offset": 2440,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 46397712
+      },
+      {
+        "offset": 2468,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 46398396
+      },
+      {
+        "offset": 2608,
+        "kind": "aarch64_branch26",
+        "target": "main",
+        "addend": 7012748
+      }
+    ]
+  }
+}
