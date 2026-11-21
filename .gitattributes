@@ -1,0 +1,4 @@
+# Generated output from tools/za/gen_manifest.py.
+packages/PokemonLegendsZA/dualscreen/manifest.json linguist-generated=true
+native/modules/za_ui_catalog.h linguist-generated=true
+tools/za/ui_bindings.generated.json linguist-generated=true
