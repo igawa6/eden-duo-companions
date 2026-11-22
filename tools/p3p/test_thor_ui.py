@@ -76,12 +76,12 @@ def main():
 
     # Other pages remain source-derived: every original action, label
     # binding and image-data binding stays attached to its original widget.
-    # Persona intentionally gets five additional asset-free backing elements.
+    # Persona intentionally gets ten route-gated fill/text elements.
     for page_id, old in original_pages.items():
         if page_id in ('home', 'battle'):
             continue
         new = pages[page_id]
-        added = 5 if page_id == 'personas' else 0
+        added = 10 if page_id == 'personas' else 0
         assert len(new['widgets']) == len(old['widgets']) + added, page_id
         assert [w['on_tap'] for w in new['widgets'] if w.get('on_tap')] == [
             w['on_tap'] for w in old['widgets'] if w.get('on_tap')], page_id
@@ -133,8 +133,16 @@ def main():
     for bind, y in [('pd.card', 879), ('pd.nextskill', 925)]:
         assert all(w['rect'] == [532, y, 660, 37] and w.get('fit_text')
                    for w in persona_widgets if w.get('bind_text') == bind)
-    assert sum(w.get('text') == 'AFFINITIES' for w in persona_widgets) == 1
-    assert sum(w.get('text') == 'SKILLS' for w in persona_widgets) == 1
+    for section in ('AFFINITIES', 'SKILLS'):
+        labels = [w for w in persona_widgets if w.get('text') == section]
+        assert len(labels) == 2
+        assert {w.get('hide_eq') for w in labels} == {0, 1}
+    panels = [w for w in persona_widgets
+              if w.get('rect') == [504, 104, 716, 864]]
+    assert len(panels) == 2
+    assert {w.get('hide_eq') for w in panels} == {0, 1}
+    assert any(w.get('src_format') == 'module:p3p:persona/%d@248'
+               for w in persona_widgets if w.get('bind') == 'pd.id')
 
     skill_widgets = pages['skills']['widgets']
     for i in range(10):
