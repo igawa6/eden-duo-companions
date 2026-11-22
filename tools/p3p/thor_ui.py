@@ -166,15 +166,15 @@ def battle(p):
 # repeater expressions, page bindings or native game-state data.
 READABILITY = {
     'personas': {
-        'pd.name': {'rect': [527, 120, 418, 48], 'text_scale': 6},
-        'pd.arcana': {'rect': [790, 164, 404, 32], 'text_scale': 4},
-        'pd.card': {'rect': [448, 874, 728, 32], 'text_scale': 4},
-        'pd.nextskill': {'rect': [448, 916, 728, 32], 'text_scale': 4},
+        'pd.name': {'rect': [527, 120, 665, 48], 'text_scale': 6},
+        'pd.arcana': {'rect': [527, 171, 430, 32], 'text_scale': 5},
+        'pd.card': {'rect': [532, 879, 660, 37], 'text_scale': 5},
+        'pd.nextskill': {'rect': [532, 925, 660, 37], 'text_scale': 5},
     },
     'skills': {
         'skill.header': {'text_scale': 5},
-        'skill.{i}.name': {'rect': [136, 310, 760, 44], 'text_scale': 5},
-        'skill.{i}.help': {'rect': [136, 360, 1040, 32], 'text_scale': 4},
+        'skill.{i}.name': {'rect': [146, 310, 780, 44], 'text_scale': 5},
+        'skill.{i}.help': {'rect': [146, 360, 1060, 32], 'text_scale': 5},
     },
     'links': {
         'link.{i}.name': {'text_scale': 5},
@@ -203,6 +203,129 @@ READABILITY = {
         'talk.text': {'text_scale': 5, 'max_lines': 5},
     },
 }
+
+
+def persona_layout(p):
+    """Port v1.8.10's Persona geometry using only existing game bindings.
+
+    The old two-column detail pane crowds the Persona list. The new list and
+    stat/affinity/skill lanes use the tested release's proportions; backgrounds
+    are native fill widgets, never the release archive's raster artwork.
+    """
+    widgets = p['widgets']
+    panel = [
+        shape([504, 104, 716, 864], '#EDF6FCFF'),
+        shape([525, 519, 670, 3], BLUE),
+        label([526, 477, 480, 42], 'AFFINITIES', scale=6, color=BLUE),
+        shape([525, 682, 670, 3], BLUE),
+        label([526, 641, 480, 42], 'SKILLS', scale=6, color=BLUE),
+    ]
+    widgets[3:3] = panel
+
+    stat_names = {'St': 0, 'Ma': 1, 'En': 2, 'Ag': 3, 'Lu': 4}
+    for w in widgets:
+        a = w.get('on_tap', '')
+        bind = w.get('bind_text', '')
+        value_bind = w.get('bind', '')
+        typ = w.get('type')
+
+        if a.startswith('persona.select.'):
+            n = int(a.rsplit('.', 1)[1])
+            if 0 <= n < 12:
+                w['rect'] = [26, 102 + n * 72, 460, 68]
+
+        if bind.startswith('persona.') and bind.endswith('.line'):
+            n = int(bind.split('.')[1])
+            if 0 <= n < 12:
+                w.update(rect=[66, 104+n*72, 390, 64], text_scale=5,
+                         fit_text=True, wrap_width=390, text_min_scale=4)
+
+        if (typ == 'image' and w.get('src') == 'module:p3p:fill'
+                and len(w.get('rect', [])) == 4):
+            x, y, width, height = w['rect']
+            if x == 36 and width == 392 and height == 64 and y >= 104:
+                w['rect'] = [26, y, 460, 64]
+
+        if value_bind == 'pd.id' and typ == 'image':
+            w['rect'] = [526, 215, 248, 248]
+
+        if (value_bind.startswith('pd.stat.') and
+                value_bind.rsplit('.', 1)[1].isdigit()):
+            n = int(value_bind.rsplit('.', 1)[1])
+            if n < 5:
+                if typ == 'bar':
+                    w['rect'] = [894, 235+49*n, 220, 21]
+                elif typ == 'value':
+                    w['rect'] = [1190, 229+49*n, 0, 35]
+
+        if typ == 'label' and w.get('text') in stat_names:
+            n = stat_names[w['text']]
+            # Only relocate the original right-hand stat labels.
+            if w.get('rect', [0])[0] >= 700:
+                w['rect'] = [798, 229+49*n, 65, 35]
+
+        if bind.startswith('pd.aff.') and bind.rsplit('.', 1)[1].isdigit():
+            n = int(bind.rsplit('.', 1)[1])
+            if n < 9:
+                w['rect'] = [556+75*n, 601, 0, 30]
+
+        if (typ == 'image' and w.get('src') == 'module:p3p:fill'
+                and len(w.get('rect', [])) == 4):
+            x, y, width, height = w['rect']
+            if y == 524 and width == 79 and height == 96 and 448 <= x <= 1128:
+                n = (x-448)//85
+                if n < 9:
+                    w['rect'] = [521+75*n, 552, 72, 85]
+
+        if (typ == 'image' and
+                w.get('src', '').startswith('module:p3p:spr/') and
+                w.get('src', '').endswith('@40')):
+            try:
+                n = int(w['src'].split('/')[1].split('@')[0]) - 223
+            except (IndexError, ValueError):
+                n = -1
+            if 0 <= n < 9:
+                w['rect'] = [533+75*n, 559, 48, 40]
+
+        if bind.startswith('pd.skill.') and bind.rsplit('.', 1)[1].isdigit():
+            n = int(bind.rsplit('.', 1)[1])
+            if n < 8:
+                w.update(rect=[534+344*(n//4), 711+38*(n%4), 311, 37],
+                         text_scale=5, fit_text=True, wrap_width=311,
+                         text_min_scale=4, max_lines=1)
+
+        if bind == 'pd.next':
+            w.update(rect=[950, 656, 242, 35], text_scale=4,
+                     fit_text=True, wrap_width=242, text_min_scale=3)
+
+        if w.get('need_bind') == 'persona.can_use':
+            w['rect'] = [982, 160, 220, 50]
+            if typ == 'button':
+                w.update(text='EQUIP', text_scale=5)
+
+
+def skills_layout(p):
+    """Bring the skill-row spacing and member hitboxes in line with v1.8.10."""
+    for w in p['widgets']:
+        a = w.get('on_tap', '')
+        bind = w.get('bind_text', '')
+        if a.startswith('member.select.') and a.rsplit('.', 1)[1].isdigit():
+            n = int(a.rsplit('.', 1)[1])
+            if 0 <= n < 10:
+                w['rect'] = [33+240*(n%5), 100+74*(n//5), 236, 72]
+        if bind.startswith('member.') and bind.endswith('.tab'):
+            w.update(text_scale=5, fit_text=True, wrap_width=214,
+                     text_min_scale=4)
+        if bind == 'skill.{i}.name':
+            w.update(rect=[146, 310, 780, 44], text_scale=5,
+                     fit_text=True, wrap_width=780, text_min_scale=4,
+                     max_lines=1)
+        elif bind == 'skill.{i}.help':
+            w.update(rect=[146, 360, 1060, 32], text_scale=5,
+                     fit_text=True, wrap_width=1060, text_min_scale=4,
+                     max_lines=1)
+        elif w.get('bind') == 'skill.{i}.icon' and w.get('type') == 'image':
+            w['rect'] = [82, 310, 48, 48]
 
 
 def normalize_other_pages(p):
@@ -236,14 +359,9 @@ def normalize_other_pages(p):
             w.setdefault('max_lines', 1)
 
     if page_id == 'personas':
-        # Move the original action plus its backing panel together.  The old
-        # bottom-right action collides with the two long Persona info lines.
-        for w in p['widgets']:
-            if (w.get('need_bind') == 'persona.can_use'
-                    and w.get('rect') == [876, 868, 340, 88]):
-                w['rect'] = [966, 104, 250, 66]
-                if w.get('on_tap') == 'persona.use':
-                    w['text_scale'] = 4
+        persona_layout(p)
+    elif page_id == 'skills':
+        skills_layout(p)
 
 def apply(path=MANIFEST):
     data = json.loads(path.read_text(encoding='utf-8'))
