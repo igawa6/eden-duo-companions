@@ -42,7 +42,7 @@ never writes to the game.
 
 | Script | What it does |
 |---|---|
-| `gen_manifest.py` | Writes `packages/Persona3Portable/dualscreen/manifest.json`. Standard library only. |
+| `gen_manifest.py` | Writes `packages/Persona3Portable/dualscreen/manifest.json`. Standard library only; `--thor-ui` opts into the unfinished AYN Thor source-preview layout. |
 | `gen_pins.py <main NSO>` | Rewrites `native/modules/p3p_pins.inc`, the FNV-1a fingerprints of the game code the module relies on. Needs your own decrypted `main` from the supported build. |
 | `nso.py` | Decompresses and hash-checks an NSO (`--relocate` applies relative relocations). Needs system `liblz4.so.1`. |
 | `saves.py` | Bounded decoder for the save container; holds the supported build ID used by the generators. |
@@ -61,6 +61,19 @@ cmake -S native/modules -B build-mods -G Ninja -DCMAKE_BUILD_TYPE=Release \
 cmake --build build-mods --parallel 4
 ctest --test-dir build-mods -R '^dsmod-p3p$' --output-on-failure
 ```
+
+The community AYN Thor redesign currently has a **draft source port**.
+To inspect its asset-free UI prototype, generate the optional layout instead of
+the standard manifest:
+
+```sh
+python3 tools/p3p/gen_manifest.py --thor-ui
+python3 tools/p3p/test_thor_ui.py  # Run against a freshly generated base manifest instead
+```
+
+The standard command without `--thor-ui` remains the default. The draft UI
+still requires hardware validation and is not ready for release. See
+[THOR_UI_PORT.md](THOR_UI_PORT.md) for its implementation and testing status.
 
 `EDEN_P3P_STANDALONE` configures only the P3P targets. Package the stripped module with
 `tools/build_dualscreen_package.py --package packages/Persona3Portable` as for the other games.
