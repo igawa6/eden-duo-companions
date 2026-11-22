@@ -24,12 +24,13 @@ python3 tools/p3p/test_thor_ui.py
 ```
 
 The final command is an offline structural test, not an emulator test.
-The updated structural tests still need to be executed in a full repository
-checkout; source changes in this draft have not been validated on-device.
-A draft-only GitHub Actions workflow is included at
-`.github/workflows/p3p-thor-source-port.yml` to run the generated manifest
-checks on the fork's branch. On GitHub forks, Actions may need to be enabled
-before that workflow runs. A missing workflow result is not a test pass.
+The draft-only GitHub Actions workflow at
+`.github/workflows/p3p-thor-source-port.yml` generated the P3P manifest,
+validated Python syntax and JSON output, and **passed the Thor UI structural
+tests** on the fork's branch on 2026-11-22 (see
+[successful run](https://github.com/speerit1/eden-duo-companions/actions/runs/44989684822)).
+This validates source generation and structural invariants, **not** native
+module compilation, rendering on Eden Duo, or hardware interaction.
 Run the usual native module build and package process documented in
 [tools/p3p/README.md](README.md) after generating the manifest. **Do not
 publish this prototype as a release** before full on-device validation.
@@ -82,8 +83,9 @@ publish this prototype as a release** before full on-device validation.
 - Compare both protagonist color themes on-device. The Persona detail
   background, section headings and divider lines now use route-specific
   blue or pink variants, but their appearance needs renderer validation.
-- Execute the updated structural test against a clean source-generated
-  manifest and run end-to-end build checks before requesting merge.
+- Run the native CMake/ctest module build and end-to-end packaging checks
+  before requesting merge; GitHub Actions currently covers only source generation
+  and manifest/UI structural checks.
 
 Game: Persona 3 Portable Switch **1.0.0**, title ID
 `0100DCD01525A000`. Minimum runtime: **19**.
