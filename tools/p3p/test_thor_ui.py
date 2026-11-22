@@ -17,7 +17,33 @@ def main():
         tmp = Path(directory) / 'manifest.json'
         tmp.write_text(json.dumps(original), encoding='utf-8')
         apply(tmp)
-        result = json.loads(tmp.read_text(encoding='utf-8'))
+        first_pass = tmp.read_bytes()
+        apply(tmp)
+        assert tmp.read_bytes() == first_pass, (
+            'Running Thor source port twice must not duplicate UI widgets')
+        result = json.loads(first_pass.decode('utf-8'))
+
+        # Guard against silent corruption of unrelated game manifests.
+        wrong = dict(original, title_id='NOT-PERSONA3-PORTABLE')
+        tmp.write_text(json.dumps(wrong), encoding='utf-8')
+        try:
+            apply(tmp)
+        except AssertionError as exc:
+            assert 'Persona 3 Portable' in str(exc)
+        else:
+            raise AssertionError('UI port accepted an unrelated title ID')
+        assert json.loads(tmp.read_text(encoding='utf-8')) == wrong
+
+        # A modified source should be regenerated instead of silently patched.
+        modified = dict(original, name='Unknown source-generated layout')
+        tmp.write_text(json.dumps(modified), encoding='utf-8')
+        try:
+            apply(tmp)
+        except AssertionError as exc:
+            assert 'Regenerate the base manifest' in str(exc)
+        else:
+            raise AssertionError('UI port accepted an unknown source manifest')
+        assert json.loads(tmp.read_text(encoding='utf-8')) == modified
 
     for key in ('module_outputs','module','actions','page_binds',
                 'enforce','enforce_gate'):
