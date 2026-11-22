@@ -18,10 +18,21 @@ definitions or published game-state outputs.
 From the repository root:
 
 ```sh
+# Standard P3P manifest (unchanged):
 python3 tools/p3p/gen_manifest.py
-python3 tools/p3p/thor_ui.py
+# Explicitly opt into this unfinished Thor source-preview layout:
+python3 tools/p3p/gen_manifest.py --thor-ui
+# Offline regression tests (run against the standard manifest):
+python3 tools/p3p/gen_manifest.py
 python3 tools/p3p/test_thor_ui.py
 ```
+
+The `--thor-ui` option is **opt-in**: running `gen_manifest.py`
+without it still generates the original P3P companion. The separate
+`thor_ui.py` pass is idempotent when run twice on the same generated preview;
+it rejects unknown game title IDs or unexpected source manifest names instead
+of silently changing them. To build an optional preview package, rerun the
+generator **with** `--thor-ui` after completing the offline tests.
 
 The final command is an offline structural test, not an emulator test.
 The draft-only GitHub Actions workflow at
@@ -29,7 +40,8 @@ The draft-only GitHub Actions workflow at
 validated Python syntax and JSON output, and **passed the Thor UI structural
 tests** on the fork's branch on 2026-11-22 (see
 [successful run](https://github.com/speerit1/eden-duo-companions/actions/runs/44989684822)).
-This validates source generation and structural invariants, **not** native
+This validates both standard and opt-in manifest generation, stability
+of the repeated UI pass, and structural invariants, **not** native
 module compilation, rendering on Eden Duo, or hardware interaction.
 Run the usual native module build and package process documented in
 [tools/p3p/README.md](README.md) after generating the manifest. **Do not
