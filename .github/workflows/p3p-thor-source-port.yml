@@ -38,6 +38,7 @@ jobs:
           pages = {page['id']: page for page in data['pages']}
           assert all('file:img/' not in w.get('src', '')
                      for page in pages.values() for w in page['widgets'])
+          assert len(pages['start']['widgets']) == 12
           assert len(pages['personas']['widgets']) > 147
           assert len(pages['talk']['widgets']) > 58
           assert any(w.get('bind_text') == 'cal.41.text'
