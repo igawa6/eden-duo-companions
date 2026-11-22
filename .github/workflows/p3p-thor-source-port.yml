@@ -23,6 +23,8 @@ jobs:
         run: python tools/p3p/gen_manifest.py
       - name: Run Thor UI structural tests
         run: python tools/p3p/test_thor_ui.py
+      - name: Generate the source-ported UI manifest
+        run: python tools/p3p/thor_ui.py
       - name: Check that emitted JSON parses and has expected integration
         run: |
           python - <<'PY'
@@ -33,5 +35,15 @@ jobs:
           assert len(data['pages']) == 12
           assert len(data['module_outputs']) == 2798
           assert len(data['actions']) == 61
-          print('P3P source manifest: parse and output checks passed')
+          pages = {page['id']: page for page in data['pages']}
+          assert all('file:img/' not in w.get('src', '')
+                     for page in pages.values() for w in page['widgets'])
+          assert len(pages['personas']['widgets']) > 147
+          assert len(pages['talk']['widgets']) > 58
+          assert any(w.get('bind_text') == 'cal.41.text'
+                     and w.get('rect', [0, 0])[1] == 738
+                     for w in pages['calendar']['widgets'])
+          assert sum(bool(w.get('on_tap')) for w in
+                     pages['talk']['widgets']) == 25
+          print('P3P Thor source manifest: generation and checks passed')
           PY
