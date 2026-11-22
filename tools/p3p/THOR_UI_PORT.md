@@ -23,24 +23,36 @@ python3 tools/p3p/thor_ui.py
 python3 tools/p3p/test_thor_ui.py
 ```
 
-The final command is an offline structural test, not an emulator test. Run the
-usual native module build and package process documented in
+The final command is an offline structural test, not an emulator test.
+The updated structural tests still need to be executed in a full repository
+checkout; source changes in this draft have not been validated on-device.
+Run the usual native module build and package process documented in
 [tools/p3p/README.md](README.md) after generating the manifest. **Do not
 publish this prototype as a release** before full on-device validation.
 
 ## What is implemented so far
 
 - Main: eight full-width aligned label/touch rows, clearer date/portrait/status
-  layout, room between the last menu entry and HP/SP area.
+  layout, and space between navigation and HP/SP.
 - Battle: pale-gold party names, separated HP/SP value/bar columns, five enemy
   rows, and text-fitting safeguards.
-- Other screens: a limited readability pass on dynamic names and details.
-- Core: the 12 screens, all defined actions, and 2,798 reader outputs preserved.
+- Main and Battle: original pause overlays retained, including the input-blocking
+  layer; the Main error-state message is also retained.
+- Persona: dynamic title/arcana and progression lanes aligned; the original
+  "Use this Persona" control and its panel moved together to the header to
+  prevent overlap with long progression details.
+- Skill, S.Link, Item, Equip, Status, Calendar and Talk: targeted alignment and
+  dynamic-text fitting rules, preserving generated controls and data bindings.
+- Core: all 12 screens, existing action definitions and 2,798 reader outputs
+  preserved. Added offline checks for pause behavior, actions, 42 calendar cells,
+  and the original skill-icon binding.
 
 ## Remaining work before upstream merge
 
-- Reproduce the local v1.8.10 layouts across Persona, Skill, Status, S.Link,
-  Calendar, Equip, Item, Map and Talk using maintainable source generators.
+- Reproduce the *full* v1.8.10 visual design across Persona, Skill, Status,
+  S.Link, Calendar, Equip, Item, Map, Talk and the start screen using
+  maintainable, game-asset-free source generators. The changes above are
+  partial layout and typography passes, not complete screen recreations.
 - Review legal/provenance status of any procedural art before adding it. Do not
   commit game-extracted assets.
 - Validate touch-to-label alignment on an AYN Thor.
