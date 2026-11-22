@@ -67,8 +67,12 @@ To inspect its asset-free UI prototype, generate the optional layout instead of
 the standard manifest:
 
 ```sh
+# Generate the optional UI for a preview package:
 python3 tools/p3p/gen_manifest.py --thor-ui
-python3 tools/p3p/test_thor_ui.py  # Run against a freshly generated base manifest instead
+
+# To run regression tests, regenerate the standard source manifest first:
+python3 tools/p3p/gen_manifest.py
+python3 tools/p3p/test_thor_ui.py
 ```
 
 The standard command without `--thor-ui` remains the default. The draft UI
