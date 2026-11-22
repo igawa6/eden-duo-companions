@@ -451,6 +451,154 @@ def items_layout(p):
     p['widgets'] = widgets
 
 
+
+def status_layout(p):
+    """Keep the native stat/social data, matching the Thor member-tab geometry."""
+    widgets = []
+    stat_cards = 0
+    social_cards = 0
+    for w in p['widgets']:
+        action = w.get('on_tap', '')
+        bind = w.get('bind_text', '')
+        if action.startswith('member.select.') and action.rsplit('.', 1)[1].isdigit():
+            n = int(action.rsplit('.', 1)[1])
+            if 0 <= n < 10:
+                w['rect'] = [33 + 240 * (n % 5), 100 + 74 * (n // 5),
+                             236, 72]
+        if bind.startswith('member.') and bind.endswith('.tab'):
+            w.update(text_scale=5, fit_text=True, wrap_width=214,
+                     text_min_scale=4)
+        if bind.startswith('social.') and bind.endswith('.name'):
+            w.update(fit_text=True, wrap_width=420,
+                     text_min_scale=3, max_lines=1)
+        if bind == 'stat.next':
+            w.update(fit_text=True, wrap_width=800,
+                     text_min_scale=3, max_lines=1)
+        widgets.append(w)
+
+        if w.get('type') != 'image' or w.get('src') != 'module:p3p:fill':
+            continue
+        r = w.get('rect', [])
+        if (len(r) == 4 and r[2:] == [230, 64]
+                and r[0] in (36, 276, 516, 756, 996)
+                and r[1] in (104, 178)
+                and w.get('need_bind', '').startswith('member.')):
+            w['rect'] = [r[0]-3, r[1]-4, 236, 72]
+        if r == [36, 302, 1188, 362] and w.get('need_bind') == 'stat.ready':
+            stat_cards += 1
+            widgets += by_route(
+                lambda accent: shape([36, 302, 10, 362], accent,
+                                     need_bind='stat.ready'))
+        if (len(r) == 4 and r[0] == 36 and r[2:] == [1188, 76]
+                and r[1] in (674, 766, 858)):
+            social_cards += 1
+            widgets += by_route(
+                lambda accent, y=r[1]: shape([36, y, 10, 76], accent,
+                                            need_bind=w.get('need_bind'))
+            )
+    assert stat_cards == 1 and social_cards == 3, (
+        'Unexpected Status/social card geometry')
+    p['widgets'] = widgets
+
+
+def calendar_layout(p):
+    """Match the six-row v1.8.10 grid, keeping all 42 live day states.
+
+    This moves *existing* today/holiday/present labels and moon symbols,
+    including the sixth week; it never invents calendar data.
+    """
+    seen = {'prev': 0, 'next': 0, 'days': set()}
+    for w in p['widgets']:
+        action = w.get('on_tap', '')
+        r = w.get('rect', [])
+        if action in ('calendar.prev', 'calendar.next'):
+            seen[action.rsplit('.', 1)[1]] += 1
+            w['rect'] = [r[0], 98, 220, 84]
+            w['text_center_h'] = 84
+
+        if (w.get('type') == 'image'
+                and w.get('src') == 'module:p3p:fill'
+                and r in ([36, 104, 220, 72], [1004, 104, 220, 72])
+                and w.get('need_bind') == 'cal.ready'):
+            w['rect'] = [r[0], 98, 220, 84]
+
+        binds = [w.get(k, '') for k in ('bind_text', 'need_bind')]
+        day_keys = [b for b in binds if b.startswith('cal.')
+                    and len(b.split('.')) == 3
+                    and b.split('.')[1].isdigit()]
+        if not day_keys:
+            continue
+        n = int(day_keys[0].split('.')[1])
+        if not 0 <= n < 42 or len(r) != 4:
+            continue
+        row = n // 7
+        seen['days'].add(n)
+        if r[1] == 228 + 114 * row and r[3] == 106:
+            w['rect'] = [r[0], 228 + 100 * row, r[2], 91]
+        elif r[1] == 238 + 114 * row and r[3] == 44:
+            w['rect'] = [r[0], 238 + 100 * row, r[2], 44]
+        elif (r[1] == 284 + 114 * row and r[3] == 44
+              and w.get('need_bind') == f'cal.{n}.full'):
+            w['rect'] = [r[0], 274 + 100 * row, r[2], 36]
+            if w.get('src') == 'module:p3p:spr/555@44':
+                w['src'] = 'module:p3p:spr/555@36'
+
+    assert seen['prev'] == seen['next'] == 1
+    assert seen['days'] == set(range(42)), 'Calendar must preserve six weeks'
+
+
+def map_layout(p):
+    """Frame the live map without changing its tile/marker geometry or binds."""
+    widgets = []
+    frame = 0
+    for w in p['widgets']:
+        if w.get('bind_text') == 'map.floor':
+            w.update(rect=[420, 18, 600, 48], fit_text=True,
+                     wrap_width=600, text_min_scale=4, max_lines=1)
+        if (w.get('type') == 'image'
+                and w.get('src') == 'module:p3p:fill'
+                and w.get('need_bind') == 'map.ready'
+                and w.get('rect') == [180, 96, 880, 880]):
+            frame += 1
+            widgets += by_route(
+                lambda accent: shape([172, 88, 896, 896], accent,
+                                     need_bind='map.ready'))
+        widgets.append(w)
+    assert frame == 1, 'Unexpected map background geometry'
+    p['widgets'] = widgets
+
+
+def talk_layout(p):
+    """Style dialogue choices without altering directional button gating."""
+    widgets = []
+    rows = set()
+    for w in p['widgets']:
+        bind = w.get('bind_text', '')
+        if bind == 'talk.text':
+            w.update(fit_text=True, wrap_width=1100,
+                     text_min_scale=4, max_lines=4)
+        if bind.startswith('choice.') and bind.endswith('.text'):
+            w.update(fit_text=True, wrap_width=1100,
+                     text_min_scale=4, max_lines=2)
+        widgets.append(w)
+
+        need = w.get('need_bind', '')
+        if (w.get('type') == 'image'
+                and w.get('src') == 'module:p3p:fill'
+                and need.startswith('choice.')
+                and need.endswith('.selected')):
+            parts = need.split('.')
+            if len(parts) == 3 and parts[1].isdigit():
+                n = int(parts[1])
+                if 0 <= n < 5:
+                    rows.add(n)
+                    widgets += by_route(
+                        lambda accent, i=n: shape(
+                            [36, 430 + 108 * i, 12, 96], accent,
+                            need_bind=f'choice.{i}.present'))
+    assert rows == set(range(5)), 'Unexpected dialogue choice rows'
+    p['widgets'] = widgets
+
 def normalize_other_pages(p):
     page_id = p['id']
     rules = READABILITY.get(page_id, {})
@@ -491,6 +639,14 @@ def normalize_other_pages(p):
         equip_layout(p)
     elif page_id == 'items':
         items_layout(p)
+    elif page_id == 'stats':
+        status_layout(p)
+    elif page_id == 'calendar':
+        calendar_layout(p)
+    elif page_id == 'map':
+        map_layout(p)
+    elif page_id == 'talk':
+        talk_layout(p)
 
 def apply(path=MANIFEST):
     data = json.loads(path.read_text(encoding='utf-8'))
