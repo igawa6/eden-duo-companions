@@ -74,36 +74,84 @@ def main():
                 w for w in original_pages['home']['widgets']
                 if w.get('need_bind') == 'module_error']
 
-    # Other pages remain source-derived: every original touch action stays in
-    # the same order and each generated repeater/bind retains its slot.
+    # Other pages remain source-derived: every original action, label
+    # binding and image-data binding stays attached to its original widget.
+    # Persona intentionally gets five additional asset-free backing elements.
     for page_id, old in original_pages.items():
         if page_id in ('home', 'battle'):
             continue
         new = pages[page_id]
-        assert len(new['widgets']) == len(old['widgets']), page_id
-        assert [w.get('on_tap') for w in new['widgets']] == [
-            w.get('on_tap') for w in old['widgets']], page_id
-        assert [w.get('bind_text') for w in new['widgets']] == [
-            w.get('bind_text') for w in old['widgets']], page_id
+        added = 5 if page_id == 'personas' else 0
+        assert len(new['widgets']) == len(old['widgets']) + added, page_id
+        assert [w['on_tap'] for w in new['widgets'] if w.get('on_tap')] == [
+            w['on_tap'] for w in old['widgets'] if w.get('on_tap')], page_id
+        assert [w['bind_text'] for w in new['widgets']
+                if w.get('bind_text')] == [
+                w['bind_text'] for w in old['widgets']
+                if w.get('bind_text')], page_id
+        assert [w['bind'] for w in new['widgets'] if w.get('bind')] == [
+            w['bind'] for w in old['widgets'] if w.get('bind')], page_id
 
-    # Persona's action and its backing card move together to make room for
-    # progression text. They must not overlap the dynamic Persona name.
     persona_widgets = pages['personas']['widgets']
-    use = [w for w in persona_widgets if w.get('need_bind') == 'persona.can_use'
-           and w.get('rect') == [966, 104, 250, 66]]
-    assert len(use) == 2
-    pd_name = [w for w in persona_widgets if w.get('bind_text') == 'pd.name']
-    assert pd_name and all(w.get('rect') == [527, 120, 418, 48]
-                           for w in pd_name)
-    assert all(w['rect'][0]+w['rect'][2] < use[0]['rect'][0]
-               for w in pd_name)
-    for bind in ('pd.card', 'pd.nextskill'):
-        assert all(w.get('fit_text') for w in persona_widgets
-                   if w.get('bind_text') == bind)
+    for i in range(12):
+        controls = [w for w in persona_widgets
+                    if w.get('on_tap') == f'persona.select.{i}']
+        assert len(controls) == 1
+        assert controls[0]['rect'] == [26, 102+72*i, 460, 68]
+        names = [w for w in persona_widgets
+                 if w.get('bind_text') == f'persona.{i}.line']
+        assert names
+        assert all(w['rect'] == [66, 104+72*i, 390, 64] for w in names)
+        assert all(w.get('fit_text') for w in names)
+        # Tap bounds cover the entire name row.
+        assert controls[0]['rect'][0] <= names[0]['rect'][0]
+        assert controls[0]['rect'][0] + 460 >= names[0]['rect'][0] + 390
 
-    # Keep the skill icon source attached to its original live binding. A
-    # tentative sprite ID is not a verified replacement for Support skills.
-    assert [w.get('src_format') for w in pages['skills']['widgets']
+    # Persona details now use the final design's layout proportions.
+    use = [w for w in persona_widgets if w.get('need_bind') == 'persona.can_use']
+    assert len(use) == 2
+    assert all(w['rect'] == [982, 160, 220, 50] for w in use)
+    assert any(w.get('on_tap') == 'persona.use' and w.get('text') == 'EQUIP'
+               for w in use)
+    assert all(w['rect'] == [527, 120, 665, 48]
+               for w in persona_widgets if w.get('bind_text') == 'pd.name')
+    assert all(w['rect'] == [527, 171, 430, 32]
+               for w in persona_widgets if w.get('bind_text') == 'pd.arcana')
+    assert any(w.get('bind') == 'pd.id'
+               and w.get('rect') == [526, 215, 248, 248]
+               for w in persona_widgets)
+    for i in range(5):
+        assert any(w.get('type') == 'bar'
+                   and w.get('bind') == f'pd.stat.{i}'
+                   and w['rect'] == [894, 235+49*i, 220, 21]
+                   for w in persona_widgets)
+    for i in range(8):
+        assert all(w['rect'] == [534+344*(i//4), 711+38*(i%4), 311, 37]
+                   and w.get('fit_text')
+                   for w in persona_widgets
+                   if w.get('bind_text') == f'pd.skill.{i}')
+    for bind, y in [('pd.card', 879), ('pd.nextskill', 925)]:
+        assert all(w['rect'] == [532, y, 660, 37] and w.get('fit_text')
+                   for w in persona_widgets if w.get('bind_text') == bind)
+    assert sum(w.get('text') == 'AFFINITIES' for w in persona_widgets) == 1
+    assert sum(w.get('text') == 'SKILLS' for w in persona_widgets) == 1
+
+    skill_widgets = pages['skills']['widgets']
+    for i in range(10):
+        controls = [w for w in skill_widgets
+                    if w.get('on_tap') == f'member.select.{i}']
+        assert len(controls) == 1
+        assert controls[0]['rect'] == [
+            33+240*(i%5), 100+74*(i//5), 236, 72]
+    assert all(w['rect'] == [146, 310, 780, 44]
+               for w in skill_widgets
+               if w.get('bind_text') == 'skill.{i}.name')
+    assert all(w['rect'] == [146, 360, 1060, 32]
+               for w in skill_widgets
+               if w.get('bind_text') == 'skill.{i}.help')
+    # Keep the game's original skill icon lookup. A tentative sprite ID is
+    # not a verified fix for Support skills such as Rakukaja.
+    assert [w.get('src_format') for w in skill_widgets
             if w.get('bind') == 'skill.{i}.icon'] == [
                 w.get('src_format') for w in original_pages['skills']['widgets']
                 if w.get('bind') == 'skill.{i}.icon']
