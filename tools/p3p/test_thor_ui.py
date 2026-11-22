@@ -75,6 +75,40 @@ def main():
                 ref = widget.get(field,'')
                 assert not ref.startswith('file:img/'), (page['id'], ref)
 
+    # Every source-port widget must use an existing game-state binding or
+    # an original manifest-defined condition. This prevents attractive but
+    # permanently blank labels caused by accidental new output names.
+    ref_fields = ('bind', 'bind_text', 'need_bind', 'hide_bind',
+                  'max_bind', 'tint_bind', 'src_bind', 'x_bind',
+                  'y_bind', 'rotate_bind')
+    original_refs = set(original['module_outputs'])
+    for page in original['pages']:
+        for widget in page['widgets']:
+            original_refs.update(widget.get(k) for k in ref_fields
+                                 if isinstance(widget.get(k), str))
+    for page in result['pages']:
+        for widget in page['widgets']:
+            for key in ref_fields:
+                ref = widget.get(key)
+                if isinstance(ref, str):
+                    assert ref in original_refs, (
+                        f'Unknown UI/game binding: {page["id"]}.{key}={ref}')
+            for key in ('src', 'src_format', 'mask_src'):
+                ref = widget.get(key, '')
+                assert not ref.startswith('file:img/'), (
+                    page['id'], key, ref)
+            rect = widget.get('rect')
+            if widget.get('on_tap'):
+                assert isinstance(rect, list) and len(rect) == 4
+                x, y, width, height = rect
+                assert all(isinstance(n, (float, int))
+                           for n in rect), (page['id'], rect)
+                assert width > 0 and height > 0, (
+                    'Non-interactive-sized touch region', page['id'], rect)
+                assert 0 <= x and 0 <= y and x+width <= 1240
+                assert y+height <= 1080, (
+                    'Out-of-bounds touch region', page['id'], rect)
+
     battle = pages['battle']['widgets']
     for i in range(4):
         assert any(w.get('bind_text') == f'party.{i}.name'
