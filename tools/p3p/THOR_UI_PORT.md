@@ -58,8 +58,17 @@ publish this prototype as a release** before full on-device validation.
 - Items: route-colored item-row edge and fitted party target names within their
   original use-item touch buttons; item-category tabs, select and cancel
   actions are preserved.
-- Status, Calendar and Talk: targeted text-fitting and alignment rules,
-  preserving generated controls and data bindings.
+- Status: member hitboxes match the 236x72 Thor party-tabs; route accents
+  on the main stat panel and three social-attribute cards; longer names fit.
+- Calendar: all 42 live day cells use the finished v1.8.10 six-week grid
+  (100-pixel row pitch, 91-pixel panels). Today, holidays, full-moon sprites
+  and Prev/Next actions keep their existing live bindings.
+- Map: route-colored frame behind the original live map. Floor labels get a
+  wider title lane; map tiles, animated position indicators and all coordinate
+  bindings are unchanged.
+- Talk: each of five dialogue choices gets a route-colored edge and two-line
+  text fitting, while preserving every original choice/selection action.
+- Status, Calendar, Map and Talk still need hardware visual validation.
 - Core: all 12 screens, existing action definitions and 2,798 reader outputs
   preserved. Added offline checks for pause behavior, actions, 42 calendar cells,
   and the original skill-icon binding.
@@ -73,8 +82,9 @@ publish this prototype as a release** before full on-device validation.
 - Review legal/provenance status of any procedural art before adding it. Do not
   commit game-extracted assets.
 - Validate touch-to-label alignment, Persona action placement, long
-  skill descriptions, equipment selection, item-use target labels, and
-  multi-line S.Link text on an AYN Thor.
+  skill descriptions, equipment selection, item-use target labels,
+  multi-line S.Link and dialogue text, the full six-week Calendar,
+  and live Tartarus map overlays on an AYN Thor.
 - Confirm the exact Support symbol and skill-category mappings in Eden Duo.
   The native module currently emits 0 for some skill categories, including
   Support, so this prototype does not claim a verified icon fix.
