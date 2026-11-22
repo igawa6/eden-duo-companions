@@ -661,4 +661,16 @@ def main():
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(json.dumps(result, indent=2) + '\n')
 
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        '--thor-ui', action='store_true',
+        help='opt in to the asset-free AYN Thor UI source-preview layout')
+    options = parser.parse_args()
+    main()
+    if options.thor_ui:
+        # Keep the normal generated manifest unchanged unless explicitly asked.
+        from thor_ui import apply as apply_thor_ui
+        apply_thor_ui()
