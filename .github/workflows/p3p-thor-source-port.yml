@@ -1,0 +1,37 @@
+name: P3P Thor source port checks
+
+on:
+  push:
+    branches:
+      - p3p-thor-ui-source-port
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-port:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate Python syntax
+        run: python -m compileall -q tools/p3p/gen_manifest.py tools/p3p/thor_ui.py tools/p3p/test_thor_ui.py
+      - name: Generate the P3P manifest
+        run: python tools/p3p/gen_manifest.py
+      - name: Run Thor UI structural tests
+        run: python tools/p3p/test_thor_ui.py
+      - name: Check that emitted JSON parses and has expected integration
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('packages/Persona3Portable/dualscreen/manifest.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          assert len(data['pages']) == 12
+          assert len(data['module_outputs']) == 2798
+          assert len(data['actions']) == 61
+          print('P3P source manifest: parse and output checks passed')
+          PY
