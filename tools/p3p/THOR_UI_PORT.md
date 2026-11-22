@@ -38,10 +38,15 @@ publish this prototype as a release** before full on-device validation.
   rows, and text-fitting safeguards.
 - Main and Battle: original pause overlays retained, including the input-blocking
   layer; the Main error-state message is also retained.
-- Persona: dynamic title/arcana and progression lanes aligned; the original
-  "Use this Persona" control and its panel moved together to the header to
-  prevent overlap with long progression details.
-- Skill, S.Link, Item, Equip, Status, Calendar and Talk: targeted alignment and
+- Persona: native fill-backed detail panel, 12 wider selection/touch rows,
+  header and arcana alignment, smaller native art inset, five stat gauges,
+  nine affinity icons, an eight-skill two-column area, and bottom progression
+  text lanes. The existing Persona action is labelled "EQUIP" and placed next
+  to the header, with its original live action/bind intact.
+- Skill: party-tab hitboxes widened, live skill icon and row text moved to match
+  the community-tested v1.8.10 proportions. The game's native icon lookup
+  remains unchanged.
+- S.Link, Item, Equip, Status, Calendar and Talk: targeted alignment and
   dynamic-text fitting rules, preserving generated controls and data bindings.
 - Core: all 12 screens, existing action definitions and 2,798 reader outputs
   preserved. Added offline checks for pause behavior, actions, 42 calendar cells,
@@ -55,13 +60,17 @@ publish this prototype as a release** before full on-device validation.
   partial layout and typography passes, not complete screen recreations.
 - Review legal/provenance status of any procedural art before adding it. Do not
   commit game-extracted assets.
-- Validate touch-to-label alignment on an AYN Thor.
+- Validate touch-to-label alignment, Persona action placement, and long
+  skill descriptions on an AYN Thor.
 - Confirm the exact Support symbol and skill-category mappings in Eden Duo.
   The native module currently emits 0 for some skill categories, including
   Support, so this prototype does not claim a verified icon fix.
 - Perform a real Battle test with multiple party members and five enemies.
 - Record the exact tested Eden Duo app version.
-- Compare both protagonist color themes.
+- Compare both protagonist color themes (including the shared affinity
+  and progress panels, which currently use a blue-toned neutral background).
+- Execute the updated structural test against a clean source-generated
+  manifest and run end-to-end build checks before requesting merge.
 
 Game: Persona 3 Portable Switch **1.0.0**, title ID
 `0100DCD01525A000`. Minimum runtime: **19**.
