@@ -57,8 +57,10 @@ publish this prototype as a release** before full on-device validation.
   live moon-phase icon, and all four gated party-member cards (HP, SP,
   ailments and level-independent stat bars) instead of only the lead member.
   The party cards start below navigation and leave the bottom status visible.
-- Battle: pale-gold party names, separated HP/SP value/bar columns, five enemy
-  rows, and text-fitting safeguards.
+- Battle: pale-gold party names, route-colored HP/SP values,
+  five enemy rows with route-aware names, help and affinities, live ailments,
+  and text-fitting safeguards. Existing enemy HP bars and native outputs
+  remain unchanged.
 - Main and Battle: original pause overlays retained, including the input-blocking
   layer; the Main error-state message is also retained.
 - Persona: native fill-backed detail panel, 12 wider selection/touch rows,
