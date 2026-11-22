@@ -37,6 +37,10 @@ publish this prototype as a release** before full on-device validation.
 
 ## What is implemented so far
 
+- Start: asset-free route-aware title treatment with native Persona art,
+  larger lettering and an easy-to-read start cue. The local release's
+  original procedural rings and rasterized wordmarks are deliberately not
+  included in the source port.
 - Main: eight full-width aligned label/touch rows, clearer date/portrait/status
   layout, and space between navigation and HP/SP.
 - Battle: pale-gold party names, separated HP/SP value/bar columns, five enemy
@@ -75,10 +79,10 @@ publish this prototype as a release** before full on-device validation.
 
 ## Remaining work before upstream merge
 
-- Reproduce the *full* v1.8.10 visual design across Persona, Skill, Status,
-  S.Link, Calendar, Equip, Item, Map, Talk and the start screen using
-  maintainable, game-asset-free source generators. The changes above are
-  partial layout and typography passes, not complete screen recreations.
+- Reproduce the *full* v1.8.10 visual design and animation across
+  all twelve screens using maintainable, game-asset-free source generators.
+  Every screen now has a basic source-port treatment, but these are partial
+  layout and typography passes, not visually equivalent recreations.
 - Review legal/provenance status of any procedural art before adding it. Do not
   commit game-extracted assets.
 - Validate touch-to-label alignment, Persona action placement, long
