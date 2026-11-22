@@ -83,7 +83,8 @@ def main():
             continue
         new = pages[page_id]
         added = {'personas': 10, 'links': 6, 'equip': 8,
-                 'items': 2}.get(page_id, 0)
+                 'items': 2, 'stats': 8, 'map': 2,
+                 'talk': 10}.get(page_id, 0)
         assert len(new['widgets']) == len(old['widgets']) + added, page_id
         assert [w['on_tap'] for w in new['widgets'] if w.get('on_tap')] == [
             w['on_tap'] for w in old['widgets'] if w.get('on_tap')], page_id
@@ -239,6 +240,93 @@ def main():
                    for w in pages['calendar']['widgets']) == sum(
                        w.get('bind_text') == bind
                        for w in original_pages['calendar']['widgets'])
+
+    # Status: enlarge member tabs and retain every stat/social value.
+    stat_widgets = pages['stats']['widgets']
+    for i in range(10):
+        controls = [w for w in stat_widgets
+                    if w.get('on_tap') == f'member.select.{i}']
+        assert len(controls) == 1
+        assert controls[0]['rect'] == [
+            33+240*(i%5), 100+74*(i//5), 236, 72]
+    for r, need in [([36, 302, 10, 362], 'stat.ready'),
+                    ([36, 674, 10, 76], 'social.ready'),
+                    ([36, 766, 10, 76], 'social.ready'),
+                    ([36, 858, 10, 76], 'social.ready')]:
+        accents = [w for w in stat_widgets if w.get('rect') == r
+                   and w.get('need_bind') == need]
+        assert len(accents) == 2
+        assert {w.get('hide_eq') for w in accents} == {0, 1}
+        assert not any(w.get('on_tap') for w in accents)
+    assert all(w.get('fit_text') and w.get('wrap_width') == 420
+               for w in stat_widgets
+               if w.get('bind_text') in ('social.0.name',
+                                         'social.1.name', 'social.2.name'))
+
+    # The full six-week Calendar must match the finished mod's compact grid.
+    calendar_widgets = pages['calendar']['widgets']
+    for n in range(42):
+        row = n // 7
+        labels = [w for w in calendar_widgets
+                  if w.get('bind_text') == f'cal.{n}.text']
+        assert len(labels) == 3
+        assert all(w['rect'][1] == 238 + 100 * row for w in labels)
+        panels = [w for w in calendar_widgets
+                  if w.get('need_bind') in (f'cal.{n}.present',
+                                            f'cal.{n}.today')
+                  and w.get('type') == 'image'
+                  and w.get('src') == 'module:p3p:fill']
+        assert len(panels) == 2
+        assert all(w['rect'][1] == 228 + 100 * row
+                   and w['rect'][3] == 91 for w in panels)
+        moon = [w for w in calendar_widgets
+                if w.get('need_bind') == f'cal.{n}.full']
+        assert len(moon) == 1
+        assert moon[0]['rect'][1] == 274 + 100 * row
+        assert moon[0]['rect'][3] == 36
+        assert moon[0]['src'] == 'module:p3p:spr/555@36'
+    for action, x in [('calendar.prev', 36), ('calendar.next', 1004)]:
+        controls = [w for w in calendar_widgets
+                    if w.get('on_tap') == action]
+        assert len(controls) == 1
+        assert controls[0]['rect'] == [x, 98, 220, 84]
+        assert controls[0]['text_center_h'] == 84
+
+    # Map: accents sit behind the original dynamically bound map; every
+    # coordinate, marker and tile source stays attached to its original widget.
+    map_widgets = pages['map']['widgets']
+    frames = [w for w in map_widgets
+              if w.get('rect') == [172, 88, 896, 896]]
+    assert len(frames) == 2
+    assert {w.get('hide_eq') for w in frames} == {0, 1}
+    for orig in original_pages['map']['widgets']:
+        if not any(orig.get(k) for k in ('x_bind', 'y_bind', 'src_bind')):
+            continue
+        assert any(all(w.get(k) == orig.get(k)
+                       for k in ('x_bind', 'y_bind', 'src_bind',
+                                 'src', 'need_bind', 'rect'))
+                   for w in map_widgets), 'Map marker binding/geometry changed'
+
+    # Talk: the original 25 move/confirm touch actions and their
+    # keep_min/keep_max selection guards must remain byte-for-byte intact.
+    talk_widgets = pages['talk']['widgets']
+    original_talk_actions = [w for w in original_pages['talk']['widgets']
+                             if w.get('on_tap')]
+    updated_talk_actions = [w for w in talk_widgets if w.get('on_tap')]
+    assert updated_talk_actions == original_talk_actions
+    assert len(updated_talk_actions) == 25
+    for i in range(5):
+        accents = [w for w in talk_widgets
+                   if w.get('rect') == [36, 430 + 108*i, 12, 96]
+                   and w.get('need_bind') == f'choice.{i}.present']
+        assert len(accents) == 2
+        assert {w.get('hide_eq') for w in accents} == {0, 1}
+        assert all(not w.get('on_tap') for w in accents)
+        labels = [w for w in talk_widgets
+                  if w.get('bind_text') == f'choice.{i}.text']
+        assert len(labels) == 2
+        assert all(w.get('fit_text') and w.get('max_lines') == 2
+                   for w in labels)
 
     print('Thor UI source port: structural checks passed')
 
