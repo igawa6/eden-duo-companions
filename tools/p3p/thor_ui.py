@@ -213,13 +213,15 @@ def persona_layout(p):
     are native fill widgets, never the release archive's raster artwork.
     """
     widgets = p['widgets']
-    panel = [
-        shape([504, 104, 716, 864], '#EDF6FCFF'),
-        shape([525, 519, 670, 3], BLUE),
-        label([526, 477, 480, 42], 'AFFINITIES', scale=6, color=BLUE),
-        shape([525, 682, 670, 3], BLUE),
-        label([526, 641, 480, 42], 'SKILLS', scale=6, color=BLUE),
-    ]
+    panel = by_route(lambda accent: shape(
+        [504, 104, 716, 864],
+        '#EDF6FCFF' if accent == BLUE else '#FFF6E8EF'))
+    panel += by_route(lambda accent: shape([525, 519, 670, 3], accent))
+    panel += by_route(lambda accent: label(
+        [526, 477, 480, 42], 'AFFINITIES', scale=6, color=accent))
+    panel += by_route(lambda accent: shape([525, 682, 670, 3], accent))
+    panel += by_route(lambda accent: label(
+        [526, 641, 480, 42], 'SKILLS', scale=6, color=accent))
     widgets[3:3] = panel
 
     stat_names = {'St': 0, 'Ma': 1, 'En': 2, 'Ag': 3, 'Lu': 4}
@@ -248,6 +250,8 @@ def persona_layout(p):
 
         if value_bind == 'pd.id' and typ == 'image':
             w['rect'] = [526, 215, 248, 248]
+            if w.get('src_format') == 'module:p3p:persona/%d@360':
+                w['src_format'] = 'module:p3p:persona/%d@248'
 
         if (value_bind.startswith('pd.stat.') and
                 value_bind.rsplit('.', 1)[1].isdigit()):
