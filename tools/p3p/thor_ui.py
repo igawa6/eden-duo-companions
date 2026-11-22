@@ -303,7 +303,7 @@ def persona_layout(p):
                      fit_text=True, wrap_width=242, text_min_scale=3)
 
         if w.get('need_bind') == 'persona.can_use':
-            w['rect'] = [982, 160, 220, 50]
+            w['rect'] = [982, 170, 220, 50]
             if typ == 'button':
                 w.update(text='EQUIP', text_scale=5)
 
