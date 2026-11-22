@@ -183,12 +183,13 @@ def battle(p):
         for stat, x, end, color in [
             ('hp', 454, 790, '#FFF7A33A'),
             ('sp', 827, 1163, '#FFC862DE')]:
-            w += [label([x, y+7, 55, 32], stat.upper(), scale=4, **need),
-                  dict(type='value', rect=[end, y+7, 0, 32],
-                       bind=stem+'.'+stat, max_bind=stem+'.max_'+stat,
-                       max_sep=' / ', color=BLUE, text_scale=4,
-                       align='right', **need),
-                  dict(type='bar', rect=[x-12, y+45, 344, 14],
+            w += [label([x, y+7, 55, 32], stat.upper(), scale=4, **need)]
+            w += by_route(lambda accent: dict(
+                type='value', rect=[end, y+7, 0, 32],
+                bind=stem+'.'+stat, max_bind=stem+'.max_'+stat,
+                max_sep=' / ', color=accent, text_scale=4,
+                align='right', **need))
+            w += [dict(type='bar', rect=[x-12, y+45, 344, 14],
                        bind=stem+'.'+stat, max_bind=stem+'.max_'+stat,
                        color=color, bg=BLUE, frame=0, **need)]
     w += [label([66, 437, 380, 42], 'ENEMIES', scale=6, color=GOLD,
@@ -197,23 +198,30 @@ def battle(p):
         y = 496 + i*96
         stem = f'en.{i}'
         need = {'need_bind': stem+'.present'}
-        w += [shape([52, y, 1176, 86], '#D5FFFFFF', **need),
-              label([74, y+4, 426, 36], bind=stem+'.name', scale=5,
-                    color=BLUE, fit_text=True, text_min_scale=3,
-                    wrap_width=426, max_lines=1, **need),
-              label([74, y+44, 426, 32], bind=stem+'.info', scale=4,
-                    color=BLUE, fit_text=True, text_min_scale=3,
-                    wrap_width=426, max_lines=1, **need),
-              label([505, y+4, 226, 32], bind=stem+'.hp_text', scale=4,
-                    color=BLUE, fit_text=True, text_min_scale=3,
-                    wrap_width=226, max_lines=1, **need),
-              dict(type='bar', rect=[505, y+47, 216, 16],
+        w += [shape([52, y, 1176, 86], '#D5FFFFFF', **need)]
+        w += by_route(lambda accent: label(
+            [74, y+4, 426, 36], bind=stem+'.name', scale=5,
+            color=accent, fit_text=True, text_min_scale=3,
+            wrap_width=426, max_lines=1, **need))
+        w += by_route(lambda accent: label(
+            [74, y+44, 426, 32], bind=stem+'.info', scale=4,
+            color=accent, fit_text=True, text_min_scale=3,
+            wrap_width=426, max_lines=1, **need))
+        w += by_route(lambda accent: label(
+            [505, y+4, 226, 32], bind=stem+'.hp_text', scale=4,
+            color=accent, fit_text=True, text_min_scale=3,
+            wrap_width=226, max_lines=1, **need))
+        w += [label([505, y+38, 216, 24], bind=stem+'.ailment',
+                    scale=3, color='#FFB3154C', fit_text=True,
+                    wrap_width=216, text_min_scale=3, max_lines=1, **need),
+              dict(type='bar', rect=[505, y+67, 216, 12],
                    bind=stem+'.hp', max_bind=stem+'.max_hp',
                    color='#FFF7A33A', bg=BLUE, frame=0, **need)]
         for e in range(9):
-            w += [label([770+e*48, y+28, 0, 32],
-                        bind=f'{stem}.aff.{e}', scale=4,
-                        color=BLUE, align='center', **need)]
+            w += by_route(lambda accent: label(
+                [770+e*48, y+28, 0, 32],
+                bind=f'{stem}.aff.{e}', scale=4,
+                color=accent, align='center', **need))
     w += [label([44, 1012, 1150, 32], bind='status', scale=3,
                 color=WHITE, need_bind='live.ready')]
     preserve_system_overlays(p, w)
