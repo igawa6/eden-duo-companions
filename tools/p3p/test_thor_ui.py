@@ -56,6 +56,66 @@ def main():
     for i in range(5):
         assert any(w.get('bind_text') == f'en.{i}.name'
                    for w in battle)
+    # Rebuilt screens must retain the upstream pause overlay, including the
+    # input-blocking layer that prevents taps during paused/error states.
+    original_pages = {p['id']: p for p in original['pages']}
+    for page_id in ('home', 'battle'):
+        expected = [w for w in original_pages[page_id]['widgets']
+                    if w.get('need_bind') == 'live.paused']
+        actual = [w for w in pages[page_id]['widgets']
+                  if w.get('need_bind') == 'live.paused']
+        assert len(expected) == 3
+        assert actual == expected, f'Lost pause/input block on {page_id}'
+        assert any(w.get('input_block') for w in actual)
+
+    # Preserve error messaging as well as live pause state on the Main page.
+    assert [w for w in pages['home']['widgets']
+            if w.get('need_bind') == 'module_error'] == [
+                w for w in original_pages['home']['widgets']
+                if w.get('need_bind') == 'module_error']
+
+    # Other pages remain source-derived: every original touch action stays in
+    # the same order and each generated repeater/bind retains its slot.
+    for page_id, old in original_pages.items():
+        if page_id in ('home', 'battle'):
+            continue
+        new = pages[page_id]
+        assert len(new['widgets']) == len(old['widgets']), page_id
+        assert [w.get('on_tap') for w in new['widgets']] == [
+            w.get('on_tap') for w in old['widgets']], page_id
+        assert [w.get('bind_text') for w in new['widgets']] == [
+            w.get('bind_text') for w in old['widgets']], page_id
+
+    # Persona's action and its backing card move together to make room for
+    # progression text. They must not overlap the dynamic Persona name.
+    persona_widgets = pages['personas']['widgets']
+    use = [w for w in persona_widgets if w.get('need_bind') == 'persona.can_use'
+           and w.get('rect') == [966, 104, 250, 66]]
+    assert len(use) == 2
+    pd_name = [w for w in persona_widgets if w.get('bind_text') == 'pd.name']
+    assert pd_name and all(w.get('rect') == [527, 120, 418, 48]
+                           for w in pd_name)
+    assert all(w['rect'][0]+w['rect'][2] < use[0]['rect'][0]
+               for w in pd_name)
+    for bind in ('pd.card', 'pd.nextskill'):
+        assert all(w.get('fit_text') for w in persona_widgets
+                   if w.get('bind_text') == bind)
+
+    # Keep the skill icon source attached to its original live binding. A
+    # tentative sprite ID is not a verified replacement for Support skills.
+    assert [w.get('src_format') for w in pages['skills']['widgets']
+            if w.get('bind') == 'skill.{i}.icon'] == [
+                w.get('src_format') for w in original_pages['skills']['widgets']
+                if w.get('bind') == 'skill.{i}.icon']
+
+    # Calendar must keep all 42 day values (including the sixth week).
+    for i in range(42):
+        bind = f'cal.{i}.text'
+        assert sum(w.get('bind_text') == bind
+                   for w in pages['calendar']['widgets']) == sum(
+                       w.get('bind_text') == bind
+                       for w in original_pages['calendar']['widgets'])
+
     print('Thor UI source port: structural checks passed')
 
 
