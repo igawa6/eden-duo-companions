@@ -65,6 +65,39 @@ def main():
         'ui.open.4','ui.open.7','ui.open.2','ui.open.5',
         'ui.open.6','ui.open.3','ui.open.8','ui.open.10'}
 
+    # Main must show all four live party slots, not just the lead.
+    # Blank slots stay hidden by the original party.N.present point.
+    for i in range(4):
+        stem = f'party.{i}'
+        y = 694 + 84 * i
+        names = [w for w in home if w.get('bind_text') == stem+'.name']
+        assert len(names) == 2
+        assert {w.get('hide_eq') for w in names} == {0, 1}
+        assert all(w.get('need_bind') == stem+'.present'
+                   and w['rect'] == [82, y+4, 310, 40]
+                   for w in names)
+        assert any(w.get('bind_text') == stem+'.ailment'
+                   and w.get('need_bind') == stem+'.present'
+                   for w in home)
+        assert any(w.get('rect') == [52, y, 576, 80]
+                   and w.get('need_bind') == stem+'.present'
+                   for w in home)
+        for stat in ('hp', 'sp'):
+            refs = [w for w in home if w.get('bind') == stem+'.'+stat]
+            bars = [w for w in refs if w.get('type') == 'bar']
+            values = [w for w in refs if w.get('type') == 'value']
+            assert len(bars) == 1 and len(values) == 2
+            assert {w.get('hide_eq') for w in values} == {0, 1}
+            assert all(w.get('need_bind') == stem+'.present'
+                       and w.get('max_bind') == stem+'.max_'+stat
+                       for w in refs)
+    assert any(w.get('bind') == 'live.moon_spr'
+               and w.get('src_format') == 'module:p3p:spr/%d@56'
+               for w in home)
+    # The status cards must clear the menu and leave the bottom status free.
+    assert 602 + 68 < 694
+    assert 694 + 3 * 84 + 80 < 1034
+
     defined = set(result['actions'])
     for page in result['pages']:
         for widget in page['widgets']:
