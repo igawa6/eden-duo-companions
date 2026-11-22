@@ -67,8 +67,9 @@ publish this prototype as a release** before full on-device validation.
   Support, so this prototype does not claim a verified icon fix.
 - Perform a real Battle test with multiple party members and five enemies.
 - Record the exact tested Eden Duo app version.
-- Compare both protagonist color themes (including the shared affinity
-  and progress panels, which currently use a blue-toned neutral background).
+- Compare both protagonist color themes on-device. The Persona detail
+  background, section headings and divider lines now use route-specific
+  blue or pink variants, but their appearance needs renderer validation.
 - Execute the updated structural test against a clean source-generated
   manifest and run end-to-end build checks before requesting merge.
 
