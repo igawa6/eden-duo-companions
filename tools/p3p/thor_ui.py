@@ -123,20 +123,39 @@ def main_menu(p):
                       text_center_h=68, align='left', text_inset=70,
                       italic=True, color=WHITE, outline=BLUE, outline_px=2,
                       bg='#00000000', border=0, on_tap=f'ui.open.{target}'))
-    # Reserve a gap between the eight menu entries and party status.
-    w += [shape([50, 752, 570, 86], '#DFEBF9FF'),
-          label([68, 758, 500, 32], bind='party.0.name', scale=5,
-                need_bind='party.0.present')]
-    for stat, x, end, color in [
-        ('hp', 68, 320, '#FFF7A33A'),
-        ('sp', 334, 574, '#FFC862DE')]:
-        w += [label([x, 795, 48, 34], stat.upper(), scale=4),
-              dict(type='value', rect=[end, 795, 0, 34], bind='party.0.'+stat,
-                   max_bind='party.0.max_'+stat, max_sep=' / ',
-                   color=BLUE, text_scale=4, align='right'),
-              dict(type='bar', rect=[x+54, 807, end-x-60, 12],
-                   bind='party.0.'+stat, max_bind='party.0.max_'+stat,
-                   color=color, bg=WHITE, frame=0)]
+    # The final v1.8.10 Main screen shows the whole active party. Keep
+    # those four rows even when some slots are empty; need_bind gates them.
+    # These are source-rendered fill panels, not copied raster artwork.
+    w += [dict(type='image', rect=[1164, 22, 56, 56],
+               bind='live.moon_spr', src_format='module:p3p:spr/%d@56',
+               need_bind='live.moon_spr')]
+    for i in range(4):
+        y = 694 + 84 * i
+        stem = f'party.{i}'
+        need = {'need_bind': stem+'.present'}
+        w += [shape([52, y, 576, 80], '#DEF6FAFF', **need)]
+        w += by_route(lambda accent: shape([52, y, 12, 80], accent, **need))
+        w += by_route(lambda accent: label(
+            [82, y+4, 310, 40], bind=stem+'.name',
+            scale=5, color=accent, fit_text=True, wrap_width=310,
+            text_min_scale=4, max_lines=1, **need))
+        w += [label([600, y+50, 0, 28], bind=stem+'.ailment',
+                    scale=4, color='#FFB3154C', align='right', **need)]
+        for stat, value_x, bar_y, color in (
+            ('hp', 144, y+10, '#FFF7A33A'),
+            ('sp', 372, y+30, '#FFC862DE')
+        ):
+            w += [label([82 if stat == 'hp' else 312, y+46, 45, 32],
+                        stat.upper(), scale=4, color=BLUE, **need)]
+            w += by_route(lambda accent: dict(
+                type='value', rect=[value_x, y+46, 0, 32],
+                bind=stem+'.'+stat, max_bind=stem+'.max_'+stat,
+                max_sep=' / ', color=accent, text_scale=4,
+                align='right', **need))
+            w += [shape([424, bar_y-2, 176, 18], '#60000000', **need),
+                  dict(type='bar', rect=[427, bar_y, 170, 12],
+                       bind=stem+'.'+stat, max_bind=stem+'.max_'+stat,
+                       color=color, bg=WHITE, frame=0, **need)]
     w += [label([60, 1034, 700, 30], bind='status', scale=3,
                 color=WHITE, need_bind='live.ready')]
     preserve_system_overlays(p, w)
