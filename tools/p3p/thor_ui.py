@@ -242,6 +242,8 @@ def normalize_other_pages(p):
             if (w.get('need_bind') == 'persona.can_use'
                     and w.get('rect') == [876, 868, 340, 88]):
                 w['rect'] = [966, 104, 250, 66]
+                if w.get('on_tap') == 'persona.use':
+                    w['text_scale'] = 4
 
 def apply(path=MANIFEST):
     data = json.loads(path.read_text(encoding='utf-8'))
