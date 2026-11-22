@@ -76,12 +76,14 @@ def main():
 
     # Other pages remain source-derived: every original action, label
     # binding and image-data binding stays attached to its original widget.
-    # Persona intentionally gets ten route-gated fill/text elements.
+    # Persona adds ten themed elements; S.Link, Equip and Item cards add
+    # decorative route-gated accent strips. Actions/bind order is unchanged.
     for page_id, old in original_pages.items():
         if page_id in ('home', 'battle'):
             continue
         new = pages[page_id]
-        added = 10 if page_id == 'personas' else 0
+        added = {'personas': 10, 'links': 6, 'equip': 8,
+                 'items': 2}.get(page_id, 0)
         assert len(new['widgets']) == len(old['widgets']) + added, page_id
         assert [w['on_tap'] for w in new['widgets'] if w.get('on_tap')] == [
             w['on_tap'] for w in old['widgets'] if w.get('on_tap')], page_id
@@ -169,6 +171,66 @@ def main():
             if w.get('bind') == 'skill.{i}.icon'] == [
                 w.get('src_format') for w in original_pages['skills']['widgets']
                 if w.get('bind') == 'skill.{i}.icon']
+
+    # Route-specific accents repeat with the existing link repeater and
+    # must never introduce touch actions or lose data bindings.
+    link_widgets = pages['links']['widgets']
+    for rect in ([36, 104, 12, 290], [56, 198, 1120, 3],
+                 [56, 236, 1120, 3]):
+        accents = [w for w in link_widgets
+                   if w.get('rect') == list(rect)
+                   and w.get('need_bind') == 'link.{i}.present']
+        assert len(accents) == 2
+        assert {w.get('hide_eq') for w in accents} == {0, 1}
+        assert all(w.get('src') == 'module:p3p:fill'
+                   and not w.get('on_tap') for w in accents)
+    for w in link_widgets:
+        if w.get('bind_text') == 'link.{i}.people':
+            assert w.get('max_lines') == 4 and w.get('fit_text')
+
+    equip_widgets = pages['equip']['widgets']
+    for i in range(10):
+        controls = [w for w in equip_widgets
+                    if w.get('on_tap') == f'member.select.{i}']
+        assert len(controls) == 1
+        assert controls[0]['rect'] == [
+            33+240*(i%5), 100+74*(i//5), 236, 72]
+    assert sum(w.get('on_tap') == 'equip.pick'
+               for w in equip_widgets) == 4
+    assert sum(w.get('on_tap') == 'equip.choose'
+               for w in equip_widgets) == 1
+    for y in (306, 472, 638, 804):
+        accents = [w for w in equip_widgets
+                   if w.get('rect') == [36, y, 12, 154]
+                   and w.get('need_bind') == 'equip.ready']
+        assert len(accents) == 2
+        assert {w.get('hide_eq') for w in accents} == {0, 1}
+
+    item_widgets = pages['items']['widgets']
+    row_accents = [w for w in item_widgets
+                   if w.get('rect') == [36, 196, 14, 96]
+                   and w.get('need_bind') == 'item.{i}.present']
+    assert len(row_accents) == 2
+    assert {w.get('hide_eq') for w in row_accents} == {0, 1}
+    for i in range(4):
+        controls = [w for w in item_widgets
+                    if w.get('on_tap') == f'item.use.{i}']
+        labels = [w for w in item_widgets
+                  if w.get('bind_text') == f'use.{i}.name']
+        assert len(controls) == 1 and len(labels) == 1
+        assert controls[0]['rect'] == [60+232*i, 848, 220, 100]
+        assert labels[0]['rect'] == controls[0]['rect']
+        assert labels[0].get('wrap_width') == 204
+        assert labels[0].get('fit_text') is True
+    for i in range(3):
+        assert sum(w.get('on_tap') == f'item.tab.{i}'
+                   for w in item_widgets) == sum(
+                       w.get('on_tap') == f'item.tab.{i}'
+                       for w in original_pages['items']['widgets'])
+    assert sum(w.get('on_tap') == 'item.pick'
+               for w in item_widgets) == 1
+    assert sum(w.get('on_tap') == 'item.cancel'
+               for w in item_widgets) == 1
 
     # Calendar must keep all 42 day values (including the sixth week).
     for i in range(42):
