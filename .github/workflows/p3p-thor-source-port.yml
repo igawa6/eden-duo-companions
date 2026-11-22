@@ -23,8 +23,13 @@ jobs:
         run: python tools/p3p/gen_manifest.py
       - name: Run Thor UI structural tests
         run: python tools/p3p/test_thor_ui.py
-      - name: Generate the source-ported UI manifest
-        run: python tools/p3p/thor_ui.py
+      - name: Generate the source-ported UI manifest (opt-in)
+        run: python tools/p3p/gen_manifest.py --thor-ui
+      - name: Ensure repeated UI generation is stable
+        run: |
+          cp packages/Persona3Portable/dualscreen/manifest.json /tmp/p3p-thor-once.json
+          python tools/p3p/thor_ui.py
+          cmp /tmp/p3p-thor-once.json packages/Persona3Portable/dualscreen/manifest.json
       - name: Check that emitted JSON parses and has expected integration
         run: |
           python - <<'PY'
