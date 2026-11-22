@@ -144,11 +144,41 @@ def main():
 
     battle = pages['battle']['widgets']
     for i in range(4):
-        assert any(w.get('bind_text') == f'party.{i}.name'
+        stem = f'party.{i}'
+        assert any(w.get('bind_text') == stem+'.name'
                    for w in battle)
+        for stat in ('hp', 'sp'):
+            values = [w for w in battle
+                      if w.get('type') == 'value'
+                      and w.get('bind') == stem+'.'+stat]
+            assert len(values) == 2
+            assert {w.get('hide_eq') for w in values} == {0, 1}
+            assert all(w.get('max_bind') == stem+'.max_'+stat
+                       and w.get('need_bind') == stem+'.present'
+                       for w in values)
     for i in range(5):
-        assert any(w.get('bind_text') == f'en.{i}.name'
-                   for w in battle)
+        stem = f'en.{i}'
+        for field in ('name', 'info', 'hp_text'):
+            labels = [w for w in battle
+                      if w.get('bind_text') == stem+'.'+field]
+            assert len(labels) == 2, (i, field)
+            assert {w.get('hide_eq') for w in labels} == {0, 1}
+            assert all(w.get('need_bind') == stem+'.present'
+                       for w in labels)
+        ailment = [w for w in battle
+                   if w.get('bind_text') == stem+'.ailment']
+        assert len(ailment) == 1
+        assert ailment[0]['rect'] == [505, 496+96*i+38, 216, 24]
+        assert ailment[0]['need_bind'] == stem+'.present'
+        hp = [w for w in battle if w.get('type') == 'bar'
+              and w.get('bind') == stem+'.hp']
+        assert len(hp) == 1
+        assert hp[0]['rect'] == [505, 496+96*i+67, 216, 12]
+        for affinity in range(9):
+            labels = [w for w in battle
+                      if w.get('bind_text') == f'{stem}.aff.{affinity}']
+            assert len(labels) == 2
+            assert {w.get('hide_eq') for w in labels} == {0, 1}
     # Rebuilt screens must retain the upstream pause overlay, including the
     # input-blocking layer that prevents taps during paused/error states.
     original_pages = {p['id']: p for p in original['pages']}
