@@ -53,8 +53,10 @@ publish this prototype as a release** before full on-device validation.
   larger lettering and an easy-to-read start cue. The local release's
   original procedural rings and rasterized wordmarks are deliberately not
   included in the source port.
-- Main: eight full-width aligned label/touch rows, clearer date/portrait/status
-  layout, and space between navigation and HP/SP.
+- Main: eight full-width aligned label/touch rows, clearer date/portrait,
+  live moon-phase icon, and all four gated party-member cards (HP, SP,
+  ailments and level-independent stat bars) instead of only the lead member.
+  The party cards start below navigation and leave the bottom status visible.
 - Battle: pale-gold party names, separated HP/SP value/bar columns, five enemy
   rows, and text-fitting safeguards.
 - Main and Battle: original pause overlays retained, including the input-blocking
