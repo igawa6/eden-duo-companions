@@ -332,6 +332,125 @@ def skills_layout(p):
             w['rect'] = [82, 310, 48, 48]
 
 
+
+def links_layout(p):
+    """Restore route-colored S.Link dividers without changing list bindings.
+
+    Source cards are repeated by the game's existing link.{i} page binding.
+    Place decorative elements after the card background, before text, so the
+    additions do not cover live labels or introduce extra touch surfaces.
+    """
+    widgets = []
+    found_cards = 0
+    for w in p['widgets']:
+        widgets.append(w)
+        if (w.get('type') == 'image'
+                and w.get('src') == 'module:p3p:fill'
+                and w.get('need_bind') == 'link.{i}.present'
+                and w.get('rect') == [36, 104, 1164, 290]):
+            found_cards += 1
+            for rect in ([36, 104, 12, 290], [56, 198, 1120, 3],
+                         [56, 236, 1120, 3]):
+                widgets += by_route(
+                    lambda accent, r=rect: shape(
+                        r.copy(), accent, need_bind='link.{i}.present'))
+    assert found_cards == 1, 'Unexpected S.Link repeater card'
+    p['widgets'] = widgets
+
+    for w in widgets:
+        if w.get('type') != 'label':
+            continue
+        bind = w.get('bind_text')
+        if bind == 'link.{i}.rank_text':
+            w.update(rect=[56, 162, 270, 34], text_scale=5)
+        elif bind == 'link.{i}.name':
+            w.update(rect=[330, 116, 510, 42], text_scale=5)
+        elif bind == 'link.{i}.status':
+            w.update(text_scale=5)
+        elif bind == 'link.{i}.people':
+            w.update(rect=[56, 244, 1120, 136], text_scale=4,
+                     fit_text=True, wrap_width=1120,
+                     text_min_scale=3, max_lines=4)
+
+
+def equip_layout(p):
+    """Use the Thor's wider party tabs and route accents for equipment rows."""
+    widgets = []
+    found_cards = 0
+    for w in p['widgets']:
+        a = w.get('on_tap', '')
+        bind = w.get('bind_text', '')
+        if a.startswith('member.select.') and a.rsplit('.', 1)[1].isdigit():
+            n = int(a.rsplit('.', 1)[1])
+            if 0 <= n < 10:
+                w['rect'] = [33+240*(n%5), 100+74*(n//5), 236, 72]
+        if bind.startswith('member.') and bind.endswith('.tab'):
+            w.update(text_scale=5, fit_text=True, wrap_width=214,
+                     text_min_scale=4)
+        if w.get('type') == 'image' and w.get('src') == 'module:p3p:fill':
+            r = w.get('rect', [])
+            if (len(r) == 4 and r[2:] == [230, 64]
+                    and r[0] in (36, 276, 516, 756, 996)
+                    and r[1] in (104, 178)
+                    and w.get('need_bind', '').startswith('member.')):
+                w['rect'] = [r[0]-3, r[1]-4, 236, 72]
+
+        if bind.startswith('equip.') and bind.endswith('.help'):
+            w.update(text_scale=5, fit_text=True, wrap_width=1140,
+                     text_min_scale=3, max_lines=1)
+        if bind.startswith('eqc.') and bind.endswith('.count'):
+            w['rect'] = [1136, 372, 0, 86]
+
+        widgets.append(w)
+        if (w.get('type') == 'image'
+                and w.get('src') == 'module:p3p:fill'
+                and w.get('need_bind') == 'equip.ready'
+                and len(w.get('rect', [])) == 4
+                and w['rect'][0] == 36
+                and w['rect'][2:] == [1188, 154]
+                and w['rect'][1] in (306, 472, 638, 804)):
+            found_cards += 1
+            y = w['rect'][1]
+            widgets += by_route(
+                lambda accent, offset=y: shape(
+                    [36, offset, 12, 154], accent,
+                    need_bind='equip.ready'))
+    assert found_cards == 4, 'Unexpected equipment card layout'
+    p['widgets'] = widgets
+
+
+def items_layout(p):
+    """Make item rows and action targets legible without changing item actions."""
+    widgets = []
+    found_items = 0
+    for w in p['widgets']:
+        bind = w.get('bind_text', '')
+        if bind.startswith('use.') and bind.endswith('.name'):
+            n = bind.split('.')[1]
+            if n.isdigit() and 0 <= int(n) < 4:
+                i = int(n)
+                w.update(rect=[60+232*i, 848, 220, 100],
+                         align='center', text_center_h=100,
+                         text_scale=4, fit_text=True, wrap_width=204,
+                         text_min_scale=3, max_lines=2)
+        if bind == 'item.{i}.help':
+            w.update(rect=[86, 252, 1088, 32],
+                     text_scale=4, fit_text=True, wrap_width=1088,
+                     text_min_scale=3, max_lines=1)
+        widgets.append(w)
+        if (w.get('type') == 'image'
+                and w.get('src') == 'module:p3p:fill'
+                and w.get('need_bind') == 'item.{i}.present'
+                and w.get('rect') == [36, 196, 1164, 96]):
+            found_items += 1
+            widgets += by_route(
+                lambda accent: shape(
+                    [36, 196, 14, 96], accent,
+                    need_bind='item.{i}.present'))
+    assert found_items == 1, 'Unexpected item repeater row'
+    p['widgets'] = widgets
+
+
 def normalize_other_pages(p):
     page_id = p['id']
     rules = READABILITY.get(page_id, {})
@@ -366,6 +485,12 @@ def normalize_other_pages(p):
         persona_layout(p)
     elif page_id == 'skills':
         skills_layout(p)
+    elif page_id == 'links':
+        links_layout(p)
+    elif page_id == 'equip':
+        equip_layout(p)
+    elif page_id == 'items':
+        items_layout(p)
 
 def apply(path=MANIFEST):
     data = json.loads(path.read_text(encoding='utf-8'))
