@@ -110,7 +110,13 @@ def main():
     # Persona details now use the final design's layout proportions.
     use = [w for w in persona_widgets if w.get('need_bind') == 'persona.can_use']
     assert len(use) == 2
-    assert all(w['rect'] == [982, 160, 220, 50] for w in use)
+    assert all(w['rect'] == [982, 170, 220, 50] for w in use)
+    # A long Persona title must not geometrically collide with EQUIP.
+    for w in persona_widgets:
+        if w.get('bind_text') == 'pd.name':
+            assert w['rect'][1] + w['rect'][3] <= use[0]['rect'][1]
+        if w.get('bind_text') == 'pd.arcana':
+            assert w['rect'][0] + w['rect'][2] < use[0]['rect'][0]
     assert any(w.get('on_tap') == 'persona.use' and w.get('text') == 'EQUIP'
                for w in use)
     assert all(w['rect'] == [527, 120, 665, 48]
