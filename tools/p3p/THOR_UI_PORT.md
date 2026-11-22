@@ -26,6 +26,10 @@ python3 tools/p3p/test_thor_ui.py
 The final command is an offline structural test, not an emulator test.
 The updated structural tests still need to be executed in a full repository
 checkout; source changes in this draft have not been validated on-device.
+A draft-only GitHub Actions workflow is included at
+`.github/workflows/p3p-thor-source-port.yml` to run the generated manifest
+checks on the fork's branch. On GitHub forks, Actions may need to be enabled
+before that workflow runs. A missing workflow result is not a test pass.
 Run the usual native module build and package process documented in
 [tools/p3p/README.md](README.md) after generating the manifest. **Do not
 publish this prototype as a release** before full on-device validation.
@@ -46,8 +50,15 @@ publish this prototype as a release** before full on-device validation.
 - Skill: party-tab hitboxes widened, live skill icon and row text moved to match
   the community-tested v1.8.10 proportions. The game's native icon lookup
   remains unchanged.
-- S.Link, Item, Equip, Status, Calendar and Talk: targeted alignment and
-  dynamic-text fitting rules, preserving generated controls and data bindings.
+- S.Link: route-colored card edges and dividers between rank, guidance
+  and social details; the multiline people field can use up to four lines.
+- Equipment: larger party-tab hitboxes, restored readable item-help text,
+  route-colored edges on all four equipped-item cards, and clearer picker counts.
+- Items: route-colored item-row edge and fitted party target names within their
+  original use-item touch buttons; item-category tabs, select and cancel
+  actions are preserved.
+- Status, Calendar and Talk: targeted text-fitting and alignment rules,
+  preserving generated controls and data bindings.
 - Core: all 12 screens, existing action definitions and 2,798 reader outputs
   preserved. Added offline checks for pause behavior, actions, 42 calendar cells,
   and the original skill-icon binding.
@@ -60,8 +71,9 @@ publish this prototype as a release** before full on-device validation.
   partial layout and typography passes, not complete screen recreations.
 - Review legal/provenance status of any procedural art before adding it. Do not
   commit game-extracted assets.
-- Validate touch-to-label alignment, Persona action placement, and long
-  skill descriptions on an AYN Thor.
+- Validate touch-to-label alignment, Persona action placement, long
+  skill descriptions, equipment selection, item-use target labels, and
+  multi-line S.Link text on an AYN Thor.
 - Confirm the exact Support symbol and skill-category mappings in Eden Duo.
   The native module currently emits 0 for some skill categories, including
   Support, so this prototype does not claim a verified icon fix.
