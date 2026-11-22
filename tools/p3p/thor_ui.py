@@ -27,6 +27,7 @@ GOLD = '#FFFFD984'
 ACCENTS = [BLUE, RED]
 MENU = (('SKILL', 4), ('ITEM', 7), ('PERSONA', 2), ('EQUIP', 5),
         ('STATUS', 6), ('S.LINK', 3), ('CALENDAR', 8), ('MAP', 10))
+PORT_NAME = 'Persona 3 Portable live companion — Thor UI source preview'
 
 
 def image(rect, source, **kwargs):
@@ -690,6 +691,16 @@ def normalize_other_pages(p):
 
 def apply(path=MANIFEST):
     data = json.loads(path.read_text(encoding='utf-8'))
+    assert data.get('title_id') == '0100DCD01525A000', (
+        'Thor UI preview requires the Persona 3 Portable manifest')
+    assert (data.get('canvas_w'), data.get('canvas_h')) == (1240, 1080), (
+        'Unexpected P3P canvas dimensions')
+    # Re-running the optional pass on an already generated preview must not
+    # add overlays a second time or modify the source-derived widget order.
+    if data.get('name') == PORT_NAME:
+        return
+    assert data.get('name') == 'Persona 3 Portable live companion', (
+        'Regenerate the base manifest before applying this source preview')
     original = copy.deepcopy(data)
     assert len(data['pages']) == 12 and len(data['module_outputs']) == 2798
     pages = {p['id']: p for p in data['pages']}
@@ -698,7 +709,7 @@ def apply(path=MANIFEST):
     for page in data['pages']:
         if page['id'] not in ('home', 'battle'):
             normalize_other_pages(page)
-    data['name'] = 'Persona 3 Portable live companion — Thor UI source preview'
+    data['name'] = PORT_NAME
     for key in ('module_outputs','module','actions','page_binds','enforce','enforce_gate'):
         assert data[key] == original[key], 'Unexpected change to '+key
     assert len(data['pages']) == len(original['pages'])
