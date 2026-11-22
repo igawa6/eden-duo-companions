@@ -65,6 +65,44 @@ def preserve_system_overlays(page, widgets):
     widgets.extend(preserved)
 
 
+
+def start_layout(p):
+    """An asset-free title composition based on the final v1.8.10 Start page.
+
+    The original local release has procedural rings and raster wordmarks; do
+    not import either into an upstream repository. Use game art, the native
+    text renderer and simple color panels instead.
+    """
+    original = p['widgets']
+    assert len(original) == 5, 'Unexpected original Start layout'
+    bg, heading, art, prompt, error = original
+    assert bg.get('bind') == 'ui.route'
+    assert art.get('src') == 'module:p3p:persona/1@600'
+    assert error.get('bind_text') == 'module_error_message'
+
+    heading.update(rect=[60, 120, 540, 92], text='PERSONA 3',
+                   text_scale=10, italic=True, fit_text=True,
+                   wrap_width=540, text_min_scale=7)
+    art.update(rect=[560, 140, 660, 660],
+               src='module:p3p:persona/1@660')
+    prompt.update(rect=[92, 904, 1000, 48], color=WHITE,
+                  text_scale=5, italic=True)
+    error.update(color=WHITE)
+
+    # Draw the title panel first, then the original game art, then the
+    # unobstructed start cue. Error text remains last and gated by its source.
+    widgets = [bg, shape([40, 100, 555, 248], '#A00B193B'),
+               heading]
+    widgets += by_route(
+        lambda accent: label([60, 235, 480, 72], 'PORTABLE',
+                             scale=8, color=accent, italic=True))
+    widgets += by_route(
+        lambda accent: shape([60, 318, 450, 8], accent))
+    widgets += [art, shape([48, 898, 1150, 62], '#A0000000'),
+                shape([62, 913, 16, 16], WHITE),
+                prompt, error]
+    p['widgets'] = widgets
+
 def main_menu(p):
     # One vertical list, each visible label combined with its tap button.
     w = [dict(type='image', rect=[0, 0, 1240, 1080], bind='ui.route',
@@ -629,7 +667,9 @@ def normalize_other_pages(p):
             w.setdefault('text_min_scale', 3)
             w.setdefault('max_lines', 1)
 
-    if page_id == 'personas':
+    if page_id == 'start':
+        start_layout(p)
+    elif page_id == 'personas':
         persona_layout(p)
     elif page_id == 'skills':
         skills_layout(p)
