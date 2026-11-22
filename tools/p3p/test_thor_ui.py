@@ -82,9 +82,9 @@ def main():
         if page_id in ('home', 'battle'):
             continue
         new = pages[page_id]
-        added = {'personas': 10, 'links': 6, 'equip': 8,
-                 'items': 2, 'stats': 8, 'map': 2,
-                 'talk': 10}.get(page_id, 0)
+        added = {'start': 7, 'personas': 10, 'links': 6,
+                 'equip': 8, 'items': 2, 'stats': 8,
+                 'map': 2, 'talk': 10}.get(page_id, 0)
         assert len(new['widgets']) == len(old['widgets']) + added, page_id
         assert [w['on_tap'] for w in new['widgets'] if w.get('on_tap')] == [
             w['on_tap'] for w in old['widgets'] if w.get('on_tap')], page_id
@@ -240,6 +240,30 @@ def main():
                    for w in pages['calendar']['widgets']) == sum(
                        w.get('bind_text') == bind
                        for w in original_pages['calendar']['widgets'])
+
+    # The redesigned Start page may not ship procedural source art.
+    # Route-specific PORTABLE lettering and accent bars are source widgets.
+    start = pages['start']['widgets']
+    assert start[0] == original_pages['start']['widgets'][0]
+    assert len(start) == 12
+    assert any(w.get('text') == 'PERSONA 3'
+               and w.get('rect') == [60, 120, 540, 92]
+               for w in start)
+    portables = [w for w in start if w.get('text') == 'PORTABLE']
+    assert len(portables) == 2
+    assert {w.get('hide_eq') for w in portables} == {0, 1}
+    assert all(w.get('hide_bind') == 'ui.route' for w in portables)
+    assert any(w.get('src') == 'module:p3p:persona/1@660'
+               and w.get('rect') == [560, 140, 660, 660]
+               for w in start)
+    assert any(w.get('text') == 'Start or load a game to begin'
+               and w.get('rect') == [92, 904, 1000, 48]
+               for w in start)
+    assert [w.get('need_bind') for w in start
+            if w.get('bind_text') == 'module_error_message'] == [
+            'module_error']
+    assert all(not w.get('src', '').startswith('file:img/')
+               for w in start)
 
     # Status: enlarge member tabs and retain every stat/social value.
     stat_widgets = pages['stats']['widgets']
