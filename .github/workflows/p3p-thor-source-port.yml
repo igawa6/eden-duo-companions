@@ -48,3 +48,10 @@ jobs:
                      pages['talk']['widgets']) == 25
           print('P3P Thor source manifest: generation and checks passed')
           PY
+      - name: Save generated UI manifest for reviewers
+        uses: actions/upload-artifact@v4
+        with:
+          name: p3p-thor-ui-manifest
+          path: packages/Persona3Portable/dualscreen/manifest.json
+          if-no-files-found: error
+          retention-days: 14
