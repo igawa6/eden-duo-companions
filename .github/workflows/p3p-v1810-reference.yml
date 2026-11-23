@@ -30,6 +30,10 @@ jobs:
         run: python -m pip install Pillow==12.3.0
       - name: Verify 15 reconstructed geometric PNGs against audited pixels
         run: python tools/p3p/v1810/verify_generated_geometry.py
+      - name: Regenerate and verify two final Persona detail panels
+        run: |
+          python tools/p3p/v1810/generate_art_v1810_persona.py --output /tmp/p3p-v1810-persona
+          python tools/p3p/v1810/verify_generated_persona.py /tmp/p3p-v1810-persona
       - name: Export byte-exact source reference
         run: python tools/p3p/v1810/v1810_reference.py --output /tmp/p3p-v1.8.10-reference.json
       - name: Publish inspectable reference artifact
