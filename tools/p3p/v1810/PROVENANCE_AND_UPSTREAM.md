@@ -4,9 +4,9 @@
 
 The final archive includes 62 PNGs. Pixel assets are abstract color bands, background shapes, a stylized moon, titles, watermark lettering, masks, rings, slants and Persona detail panels. The package does not appear to bundle ripped character art or fonts; the game-native character art is obtained through runtime `module:p3p:` loaders. This is a **visual and file-inventory assessment, not a legal ownership certification**.
 
-The source port now includes a separate procedural reconstruction of **15**
+The source port now includes a separate procedural reconstruction of **17**
 previously unrecovered v1.7.1 graphics: 12 route-specific backgrounds/accent
-bands, two slants, and one moon mask. Every generated graphic matches the
+bands, two slants, one moon mask, and two original rings. Every generated graphic matches the
 decoded original v1.8.10 RGBA pixels; compressed PNG bytes may differ with
 Pillow/zlib versions. The new verifier pins decoded-pixel SHA-256 digests to
 the original archive. No source PNG data is embedded or checked in.
@@ -16,7 +16,7 @@ surfaces (corrected gold underline) and three MAIN title/watermark assets
 (corrected positioning and opacity). All five are byte-identical to final PNGs.
 Two additional footer-lettering images regenerate byte-for-byte from locally
 installed InterDisplay Bold Italic OTF. That font is not included. Source
-reproducibility is **53/62**, with nine early graphics remaining.
+reproducibility is **53/62**, with seven early graphics remaining.
 
 The original `p3p_thor_design_system_v1_8.py` generator exists as a development artifact. Its 31 matching procedural assets have now been recreated by `generate_art_v18_partial.py` and verified byte-for-byte against v1.8.10 with `verify_generated_31.py`. No font binary or game-extracted media has been added. A byte-level comparison of available archives shows:
 
@@ -34,7 +34,7 @@ The original `p3p_thor_design_system_v1_8.py` generator exists as a development 
 
 ## What must be done before claiming a reproducible upstream release
 
-1. Recover or reimplement source generation for the **remaining 9** PNGs and verify them. The other 53 have independently verified source reconstruction: 31 original byte-identical PNGs, 15 decoded-pixel-identical geometric assets, 5 byte-identical late revisions and 2 byte-identical footer-lettering assets. A source script that produces the same *look* is not proof of byte- or pixel-identical assets.
+1. Recover or reimplement source generation for the **remaining 7** PNGs and verify them. The other 55 have independently verified source reconstruction: 31 original byte-identical PNGs, 17 decoded-pixel-identical geometric/ring assets, 5 byte-identical late revisions and 2 byte-identical footer-lettering assets. A source script that produces the same *look* is not proof of byte- or pixel-identical assets.
 2. Review fonts, wordmarks and asset originality, license compatibility, and provenance. Do **not** introduce game-extracted resources, copyrighted game fonts, keys, ROMs, saves, firmware, or game data to upstream.
 3. Linux x86-64 and Android ARM64 now **compile successfully from C++ source**
    against the pinned Eden Duo SDK, and their ELF exports are validated in
