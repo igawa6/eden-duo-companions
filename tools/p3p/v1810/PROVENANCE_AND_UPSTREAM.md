@@ -11,11 +11,18 @@ decoded original v1.8.10 RGBA pixels; compressed PNG bytes may differ with
 Pillow/zlib versions. The new verifier pins decoded-pixel SHA-256 digests to
 the original archive. No source PNG data is embedded or checked in.
 
+The five later-revised UI assets are now recovered: two Persona detail
+surfaces (corrected gold underline) and three MAIN title/watermark assets
+(corrected positioning and opacity). All five are byte-identical to final PNGs.
+Two additional footer-lettering images regenerate byte-for-byte from locally
+installed InterDisplay Bold Italic OTF. That font is not included. Source
+reproducibility is **53/62**, with nine early graphics remaining.
+
 The original `p3p_thor_design_system_v1_8.py` generator exists as a development artifact. Its 31 matching procedural assets have now been recreated by `generate_art_v18_partial.py` and verified byte-for-byte against v1.8.10 with `verify_generated_31.py`. No font binary or game-extracted media has been added. A byte-level comparison of available archives shows:
 
-- **26** final PNGs are byte-identical to the **v1.7.1** archive. Their earlier generation source has not been recovered.
+- **26** final PNGs are byte-identical to the **v1.7.1** archive. Fifteen geometry assets are now independently pixel-reproducible, and two footer-lettering assets are byte-reproducible. Nine older graphics remain.
 - **31** final PNGs are byte-identical to **v1.8.0** and have a traceable intermediate design-system source file (not necessarily bit-for-bit reproducible across font versions).
-- **5** final PNGs were revised after **v1.8.0** and do not have recovered exact-generation scripts.
+- **5** final PNGs were revised after **v1.8.0**, and all five are now byte-reproducible using source scripts recovered from the historical design system.
 
 `ASSET_PROVENANCE.csv` lists a SHA-256 and origin bucket for each of the 62.
 
@@ -27,7 +34,7 @@ The original `p3p_thor_design_system_v1_8.py` generator exists as a development 
 
 ## What must be done before claiming a reproducible upstream release
 
-1. Recover or reimplement source generation for the **remaining 16** PNGs and verify them. The other 46 have independently verified source reconstruction: 31 byte-identical PNGs and 15 decoded-pixel-identical graphics. A source script to draw the same *look* is not proof of byte-identical assets.
+1. Recover or reimplement source generation for the **remaining 9** PNGs and verify them. The other 53 have independently verified source reconstruction: 31 original byte-identical PNGs, 15 decoded-pixel-identical geometric assets, 5 byte-identical late revisions and 2 byte-identical footer-lettering assets. A source script that produces the same *look* is not proof of byte- or pixel-identical assets.
 2. Review fonts, wordmarks and asset originality, license compatibility, and provenance. Do **not** introduce game-extracted resources, copyrighted game fonts, keys, ROMs, saves, firmware, or game data to upstream.
 3. Demonstrate that the packaged Android/Linux modules correspond to buildable source and meet upstream GPL obligations.
 4. Test the new from-source package on an AYN Thor and inspect actual screenshots: the earlier source-port approximation had obvious spacing and skill-icon regressions.
