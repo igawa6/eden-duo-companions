@@ -126,12 +126,14 @@ def check_candidates(directory: Path, inventory: dict[str, dict[str, str]]) -> s
         raise ValueError(f"Candidate directory does not exist: {directory}")
     expected = {Path(path).name: row for path, row in inventory.items()}
     validated: set[str] = set()
+    seen: set[str] = set()
     failures: list[str] = []
     for file in sorted(directory.rglob("*.png")):
         name = file.name
-        if name in validated:
+        if name in seen:
             failures.append(f"Duplicate candidate PNG basename: {name}")
             continue
+        seen.add(name)
         if name not in expected:
             failures.append(f"Unrecognized candidate PNG: {file}")
             continue
