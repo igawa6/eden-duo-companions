@@ -1,5 +1,4 @@
-<PARSED TEXT FOR SHEET: 1 / 1 TABS
-TAB NAME: ASSET_PROVENANCE.csv>index,asset,size_bytes,sha256,origin
+index,asset,size_bytes,sha256,origin
 0,dualscreen/img/band_battle_0.png,6262,a00cb4ae1a6b6c2cb8e6814c680f682dd79810dfb48070cd496b3cc4da76ebcc,Unchanged from local 1.7.1 build; generator source not yet recovered
 1,dualscreen/img/band_battle_1.png,6217,156f5170be2fd9846e2527cbf8e231279f4b654e9655b1ca42f6ef8405f2e5b7,Unchanged from local 1.7.1 build; generator source not yet recovered
 2,dualscreen/img/band_main_0.png,8829,c1e3fc4a056fd5b44c04b14a83be25dbc010506c24260fff350a9b2940e7c7bc,Unchanged from local 1.7.1 build; generator source not yet recovered
