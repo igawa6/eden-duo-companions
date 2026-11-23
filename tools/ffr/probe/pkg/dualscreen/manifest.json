@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "title_id": "0100606026F12000",
+  "name": "FF Resonance probe (development)",
+  "min_runtime": 19,
+  "requires_module": true,
+  "canvas_w": 1240,
+  "canvas_h": 1080,
+  "background": "#FF000000",
+  "pages": [
+    {
+      "id": "main",
+      "widgets": [
+        {
+          "type": "text",
+          "rect": [
+            40,
+            40,
+            1160,
+            60
+          ],
+          "text": "FFR probe running",
+          "color": "#FF404040",
+          "size": 32
+        }
+      ]
+    }
+  ]
+}
