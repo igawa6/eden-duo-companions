@@ -106,8 +106,9 @@ python3 tools/p3p/v1810/audit_assets.py --candidate-dir /tmp/p3p-footers
 
 Combining the initial 31 exact PNGs, 15 pixel-identical shapes, five
 byte-identical late revisions and two exact historical footer graphics gives
-**55 of 62 reproducible original assets**.
-The **remaining 7** older v1.7.1 graphics need source reconstruction or
+**53 of 62 reproducible original assets** as of that recovery step.
+The later two recovered rings bring the source total to **55/62**, leaving
+**seven** older v1.7.1 graphics need source reconstruction or
 an explicitly approved original-asset policy.
 Do not treat these partial generators as a complete release builder.
 
@@ -152,7 +153,7 @@ See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the
 
 Before upstream merge, either produce/verify generators for all assets, or obtain the maintainer's agreement to include genuinely original custom files. In both cases verify graphic ownership and font licenses, preserve GPL notices, and establish source-to-distributed-native-binary correspondence. Never add game dumps, proprietary game assets, ROMs, keys or copyrighted game fonts.
 
-For the exact nine remaining graphic names, CI status and blockers, see
+For the exact seven remaining graphic names, CI status and blockers, see
 [UPSTREAM_HANDOFF.md](UPSTREAM_HANDOFF.md). The audit command now prints source
 coverage and offers a strict `--require-full-source-art` completion gate.
 
