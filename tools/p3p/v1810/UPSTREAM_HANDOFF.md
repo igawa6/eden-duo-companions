@@ -78,9 +78,10 @@ exercises the same path in CI *without* storing any original artwork.
 
 This eliminates the need to approximate the final visual design when
 testing source-built modules. It is **not** a from-scratch art generator,
-nor permission to redistribute the original custom graphics. The original
-user-tested release is still the only device-verified reference; a real
-source-built full package has not yet been tested on a Thor.
+nor permission to redistribute the original custom graphics. The originally tested release remains the known-good reference. On
+2026-11-22 (America/New_York), the user reported a **positive initial AYN Thor
+smoke test** of the source-built package ("seems good"). Exact screens and
+interactions were not enumerated, so this is **not** exhaustive validation.
 
 The Linux/Android source-build workflows now publish their respective
 compiled modules as 14-day GitHub Actions artifacts for this local test path.
@@ -89,7 +90,8 @@ See [usage and commands](README.md#local-source-module-package-qa-all-62-origina
 A [local source-built test ZIP QA report](SOURCE_BUILT_LOCAL_QA.md) now records
 an actual binary build assembled from CI Linux and ARM64 modules, retaining all
 62 original PNGs and confirming the only changed entries are the two ELF
-modules and their two JSON digest declarations. On-device testing remains open.
+modules and their two JSON digest declarations. **Preliminary AYN Thor testing
+is positive**, but complete on-device/game-state regression QA remains open.
 
 ## Remaining release/merge gates
 
@@ -110,9 +112,13 @@ modules and their two JSON digest declarations. On-device testing remains open.
 - [ ] **Binary/source correspondence**: reconcile original distributed
       binary SHA-256s with source builds and document toolchain/GPL obligations.
       A successful Linux CI compile does not prove byte-identical modules.
-- [ ] **Source-built package QA**: build an installable artifact and compare
-      original 12-page layout/navigation and images; test real AYN Thor screens.
-      Battle is preview-reviewed but is **not hardware-verified**.
+- [x] **Source-built package assembly and initial Thor smoke test**: the ZIP
+      was assembled from verified Linux/ARM64 CI modules, preserving all 62
+      original images and the original 12-page UI; the user reports the
+      on-device test **"seems good"** (2026-11-22).
+- [ ] **Complete on-device regression QA**: verify specified screen coverage,
+      live values, touch/navigation, edge cases and Battle on real hardware.
+      Battle remains preview-reviewed but **not confirmed hardware-tested**.
 - [ ] **Upstream review**: after these pass, change this draft PR to ready.
 
 ## Suggested maintainer question
