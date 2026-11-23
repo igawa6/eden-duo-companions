@@ -147,6 +147,45 @@ recreation of the compiled modules in the original v1.8.10 FINAL ZIP.
 Linkage/source compliance, complete UI assets, and on-device QA remain
 separate gates before this draft is merge-ready.
 
+## Local source-module package QA (all 62 original visuals retained)
+
+The [local package builder](rebuild_v1810_local.py) creates a **test-only**
+v1.8.10 package from the user's own **byte-exact, SHA-256-pinned** v1.8.10
+FINAL ZIP and newly compiled P3P Linux/Android modules. It copies every
+original graphic, font notice, page, action and UI binding unchanged,
+but replaces the two native `.so` files and adjusts the SHA-256 declarations
+in both `package.json` and `dualscreen/manifest.json`.
+
+The builder verifies all 62 original PNG hashes, canonical manifest
+checksum, archive CRC, Linux x86-64 / Android AArch64 ELF types, module hash
+declarations and output ZIP integrity. It **never modifies the input**.
+Its [synthetic, no-original-art unit tests](test_rebuild_v1810_local.py)
+run in GitHub Actions; a local regression test against the genuine original
+ZIP also confirmed that only the two modules and their two JSON hash
+declarations change when swapping binary inputs.
+
+Use the [Linux module workflow](https://github.com/speerit1/eden-duo-companions/actions/workflows/p3p-source-native-linux.yml)
+and [Android module workflow](https://github.com/speerit1/eden-duo-companions/actions/workflows/p3p-source-native-android.yml)
+to obtain the two **source-built** module artifacts, or compile with the
+documented `native/README.md` instructions. Each CI artifact is temporary
+(14-day retention). After extracting the two `.so` files into different
+local directories:
+
+```sh
+python3 tools/p3p/v1810/rebuild_v1810_local.py \
+  --reference /path/to/0100DCD01525A000-Persona3PortableDS-v1.8.10-FINAL.dsmod.zip \
+  --linux-module /path/to/linux-source/0100DCD01525A000.so \
+  --android-module /path/to/android-source/0100DCD01525A000.so \
+  --output /tmp/P3P-v1.8.10-SOURCE-MODULES-TEST-ONLY.dsmod.zip
+```
+
+**Important:** this is an optional *local test bridge* requiring a separately
+obtained original archive, not a standalone source release or approval to
+redistribute all its artwork. It does **not** resolve the seven incomplete
+independent image generators, graphic ownership/licensing, source-to-original
+binary correspondence, or on-device QA. Do not mark the PR ready or publish
+the combined ZIP before those separate checks.
+
 ## Provenance
 
 See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the local build history identified **26** unchanged older assets (19 now reproducible: 17 pixel-identical and 2 byte-identical), **31** matching the procedural v1.8.0 design-system build, and **5** later revisions whose exact source has now been recovered. The traceable visual artwork appears abstract/procedural; completeness of the source and licensing review is **not yet established**.
