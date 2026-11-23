@@ -35,6 +35,20 @@ python3 tools/p3p/v1810/generate_art_v18_partial.py --output /tmp/p3p-art
 python3 tools/p3p/v1810/verify_generated_31.py /tmp/p3p-art
 ```
 
+The [asset audit](audit_assets.py) validates the provenance records for all
+62 PNGs and checks every static manifest image reference. It can also verify
+the original, checksum-pinned v1.8.10 archive or compare any *subset* of
+locally regenerated PNGs against the exact final release bytes. No artwork is
+copied into this source branch.
+
+```sh
+python3 tools/p3p/v1810/audit_assets.py
+python3 tools/p3p/v1810/audit_assets.py --archive /path/to/v1.8.10-FINAL.dsmod.zip
+python3 tools/p3p/v1810/audit_assets.py --candidate-dir /tmp/p3p-art
+# Only use this gate when the full source generator is ready:
+python3 tools/p3p/v1810/audit_assets.py --candidate-dir /tmp/p3p-art --require-complete
+```
+
 The remaining 31 (26 earlier assets and 5 later revisions) need their own
 source reconstructions or an explicitly approved original-asset policy.
 Do not treat the partial generator as a complete release builder.
