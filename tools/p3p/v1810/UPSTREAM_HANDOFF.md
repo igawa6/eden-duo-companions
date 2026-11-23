@@ -86,6 +86,11 @@ The Linux/Android source-build workflows now publish their respective
 compiled modules as 14-day GitHub Actions artifacts for this local test path.
 See [usage and commands](README.md#local-source-module-package-qa-all-62-original-visuals-retained).
 
+A [local source-built test ZIP QA report](SOURCE_BUILT_LOCAL_QA.md) now records
+an actual binary build assembled from CI Linux and ARM64 modules, retaining all
+62 original PNGs and confirming the only changed entries are the two ELF
+modules and their two JSON digest declarations. On-device testing remains open.
+
 ## Remaining release/merge gates
 
 - [ ] **Artwork policy**: maintainer guidance on accepting separately licensed,
