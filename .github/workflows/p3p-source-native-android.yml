@@ -59,3 +59,10 @@ jobs:
           test -s "$MODULE"
           readelf -h "$MODULE" | grep AArch64
           readelf --dyn-syms --wide "$MODULE" | grep -E 'eden_dsmod_get_module|eden_dsmod_get_extensions|eden_dsmod_get_font_extensions'
+      - name: Publish source-built module for local QA
+        uses: actions/upload-artifact@v4
+        with:
+          name: p3p-android-arm64-source-module
+          path: build-p3p-arm64/0100DCD01525A000.so
+          if-no-files-found: error
+          retention-days: 14
