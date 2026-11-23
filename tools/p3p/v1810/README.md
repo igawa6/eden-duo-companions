@@ -106,10 +106,32 @@ python3 tools/p3p/v1810/audit_assets.py --candidate-dir /tmp/p3p-footers
 
 Combining the initial 31 exact PNGs, 15 pixel-identical shapes, five
 byte-identical late revisions and two exact historical footer graphics gives
-**53 of 62 reproducible original assets**.
-The **remaining 9** older v1.7.1 graphics need source reconstruction or
+**55 of 62 reproducible original assets**.
+The **remaining 7** older v1.7.1 graphics need source reconstruction or
 an explicitly approved original-asset policy.
 Do not treat these partial generators as a complete release builder.
+
+## Original circle and tick artwork (2 additional PNGs)
+
+[generate_art_v1810_rings.py](generate_art_v1810_rings.py) recovers both
+original circular decorations without copying their PNG bytes. The two
+rings use 2x antialiased line/ellipse drawing and final-specific floating
+point endpoint corrections. Both are identical to the **decoded RGBA pixels**
+from the original v1.8.10 release, as proven by
+[verify_generated_rings.py](verify_generated_rings.py) in CI.
+
+```sh
+python3 tools/p3p/v1810/generate_art_v1810_rings.py --output /tmp/p3p-rings
+python3 tools/p3p/v1810/verify_generated_rings.py
+# Optional comparison to the exact original local archive:
+python3 tools/p3p/v1810/verify_generated_rings.py --archive /path/to/v1.8.10-FINAL.dsmod.zip
+```
+
+**55/62 graphics now reproduce from independent source:** 38 byte-identical
+on the validated local environment and 17 pixel-identical RGBA graphics.
+Only seven original visuals remain: two Start backgrounds (both routes)
+and five large white wordmarks. This source PR still is not a self-contained
+release builder.
 
 ## Native module source builds (CI verified)
 
@@ -126,7 +148,7 @@ separate gates before this draft is merge-ready.
 
 ## Provenance
 
-See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the local build history identified **26** unchanged older assets (17 now reproducible: 15 pixel-identical and 2 byte-identical), **31** matching the procedural v1.8.0 design-system build, and **5** later revisions whose exact source has now been recovered. The traceable visual artwork appears abstract/procedural; completeness of the source and licensing review is **not yet established**.
+See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the local build history identified **26** unchanged older assets (19 now reproducible: 17 pixel-identical and 2 byte-identical), **31** matching the procedural v1.8.0 design-system build, and **5** later revisions whose exact source has now been recovered. The traceable visual artwork appears abstract/procedural; completeness of the source and licensing review is **not yet established**.
 
 Before upstream merge, either produce/verify generators for all assets, or obtain the maintainer's agreement to include genuinely original custom files. In both cases verify graphic ownership and font licenses, preserve GPL notices, and establish source-to-distributed-native-binary correspondence. Never add game dumps, proprietary game assets, ROMs, keys or copyrighted game fonts.
 
