@@ -1,5 +1,15 @@
 # Persona 3 Portable AYN Thor — canonical v1.8.10 source reference
 
+**For upstream reviewers:** start with
+[MAINTAINER_REVIEW_GUIDE.md](MAINTAINER_REVIEW_GUIDE.md). It links verified
+artwork/ABI/QA evidence, identifies the seven unsourced assets and separates
+early architecture feedback from approval to merge a complete release.
+
+**Visual verification:** GitHub Actions now regenerates and verifies **all 55**
+recovered original graphic sources, including 38 exact PNG file hashes and
+17 exact RGBA pixel hashes. It obtains pinned official Inter 4.1 font binaries
+temporarily; no font binaries are committed or shipped in this PR.
+
 The accompanying compressed fixture is the **byte-exact** `dualscreen/manifest.json` from the user-tested **v1.8.10 FINAL** archive. It is now the authoritative layout/design target for this contribution. It is **not** the flawed source-port approximation.
 
 The fixture is stored as LZMA + base85 text, **not** as an unreadable binary artifact: run `python3 tools/p3p/v1810/v1810_reference.py --output /tmp/p3p_v1810.json` to recover the ordinary, human-readable 799,718-byte JSON file. Its SHA-256 is `d9079a3852e24a24c07608ccfcb32b0b4c9c1283476650204e2a72cb30c9e379`. The script rejects corrupted data. The reference contains original page geometry, all animations, composites, derived points and font/image references.
