@@ -50,13 +50,13 @@ publish this prototype as a release** before full on-device validation.
 ## What is implemented so far
 
 - Start: asset-free route-aware title treatment with native Persona art,
-  larger lettering and an easy-to-read start cue. The local release's
-  original procedural rings and rasterized wordmarks are deliberately not
-  included in the source port.
-- Main: eight full-width aligned label/touch rows, clearer date/portrait,
-  live moon-phase icon, and all four gated party-member cards (HP, SP,
-  ailments and level-independent stat bars) instead of only the lead member.
-  The party cards start below navigation and leave the bottom status visible.
+  larger lettering, legible PORTABLE text and a left-aligned start cue (the
+  first test build clipped that prompt). The local release's original
+  procedural rings and rasterized wordmarks are deliberately not included.
+- Main: eight labels use the tested 68-pixel pitch and matching bullet
+  positions (the earlier source port put bullets a row too high). Live moon
+  phase and four gated party-member cards are preserved. Numeric HP/SP text
+  is right-anchored inside each card instead of clipping off the left edge.
 - Battle: pale-gold party names, route-colored HP/SP values,
   five enemy rows with route-aware names, help and affinities, live ailments,
   and text-fitting safeguards. Existing enemy HP bars and native outputs
@@ -68,9 +68,12 @@ publish this prototype as a release** before full on-device validation.
   nine affinity icons, an eight-skill two-column area, and bottom progression
   text lanes. The existing Persona action is labelled "EQUIP" and placed next
   to the header, with its original live action/bind intact.
-- Skill: party-tab hitboxes widened, live skill icon and row text moved to match
-  the community-tested v1.8.10 proportions. The game's native icon lookup
-  remains unchanged.
+- Skill: party-tab hitboxes widened, row text moved to match v1.8.10.
+  Restored the **sprite 135 native fallback** under the live skill icon
+  because the game reader can publish a zero category for Support skills
+  including Rakukaja. The overlay retains the original icon binding.
+  This fixes the source-manifest omission found on a 2026-11-22 Thor test;
+  rendering still needs rechecking on the device.
 - S.Link: route-colored card edges and dividers between rank, guidance
   and social details; the multiline people field can use up to four lines.
 - Equipment: larger party-tab hitboxes, restored readable item-help text,
