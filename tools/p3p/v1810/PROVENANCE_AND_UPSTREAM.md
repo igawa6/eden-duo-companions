@@ -36,7 +36,13 @@ The original `p3p_thor_design_system_v1_8.py` generator exists as a development 
 
 1. Recover or reimplement source generation for the **remaining 9** PNGs and verify them. The other 53 have independently verified source reconstruction: 31 original byte-identical PNGs, 15 decoded-pixel-identical geometric assets, 5 byte-identical late revisions and 2 byte-identical footer-lettering assets. A source script that produces the same *look* is not proof of byte- or pixel-identical assets.
 2. Review fonts, wordmarks and asset originality, license compatibility, and provenance. Do **not** introduce game-extracted resources, copyrighted game fonts, keys, ROMs, saves, firmware, or game data to upstream.
-3. Demonstrate that the packaged Android/Linux modules correspond to buildable source and meet upstream GPL obligations.
+3. Linux x86-64 and Android ARM64 now **compile successfully from C++ source**
+   against the pinned Eden Duo SDK, and their ELF exports are validated in
+   GitHub Actions. The Linux native unit tests pass. **Still outstanding:**
+   establish binary/source correspondence with the originally distributed
+   modules, document toolchain/reproducibility details, and review upstream GPL
+   redistribution obligations. CI source compilation is not proof that the
+   binaries are byte-identical to the original release.
 4. Test the new from-source package on an AYN Thor and inspect actual screenshots: the earlier source-port approximation had obvious spacing and skill-icon regressions.
 5. Keep PR #31 a draft until these steps pass. Maintainer consent to include original non-game assets would be one alternative; **consent is not yet obtained**.
 
