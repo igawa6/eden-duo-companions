@@ -667,7 +667,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         '--thor-ui', action='store_true',
-        help='opt in to the asset-free AYN Thor UI source-preview layout')
+        help='EXPERIMENTAL WIP only; hardware-regressed; not the tested v1.8.10 release')
     options = parser.parse_args()
     main()
     if options.thor_ui:
