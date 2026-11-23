@@ -17,7 +17,8 @@
   The latter may have different PNG compressed bytes across Pillow versions.
 - CI validates the reference schema, all art provenance records, and the
   15 geometric and 2 Persona-detail graphic reconstructions.
-- The [Linux native build workflow](https://github.com/speerit1/eden-duo-companions/actions/workflows/p3p-source-native-linux.yml) compiles P3P from C++ source against the documented Eden Duo SDK; its C++ unit tests and ELF export verification passed. Android ARM64 is still unverified.
+- The [Linux native build workflow](https://github.com/speerit1/eden-duo-companions/actions/workflows/p3p-source-native-linux.yml) compiles P3P from C++ source against the documented Eden Duo SDK; its C++ unit tests and ELF export verification passed. Android ARM64 now also passes its
+  [source compilation and ELF checks](https://github.com/speerit1/eden-duo-companions/actions/runs/45105836302).
 - The working community v1.8.10 ZIP remains available separately; **the PR
   source alone is not an installable mod**.
 
@@ -74,8 +75,10 @@ redistributes OTF files.
       pinned Eden Duo SDK `8c28fd5d`, pass C++ unit tests and verify
       exported entrypoints. Proven in
       [GitHub Actions run #45105484042](https://github.com/speerit1/eden-duo-companions/actions/runs/45105484042).
-- [ ] **Android ARM64 native source build**: cross-compile and validate ELF
-      exports; on-device runtime tests are separate.
+- [x] **Android ARM64 native source build**: NDK r28 cross-compilation,
+      AArch64 ELF architecture and native entrypoint exports passed in
+      [GitHub Actions run #45105836302](https://github.com/speerit1/eden-duo-companions/actions/runs/45105836302).
+      On-device runtime tests are separate.
 - [ ] **Binary/source correspondence**: reconcile original distributed
       binary SHA-256s with source builds and document toolchain/GPL obligations.
       A successful Linux CI compile does not prove byte-identical modules.
