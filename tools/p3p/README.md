@@ -42,7 +42,7 @@ never writes to the game.
 
 | Script | What it does |
 |---|---|
-| `gen_manifest.py` | Writes `packages/Persona3Portable/dualscreen/manifest.json`. Standard library only; `--thor-ui` opts into the unfinished AYN Thor source-preview layout. |
+| `gen_manifest.py` | Writes `packages/Persona3Portable/dualscreen/manifest.json`. Standard library only; `--thor-ui` selects an unfinished, hardware-regressed experimental layout (NOT the finished v1.8.10). |
 | `gen_pins.py <main NSO>` | Rewrites `native/modules/p3p_pins.inc`, the FNV-1a fingerprints of the game code the module relies on. Needs your own decrypted `main` from the supported build. |
 | `nso.py` | Decompresses and hash-checks an NSO (`--relocate` applies relative relocations). Needs system `liblz4.so.1`. |
 | `saves.py` | Bounded decoder for the save container; holds the supported build ID used by the generators. |
@@ -62,7 +62,12 @@ cmake --build build-mods --parallel 4
 ctest --test-dir build-mods -R '^dsmod-p3p$' --output-on-failure
 ```
 
-The community AYN Thor redesign currently has a **draft source port**.
+The community AYN Thor redesign has a **working v1.8.10 FINAL release**
+and a separate, **unfinished prototype** in this PR. The exact working
+manifest can be recovered and tested with
+[v1810/README.md](v1810/README.md).
+
+The draft source port is retained for experiments, not release.
 To inspect its asset-free UI prototype, generate the optional layout instead of
 the standard manifest:
 
