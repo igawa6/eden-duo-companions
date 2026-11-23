@@ -1,27 +1,27 @@
 index,asset,size_bytes,sha256,origin
-0,dualscreen/img/band_battle_0.png,6262,a00cb4ae1a6b6c2cb8e6814c680f682dd79810dfb48070cd496b3cc4da76ebcc,Unchanged from local 1.7.1 build; generator source not yet recovered
-1,dualscreen/img/band_battle_1.png,6217,156f5170be2fd9846e2527cbf8e231279f4b654e9655b1ca42f6ef8405f2e5b7,Unchanged from local 1.7.1 build; generator source not yet recovered
-2,dualscreen/img/band_main_0.png,8829,c1e3fc4a056fd5b44c04b14a83be25dbc010506c24260fff350a9b2940e7c7bc,Unchanged from local 1.7.1 build; generator source not yet recovered
-3,dualscreen/img/band_main_1.png,8780,f55ef4ca77ce91f2ba64da6e26fe9792e5c18a74ee13935dbf3736bee6dbadee,Unchanged from local 1.7.1 build; generator source not yet recovered
-4,dualscreen/img/band_page_0.png,12091,c36f6cafa840fc8c347a914b6e592cd616f08c158987cc0699562abf9e0e06b9,Unchanged from local 1.7.1 build; generator source not yet recovered
-5,dualscreen/img/band_page_1.png,11552,cd9c7d35dfe3113619ad7a5447f0a2d301e34687fc931f215e6d97db0360f9cf,Unchanged from local 1.7.1 build; generator source not yet recovered
-6,dualscreen/img/bg_battle_0.png,17042,c2f093a3c9f1012f9fa06c00900b27efa179bedd7540a6b299d0eb7e59031653,Unchanged from local 1.7.1 build; generator source not yet recovered
-7,dualscreen/img/bg_battle_1.png,17580,2af878e063986e200655376e563a5799560a9478ad778fad15a4b3c34070fbd0,Unchanged from local 1.7.1 build; generator source not yet recovered
-8,dualscreen/img/bg_main_0.png,13287,fb1a730f7b8626ade9b3d20dfadd58d8d1158e1f9e22a148230b2d20c3442758,Unchanged from local 1.7.1 build; generator source not yet recovered
-9,dualscreen/img/bg_main_1.png,13705,807c64e58c79947a52aa36ab272b7189480b034b0c2e9183f3dc28e694d8ed86,Unchanged from local 1.7.1 build; generator source not yet recovered
-10,dualscreen/img/bg_page_0.png,20835,60225f736a01ad9ab78aea260d67421848589ab3bb29859354dd9e3f13005011,Unchanged from local 1.7.1 build; generator source not yet recovered
-11,dualscreen/img/bg_page_1.png,21383,7e09b0628f0527f91c555169edc76d1892b81e86e66cf966d671e80c2f3728d4,Unchanged from local 1.7.1 build; generator source not yet recovered
+0,dualscreen/img/band_battle_0.png,6262,a00cb4ae1a6b6c2cb8e6814c680f682dd79810dfb48070cd496b3cc4da76ebcc,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
+1,dualscreen/img/band_battle_1.png,6217,156f5170be2fd9846e2527cbf8e231279f4b654e9655b1ca42f6ef8405f2e5b7,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
+2,dualscreen/img/band_main_0.png,8829,c1e3fc4a056fd5b44c04b14a83be25dbc010506c24260fff350a9b2940e7c7bc,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
+3,dualscreen/img/band_main_1.png,8780,f55ef4ca77ce91f2ba64da6e26fe9792e5c18a74ee13935dbf3736bee6dbadee,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
+4,dualscreen/img/band_page_0.png,12091,c36f6cafa840fc8c347a914b6e592cd616f08c158987cc0699562abf9e0e06b9,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
+5,dualscreen/img/band_page_1.png,11552,cd9c7d35dfe3113619ad7a5447f0a2d301e34687fc931f215e6d97db0360f9cf,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
+6,dualscreen/img/bg_battle_0.png,17042,c2f093a3c9f1012f9fa06c00900b27efa179bedd7540a6b299d0eb7e59031653,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
+7,dualscreen/img/bg_battle_1.png,17580,2af878e063986e200655376e563a5799560a9478ad778fad15a4b3c34070fbd0,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
+8,dualscreen/img/bg_main_0.png,13287,fb1a730f7b8626ade9b3d20dfadd58d8d1158e1f9e22a148230b2d20c3442758,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
+9,dualscreen/img/bg_main_1.png,13705,807c64e58c79947a52aa36ab272b7189480b034b0c2e9183f3dc28e694d8ed86,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
+10,dualscreen/img/bg_page_0.png,20835,60225f736a01ad9ab78aea260d67421848589ab3bb29859354dd9e3f13005011,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
+11,dualscreen/img/bg_page_1.png,21383,7e09b0628f0527f91c555169edc76d1892b81e86e66cf966d671e80c2f3728d4,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
 12,dualscreen/img/bg_start_0.png,60201,f86a43d4e32295c3fa02e070a261202bd5baf026573e577d0e3e3cdc2843ac14,Unchanged from local 1.7.1 build; generator source not yet recovered
 13,dualscreen/img/bg_start_1.png,59956,e6a2f68c7036eff8e128b8a41e2c2628c7df5184c1707c511d346d5e61eaaa15,Unchanged from local 1.7.1 build; generator source not yet recovered
 14,dualscreen/img/calendar_footer_lettering.png,14468,1525f4146e6f3ad09c125a1b4a0bc3dc8029078e4bedaddf59fc69ef59af8fe3,Unchanged from local 1.7.1 build; generator source not yet recovered
 15,dualscreen/img/links_footer_lettering.png,11956,75b2498be6330617aa75fd6f3c2a7fff48ed1adb09b929314086658140c46176,Unchanged from local 1.7.1 build; generator source not yet recovered
-16,dualscreen/img/moon_mask.png,17181,66be0b405b9e63840fcdff947f1d609ae21d787cdb0f3a023f749ec8dab17c97,Unchanged from local 1.7.1 build; generator source not yet recovered
+16,dualscreen/img/moon_mask.png,17181,66be0b405b9e63840fcdff947f1d609ae21d787cdb0f3a023f749ec8dab17c97,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
 17,dualscreen/img/persona_detail_blue.png,8438,35f75cf1d93e794e99aa2b1d3b10856c2b18dc0c9914e74056d730341d000dc5,"Revised after v1.8.0; final pixels preserved, edit source not recovered"
 18,dualscreen/img/persona_detail_red.png,8421,c609eac69d6bc6f1626706f6e947bf230edaff173c4a0c46ed1402f03c45685b,"Revised after v1.8.0; final pixels preserved, edit source not recovered"
 19,dualscreen/img/ring_a.png,48302,ebbd19f6c76be51986eb4070cbe4edb6e96d9ea6113c05dbc5138bc9ddc38be8,Unchanged from local 1.7.1 build; generator source not yet recovered
 20,dualscreen/img/ring_b.png,10323,372fedb11ef2e8946c3e6e341982f88a42ea609a351b0e48cb792f524a1afb20,Unchanged from local 1.7.1 build; generator source not yet recovered
-21,dualscreen/img/slant.png,1754,7cf37b43dab130e7b841afda364b0ca080da38ba546e76b3830125f745be6533,Unchanged from local 1.7.1 build; generator source not yet recovered
-22,dualscreen/img/slant_wide.png,2645,708454e1e9e1a1d7656f742112e514df7704d1cef7a302e4be9370d888519a9b,Unchanged from local 1.7.1 build; generator source not yet recovered
+21,dualscreen/img/slant.png,1754,7cf37b43dab130e7b841afda364b0ca080da38ba546e76b3830125f745be6533,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
+22,dualscreen/img/slant_wide.png,2645,708454e1e9e1a1d7656f742112e514df7704d1cef7a302e4be9370d888519a9b,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
 23,dualscreen/img/stats_header_strip.png,5525,38e70677537659a27c5cd7eb01391514e32f42fbd58b40d8d3e41f6b85a82380,Matches local 1.8.0 design-system build; source script available for most
 24,dualscreen/img/ui_ghost_battle_blue.png,22964,6c587eed10c8e19aa95508aac3a2fef35156939eb9330259fa1d09b480bef763,Matches local 1.8.0 design-system build; source script available for most
 25,dualscreen/img/ui_ghost_battle_red.png,22566,ffbc0992d6066156f6d41fc3ac3e7924da6cbf6cd906273dc46f7aae3de2c1df,Matches local 1.8.0 design-system build; source script available for most
