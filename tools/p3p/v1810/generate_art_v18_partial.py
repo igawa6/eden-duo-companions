@@ -10,6 +10,7 @@ Run: python3 generate_art_v18_partial.py --output /tmp/p3p-v1.8-art
 from __future__ import annotations
 from argparse import ArgumentParser
 from pathlib import Path
+import os
 from PIL import Image, ImageDraw, ImageFont
 
 T={
@@ -18,7 +19,7 @@ T={
     'navy':(8,48,123), 'teal':(78,193,249),
     'blue_line':(57,117,183), 'text_blue':(14,54,117)
 }
-font_title=Path('/usr/share/fonts/opentype/inter/Inter-BlackItalic.otf')
+font_title=Path(os.environ.get('P3P_INTER_FONT_DIR', '/usr/share/fonts/opentype/inter')) / 'Inter-BlackItalic.otf'
 if not font_title.exists():
     raise RuntimeError('This historical generator requires a locally installed Inter Black Italic OTF. Font binaries are NOT redistributed.')
 
