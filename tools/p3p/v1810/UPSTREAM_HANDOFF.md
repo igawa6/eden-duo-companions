@@ -61,6 +61,31 @@ Pixel/byte matches can depend on the actual OTF binary,
 Pillow version, and PNG encoder. The source branch intentionally never
 redistributes OTF files.
 
+## Local source-built-package test bridge
+
+The new `rebuild_v1810_local.py` supports **private testing** of native
+modules compiled from this repository with the complete, byte-exact v1.8.10
+UI. The user supplies the checksum-pinned original community ZIP and the
+separately built Linux + Android ELF modules. The tool verifies all 62 original
+PNG file hashes; retains all source UI pages/actions/images; replaces **only**
+the two `.so` files; updates their digest declarations in `package.json`
+and `dualscreen/manifest.json`; and checks the output archive.
+
+A local validation using the original ZIP confirmed that replacing the
+native module inputs changes just four entries: the two modules, the root
+package description and the UI manifest. A synthetic 67-entry test archive
+exercises the same path in CI *without* storing any original artwork.
+
+This eliminates the need to approximate the final visual design when
+testing source-built modules. It is **not** a from-scratch art generator,
+nor permission to redistribute the original custom graphics. The original
+user-tested release is still the only device-verified reference; a real
+source-built full package has not yet been tested on a Thor.
+
+The Linux/Android source-build workflows now publish their respective
+compiled modules as 14-day GitHub Actions artifacts for this local test path.
+See [usage and commands](README.md#local-source-module-package-qa-all-62-original-visuals-retained).
+
 ## Remaining release/merge gates
 
 - [ ] **Artwork policy**: maintainer guidance on accepting separately licensed,
