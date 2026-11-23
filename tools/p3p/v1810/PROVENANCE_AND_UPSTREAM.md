@@ -4,7 +4,7 @@
 
 The final archive includes 62 PNGs. Pixel assets are abstract color bands, background shapes, a stylized moon, titles, watermark lettering, masks, rings, slants and Persona detail panels. The package does not appear to bundle ripped character art or fonts; the game-native character art is obtained through runtime `module:p3p:` loaders. This is a **visual and file-inventory assessment, not a legal ownership certification**.
 
-The original `p3p_thor_design_system_v1_8.py` generator is present as a development artifact and provides concrete procedural source for most of the new 1.8.0 imagery. A byte-level comparison of available archives shows:
+The original `p3p_thor_design_system_v1_8.py` generator exists as a development artifact. Its 31 matching procedural assets have now been recreated by `generate_art_v18_partial.py` and verified byte-for-byte against v1.8.10 with `verify_generated_31.py`. No font binary or game-extracted media has been added. A byte-level comparison of available archives shows:
 
 - **26** final PNGs are byte-identical to the **v1.7.1** archive. Their earlier generation source has not been recovered.
 - **31** final PNGs are byte-identical to **v1.8.0** and have a traceable intermediate design-system source file (not necessarily bit-for-bit reproducible across font versions).
@@ -20,7 +20,7 @@ The original `p3p_thor_design_system_v1_8.py` generator is present as a developm
 
 ## What must be done before claiming a reproducible upstream release
 
-1. Recover or reimplement source generation for **all 62** PNGs and verify they match the final design. A source script to draw the same *look* is not proof of byte-identical assets.
+1. Recover or reimplement source generation for the **remaining 31** PNGs and verify them. The other 31 already regenerate byte-for-byte on the tested local environment. A source script to draw the same *look* is not proof of byte-identical assets.
 2. Review fonts, wordmarks and asset originality, license compatibility, and provenance. Do **not** introduce game-extracted resources, copyrighted game fonts, keys, ROMs, saves, firmware, or game data to upstream.
 3. Demonstrate that the packaged Android/Linux modules correspond to buildable source and meet upstream GPL obligations.
 4. Test the new from-source package on an AYN Thor and inspect actual screenshots: the earlier source-port approximation had obvious spacing and skill-icon regressions.
