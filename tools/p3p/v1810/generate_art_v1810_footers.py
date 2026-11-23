@@ -8,10 +8,11 @@ embedded in this source.
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
-FONT = Path('/usr/share/fonts/opentype/inter/InterDisplay-BoldItalic.otf')
+FONT = Path(os.environ.get('P3P_INTER_FONT_DIR', '/usr/share/fonts/opentype/inter')) / 'InterDisplay-BoldItalic.otf'
 CANVAS = (1240, 1080)
 INK = (86, 199, 248, 77)
 LETTERS = (
