@@ -78,9 +78,9 @@ resources.
 A byte-exact reference of the tested 12-screen manifest (including its
 compositions, animations and 2,798 game-state outputs) is in
 [v1810/README.md](v1810/README.md). A recovered source generator reproduces
-53 of its 62 procedural PNG graphics either byte-for-byte (38 assets) or
-decoded-pixel-for-pixel (15 geometry assets) using independent source scripts.
-The remaining nine graphics, font and artwork provenance review, and native
+55 of its 62 procedural PNG graphics either byte-for-byte (38 assets) or
+decoded-pixel-for-pixel (17 geometry and ring assets) using independent source scripts.
+The remaining seven graphics, font and artwork provenance review, and native
 module build validation are still outstanding. Do not package the manifest reference
 without its corresponding artwork. The earlier hand-recreated UI source
 prototype was found to have on-device regressions and has been removed from
