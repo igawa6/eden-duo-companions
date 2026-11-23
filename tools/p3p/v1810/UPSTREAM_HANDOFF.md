@@ -12,24 +12,22 @@
 - The original game-state output and action schemas are compared against the
   upstream standard P3P generator, without changing native reader behavior.
 - Artwork inventory and checksums cover all 62 custom PNGs.
-- 53/62 graphic generators have been recovered: **38 byte-identical** on the
+- 55/62 graphic generators have been recovered: **38 byte-identical** on the
   validated local environment, and **15 identical after RGBA decoding**.
   The latter may have different PNG compressed bytes across Pillow versions.
 - CI validates the reference schema, all art provenance records, and the
-  15 geometric and 2 Persona-detail graphic reconstructions.
+  17 geometric/ring and 2 Persona-detail graphic reconstructions.
 - The [Linux native build workflow](https://github.com/speerit1/eden-duo-companions/actions/workflows/p3p-source-native-linux.yml) compiles P3P from C++ source against the documented Eden Duo SDK; its C++ unit tests and ELF export verification passed. Android ARM64 now also passes its
   [source compilation and ELF checks](https://github.com/speerit1/eden-duo-companions/actions/runs/45105836302).
 - The working community v1.8.10 ZIP remains available separately; **the PR
   source alone is not an installable mod**.
 
-## The nine remaining art sources
+## The seven remaining art sources
 
 | Asset | Scope | Resolution path |
 |---|---|---|
 | `bg_start_0.png` | Blue-route opening background and textured moon | Recover procedural drawing / independently license original |
 | `bg_start_1.png` | Pink-route opening background and textured moon | Recover procedural drawing / independently license original |
-| `ring_a.png` | Fine circular tick ring | Recover accurate antialiased source |
-| `ring_b.png` | Coarse circular tick ring | Recover accurate antialiased source |
 | `word_battle.png` | Original BATTLE wordmark | Recover original font and render transform |
 | `word_map.png` | Original MAP wordmark | Recover original font and render transform |
 | `word_persona3.png` | Original PERSONA 3 wordmark | Recover original font and render transform |
@@ -89,9 +87,9 @@ redistributes OTF files.
 
 ## Suggested maintainer question
 
-> We have reconstructed 53/62 original, non-game UI PNGs from source (38
-> byte-identical on our validated environment, 15 pixel-identical). For the
-> remaining nine, would you accept independently licensed custom UI PNGs with
+> We have reconstructed 55/62 original, non-game UI PNGs from source (38
+> byte-identical on our validated environment, 17 pixel-identical). For the
+> remaining seven, would you accept independently licensed custom UI PNGs with
 > explicit ownership/provenance and credits, or do you require generators for
 > all of them? The source PR intentionally excludes game assets and the
 > independently distributed binary release. We are keeping the PR as a draft
@@ -101,7 +99,7 @@ The source inventory is machine-auditable:
 
 ```sh
 python3 tools/p3p/v1810/audit_assets.py
-# Release readiness gate: deliberately fails while 9 PNGs remain unsourced
+# Release readiness gate: deliberately fails while 7 PNGs remain unsourced
 python3 tools/p3p/v1810/audit_assets.py --require-full-source-art
 ```
 
