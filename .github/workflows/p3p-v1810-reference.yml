@@ -28,6 +28,22 @@ jobs:
         run: python tools/p3p/v1810/audit_assets.py
       - name: Install image tooling for pixel-exact geometry verification
         run: python -m pip install Pillow==12.3.0
+      - name: Authenticate official temporary Inter 4.1 OTF fonts
+        run: |
+          python tools/p3p/v1810/prepare_fonts_for_checks.py --output /tmp/p3p-verified-inter
+          echo "P3P_INTER_FONT_DIR=/tmp/p3p-verified-inter" >> "$GITHUB_ENV"
+      - name: Regenerate and verify 31 v1.8 historical PNGs byte-for-byte
+        run: |
+          python tools/p3p/v1810/generate_art_v18_partial.py --output /tmp/p3p-v1810-historical
+          python tools/p3p/v1810/verify_generated_31.py /tmp/p3p-v1810-historical
+      - name: Regenerate and verify three final MAIN assets byte-for-byte
+        run: |
+          python tools/p3p/v1810/generate_art_v1810_main.py --output /tmp/p3p-v1810-main
+          python tools/p3p/v1810/audit_assets.py --candidate-dir /tmp/p3p-v1810-main
+      - name: Regenerate and verify two original footers byte-for-byte
+        run: |
+          python tools/p3p/v1810/generate_art_v1810_footers.py --output /tmp/p3p-v1810-footers
+          python tools/p3p/v1810/audit_assets.py --candidate-dir /tmp/p3p-v1810-footers
       - name: Verify 15 reconstructed geometric PNGs against audited pixels
         run: python tools/p3p/v1810/verify_generated_geometry.py
       - name: Verify both pixel-perfect reconstructed ring graphics
