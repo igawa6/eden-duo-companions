@@ -26,6 +26,10 @@ jobs:
         run: python tools/p3p/v1810/test_reference.py
       - name: Audit all 62 artwork provenance entries and manifest references
         run: python tools/p3p/v1810/audit_assets.py
+      - name: Install image tooling for pixel-exact geometry verification
+        run: python -m pip install Pillow==12.3.0
+      - name: Verify 15 reconstructed geometric PNGs against audited pixels
+        run: python tools/p3p/v1810/verify_generated_geometry.py
       - name: Export byte-exact source reference
         run: python tools/p3p/v1810/v1810_reference.py --output /tmp/p3p-v1.8.10-reference.json
       - name: Publish inspectable reference artifact
