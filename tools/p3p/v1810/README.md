@@ -49,13 +49,35 @@ python3 tools/p3p/v1810/audit_assets.py --candidate-dir /tmp/p3p-art
 python3 tools/p3p/v1810/audit_assets.py --candidate-dir /tmp/p3p-art --require-complete
 ```
 
-The remaining 31 (26 earlier assets and 5 later revisions) need their own
+## Recovered exact-pixel geometry (15 additional PNGs)
+
+[generate_art_v1810_geometry.py](generate_art_v1810_geometry.py)
+independently reconstructs the main/page/battle backgrounds and diagonal bands
+for both routes (12 PNGs), two white slant masks and the circular moon mask.
+The artwork was reverse-engineered from the audited v1.8.10 original, **not**
+obtained by embedding existing PNG bytes.
+
+All 15 reproduce the **exact decoded RGBA pixels** of the original release.
+The output PNG byte streams may differ due to PNG encoder/compression versions;
+pixel reproducibility is distinct from byte-identical file reproduction.
+
+```sh
+python3 -m pip install Pillow==12.3.0
+python3 tools/p3p/v1810/generate_art_v1810_geometry.py --output /tmp/p3p-geometry
+python3 tools/p3p/v1810/verify_generated_geometry.py
+# Optional comparison against original audited ZIP (no game data in repo):
+python3 tools/p3p/v1810/verify_generated_geometry.py --archive /path/to/v1.8.10-FINAL.dsmod.zip
+```
+
+Combining the 31 previous bit-for-bit verified designs and these 15
+pixel-identical shapes gives **46 of 62 reproducible original assets**.
+The **remaining 16** (11 from v1.7.1 and 5 later revisions) still need
 source reconstructions or an explicitly approved original-asset policy.
-Do not treat the partial generator as a complete release builder.
+Do not treat these partial generators as a complete release builder.
 
 ## Provenance
 
-See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the local build history identified **26** unchanged older assets, **31** matching the procedural v1.8.0 design-system build, and **5** edited after v1.8.0 without a recovered exact generator. The traceable visual artwork appears abstract/procedural; completeness of the source and licensing review is **not yet established**.
+See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the local build history identified **26** unchanged older assets (15 now pixel-reproducible), **31** matching the procedural v1.8.0 design-system build, and **5** edited after v1.8.0 without a recovered exact generator. The traceable visual artwork appears abstract/procedural; completeness of the source and licensing review is **not yet established**.
 
 Before upstream merge, either produce/verify generators for all assets, or obtain the maintainer's agreement to include genuinely original custom files. In both cases verify fonts' licenses, preserve GPL notices and build the native modules from corresponding source. Never add game dumps, proprietary game assets, ROMs, keys or copyrighted game fonts.
 
