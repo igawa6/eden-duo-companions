@@ -20,7 +20,7 @@ reproducibility is **53/62**, with seven early graphics remaining.
 
 The original `p3p_thor_design_system_v1_8.py` generator exists as a development artifact. Its 31 matching procedural assets have now been recreated by `generate_art_v18_partial.py` and verified byte-for-byte against v1.8.10 with `verify_generated_31.py`. No font binary or game-extracted media has been added. A byte-level comparison of available archives shows:
 
-- **26** final PNGs are byte-identical to the **v1.7.1** archive. Fifteen geometry assets are now independently pixel-reproducible, and two footer-lettering assets are byte-reproducible. Nine older graphics remain.
+- **26** final PNGs are byte-identical to the **v1.7.1** archive. Fifteen geometry assets are now independently pixel-reproducible, and two footer-lettering assets are byte-reproducible. Seven older graphics remain.
 - **31** final PNGs are byte-identical to **v1.8.0** and have a traceable intermediate design-system source file (not necessarily bit-for-bit reproducible across font versions).
 - **5** final PNGs were revised after **v1.8.0**, and all five are now byte-reproducible using source scripts recovered from the historical design system.
 
