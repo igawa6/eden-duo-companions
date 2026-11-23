@@ -1,0 +1,61 @@
+name: P3P Android ARM64 source build (v1.8.10 readiness)
+
+on:
+  push:
+    branches:
+      - p3p-thor-ui-source-port
+    paths:
+      - 'native/modules/**'
+      - '.github/workflows/p3p-source-native-android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  p3p-android-arm64:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out companion C++ source
+        uses: actions/checkout@v4
+        with:
+          path: eden-duo-companions
+      - name: Check out pinned Eden Duo SDK
+        uses: actions/checkout@v4
+        with:
+          repository: igawa6/eden-duo
+          ref: 8c28fd5d745d1ba5756a85dee00f5587ce0b35ad
+          path: eden-duo-sdk
+          submodules: false
+      - name: Install native headers and Ninja
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ninja-build libfmt-dev nlohmann-json3-dev
+      - name: Ensure Android NDK r28
+        run: |
+          SDK="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          NDK="$SDK/ndk/28.2.13676358"
+          if [ ! -f "$NDK/build/cmake/android.toolchain.cmake" ]; then
+            yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" --install "ndk;28.2.13676358"
+          fi
+          test -f "$NDK/build/cmake/android.toolchain.cmake"
+          echo "ANDROID_NDK_TOOLCHAIN=$NDK/build/cmake/android.toolchain.cmake" >> "$GITHUB_ENV"
+      - name: Configure source-only Android ARM64 P3P module
+        run: |
+          cmake -S eden-duo-companions/native/modules -B build-p3p-arm64 -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_TOOLCHAIN" \
+            -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-24 \
+            -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=Release \
+            -DEDEN_SOURCE_ROOT="$GITHUB_WORKSPACE/eden-duo-sdk" \
+            -DEDEN_FMT_INCLUDE_DIR=/usr/include \
+            -DEDEN_NLOHMANN_JSON_INCLUDE_DIR=/usr/include \
+            -DEDEN_P3P_STANDALONE=ON -DBUILD_TESTING=OFF
+      - name: Build P3P Android ARM64 native module
+        run: cmake --build build-p3p-arm64 --parallel 2 --target dsmod-p3p
+      - name: Verify ARM64 ELF architecture and exports
+        run: |
+          MODULE=build-p3p-arm64/0100DCD01525A000.so
+          test -s "$MODULE"
+          llvm-readelf -h "$MODULE" | grep AArch64
+          llvm-nm -D --defined-only "$MODULE" | grep -E 'eden_dsmod_get_module|eden_dsmod_get_extensions|eden_dsmod_get_font_extensions'
