@@ -69,15 +69,36 @@ python3 tools/p3p/v1810/verify_generated_geometry.py
 python3 tools/p3p/v1810/verify_generated_geometry.py --archive /path/to/v1.8.10-FINAL.dsmod.zip
 ```
 
-Combining the 31 previous bit-for-bit verified designs and these 15
-pixel-identical shapes gives **46 of 62 reproducible original assets**.
-The **remaining 16** (11 from v1.7.1 and 5 later revisions) still need
-source reconstructions or an explicitly approved original-asset policy.
+## Final v1.8.10 alignment recoveries (5 additional PNGs)
+
+The last five assets revised after v1.8.0 have now been traced to small
+changes in the historical design generator: the Persona-detail gold underline
+was moved +7 pixels; the MAIN title uses the same v1.8 title renderer; and
+the MAIN route watermarks use x=47, bottom=970 and alpha=74.
+
+[generate_art_v1810_persona.py](generate_art_v1810_persona.py) regenerates both
+Persona-detail panels **byte-for-byte** without fonts. The corresponding
+[verifier](verify_generated_persona.py) runs in CI. The
+[main-screen generator](generate_art_v1810_main.py) recreates the three
+remaining PNGs byte-for-byte using a locally installed Inter Black Italic OTF
+(no font binary is distributed).
+
+```sh
+python3 tools/p3p/v1810/generate_art_v1810_persona.py --output /tmp/p3p-persona
+python3 tools/p3p/v1810/verify_generated_persona.py /tmp/p3p-persona
+python3 tools/p3p/v1810/generate_art_v1810_main.py --output /tmp/p3p-main
+python3 tools/p3p/v1810/audit_assets.py --candidate-dir /tmp/p3p-main
+```
+
+Combining the initial 31 exact PNGs, 15 pixel-identical shapes, and five
+byte-identical late revisions gives **51 of 62 reproducible original assets**.
+The **remaining 11** older v1.7.1 graphics still need source reconstruction
+or an explicitly approved original-asset policy.
 Do not treat these partial generators as a complete release builder.
 
 ## Provenance
 
-See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the local build history identified **26** unchanged older assets (15 now pixel-reproducible), **31** matching the procedural v1.8.0 design-system build, and **5** edited after v1.8.0 without a recovered exact generator. The traceable visual artwork appears abstract/procedural; completeness of the source and licensing review is **not yet established**.
+See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the local build history identified **26** unchanged older assets (15 now pixel-reproducible), **31** matching the procedural v1.8.0 design-system build, and **5** later revisions whose exact source has now been recovered. The traceable visual artwork appears abstract/procedural; completeness of the source and licensing review is **not yet established**.
 
 Before upstream merge, either produce/verify generators for all assets, or obtain the maintainer's agreement to include genuinely original custom files. In both cases verify fonts' licenses, preserve GPL notices and build the native modules from corresponding source. Never add game dumps, proprietary game assets, ROMs, keys or copyrighted game fonts.
 
