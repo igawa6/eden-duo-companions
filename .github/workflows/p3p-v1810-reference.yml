@@ -24,6 +24,8 @@ jobs:
         run: python tools/p3p/gen_manifest.py
       - name: Verify the exact v1.8.10 FINAL reference
         run: python tools/p3p/v1810/test_reference.py
+      - name: Audit all 62 artwork provenance entries and manifest references
+        run: python tools/p3p/v1810/audit_assets.py
       - name: Export byte-exact source reference
         run: python tools/p3p/v1810/v1810_reference.py --output /tmp/p3p-v1.8.10-reference.json
       - name: Publish inspectable reference artifact
