@@ -87,7 +87,10 @@ def start_layout(p):
     art.update(rect=[560, 140, 660, 660],
                src='module:p3p:persona/1@660')
     prompt.update(rect=[92, 904, 1000, 48], color=WHITE,
-                  text_scale=5, italic=True)
+                  text_scale=5, italic=True, align='left')
+    # The upstream Start cue was a zero-width centered text lane; carrying
+    # that alignment into this wide rect pushed the prompt off the left edge.
+    prompt.pop('text_center_h', None)
     error.update(color=WHITE)
 
     # Draw the title panel first, then the original game art, then the
@@ -96,7 +99,8 @@ def start_layout(p):
                heading]
     widgets += by_route(
         lambda accent: label([60, 235, 480, 72], 'PORTABLE',
-                             scale=8, color=accent, italic=True))
+                             scale=8, color=GOLD, italic=True,
+                             outline=accent, outline_px=1))
     widgets += by_route(
         lambda accent: shape([60, 318, 450, 8], accent))
     widgets += [art, shape([48, 898, 1150, 62], '#A0000000'),
@@ -115,12 +119,15 @@ def main_menu(p):
                 align='right', outline=BLUE, outline_px=2, need_bind='live.ready'),
           label([1130, 62, 0, 36], bind='live.money', scale=4, color=GOLD,
                 align='right', need_bind='live.ready')]
+    # Match the tested release's menu geometry. In the runtime button text
+    # sits lower than its touch rect, so bullets use y+71 to line up with
+    # the rendered labels (not y+25, which appears one row too high).
     for i, (name, target) in enumerate(MENU):
-        y = 112 + 70 * i
-        rect = [44, y, 564, 68]
-        w += by_route(lambda accent: shape([64, y + 25, 15, 15], accent))
+        y = 80 + 68 * i
+        rect = [44, y, 568, 66]
+        w += by_route(lambda accent: shape([70, y + 71, 16, 16], accent))
         w.append(dict(type='button', rect=rect, text=name, text_scale=7,
-                      text_center_h=68, align='left', text_inset=70,
+                      text_center_h=66, align='left', text_inset=58,
                       italic=True, color=WHITE, outline=BLUE, outline_px=2,
                       bg='#00000000', border=0, on_tap=f'ui.open.{target}'))
     # The final v1.8.10 Main screen shows the whole active party. Keep
@@ -141,11 +148,11 @@ def main_menu(p):
             text_min_scale=4, max_lines=1, **need))
         w += [label([600, y+50, 0, 28], bind=stem+'.ailment',
                     scale=4, color='#FFB3154C', align='right', **need)]
-        for stat, value_x, bar_y, color in (
-            ('hp', 144, y+10, '#FFF7A33A'),
-            ('sp', 372, y+30, '#FFC862DE')
+        for stat, label_x, value_x, bar_y, color in (
+            ('hp', 82, 230, y+10, '#FFF7A33A'),
+            ('sp', 250, 416, y+30, '#FFC862DE')
         ):
-            w += [label([82 if stat == 'hp' else 312, y+46, 45, 32],
+            w += [label([label_x, y+46, 45, 32],
                         stat.upper(), scale=4, color=BLUE, **need)]
             w += by_route(lambda accent: dict(
                 type='value', rect=[value_x, y+46, 0, 32],
@@ -375,7 +382,14 @@ def persona_layout(p):
 
 
 def skills_layout(p):
-    """Bring the skill-row spacing and member hitboxes in line with v1.8.10."""
+    """Bring the skill-row spacing and member hitboxes in line with v1.8.10.
+
+    The live skill category output can be zero for Support skills including
+    Rakukaja.  Restore the exact native sprite fallback used by v1.8.10
+    *behind* the dynamic icon, without shipping extracted assets.
+    """
+    widgets = []
+    fallback_count = 0
     for w in p['widgets']:
         a = w.get('on_tap', '')
         bind = w.get('bind_text', '')
@@ -396,6 +410,16 @@ def skills_layout(p):
                      max_lines=1)
         elif w.get('bind') == 'skill.{i}.icon' and w.get('type') == 'image':
             w['rect'] = [82, 310, 48, 48]
+            fallback = copy.deepcopy(w)
+            fallback.pop('bind', None)
+            fallback.pop('need_bind', None)
+            fallback.pop('src_format', None)
+            fallback['src'] = 'module:p3p:spr/135@48'
+            widgets.append(fallback)
+            fallback_count += 1
+        widgets.append(w)
+    assert fallback_count == 1, 'Unexpected skill icon repeater layout'
+    p['widgets'] = widgets
 
 
 
