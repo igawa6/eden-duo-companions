@@ -1,7 +1,7 @@
 # P3P v1.8.10 FINAL UI — source-built module package QA (local)
 
 **Date:** 2026-11-22 (America/New_York)
-**Status:** TEST ONLY; not a source-only distributable release and not hardware-verified.
+**Status:** TEST ONLY; not a source-only distributable release. User reports an initial successful AYN Thor smoke test of this source-built test package; complete on-device QA remains open.
 
 ## Inputs and provenance
 
@@ -48,10 +48,12 @@ original audited ZIP and the two newly compiled modules.
 
 ## Outstanding gates
 
-- **Actual AYN Thor runtime QA** of this newly compiled native-module
-  combination: not performed. The Battle screen has a design preview but no
-  on-device verification. Existing user testing covered the previous FINAL
-  release's other screens.
+- **Preliminary AYN Thor smoke test**: on 2026-11-22 (America/New_York), the
+  user reported testing the source-built test package and that it **"seems good"**.
+  This is a positive first-hand report, not a full regression-test certificate;
+  exact screens, touch actions, duration and game-state cases were not specified.
+  The Battle screen remains **not confirmed tested on hardware**. The previous
+  FINAL release's other screens had earlier positive device feedback.
 - **Independent artwork source**: 55/62 assets recovered; seven older
   backgrounds and wordmarks still require exact reconstruction or explicit
   maintainer-approved ownership/provenance/licensing for original custom art.
@@ -63,5 +65,6 @@ original audited ZIP and the two newly compiled modules.
   403. Maintainer artwork policy question must be posted by the contributor
   through GitHub UI or a suitably authorized credential.
 
-**Do not** mark PR #31 ready, merge it, or replace the working v1.8.10 FINAL
-package on the device on the basis of structural checks alone.
+**Do not** mark PR #31 ready or merge it based on a preliminary positive smoke
+report. Keep the last known-good v1.8.10 FINAL ZIP as a rollback option until
+broader device and game-state testing is complete.
