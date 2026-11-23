@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
     {  // a battle in progress: three enemies (one down) against the party
         ffr::GameState t = s; t.in_battle = true;
         auto unit = [](int id, bool enemy, int hp, int mhp, int mp, int mmp) { ffr::BattleUnit b; b.id = id; b.enemy = enemy; b.hp = hp; b.max_hp = mhp; b.mp = mp; b.max_mp = mmp; return b; };
-        t.battle = {unit(5, true, 412, 640, 0, 0), unit(6, true, 0, 520, 0, 0), unit(118, true, 9120, 12000, 0, 0), unit(1001, false, 211, 300, 22, 45), unit(1002, false, 240, 270, 40, 50)};
+        t.battle = {unit(5, true, 412, 640, 0, 0), unit(6, true, 0, 520, 0, 0), unit(118, true, 9120, 12000, 0, 0), unit(1001, false, 211, 300, 22, 45), unit(1002, false, 240, 270, 40, 50), unit(1016, false, 500, 500, 60, 60)};  // 1016: a guest
         for (int n : {5, 9}) {
             if (n == 9) for (int i = 0; i < 4; ++i) { t.battle.push_back(unit(2 + i, true, 100 * i, 400, 0, 0)); }
             if (n == 9) { t.battle.push_back(unit(1003, false, 0, 385, 0, 103)); t.battle.push_back(unit(1004, false, 600, 630, 90, 104)); }

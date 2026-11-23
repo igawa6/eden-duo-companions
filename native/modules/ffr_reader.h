@@ -16,6 +16,7 @@ struct UnitState {
     int id = 0, xp = 0, hp = 0, mp = 0, vision = -1, weapon = -1, armor = -1, join = 0;
     bool usable = false;
     std::vector<int> accessories;
+    std::vector<int> skills;  // equipped skills (SaveData_UnitParameter.equipSkillList), -1 = empty slot
     // From the live unit parameter object when one is found (-1 = unknown).
     int level = -1, max_hp = -1, max_mp = -1;
     int stats[8] = {-1, -1, -1, -1, -1, -1, -1, -1};  // atk def int mnd div agi (+2 spare)
@@ -24,6 +25,7 @@ struct UnitState {
 struct EquipInfo {
     int type = 0, detail = 0;  // eEquipmentType, eEquipmentDetailType
     int params[21] = {};       // eUnitParameterType -> bonus
+    std::vector<int> passives; // passive skills the piece grants (EQUIPMENT_ITEM_DATA.passiveList)
 };
 
 struct ItemStack {
@@ -103,6 +105,7 @@ struct GameState {
     int money = 0, difficulty = 0;
     float play_time = 0;
     std::vector<int> party;
+    int guest = 0;  // a temporary ally who fights beside the party (SaveData_Party.guestUnitId), 0 none
     std::vector<UnitState> units;
     std::vector<ItemStack> inventory;
     MapState map;
@@ -182,6 +185,22 @@ private:
     std::unordered_map<uint64_t, std::string> class_names_;
     void ReadUnitParams(GameState& s);
     void LoadEquipment();
+    // Visions add to the stats through their mastery tables: passive skills and flat parameters unlocked by the vision's
+    // awakening points, and by the synchro points of the character wearing it. Passives raise a parameter by a percentage.
+    struct MasteryRow {
+        int pts = 0;
+        std::vector<int> passives;
+        std::vector<std::pair<int, int>> flats;  // eUnitParameterType, value
+    };
+    struct VisionPoints {
+        int awakening = 0;
+        std::unordered_map<int, int> synchro;  // unit id -> points
+    };
+    void LoadSkillTables();
+    bool skills_loaded_ = false;
+    std::unordered_map<int, std::vector<MasteryRow>> awakening_, synchro_;    // vision id -> rows
+    std::unordered_map<int, std::vector<std::pair<int, int>>> passive_pct_;  // passive id -> (eUnitParameterType, percent)
+    std::unordered_map<int, VisionPoints> vision_points_;                     // from the save, every update
     bool IsGameplayMode(uint64_t cls);
     bool IsA(uint64_t cls, const char* base);  // the class or one of its ancestors is named base
     std::map<std::pair<uint64_t, std::string>, bool> isa_;

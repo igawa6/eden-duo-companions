@@ -147,3 +147,11 @@ Found live, in addition to the reflection dump:
   the world-map heading all match the game's own screens.
 - The equipped vision (`equipVisionId`): its face is `Icon/Vision_Face/ICON_UnitFace_summon<vision id>`, and its name is
   `ST_VisionName` `VisionName<id>`.
+- Vision stat bonuses: visions are not in the equipment table. `SaveData_Vision` (GameSaveData +0x118, 0x58 each: ID, awakeningPoint,
+  synchroPoints Map<unit id, int>) unlocks rows of the mastery tables (data tables 46 awakening, 47 synchro; VISION_MASTERY_DATA:
+  vision ID +8, masteryPoint +0x10, detailData +0x18). A row whose masteryPoint is reached grants passive skills (type 2) and,
+  in synchro, flat parameters (type 5: {eUnitParameterType, value}). A passive (table 26, bBattleOnly +0x60) changes a parameter
+  through an effect (table 29) of type 3 with ParamList {value, eUnitParameterType, 2 = percent}. Checked: Lasswell with Tronn,
+  base max MP 68 → 74 at level 6 and 74 → 81 at level 7 (+10%, rounded down), as the game shows.
+- Guests: `SaveData_Party.guestUnitId` (+0x10; also `SaveData_UnitGuest` +0x80) is a temporary ally (Charlotte, 1016). She is not in
+  the save's unit list, so the battle reader takes her side from this id.

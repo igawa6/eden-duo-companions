@@ -111,6 +111,7 @@ void Hash() {
     CHECK(changed([](ffr::GameState& t) { t.units[0].accessories = {12000}; }));
     CHECK(changed([](ffr::GameState& t) { t.units[0].stats[2] = 50; }));
     CHECK(changed([](ffr::GameState& t) { t.inventory[1].num = 3; }));
+    CHECK(changed([](ffr::GameState& t) { t.guest = 1016; }));
 }
 
 ffr::BattleUnit Unit(int id, bool enemy, uint64_t unit) {
@@ -122,7 +123,7 @@ ffr::BattleUnit Unit(int id, bool enemy, uint64_t unit) {
 ffr::GameState Battle() {
     ffr::GameState s = Sample();
     s.in_battle = true;
-    s.battle = {Unit(5, true, 10), Unit(6, true, 11), Unit(1001, false, 1), Unit(1002, false, 2)};
+    s.battle = {Unit(5, true, 10), Unit(6, true, 11), Unit(1001, false, 1), Unit(1002, false, 2), Unit(1016, false, 3)};  // 1016: a guest
     s.menu.valid = s.menu.open = true;
     s.menu.actor = 1001;
     s.menu.entries = {{1, 1}, {1, 400010}, {1, 7}, {2, 1}};

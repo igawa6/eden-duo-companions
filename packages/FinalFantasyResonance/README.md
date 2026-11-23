@@ -12,7 +12,7 @@ Requires runtime 22. Tested on an AYN Thor with Peanuts Native 0.1.7. Includes A
 - **Items.** Items, Equipment, Key Items and Artifacts, with counts and the game's descriptions. Equipment shows who has each piece
   equipped. Tap an item to read its description, and swipe to scroll.
 - **Battle.** Opens by itself in a battle, then returns to the tab that was open before. It shows enemies on the left and the
-  party on the right, with HP and MP, a tag on staggered enemies, and each vision beside the character it is equipped to.
+  party and any guest ally on the right, with HP and MP, a tag on staggered enemies, and each vision beside the character it is equipped to.
 - **Battle commands by touch.** The command window is mirrored on the second screen: tap a command, a skill or an item, then
   tap a target. The game's target pointer is shown, and the resonance wheel's choices can be tapped too. Limit Bursts appear
   only when the game lists them.

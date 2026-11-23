@@ -1088,16 +1088,20 @@ Code: GPL-3.0-or-later.
 ⭐ <a href="https://github.com/danielcamilo1"><img src="https://img.shields.io/badge/danielcamilo1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="danielcamilo1"></a>
 
 <details>
-<summary>Details</summary>
+<summary>Screenshots and details</summary>
 
 `0100606026F12000` · game version 1.0.1 · companion 1.0.5
+
+| Map | Party | Battle |
+|:---:|:---:|:---:|
+| <img src="screenshots/final-fantasy-resonance/map.png" width="300" alt="FINAL FANTASY RESONANCE: Map"> | <img src="screenshots/final-fantasy-resonance/party.png" width="300" alt="FINAL FANTASY RESONANCE: Party"> | <img src="screenshots/final-fantasy-resonance/battle.png" width="300" alt="FINAL FANTASY RESONANCE: Battle"> |
 
 The map, your party, your items and the battle on the second screen, drawn in the game's own look. Requires runtime 22.
 
 - **Map.** The default tab. The current town's or dungeon's floor plan, or the world map with its islands. Your position and heading move live. Shops, the inn, save points and the current objective are marked with the game's own icons. Pinch or use +/- to zoom.
-- **Party.** Your party and the members who have joined, with the game's character art, HP and MP, and the equipped weapon, armor and vision. Tap a member for the full portrait, stats and every equipment slot.
+- **Party.** Your party and the members who have joined, with the game's character art, HP and MP, and the equipped weapon, armor and vision. Stats and max HP/MP include the vision's mastery bonuses. Tap a member for the full portrait, stats and every equipment slot.
 - **Items.** Items, Equipment, Key Items and Artifacts, with counts and the game's descriptions. Equipment shows who has each piece equipped.
-- **Battle.** Opens by itself in a battle and returns to the tab you had open afterwards. Enemies on the left, the party on the right, with HP and MP, a tag on staggered enemies, and each vision beside the character it is equipped to.
+- **Battle.** Opens by itself in a battle and returns to the tab you had open afterwards. Enemies on the left, the party and any guest ally on the right, with HP and MP, a tag on staggered enemies, and each vision beside the character it is equipped to.
 - **Battle commands by touch.** The command window is mirrored: tap a command, skill or item, then a target. The game's target pointer is shown, and the resonance wheel's choices can be tapped too. Limit Bursts appear only when the game lists them.
 - **How commands work.** They are ordinary button presses, one at a time, sent only while the game shows the matching menu. Nothing is written to the game's memory or saves.
 - **Limits.** English text only. Game version 1.0.1 only; other builds are refused. Tested on an AYN Thor with Peanuts Native 0.1.7.

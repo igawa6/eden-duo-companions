@@ -24,7 +24,7 @@ constexpr BuildRoots kBuilds[] = {
 
 // Reflection offsets (UE 5.6 dump of /Script/mucha, tools/ffr/NOTES.md)
 constexpr uint64_t kSaveMgrGameSave = 0x60;
-constexpr uint64_t kSavePlayer = 0x28, kSaveUnitParams = 0x60, kSaveParty = 0x90, kSaveInventory = 0xa8;
+constexpr uint64_t kSavePlayer = 0x28, kSaveUnitParams = 0x60, kSaveParty = 0x90, kSaveInventory = 0xa8, kSaveVisions = 0x118;
 constexpr size_t kUnitParamSize = 0xa0;
 constexpr uint64_t kMiniAreaMgr = 0x80, kMiniPropKey = 0x88, kMiniPlayerLoc = 0x170;
 constexpr uint64_t kAreaMgrMapDA = 0x38, kAreaMgrCurrent = 0x90;
@@ -35,7 +35,7 @@ constexpr uint64_t kBtlUnitMgr = 0x48, kBtlUnitList = 0x28, kBtlUnitParam = 0x83
 constexpr uint64_t kUpId = 0xf8, kUpLevel = 0x100, kUpHp = 0x10c, kUpMaxHp = 0x120, kUpStats = 0x12c;
 constexpr uint64_t kPcPawn = 0x350, kActorRoot = 0x1b8, kSceneLoc = 0x140, kSceneRot = 0x158;
 constexpr uint64_t kAssetDataTables = 0xd0, kDataTableRows = 0x30;
-constexpr uint8_t kDtItemEquipment = 44;
+constexpr uint8_t kDtItemEquipment = 44, kDtSkillEffect = 29, kDtPassiveSkill = 26, kDtVisionAwakening = 46, kDtVisionSynchro = 47;
 
 uint64_t NowMs() {
     return uint64_t(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());
@@ -58,6 +58,7 @@ uint64_t GameState::Hash() const {
     mix(&in_game, 1);
     mix(&money, 4);
     for (int p : party) mix(&p, 4);
+    mix(&guest, 4);
     for (auto& u : units) {
         mix(&u.id, sizeof(int) * 8), mix(&u.level, sizeof(int) * 3), mix(u.stats, sizeof u.stats);
         for (int a : u.accessories) mix(&a, 4);
@@ -239,6 +240,23 @@ uint64_t Reader::Resolve(int32_t index, int32_t serial) {
     return o && g_.Get<int32_t>(o + 0xc) == index ? o : 0;
 }
 
+namespace {
+// TMap element walk (TSparseArray + TBitArray<TInlineAllocator<4>>), stride = element size including the hash links.
+template <class F> void ForEachMap(const Guest& g, uint64_t map, size_t stride, F f) {
+    const uint64_t data = g.Get<uint64_t>(map);
+    const int32_t num = g.Get<int32_t>(map + 8);
+    if (!data || num <= 0 || num > 100000) return;
+    const int32_t nfree = g.Get<int32_t>(map + 0x34);
+    const uint64_t secondary = g.Get<uint64_t>(map + 0x20);
+    const int32_t maxbits = g.Get<int32_t>(map + 0x2c);
+    const uint64_t words = secondary && maxbits > 128 ? secondary : map + 0x10;
+    for (int32_t i = 0; i < num; ++i) {
+        if (nfree > 0 && !((g.Get<uint32_t>(words + 4ull * (i / 32)) >> (i % 32)) & 1)) continue;
+        if (!f(data + stride * size_t(i))) return;
+    }
+}
+} // namespace
+
 void Reader::ReadSave(GameState& s) {
     const uint64_t save = g_.Get<uint64_t>(save_mgr_.addr + kSaveMgrGameSave);
     if (!save) { s.status = "no save object"; return; }
@@ -246,6 +264,8 @@ void Reader::ReadSave(GameState& s) {
     s.play_time = g_.Get<float>(save + kSavePlayer + 0x10);
     s.difficulty = g_.Get<uint8_t>(save + kSavePlayer + 0x20);
     TArr party = g_.Get<TArr>(save + kSaveParty);
+    const int32_t guest = g_.Get<int32_t>(save + kSaveParty + 0x10);  // SaveData_Party.guestUnitId (-1 or 0: none)
+    s.guest = guest > 0 ? guest : 0;
     if (party.num > 0 && party.num <= 8) {
         s.party.resize(size_t(party.num));
         g_.Read(party.data, s.party.data(), s.party.size() * 4);
@@ -270,9 +290,32 @@ void Reader::ReadSave(GameState& s) {
                     u.accessories.resize(size_t(acc.num));
                     g_.Read(acc.data, u.accessories.data(), u.accessories.size() * 4);
                 }
+                TArr sk;
+                std::memcpy(&sk, e + 0x40, sizeof sk);
+                if (sk.num > 0 && sk.num <= 32) {
+                    u.skills.resize(size_t(sk.num));
+                    g_.Read(sk.data, u.skills.data(), u.skills.size() * 4);
+                }
                 u.join = e[0x80];
                 u.usable = e[0x81] & 1;
                 s.units.push_back(std::move(u));
+            }
+    }
+    vision_points_.clear();
+    TArr vis = g_.Get<TArr>(save + kSaveVisions);  // SaveData_Vision (0x58): ID, awakeningPoint, synchroPoints Map<int, int>
+    if (vis.num > 0 && vis.num <= 512) {
+        std::vector<uint8_t> b(size_t(vis.num) * 0x58);
+        if (g_.Read(vis.data, b.data(), b.size()))
+            for (int i = 0; i < vis.num; ++i) {
+                const uint8_t* e = &b[size_t(i) * 0x58];
+                int32_t id, awk;
+                std::memcpy(&id, e, 4), std::memcpy(&awk, e + 4, 4);
+                VisionPoints& vp = vision_points_[id];
+                vp.awakening = awk;
+                ForEachMap(g_, vis.data + 0x58ull * size_t(i) + 8, 0x10, [&](uint64_t p) {
+                    vp.synchro[g_.Get<int32_t>(p)] = g_.Get<int32_t>(p + 4);
+                    return true;
+                });
             }
     }
     TArr inv = g_.Get<TArr>(save + kSaveInventory);
@@ -291,23 +334,6 @@ std::string Reader::SoftPath(uint64_t soft) {
     if (p.rfind("/Game/", 0) == 0) return "FFRS/Content/" + p.substr(6) + ".uasset";
     return "";
 }
-
-namespace {
-// TMap element walk (TSparseArray + TBitArray<TInlineAllocator<4>>), stride = element size including the hash links.
-template <class F> void ForEachMap(const Guest& g, uint64_t map, size_t stride, F f) {
-    const uint64_t data = g.Get<uint64_t>(map);
-    const int32_t num = g.Get<int32_t>(map + 8);
-    if (!data || num <= 0 || num > 100000) return;
-    const int32_t nfree = g.Get<int32_t>(map + 0x34);
-    const uint64_t secondary = g.Get<uint64_t>(map + 0x20);
-    const int32_t maxbits = g.Get<int32_t>(map + 0x2c);
-    const uint64_t words = secondary && maxbits > 128 ? secondary : map + 0x10;
-    for (int32_t i = 0; i < num; ++i) {
-        if (nfree > 0 && !((g.Get<uint32_t>(words + 4ull * (i / 32)) >> (i % 32)) & 1)) continue;
-        if (!f(data + stride * size_t(i))) return;
-    }
-}
-} // namespace
 
 bool Reader::ReadPlayer(const EdenDsmodHostApi* host, MapState& m) {
     g_.Set(host);
@@ -497,7 +523,7 @@ void Reader::ReadBattle(GameState& s) {
         b.max_bp = g_.Get<int32_t>(param + kUpMaxBp);
         b.bp = hd.bp;
         if (b.id <= 0 || b.hp < 0 || b.hp > 10000000) continue;
-        b.enemy = true;
+        b.enemy = !(s.guest && b.id == s.guest);  // a guest (a temporary ally) is not in the save's unit list
         for (auto& x : s.units)
             if (x.id == b.id) {
                 b.enemy = false;
@@ -830,10 +856,81 @@ void Reader::LoadEquipment() {
             if (k < 21) info.params[k] = g_.Get<int32_t>(p + 4);
             return true;
         });
+        TArr pl = g_.Get<TArr>(row + 0xd0);  // passiveList
+        if (pl.num > 0 && pl.num <= 16) {
+            info.passives.resize(size_t(pl.num));
+            g_.Read(pl.data, info.passives.data(), info.passives.size() * 4);
+        }
         if (id > 0) equipment_[id] = info;
         return true;
     });
     equipment_loaded_ = equipment_.size() > 10;
+}
+
+void Reader::LoadSkillTables() {
+    if (skills_loaded_ || !assets_.addr) return;
+    auto table = [&](uint8_t type) {
+        uint64_t dt = 0;
+        ForEachMap(g_, assets_.addr + kAssetDataTables, 0x18, [&](uint64_t e) {
+            if (g_.Get<uint8_t>(e) != type) return true;
+            dt = g_.Get<uint64_t>(e + 8);
+            return false;
+        });
+        return dt;
+    };
+    const uint64_t effects = table(kDtSkillEffect), passives = table(kDtPassiveSkill), awaken = table(kDtVisionAwakening),
+                   synchro = table(kDtVisionSynchro);
+    if (!effects || !passives || !awaken || !synchro) return;
+    // SKILL_EFFECT_DATA: ID +8, EffectType +0xc, ParamList +0x38. A lasting parameter change (ParameterContinuousVariation, 3)
+    // holds {value, eUnitParameterType, 2 = percent}: Tronn's "+10% MP" turns a base max MP of 68 into the 74 the game shows.
+    std::unordered_map<int, std::pair<int, int>> pct_effects;
+    ForEachMap(g_, effects + kDataTableRows, 0x18, [&](uint64_t e) {
+        const uint64_t row = g_.Get<uint64_t>(e + 8);
+        if (!row || g_.Get<uint8_t>(row + 0xc) != 3) return true;
+        TArr pl = g_.Get<TArr>(row + 0x38);
+        int32_t p[3];
+        if (pl.num >= 3 && g_.Read(pl.data, p, sizeof p) && p[2] == 2 && p[1] > 0 && p[1] < 21 && p[0] > -100 && p[0] <= 1000)
+            pct_effects[g_.Get<int32_t>(row + 8)] = {p[1], p[0]};
+        return true;
+    });
+    // PASSIVE_SKILL_DATA: ID +8, effectBundleList +0x50 (SKILL_EFFECT_BUNDLE 0x18: effectId +0), bBattleOnly +0x60
+    std::unordered_map<int, std::vector<std::pair<int, int>>> pct;
+    ForEachMap(g_, passives + kDataTableRows, 0x18, [&](uint64_t e) {
+        const uint64_t row = g_.Get<uint64_t>(e + 8);
+        if (!row || (g_.Get<uint8_t>(row + 0x60) & 1)) return true;
+        TArr bl = g_.Get<TArr>(row + 0x50);
+        for (int k = 0; k < bl.num && k < 8; ++k) {
+            auto it = pct_effects.find(g_.Get<int32_t>(bl.data + 0x18ull * size_t(k)));
+            if (it != pct_effects.end()) pct[g_.Get<int32_t>(row + 8)].push_back(it->second);
+        }
+        return true;
+    });
+    // VISION_MASTERY_DATA: vision ID +8, masteryPoint +0x10 (points needed), detailData +0x18 (0x18 each: parameterType +0,
+    // params +8). Types: 2 a passive skill {id}, 5 a base parameter {eUnitParameterType, value}.
+    auto mastery = [&](uint64_t dt, std::unordered_map<int, std::vector<MasteryRow>>& out) {
+        ForEachMap(g_, dt + kDataTableRows, 0x18, [&](uint64_t e) {
+            const uint64_t row = g_.Get<uint64_t>(e + 8);
+            if (!row) return true;
+            MasteryRow m;
+            m.pts = g_.Get<int32_t>(row + 0x10);
+            TArr dl = g_.Get<TArr>(row + 0x18);
+            for (int k = 0; k < dl.num && k < 16; ++k) {
+                const uint64_t d = dl.data + 0x18ull * size_t(k);
+                TArr pl = g_.Get<TArr>(d + 8);
+                int32_t p[2] = {-1, -1};
+                if (pl.num >= 1) g_.Read(pl.data, p, 4 * size_t(std::min(pl.num, 2)));
+                const uint8_t type = g_.Get<uint8_t>(d);
+                if (type == 2 && p[0] > 0) m.passives.push_back(p[0]);
+                if (type == 5 && pl.num >= 2 && p[0] > 0 && p[0] < 21) m.flats.push_back({p[0], p[1]});
+            }
+            out[g_.Get<int32_t>(row + 8)].push_back(std::move(m));
+            return true;
+        });
+    };
+    mastery(awaken, awakening_);
+    mastery(synchro, synchro_);
+    passive_pct_ = std::move(pct);
+    skills_loaded_ = !passive_pct_.empty() && !awakening_.empty();
 }
 
 // An FText from a string table, as displayed: TextData -> string table history (+0x20) -> shared display string (+0x40),
@@ -895,17 +992,42 @@ void Reader::ReadUnitParams(GameState& s) {
         };
         add(u.weapon), add(u.armor), add(u.vision);
         for (int x : u.accessories) add(x);
+        // Passive skills from the gear, the equipped skills and the vision's mastery raise a parameter by a percentage; the
+        // vision's synchro mastery also adds flat parameters.
+        int pct[21] = {};
+        auto passive = [&](int id) {
+            auto p = passive_pct_.find(id);
+            if (p != passive_pct_.end())
+                for (auto [type, v] : p->second) pct[type] += v;
+        };
+        for (int id : {u.weapon, u.armor}) if (auto e = s.equipment.find(id); e != s.equipment.end()) for (int p : e->second.passives) passive(p);
+        for (int x : u.accessories) if (auto e = s.equipment.find(x); e != s.equipment.end()) for (int p : e->second.passives) passive(p);
+        for (int sk : u.skills) if (sk > 0) passive(sk);
+        if (auto vp = vision_points_.find(u.vision); vp != vision_points_.end()) {
+            if (auto rows = awakening_.find(u.vision); rows != awakening_.end())
+                for (const MasteryRow& m : rows->second)
+                    if (m.pts <= vp->second.awakening) for (int p : m.passives) passive(p);
+            const auto sp = vp->second.synchro.find(u.id);
+            const int points = sp == vp->second.synchro.end() ? 0 : sp->second;
+            if (auto rows = synchro_.find(u.vision); rows != synchro_.end())
+                for (const MasteryRow& m : rows->second)
+                    if (m.pts <= points) {
+                        for (int p : m.passives) passive(p);
+                        for (auto [type, v] : m.flats) bonus[type] += v;
+                    }
+        }
+        auto scale = [&](int v, int type) { return int(int64_t(v) * (100 + pct[type]) / 100); };
         u.level = lv;
-        u.max_hp = base[0] + bonus[1];
-        u.max_mp = base[1] + bonus[2];
+        u.max_hp = scale(base[0] + bonus[1], 1);
+        u.max_mp = scale(base[1] + bonus[2], 2);
         // Attack, Defense, Magic, Spirit, Divine, Agility: base + equipment (PhysicalAttack 12, PhysicalDefense 13,
         // MagicalAttack 14, MagicalDefense 15, Divine 16, Agility 9)
-        u.stats[0] = st[0] + bonus[5] + bonus[12];
-        u.stats[1] = st[1] + bonus[6] + bonus[13];
-        u.stats[2] = st[2] + bonus[7] + bonus[14];
-        u.stats[3] = st[3] + bonus[8] + bonus[15];
+        u.stats[0] = scale(st[0] + bonus[5] + bonus[12], 5);
+        u.stats[1] = scale(st[1] + bonus[6] + bonus[13], 6);
+        u.stats[2] = scale(st[2] + bonus[7] + bonus[14], 7);
+        u.stats[3] = scale(st[3] + bonus[8] + bonus[15], 8);
         u.stats[4] = st[4] + bonus[16];
-        u.stats[5] = st[5] + bonus[9];
+        u.stats[5] = scale(st[5] + bonus[9], 9);
     }
 }
 
@@ -930,6 +1052,7 @@ void Reader::Update(const EdenDsmodHostApi* host, GameState& out) {
     if (!out.in_game) return;  // title / boot: the save object holds default data until a game is loaded
     ReadSave(out);
     LoadEquipment();
+    LoadSkillTables();
     out.equipment = equipment_;
     if (out.save_ok) ReadUnitParams(out);
     if (minimap_.addr) ReadMap(out);
