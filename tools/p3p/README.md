@@ -65,7 +65,8 @@ ctest --test-dir build-mods -R '^dsmod-p3p$' --output-on-failure
 The community AYN Thor redesign has a **working v1.8.10 FINAL release**
 and a separate, **unfinished prototype** in this PR. The exact working
 manifest can be recovered and tested with
-[v1810/README.md](v1810/README.md).
+[v1810/README.md](v1810/README.md). Its historical source now also
+reproduces 31 custom PNG assets byte-for-byte.
 
 The draft source port is retained for experiments, not release.
 To inspect its asset-free UI prototype, generate the optional layout instead of
