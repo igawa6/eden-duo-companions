@@ -16,8 +16,8 @@ index,asset,size_bytes,sha256,origin
 14,dualscreen/img/calendar_footer_lettering.png,14468,1525f4146e6f3ad09c125a1b4a0bc3dc8029078e4bedaddf59fc69ef59af8fe3,Unchanged from local 1.7.1 build; generator source not yet recovered
 15,dualscreen/img/links_footer_lettering.png,11956,75b2498be6330617aa75fd6f3c2a7fff48ed1adb09b929314086658140c46176,Unchanged from local 1.7.1 build; generator source not yet recovered
 16,dualscreen/img/moon_mask.png,17181,66be0b405b9e63840fcdff947f1d609ae21d787cdb0f3a023f749ec8dab17c97,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
-17,dualscreen/img/persona_detail_blue.png,8438,35f75cf1d93e794e99aa2b1d3b10856c2b18dc0c9914e74056d730341d000dc5,"Revised after v1.8.0; final pixels preserved, edit source not recovered"
-18,dualscreen/img/persona_detail_red.png,8421,c609eac69d6bc6f1626706f6e947bf230edaff173c4a0c46ed1402f03c45685b,"Revised after v1.8.0; final pixels preserved, edit source not recovered"
+17,dualscreen/img/persona_detail_blue.png,8438,35f75cf1d93e794e99aa2b1d3b10856c2b18dc0c9914e74056d730341d000dc5,"Revised after v1.8.0; independently rebuilt from historical generator with exact final PNG hash"
+18,dualscreen/img/persona_detail_red.png,8421,c609eac69d6bc6f1626706f6e947bf230edaff173c4a0c46ed1402f03c45685b,"Revised after v1.8.0; independently rebuilt from historical generator with exact final PNG hash"
 19,dualscreen/img/ring_a.png,48302,ebbd19f6c76be51986eb4070cbe4edb6e96d9ea6113c05dbc5138bc9ddc38be8,Unchanged from local 1.7.1 build; generator source not yet recovered
 20,dualscreen/img/ring_b.png,10323,372fedb11ef2e8946c3e6e341982f88a42ea609a351b0e48cb792f524a1afb20,Unchanged from local 1.7.1 build; generator source not yet recovered
 21,dualscreen/img/slant.png,1754,7cf37b43dab130e7b841afda364b0ca080da38ba546e76b3830125f745be6533,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
@@ -33,8 +33,8 @@ index,asset,size_bytes,sha256,origin
 31,dualscreen/img/ui_ghost_items_red.png,18757,b39e20b253175ba64a36740a2c1acc305548366fe5761f2d2e47c4a4de03894e,Matches local 1.8.0 design-system build; source script available for most
 32,dualscreen/img/ui_ghost_links_blue.png,26890,abf0b89ef3882761125c30b02b0e6d3a9ff7b1fafe512c876506e1892f9a3703,Matches local 1.8.0 design-system build; source script available for most
 33,dualscreen/img/ui_ghost_links_red.png,26414,d179445176439f97f50017393b823d522da8e612423274bde88e0d1d07b254d1,Matches local 1.8.0 design-system build; source script available for most
-34,dualscreen/img/ui_ghost_main_blue.png,24066,a5da6c76c45fdc8c46c6dfc6e251b80b7cc5a25bf0b1acd4ad8bea8545b7916d,"Revised after v1.8.0; final pixels preserved, edit source not recovered"
-35,dualscreen/img/ui_ghost_main_red.png,23794,73f445e7b733ea094acacc54024eccc92a92df8f0fd992fb88cefb441e67c629,"Revised after v1.8.0; final pixels preserved, edit source not recovered"
+34,dualscreen/img/ui_ghost_main_blue.png,24066,a5da6c76c45fdc8c46c6dfc6e251b80b7cc5a25bf0b1acd4ad8bea8545b7916d,"Revised after v1.8.0; independently rebuilt from historical generator with exact final PNG hash"
+35,dualscreen/img/ui_ghost_main_red.png,23794,73f445e7b733ea094acacc54024eccc92a92df8f0fd992fb88cefb441e67c629,"Revised after v1.8.0; independently rebuilt from historical generator with exact final PNG hash"
 36,dualscreen/img/ui_ghost_map_blue.png,21756,7b1136c0570aa3df3e78eb027ba5b34887dff5ea951a31eaeeb414490a81dfaf,Matches local 1.8.0 design-system build; source script available for most
 37,dualscreen/img/ui_ghost_map_red.png,21403,28e1fda071fcb7ee52c69d91631352645983fceee3d285962055566cb08f16d1,Matches local 1.8.0 design-system build; source script available for most
 38,dualscreen/img/ui_ghost_personas_blue.png,38180,2d80e2431cbde32edb92e4cab1f1b738579980fb8489a3290d032761efad514d,Matches local 1.8.0 design-system build; source script available for most
@@ -50,7 +50,7 @@ index,asset,size_bytes,sha256,origin
 48,dualscreen/img/ui_title_equip.png,22127,c458c20a486e3f7f4ef16d4f62098dc9d0096bf45805ea5065296b71dbd0d40b,Matches local 1.8.0 design-system build; source script available for most
 49,dualscreen/img/ui_title_items.png,15279,da9992befccff081f3a4f7b205cc8e3e1adc5773248dc7b5ee9487ab02313d54,Matches local 1.8.0 design-system build; source script available for most
 50,dualscreen/img/ui_title_links.png,22948,e52307b47811e1140ed5de52c04de1b768d3c8b6e26a5ae1f58cef71c5be1be6,Matches local 1.8.0 design-system build; source script available for most
-51,dualscreen/img/ui_title_main.png,18982,28cff39a5ec8abc28f19487fca406b1cde3f1200d5190951da89599d45f3100e,"Revised after v1.8.0; final pixels preserved, edit source not recovered"
+51,dualscreen/img/ui_title_main.png,18982,28cff39a5ec8abc28f19487fca406b1cde3f1200d5190951da89599d45f3100e,"Revised after v1.8.0; independently rebuilt from historical generator with exact final PNG hash"
 52,dualscreen/img/ui_title_map.png,16892,70048e25256af330bb63d1521aee3039b191185a739d1f59ecf60213f98b5827,Matches local 1.8.0 design-system build; source script available for most
 53,dualscreen/img/ui_title_personas.png,35508,cde60d59e3b1a6a87486f8c872e75ba20052bc9f7f483944afaf43c446a77844,Matches local 1.8.0 design-system build; source script available for most
 54,dualscreen/img/ui_title_skills.png,17667,377e58af4350ed483ec14a79721888ba4973d8313dfad6425d1099f705f0c96a,Matches local 1.8.0 design-system build; source script available for most
