@@ -39,6 +39,28 @@ pixel-perfect.** The original release can be used locally for verification,
 but its PNGs should not be added to this PR without a provenance and
 compatible-license decision.
 
+## Typeface and rendering provenance
+
+The local validation environment uses **Inter version 4.001**
+(`git-9221beed3`). The font binaries remain outside the repository.
+
+| Font used | Local OTF SHA-256 |
+|---|---|
+| Inter Black Italic | `54302c38cf020111ea06deaa137ba0c17b703d0f8acf0a5cd37f054c09f11c51` |
+| Inter Display Bold Italic | `095f2bd9b95275826bd361f80ce40b3619b4cb586c7bc4f64d5210cedb29fd89` |
+
+The [Inter typeface](https://github.com/rsms/inter) is under the
+[SIL Open Font License 1.1](https://opensource.org/license/OFL-1.1).
+The font license does not automatically attach to rasterized graphics
+*created using* that font. It also does **not** establish ownership of
+the accompanying original artwork, justify embedding game graphics,
+or establish that the output images may be sublicensed by this
+contributor. Track the drawing code, rights and attributions separately.
+
+Pixel/byte matches can depend on the actual OTF binary,
+Pillow version, and PNG encoder. The source branch intentionally never
+redistributes OTF files.
+
 ## Remaining release/merge gates
 
 - [ ] **Artwork policy**: maintainer guidance on accepting separately licensed,
