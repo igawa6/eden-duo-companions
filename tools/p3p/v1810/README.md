@@ -117,6 +117,10 @@ See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the
 
 Before upstream merge, either produce/verify generators for all assets, or obtain the maintainer's agreement to include genuinely original custom files. In both cases verify fonts' licenses, preserve GPL notices and build the native modules from corresponding source. Never add game dumps, proprietary game assets, ROMs, keys or copyrighted game fonts.
 
+For the exact nine remaining graphic names, CI status and blockers, see
+[UPSTREAM_HANDOFF.md](UPSTREAM_HANDOFF.md). The audit command now prints source
+coverage and offers a strict `--require-full-source-art` completion gate.
+
 ## Maintainer question
 
 For genuinely original, non-game graphical UI assets, would you prefer
