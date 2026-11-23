@@ -1,7 +1,15 @@
 # AYN Thor UI source prototype (draft)
 
-This is a **source-based, asset-free prototype** inspired by a community-tested
-Persona 3 Portable dual-screen layout (local test version **v1.8.10**).
+**HARDWARE TESTING FOUND REGRESSIONS IN THIS PROTOTYPE. DO NOT RELEASE IT.**
+
+The canonical layout is now the **exact, original, working v1.8.10 FINAL**
+manifest in [v1810/README.md](v1810/README.md), with
+[the original build published separately](https://github.com/speerit1/eden-duo-companions/tree/p3p-v1.8.10-release/community-releases/p3p-v1.8.10).
+The work below is retained only for comparison and incremental source
+experiments; it must not replace the tested design.
+
+This is a **source-based, asset-free prototype** inspired by the tested
+Persona 3 Portable dual-screen layout (**v1.8.10**).
 
 It is **not yet equivalent** to the user's tested `.dsmod.zip` release. That
 local build uses original, procedural user-interface graphics. The source port
