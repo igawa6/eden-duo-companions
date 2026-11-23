@@ -111,11 +111,24 @@ The **remaining 9** older v1.7.1 graphics need source reconstruction or
 an explicitly approved original-asset policy.
 Do not treat these partial generators as a complete release builder.
 
+## Native module source builds (CI verified)
+
+The repository's P3P standalone C++ module now builds on **Linux x86-64**
+and **Android ARM64** against the same pinned Eden Duo SDK revision
+(`8c28fd5d`). The [Linux CI](https://github.com/speerit1/eden-duo-companions/actions/runs/45105484042)
+also passes native unit tests; the [Android ARM64 CI](https://github.com/speerit1/eden-duo-companions/actions/runs/45105836302)
+checks the ELF architecture and exported entrypoints.
+
+These are **source compile and interface checks**, not proof of byte-identical
+recreation of the compiled modules in the original v1.8.10 FINAL ZIP.
+Linkage/source compliance, complete UI assets, and on-device QA remain
+separate gates before this draft is merge-ready.
+
 ## Provenance
 
 See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the local build history identified **26** unchanged older assets (17 now reproducible: 15 pixel-identical and 2 byte-identical), **31** matching the procedural v1.8.0 design-system build, and **5** later revisions whose exact source has now been recovered. The traceable visual artwork appears abstract/procedural; completeness of the source and licensing review is **not yet established**.
 
-Before upstream merge, either produce/verify generators for all assets, or obtain the maintainer's agreement to include genuinely original custom files. In both cases verify fonts' licenses, preserve GPL notices and build the native modules from corresponding source. Never add game dumps, proprietary game assets, ROMs, keys or copyrighted game fonts.
+Before upstream merge, either produce/verify generators for all assets, or obtain the maintainer's agreement to include genuinely original custom files. In both cases verify graphic ownership and font licenses, preserve GPL notices, and establish source-to-distributed-native-binary correspondence. Never add game dumps, proprietary game assets, ROMs, keys or copyrighted game fonts.
 
 For the exact nine remaining graphic names, CI status and blockers, see
 [UPSTREAM_HANDOFF.md](UPSTREAM_HANDOFF.md). The audit command now prints source
