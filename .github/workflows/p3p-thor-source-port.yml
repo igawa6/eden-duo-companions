@@ -21,7 +21,11 @@ jobs:
         run: python -m compileall -q tools/p3p/gen_manifest.py tools/p3p/thor_ui.py tools/p3p/test_thor_ui.py
       - name: Generate the P3P manifest
         run: python tools/p3p/gen_manifest.py
-      - name: Run Thor UI structural tests
+      - name: Verify the exact v1.8.10 FINAL manifest reference
+        run: python tools/p3p/v1810/test_reference.py
+      - name: Export the exact v1.8.10 reference manifest
+        run: python tools/p3p/v1810/v1810_reference.py --output /tmp/p3p-v1.8.10-reference.json
+      - name: Run experimental source-port structural tests
         run: python tools/p3p/test_thor_ui.py
       - name: Generate the source-ported UI manifest (opt-in)
         run: python tools/p3p/gen_manifest.py --thor-ui
@@ -53,10 +57,17 @@ jobs:
                      pages['talk']['widgets']) == 25
           print('P3P Thor source manifest: generation and checks passed')
           PY
-      - name: Save generated UI manifest for reviewers
+      - name: Save exact final reference manifest for reviewers
         uses: actions/upload-artifact@v4
         with:
-          name: p3p-thor-ui-manifest
+          name: p3p-v1.8.10-exact-reference
+          path: /tmp/p3p-v1.8.10-reference.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Save experimental source-port manifest (not release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: p3p-thor-ui-experimental-manifest
           path: packages/Persona3Portable/dualscreen/manifest.json
           if-no-files-found: error
           retention-days: 14
