@@ -13,7 +13,7 @@
   upstream standard P3P generator, without changing native reader behavior.
 - Artwork inventory and checksums cover all 62 custom PNGs.
 - 55/62 graphic generators have been recovered: **38 byte-identical** on the
-  validated local environment, and **15 identical after RGBA decoding**.
+  validated local environment, and **17 identical after RGBA decoding**.
   The latter may have different PNG compressed bytes across Pillow versions.
 - CI validates the reference schema, all art provenance records, and the
   17 geometric/ring and 2 Persona-detail graphic reconstructions.
