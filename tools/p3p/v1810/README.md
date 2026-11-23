@@ -16,7 +16,11 @@ python3 tools/p3p/v1810/test_reference.py
 python3 tools/p3p/v1810/v1810_reference.py --output /tmp/p3p_v1810.json
 ```
 
-The existing opt-in `--thor-ui` generator is an **early, incomplete prototype**, not the reference source of truth. Do **not** release that experimental version in place of v1.8.10. Subsequent changes should derive from this exact reference and preserve native game state integration rather than re-create layout positions from guesswork.
+The old hand-recreated `--thor-ui` prototype was **removed from the active
+source tree** after device testing exposed regressions. It is preserved in
+the PR branch's Git history only. The normal P3P generator remains unchanged.
+Future source work should derive from this exact reference and preserve native
+game-state integration rather than guess at layout positions.
 
 ## Recovered exact procedural artwork
 
@@ -40,3 +44,11 @@ Do not treat the partial generator as a complete release builder.
 See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the local build history identified **26** unchanged older assets, **31** matching the procedural v1.8.0 design-system build, and **5** edited after v1.8.0 without a recovered exact generator. The traceable visual artwork appears abstract/procedural; completeness of the source and licensing review is **not yet established**.
 
 Before upstream merge, either produce/verify generators for all assets, or obtain the maintainer's agreement to include genuinely original custom files. In both cases verify fonts' licenses, preserve GPL notices and build the native modules from corresponding source. Never add game dumps, proprietary game assets, ROMs, keys or copyrighted game fonts.
+
+## Maintainer question
+
+For genuinely original, non-game graphical UI assets, would you prefer
+pixel-reproducible Pillow/source generators only, or are independently
+licensed original PNG assets permissible with clear provenance?
+This draft remains open while source and native-module reproducibility work
+is completed; please do not merge the fixture alone.

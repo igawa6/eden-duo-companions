@@ -1,0 +1,34 @@
+name: P3P v1.8.10 reference source checks
+
+on:
+  push:
+    branches:
+      - p3p-thor-ui-source-port
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate Python source syntax
+        run: |
+          python -m compileall -q tools/p3p/gen_manifest.py tools/p3p/v1810
+      - name: Generate standard upstream P3P source manifest
+        run: python tools/p3p/gen_manifest.py
+      - name: Verify the exact v1.8.10 FINAL reference
+        run: python tools/p3p/v1810/test_reference.py
+      - name: Export byte-exact source reference
+        run: python tools/p3p/v1810/v1810_reference.py --output /tmp/p3p-v1.8.10-reference.json
+      - name: Publish inspectable reference artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: p3p-v1.8.10-canonical-manifest
+          path: /tmp/p3p-v1.8.10-reference.json
+          retention-days: 14

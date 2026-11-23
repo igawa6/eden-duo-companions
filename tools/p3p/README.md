@@ -42,7 +42,7 @@ never writes to the game.
 
 | Script | What it does |
 |---|---|
-| `gen_manifest.py` | Writes `packages/Persona3Portable/dualscreen/manifest.json`. Standard library only; `--thor-ui` selects an unfinished, hardware-regressed experimental layout (NOT the finished v1.8.10). |
+| `gen_manifest.py` | Writes `packages/Persona3Portable/dualscreen/manifest.json`. Standard library only. |
 | `gen_pins.py <main NSO>` | Rewrites `native/modules/p3p_pins.inc`, the FNV-1a fingerprints of the game code the module relies on. Needs your own decrypted `main` from the supported build. |
 | `nso.py` | Decompresses and hash-checks an NSO (`--relocate` applies relative relocations). Needs system `liblz4.so.1`. |
 | `saves.py` | Bounded decoder for the save container; holds the supported build ID used by the generators. |
@@ -62,31 +62,25 @@ cmake --build build-mods --parallel 4
 ctest --test-dir build-mods -R '^dsmod-p3p$' --output-on-failure
 ```
 
-The community AYN Thor redesign has a **working v1.8.10 FINAL release**
-and a separate, **unfinished prototype** in this PR. The exact working
-manifest can be recovered and tested with
-[v1810/README.md](v1810/README.md). Its historical source now also
-reproduces 31 custom PNG assets byte-for-byte.
-
-The draft source port is retained for experiments, not release.
-To inspect its asset-free UI prototype, generate the optional layout instead of
-the standard manifest:
-
-```sh
-# Generate the optional UI for a preview package:
-python3 tools/p3p/gen_manifest.py --thor-ui
-
-# To run regression tests, regenerate the standard source manifest first:
-python3 tools/p3p/gen_manifest.py
-python3 tools/p3p/test_thor_ui.py
-```
-
-The standard command without `--thor-ui` remains the default. The draft UI
-still requires hardware validation and is not ready for release. See
-[THOR_UI_PORT.md](THOR_UI_PORT.md) for its implementation and testing status.
-
 `EDEN_P3P_STANDALONE` configures only the P3P targets. Package the stripped module with
 `tools/build_dualscreen_package.py --package packages/Persona3Portable` as for the other games.
 With `BUILD_TESTING=ON`, the default build includes `p3p-module-test`, registered with CTest
 as `dsmod-p3p` in both standalone and full configurations. With testing off, the executable
 remains available as an explicit build target.
+
+## Community AYN Thor v1.8.10 UI reference (draft PR)
+
+The tested AYN Thor UI redesign is distributed as an [unofficial community
+v1.8.10 FINAL release](https://github.com/speerit1/eden-duo-companions/releases/tag/p3p-thor-v1.8.10-community).
+This source PR does **not** ship that binary package or copyrighted game
+resources.
+
+A byte-exact reference of the tested 12-screen manifest (including its
+compositions, animations and 2,798 game-state outputs) is in
+[v1810/README.md](v1810/README.md). A recovered source generator reproduces
+31 of its 62 procedural PNG graphics byte-for-byte on the tested system.
+The remaining 31 graphic generators, license/provenance review and native
+build validation are still outstanding. Do not package the manifest reference
+without its corresponding artwork. The earlier hand-recreated UI source
+prototype was found to have on-device regressions and has been removed from
+the active PR diff; it remains accessible through Git history.
