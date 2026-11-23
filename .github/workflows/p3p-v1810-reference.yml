@@ -30,6 +30,8 @@ jobs:
         run: python -m pip install Pillow==12.3.0
       - name: Verify 15 reconstructed geometric PNGs against audited pixels
         run: python tools/p3p/v1810/verify_generated_geometry.py
+      - name: Verify both pixel-perfect reconstructed ring graphics
+        run: python tools/p3p/v1810/verify_generated_rings.py
       - name: Regenerate and verify two final Persona detail panels
         run: |
           python tools/p3p/v1810/generate_art_v1810_persona.py --output /tmp/p3p-v1810-persona
