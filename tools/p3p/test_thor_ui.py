@@ -60,7 +60,13 @@ def main():
     assert len(controls) == 8
     rects = sorted(w['rect'] for w in controls)
     assert all(a[1]+a[3] <= b[1] for a,b in zip(rects,rects[1:]))
-    assert rects[-1][1] + rects[-1][3] < 752
+    assert rects == [[44, 80+68*i, 568, 66] for i in range(8)]
+    assert rects[-1][1] + rects[-1][3] < 694
+    for i in range(8):
+        accents = [w for w in home
+                   if w.get('rect') == [70, 151+68*i, 16, 16]]
+        assert len(accents) == 2, f'Bullet {i} does not match button lane'
+        assert {w.get('hide_eq') for w in accents} == {0, 1}
     assert {w['on_tap'] for w in controls} == {
         'ui.open.4','ui.open.7','ui.open.2','ui.open.5',
         'ui.open.6','ui.open.3','ui.open.8','ui.open.10'}
@@ -88,6 +94,9 @@ def main():
             values = [w for w in refs if w.get('type') == 'value']
             assert len(bars) == 1 and len(values) == 2
             assert {w.get('hide_eq') for w in values} == {0, 1}
+            expected_x = 230 if stat == 'hp' else 416
+            assert all(w['rect'] == [expected_x, y+46, 0, 32]
+                       for w in values)
             assert all(w.get('need_bind') == stem+'.present'
                        and w.get('max_bind') == stem+'.max_'+stat
                        for w in refs)
@@ -207,7 +216,7 @@ def main():
         new = pages[page_id]
         added = {'start': 7, 'personas': 10, 'links': 6,
                  'equip': 8, 'items': 2, 'stats': 8,
-                 'map': 2, 'talk': 10}.get(page_id, 0)
+                 'map': 2, 'talk': 10, 'skills': 1}.get(page_id, 0)
         assert len(new['widgets']) == len(old['widgets']) + added, page_id
         assert [w['on_tap'] for w in new['widgets'] if w.get('on_tap')] == [
             w['on_tap'] for w in old['widgets'] if w.get('on_tap')], page_id
@@ -289,10 +298,22 @@ def main():
     assert all(w['rect'] == [146, 360, 1060, 32]
                for w in skill_widgets
                if w.get('bind_text') == 'skill.{i}.help')
-    # Keep the game's original skill icon lookup. A tentative sprite ID is
-    # not a verified fix for Support skills such as Rakukaja.
-    assert [w.get('src_format') for w in skill_widgets
-            if w.get('bind') == 'skill.{i}.icon'] == [
+    # In the finished v1.8.10 build a static native support-category
+    # fallback is drawn first, followed by the original live sprite.
+    # This is needed when the native output is zero (e.g. Rakukaja).
+    fallback = [w for w in skill_widgets
+                if w.get('src') == 'module:p3p:spr/135@48'
+                and w.get('scroll') == 'skills']
+    assert len(fallback) == 1
+    assert fallback[0]['rect'] == [82, 310, 48, 48]
+    assert fallback[0]['repeat'] == 96 and fallback[0]['repeat_dy'] == 104
+    assert 'bind' not in fallback[0] and 'need_bind' not in fallback[0]
+    icons = [w for w in skill_widgets
+             if w.get('bind') == 'skill.{i}.icon']
+    assert len(icons) == 1
+    assert icons[0]['src_format'] == 'module:p3p:spr/%d@48'
+    assert skill_widgets.index(fallback[0]) < skill_widgets.index(icons[0])
+    assert [w.get('src_format') for w in icons] == [
                 w.get('src_format') for w in original_pages['skills']['widgets']
                 if w.get('bind') == 'skill.{i}.icon']
 
@@ -381,6 +402,7 @@ def main():
                for w in start)
     assert any(w.get('text') == 'Start or load a game to begin'
                and w.get('rect') == [92, 904, 1000, 48]
+               and w.get('align') == 'left'
                for w in start)
     assert [w.get('need_bind') for w in start
             if w.get('bind_text') == 'module_error_message'] == [
