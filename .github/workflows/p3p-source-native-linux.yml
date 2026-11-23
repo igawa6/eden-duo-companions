@@ -7,7 +7,6 @@ on:
     paths:
       - 'native/modules/**'
       - '.github/workflows/p3p-source-native-linux.yml'
-      - 'tools/p3p/v1810/**'
   workflow_dispatch:
 
 permissions:
