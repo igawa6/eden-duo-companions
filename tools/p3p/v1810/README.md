@@ -90,15 +90,30 @@ python3 tools/p3p/v1810/generate_art_v1810_main.py --output /tmp/p3p-main
 python3 tools/p3p/v1810/audit_assets.py --candidate-dir /tmp/p3p-main
 ```
 
-Combining the initial 31 exact PNGs, 15 pixel-identical shapes, and five
-byte-identical late revisions gives **51 of 62 reproducible original assets**.
-The **remaining 11** older v1.7.1 graphics still need source reconstruction
-or an explicitly approved original-asset policy.
+## Historical footer lettering (2 additional PNGs)
+
+[generate_art_v1810_footers.py](generate_art_v1810_footers.py) regenerates
+the CALENDAR and S.LINK footer lettering from its original InterDisplay Bold
+Italic typography, coordinates and translucent turquoise fill. Both images
+were independently confirmed **byte-identical** to the final release using
+Pillow and a locally installed font. Neither the font file nor rendered
+original PNGs are committed.
+
+```sh
+python3 tools/p3p/v1810/generate_art_v1810_footers.py --output /tmp/p3p-footers
+python3 tools/p3p/v1810/audit_assets.py --candidate-dir /tmp/p3p-footers
+```
+
+Combining the initial 31 exact PNGs, 15 pixel-identical shapes, five
+byte-identical late revisions and two exact historical footer graphics gives
+**53 of 62 reproducible original assets**.
+The **remaining 9** older v1.7.1 graphics need source reconstruction or
+an explicitly approved original-asset policy.
 Do not treat these partial generators as a complete release builder.
 
 ## Provenance
 
-See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the local build history identified **26** unchanged older assets (15 now pixel-reproducible), **31** matching the procedural v1.8.0 design-system build, and **5** later revisions whose exact source has now been recovered. The traceable visual artwork appears abstract/procedural; completeness of the source and licensing review is **not yet established**.
+See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the local build history identified **26** unchanged older assets (17 now reproducible: 15 pixel-identical and 2 byte-identical), **31** matching the procedural v1.8.0 design-system build, and **5** later revisions whose exact source has now been recovered. The traceable visual artwork appears abstract/procedural; completeness of the source and licensing review is **not yet established**.
 
 Before upstream merge, either produce/verify generators for all assets, or obtain the maintainer's agreement to include genuinely original custom files. In both cases verify fonts' licenses, preserve GPL notices and build the native modules from corresponding source. Never add game dumps, proprietary game assets, ROMs, keys or copyrighted game fonts.
 
