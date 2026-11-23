@@ -57,5 +57,5 @@ jobs:
         run: |
           MODULE=build-p3p-arm64/0100DCD01525A000.so
           test -s "$MODULE"
-          llvm-readelf -h "$MODULE" | grep AArch64
-          llvm-nm -D --defined-only "$MODULE" | grep -E 'eden_dsmod_get_module|eden_dsmod_get_extensions|eden_dsmod_get_font_extensions'
+          readelf -h "$MODULE" | grep AArch64
+          readelf --dyn-syms --wide "$MODULE" | grep -E 'eden_dsmod_get_module|eden_dsmod_get_extensions|eden_dsmod_get_font_extensions'
