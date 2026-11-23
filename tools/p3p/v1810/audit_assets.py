@@ -152,6 +152,8 @@ def main() -> None:
     parser.add_argument("--candidate-dir", type=Path, help="locally generated PNGs to compare")
     parser.add_argument("--require-complete", action="store_true",
                         help="fail unless all 62 candidate PNGs match")
+    parser.add_argument("--require-full-source-art", action="store_true",
+                        help="fail while any original graphics lack a verified generator")
     args = parser.parse_args()
 
     if args.require_complete and not args.candidate_dir:
@@ -166,6 +168,18 @@ def main() -> None:
 
     print(f"Provenance: {len(inventory)} unique, indexed PNGs; "
           f"{len(refs)} static PNG references verified against inventory")
+    # Provenance is an explicitly tracked source-coverage signal, not an
+    # automatic licensing determination or a native-module build check.
+    unsourced = sorted(name for name, row in inventory.items()
+                       if "not yet recovered" in row["origin"])
+    print(f"Source artwork coverage: {len(inventory) - len(unsourced)}/{len(inventory)}")
+    if unsourced:
+        print("Not yet source-reproducible:")
+        for name in unsourced:
+            print(f"  - {name}")
+    if args.require_full_source_art and unsourced:
+        raise SystemExit("Artwork source coverage incomplete; keep PR in draft")
+
     if args.archive:
         print(f"Original ZIP: {check_archive(args.archive, inventory)} PNGs "
               "match the exact audited release")
