@@ -186,6 +186,11 @@ independent image generators, graphic ownership/licensing, source-to-original
 binary correspondence, or on-device QA. Do not mark the PR ready or publish
 the combined ZIP before those separate checks.
 
+The [local source-built package QA report](SOURCE_BUILT_LOCAL_QA.md) records the actual
+Linux/Android CI module inputs, stripped ELF SHA-256 values, full test ZIP digest,
+and proof that only four entries changed relative to the audited FINAL ZIP.
+The test package is not published in the source repository.
+
 ## Provenance
 
 See `ASSET_PROVENANCE.csv` and `PROVENANCE_AND_UPSTREAM.md`. Comparison with the local build history identified **26** unchanged older assets (19 now reproducible: 17 pixel-identical and 2 byte-identical), **31** matching the procedural v1.8.0 design-system build, and **5** later revisions whose exact source has now been recovered. The traceable visual artwork appears abstract/procedural; completeness of the source and licensing review is **not yet established**.
