@@ -21,9 +21,22 @@ def main():
     baseline = json.loads(base.read_text(encoding='utf-8'))
     # The redesign changes presentation and page navigation but must not
     # invent native reader outputs or change the user's game-control actions.
-    for key in ('title_id', 'module_outputs', 'module', 'actions',
+    for key in ('title_id', 'module_outputs', 'actions',
                 'enforce', 'enforce_gate'):
         assert reference[key] == baseline[key], key
+
+    # The checked-in generator intentionally has no packaged .so paths;
+    # distribution packaging inserts each compiled module's digest later.
+    # Compare stable game ABI/build IDs and validate shipped binary digests
+    # against the separately audited release inventory instead.
+    assert reference['module']['abi'] == baseline['module']['abi']
+    assert reference['module']['build_ids'] == baseline['module']['build_ids']
+    assert baseline['module']['libraries'] == {}
+    metadata = json.loads(
+        Path(__file__).with_name('RELEASE_METADATA.json').read_text())
+    for platform, entry in reference['module']['libraries'].items():
+        assert entry['path'].startswith('modules/'+platform+'/')
+        assert metadata['module_shas']['dualscreen/'+entry['path']] == entry['sha256']
     assert [p['id'] for p in reference['pages']] == [
         p['id'] for p in baseline['pages']]
     assert len(reference['pages']) == 12
