@@ -32,7 +32,7 @@ int main() {
     for (size_t i = 0; i < m.icons.size() && i < 8; ++i) printf(" icon %s (%.0f,%.0f)\n", m.icons[i].icon.c_str(), m.icons[i].x, m.icons[i].y);
     printf("battle mgr %llx vm %llx cmdmgr %llx lists %zu\n", (unsigned long long)r.battle_.addr, (unsigned long long)r.cmd_vm_.addr, (unsigned long long)r.cmd_mgr_.addr, r.cmd_lists_.size());
     for (auto& o : r.cmd_lists_) printf(" list %llx %s\n", (unsigned long long)o.addr, r.ClassName(o.cls).c_str());
-    for (auto& b : s.battle) printf(" bu %d enemy %d hp %d/%d uid %d param %llx\n", b.id, b.enemy, b.hp, b.max_hp, b.uid, (unsigned long long)b.param);
+    for (auto& b : s.battle) printf(" bu %d enemy %d hp %d/%d unit %llx param %llx\n", b.id, b.enemy, b.hp, b.max_hp, (unsigned long long)b.unit, (unsigned long long)b.param);
     auto& mn = s.menu; printf("menu valid %d open %d state %d cursor %d actor %d entries %zu path %zu targets %zu list %llx\n", mn.valid, mn.open, mn.state, mn.cursor, mn.actor, mn.entries.size(), mn.path.size(), mn.targets.size(), (unsigned long long)mn.list);
     for (auto& e : mn.entries) printf(" entry %d:%d\n", e.cat, e.id);
     {  // AreaManager.AreaDataMap: Map<int, MapAreaData(0x20)>, element 0x30 (Clarity LinearColor +8, AreaBoxList +0x18)

@@ -55,8 +55,14 @@ struct MapState {
     bool world = false;           // the world map (its islands), not one area's capture
     std::vector<Island> islands;  // world: every island with a capture
     std::vector<MapIcon> icons;
-    bool has_goal = false;   // the objective (a minimap entry marked as the quest target) in this map
-    double goal_x = 0, goal_y = 0;
+    // The objectives in this map: minimap entries whose quests (RelatedQuestIdList) are in progress, and the one the game marks as
+    // the quest target. main: a main-story quest's (or the marked one when its quests are unknown); side: a side quest's. One
+    // place can be both (a town the story and a side quest both lead to).
+    struct Goal {
+        double x = 0, y = 0;
+        bool main = true, side = false;
+    };
+    std::vector<Goal> goals;
 };
 
 // The battle command menu as the game shows it (CPP_VM_BtlCmd): the open list and its cursor, or the target choice.
@@ -175,6 +181,13 @@ private:
     uint64_t last_finish_find_ms_ = 0;
     void ReadFinish(GameState& s);
     void ReadIcons(MapState& m);
+    // The quests the game holds (CPP_QuestSubsystem.QuestDataMap): id -> category (EQuestCategory) and progression, ~once a second
+    struct QuestInfo {
+        uint8_t cat = 0, prog = 0;
+    };
+    void ReadQuests();
+    std::unordered_map<int, QuestInfo> quests_;
+    uint64_t last_quest_ms_ = 0;
     void Heading(MapState& m, double yaw_fallback);
     uint64_t Resolve(int32_t index, int32_t serial);  // FWeakObjectPtr -> UObject*
     std::string SoftPath(uint64_t soft);
@@ -205,7 +218,7 @@ private:
     bool IsA(uint64_t cls, const char* base);  // the class or one of its ancestors is named base
     std::map<std::pair<uint64_t, std::string>, bool> isa_;
     std::unordered_map<uint64_t, bool> mode_classes_;
-    Obj save_mgr_, minimap_, battle_, controller_, assets_, game_mode_, cmd_vm_, cmd_mgr_;
+    Obj save_mgr_, quest_sub_, minimap_, battle_, controller_, assets_, game_mode_, cmd_vm_, cmd_mgr_;
     std::vector<Obj> unit_params_, map_tables_, cmd_lists_;
     std::unordered_map<int, std::string> map_names_;
     std::string MapName(int id);

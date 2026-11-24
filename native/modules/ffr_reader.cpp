@@ -79,7 +79,7 @@ uint64_t GameState::Hash() const {
         const int v[5] = {f.enable, f.skill, f.vision, f.uid, f.dir};
         mix(v, sizeof v), mix(&f.unit, 8);
     }
-    mix(&map.has_goal, 1);
+    for (auto& g : map.goals) mix(&g.main, 1), mix(&g.side, 1);  // (how many and which kind; their positions go out every tick)
     for (auto& b : battle) {
         const int v[5] = {b.id, b.hp, b.max_hp, b.mp, b.max_mp};
         mix(v, sizeof v), mix(&b.enemy, 1), mix(&b.staggered, 1), mix(&b.owner, 8);
@@ -162,7 +162,7 @@ void Reader::Scan() {
     const uint64_t objs = g_.Get<uint64_t>(objarr_);
     const int32_t num = g_.Get<int32_t>(objarr_ + 20), nchunks = g_.Get<int32_t>(objarr_ + 28);
     if (!objs || num <= 0 || nchunks <= 0 || nchunks > 64) return;
-    Obj save, mini, btl, pc, am, mode, vm, mgr;
+    Obj save, quest, mini, btl, pc, am, mode, vm, mgr;
     std::vector<Obj> ups, maps, lists;
     std::vector<uint8_t> items;
     for (int32_t c = 0; c < nchunks; ++c) {
@@ -195,7 +195,7 @@ void Reader::Scan() {
                 continue;
             }
             const bool up = cn == "CPP_UnitParameter" || cn == "CPP_BtlUnitParameter";
-            Obj* slot = cn == "CPP_MuchaSaveDataManager" ? &save : cn == "CPP_MiniMapSubsystem" ? &mini : cn == "CPP_BtlManager" ? &btl
+            Obj* slot = cn == "CPP_MuchaSaveDataManager" ? &save : cn == "CPP_QuestSubsystem" ? &quest : cn == "CPP_MiniMapSubsystem" ? &mini : cn == "CPP_BtlManager" ? &btl
                       : cn == "CPP_MuchaPlayerController" ? &pc : cn == "CPP_AppAssetManager" ? &am : nullptr;
             if (!slot && !up) continue;
             if (Name(h.name).rfind("Default__", 0) == 0) continue;
@@ -204,6 +204,7 @@ void Reader::Scan() {
         }
     }
     save_mgr_ = save;
+    quest_sub_ = quest;
     minimap_ = mini;
     battle_ = btl;
     controller_ = pc;
@@ -426,7 +427,7 @@ void Reader::ReadMap(GameState& s) {
     m.world = !m.islands.empty();
     m.valid = m.map_id > 0;
     if (m.valid) m.name = MapName(m.map_id);
-    if (m.valid) ReadIcons(m);  // (on the world map only the objective: its other icons are dozens of towns)
+    if (m.valid) ReadIcons(m);  // (on the world map only the objectives: its other icons are dozens of towns)
 }
 
 namespace {
@@ -449,17 +450,58 @@ const char* IconForTag(const std::string& tag) {
 }
 } // namespace
 
+// The quests (CPP_QuestSubsystem +0x38 QuestDataMap: Map<int, QuestData(0x98)>, element 0xa8). In QuestData: ID +0x10,
+// Category +0x14 (EQuestCategory: 1 Main, 2 Sub, 3 Mini), Progression +0x68 (EQuestProgression: 1 Start, 2 Progress, 3 Complete).
+void Reader::ReadQuests() {
+    const uint64_t now = NowMs();
+    if (now - last_quest_ms_ < 1000 && !quests_.empty()) return;
+    last_quest_ms_ = now;
+    quests_.clear();
+    if (!quest_sub_.addr) return;
+    ForEachMap(g_, quest_sub_.addr + 0x38, 0xa8, [&](uint64_t e) {
+        uint8_t q[0x70];
+        if (!g_.Read(e + 8, q, sizeof q)) return true;
+        int32_t id;
+        std::memcpy(&id, q + 0x10, 4);
+        if (id > 0 && q[0x14] <= 3 && q[0x68] <= 3) quests_[id] = {q[0x14], q[0x68]};
+        return quests_.size() < 4096;
+    });
+}
+
 // The minimap's entries (CPP_MiniMapSubsystem.EntryDataMap): the interact tag says what it is, the reference actor where it is.
 // Only the current area's (indoors, the town's entries stay in the map), and never treasure: the game's map does not show it.
+// An entry is an objective when the game marks it as the quest target, or when one of its quests (FieldObjectCoreData
+// RelatedQuestIdList) is a side quest in progress.
 void Reader::ReadIcons(MapState& m) {
     // Map<int, MiniMapEntryData(0xd8)>: value +8, element 0xe8. In the value: ObjectData +0x60 (FieldObjectData: InteractTag +0x10,
-    // ReferenceActor soft pointer +0x30, whose FWeakObjectPtr is {index, serial}), BelongAreaId +0xb8, bIsMarkedQuestTarget +0xbc.
-    m.has_goal = false;
+    // RelatedQuestIdList +0x20, ReferenceActor soft pointer +0x30, whose FWeakObjectPtr is {index, serial}), BelongAreaId +0xb8,
+    // bIsMarkedQuestTarget +0xbc.
+    constexpr size_t kMaxGoals = 16;
+    m.goals.clear();
+    ReadQuests();
     ForEachMap(g_, minimap_.addr + 0xc0, 0xe8, [&](uint64_t e) {
         const uint64_t v = e + 8;
         struct { int32_t area; uint8_t goal; } tail{};
         g_.Read(v + 0xb8, &tail, 5);
-        const bool goal = (tail.goal & 1) && !m.has_goal;
+        // its quests in progress: the main story's, side quests' (Sub, Mini); the marked one with unknown quests counts as the story's
+        bool main_on = false, side_on = false, known = false;
+        TArr rel = g_.Get<TArr>(v + 0x60 + 0x20);
+        if (rel.data && rel.num > 0 && rel.num <= 16) {
+            int32_t ids[16];
+            if (g_.Read(rel.data, ids, 4ull * size_t(rel.num)))
+                for (int i = 0; i < rel.num; ++i) {
+                    auto it = quests_.find(ids[i]);
+                    if (it == quests_.end()) continue;
+                    const QuestInfo q = it->second;
+                    const bool on = q.prog == 1 || q.prog == 2;
+                    known = true;
+                    if (q.cat == 1) main_on = main_on || on;
+                    else if (q.cat == 2 || q.cat == 3) side_on = side_on || on;
+                }
+        }
+        if ((tail.goal & 1) && !known) main_on = true;
+        const int kind = (main_on ? 1 : 0) | (side_on ? 2 : 0);  // bits: 1 main, 2 side
+        const bool goal = kind && m.goals.size() < kMaxGoals;
         const char* icon = m.world ? nullptr : IconForTag(Name(g_.Get<uint32_t>(v + 0x60 + 0x10)));
         if (!icon && !goal) return true;
         if (!m.world && tail.area > 0 && m.area_id > 0 && tail.area != m.area_id) return true;
@@ -472,10 +514,17 @@ void Reader::ReadIcons(MapState& m) {
         const double x = loc.y, y = -loc.x;
         // an entry without an area: keep it when it lies in the current area's box
         if (!m.world && tail.area <= 0 && m.bw > 0 && (std::abs(x - m.wx) > m.bw / 2 || std::abs(y - m.wy) > m.bh / 2)) return true;
-        if (goal) m.has_goal = true, m.goal_x = x, m.goal_y = y;
+        if (goal) {
+            bool dup = false;  // one marker per spot (an NPC can be both a main and a side quest's)
+            for (auto& g : m.goals)
+                if (std::abs(g.x - x) < 50 && std::abs(g.y - y) < 50) dup = true, g.main = g.main || (kind & 1), g.side = g.side || (kind & 2);
+            if (!dup) m.goals.push_back({x, y, (kind & 1) != 0, (kind & 2) != 0});
+        }
         if (icon) m.icons.push_back({x, y, icon});
         return m.icons.size() < 96;
     });
+    // the main story's first, so the gold one is drawn over the others
+    std::stable_sort(m.goals.begin(), m.goals.end(), [](const MapState::Goal& a, const MapState::Goal& b) { return a.main > b.main; });
 }
 
 namespace {

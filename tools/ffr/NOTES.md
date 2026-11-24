@@ -155,3 +155,29 @@ Found live, in addition to the reflection dump:
   base max MP 68 → 74 at level 6 and 74 → 81 at level 7 (+10%, rounded down), as the game shows.
 - Guests: `SaveData_Party.guestUnitId` (+0x10; also `SaveData_UnitGuest` +0x80) is a temporary ally (Charlotte, 1016). She is not in
   the save's unit list, so the battle reader takes her side from this id.
+
+## Companion 1.0.6: the map follows the player, side-quest objectives, edge arrows (built, not yet checked live)
+
+- Follow: the module publishes the view rect (`ffr.map.vx0` ..) centred on the player every tick, in towns and dungeons too,
+  never clamped to the picture (no `clamp_view`: the player stays in the centre), sized by its own zoom (towns 1 = as wide as
+  the whole picture, the world 1 = 26000 land units across; 0.2-40). The host glides its base view after the rect, but holds it
+  while its own view is moved (dragged or pinched: `view_custom`), and a map widget's zoom cannot be bound.
+- +/- are two taps each: `ffr.map.<town|world>_follow` (the view at home: the module's `zoom` action, which also starts a new
+  page so the host redraws at once; without it the new window showed only at the player's next step) and `_look` (the host's
+  `view_zoom_step`). The module reads `get_f64("@view_zoom|@view_pan_x|@view_pan_y:<widget>")`, the host's `view_custom` test.
+- Home (module action `home`): the module's zoom times the host's view zoom becomes the module's, then the module raises
+  `ffr.map.<kind>_reset` (and `ffr.drv.pending`, the enforce gate) for one sample, and the enforce rule runs `view_reset` on that
+  map. The host glides its view home while the base still holds, then the base glides onto the player: a short zoom-out /
+  zoom-in. The user chose this over a Peanuts Native change (2026-11-23).
+- Objectives, from reflection: `CPP_QuestSubsystem` (GameInstanceSubsystem) QuestDataMap +0x38 (Map<int, QuestData 0x98>,
+  element 0xa8; QuestData ID +0x10, Category +0x14 EQuestCategory 1 Main / 2 Sub / 3 Mini, Progression +0x68 EQuestProgression
+  1 Start / 2 Progress / 3 Complete), MainQuestId +0x98, PreferredQuestId +0x9c. A minimap entry's quests:
+  `FieldObjectCoreData.RelatedQuestIdList` (ObjectData +0x20, TArray<int>). An entry is the story's objective (gold) when a
+  Main quest in it is at Start or Progress (or it is marked and its quests are unknown), and a side quest's (blue) when a Sub or
+  Mini quest in it is; both at once draws the gold badge with a small blue one (`goal:both`, arrow `b`).
+- Checked live (2026-11-23, world map): the quest table reads right (10 quests; main 1001 and side 14 at Progress, PreferredQuestId
+  14). Only one world entry had quest ids, a town landmark (map 2020) with both [1001, 14], marked. So a place the story and a
+  tracked side quest share is one entry, which 1.0.6's first build drew gold only. Towns and dungeons are still to check.
+- Edge arrows: for each objective out of view, a dynamic marker (`arrow` group) on the view's edge, inset 52 px (and clear of
+  the zoom buttons on the right). The view is the host's last drawn one: `get_f64("@map_view_cx|cy|ppw:<area>")`. The
+  picture is `module:ffr:arrow:<m|s>:<0-23>`, 15-degree steps clockwise from the right (markers cannot rotate).

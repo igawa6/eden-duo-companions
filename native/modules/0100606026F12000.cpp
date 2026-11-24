@@ -53,13 +53,18 @@ constexpr double kIslandSizes[] = {1024, 724, 512, 362, 256, 181};
 // The town picture's margin left and right of the capture's square (map units; the manifest's TOWN_PAD): the menu background
 // there, so a view as wide as the widget stays on the picture.
 constexpr int kTownPad = 904;
-constexpr int kIslandClasses = 6, kIslandsPerClass = 12, kMaxIcons = 64;
+constexpr int kIslandClasses = 6, kIslandsPerClass = 12, kMaxIcons = 64, kMaxGoals = 16;  // (the manifest's MAX_GOALS)
+// The map's own zoom (the +/- buttons; the map always follows the player at it; 1 = a town's whole picture, the world's usual window), kept
+// per kind of map for the next visit
+constexpr double kZoomStep = 1.25, kZoomMin[2] = {0.5, 0.2}, kZoomMax[2] = {40.0, 40.0};
+const char* kMapWidget[2] = {"ffr_town_map", "ffr_world_map"};
+const char* kMapArea[2] = {"ffr_town", "ffr_world"};
 struct MapFrame {
     int mode = 0;  // 0 none, 1 an area's capture, 2 the world
     double ox = 0, oy = 0, k = 1, n = kTownN;  // map = (land - origin) * k, y flipped
     std::string base;                         // mode 1: the capture picture's key
     double v[4] = {};                         // the default view: x0 y0 x1 y1
-    struct Pin { double x, y; std::string src; int cls = 0; };
+    struct Pin { double x, y; std::string src; int cls = 0; bool main = true; };
     std::vector<Pin> islands, icons, goal;
     double X(double lx) const { return (lx - ox) * k; }
     double Y(double ly) const { return n - (ly - oy) * k; }
@@ -108,9 +113,10 @@ MapFrame Frame(const ffr::MapState& m) {
     } else {
         return f;
     }
-    if (m.has_goal) {  // the objective, when it is in this map
-        const double x = f.X(m.goal_x), y = f.Y(m.goal_y);
-        if (x >= 0 && y >= 0 && x <= f.n && y <= f.n) f.goal.push_back({x, y, std::string(kKeys) + "goal"});
+    for (auto& g : m.goals) {  // the objectives in this map
+        const double x = f.X(g.x), y = f.Y(g.y);
+        if (x < 0 || y < 0 || x > f.n || y > f.n || int(f.goal.size()) >= kMaxGoals) continue;
+        f.goal.push_back({x, y, std::string(kKeys) + (g.main && g.side ? "goal:both" : g.main ? "goal" : "goal:side"), g.side ? 1 : 0, g.main});
     }
     for (auto& ic : m.icons) {  // (the reader leaves the world map's empty)
         const double x = f.X(ic.x), y = f.Y(ic.y);
@@ -204,8 +210,11 @@ struct Instance {
     bool have_live = false;
     Drive drive;
     int press = kBtnNone;       // the button to press this tick
-    std::vector<std::array<std::string, 3>> icon_keys, goal_keys, island_keys[kIslandClasses];
-    uint64_t serial = 0, last_key = 0;
+    std::vector<std::array<std::string, 3>> icon_keys, goal_keys, arrow_keys, island_keys[kIslandClasses];
+    double zoom[2] = {1.0, 1.0};  // the following zoom: town, world
+    double view_zoom[2] = {1.0, 1.0};  // the host's own view zoom on top (a pinch), as last read
+    int reset = -1;               // Home: the map view the host is to send home on this sample (enforce), -1 none
+    uint64_t serial = 0, last_key = 0, map_serial = 0;
     uint32_t ticks = 0;
     std::string page_key;
 #ifdef FFR_DEV
@@ -345,7 +354,7 @@ uint64_t ViewKey(const ffr::View& v) {
 }
 
 void NewPageIfChanged(Instance* in) {  // state_mu held
-    const uint64_t key = in->state.Hash() * 31 + ViewKey(in->view);
+    const uint64_t key = (in->state.Hash() * 31 + ViewKey(in->view)) * 31 + in->map_serial;
     if (key != in->last_key || in->page_key.empty()) {
         in->last_key = key;
         in->page_key = kPrefix + std::to_string(++in->serial);
@@ -425,7 +434,11 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
 #endif
     StepDrive(in);
     for (int b = 0; b < kBtnCount; ++b) host->publish_i64(host->userdata, kBtnPoints[b], in->press == b);
-    host->publish_i64(host->userdata, "ffr.drv.pending", in->press != kBtnNone);
+    // Home: the host sends that map view home on this sample (its enforce rule, gated like the presses)
+    host->publish_i64(host->userdata, "ffr.map.town_reset", in->reset == 0);
+    host->publish_i64(host->userdata, "ffr.map.world_reset", in->reset == 1);
+    host->publish_i64(host->userdata, "ffr.drv.pending", in->press != kBtnNone || in->reset >= 0);
+    in->reset = -1;
     host->publish_i64(host->userdata, "ffr.battle_menu", in->view.tab == ffr::kTabBattle && in->state.in_battle);
     // The live map: the frame's statics and the player, every tick (the host keeps nothing between samples)
     const MapFrame& f = in->frame;
@@ -441,15 +454,59 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
             host->publish_f64(host->userdata, "ffr.map.yaw", in->live.yaw);
         }
         if (f.mode == 1) host->publish_text(host->userdata, "ffr.map.base", f.base.c_str());
-        double v[4] = {f.v[0], f.v[1], f.v[2], f.v[3]};
-        if (f.mode == 2 && in->have_live) {  // the world: a window around the player, as close as the game's map opens; it follows
-            const double hw = 13000 * f.k, hh = hw * ffr::kMapH / ffr::kMapW;  // until the player pans or zooms
-            const double cx = f.X(in->live.px), cy = f.Y(in->live.py);
-            v[0] = cx - hw, v[2] = cx + hw, v[1] = cy - hh, v[3] = cy + hh;
+        // The window the map shows: around the player at the map's own zoom (+/-, Home), centred on them. The host holds a
+        // dragged or pinched view where it was left; Home sends it back here.
+        const int kind = f.mode == 2 ? 1 : 0;
+        const double z = in->zoom[kind], aspect = double(ffr::kMapW) / ffr::kMapH;
+        double hw;  // half the window's width
+        if (f.mode == 2) {
+            hw = 13000 * f.k / z;  // about as close as the game's own map opens at zoom 1
+        } else {  // a town: as wide as the whole picture fitted into the widget at zoom 1, closer in above it
+            const double tw = f.v[2] - f.v[0], th = f.v[3] - f.v[1];
+            hw = (tw / th > aspect ? tw : th * aspect) / 2 / z;
         }
+        const double hh = hw / aspect;
+        // centred on the player, always, even at the picture's edge (the map moves under the marker)
+        double cx = (f.v[0] + f.v[2]) / 2, cy = (f.v[1] + f.v[3]) / 2;
+        if (in->have_live) cx = f.X(in->live.px), cy = f.Y(in->live.py);
+        const double v[4] = {cx - hw, cy - hh, cx + hw, cy + hh};
         static const char* kView[4] = {"ffr.map.vx0", "ffr.map.vy0", "ffr.map.vx1", "ffr.map.vy1"};
         if (f.mode == 1 || in->have_live)
             for (int i = 0; i < 4; ++i) host->publish_f64(host->userdata, kView[i], v[i]);
+        // Has the player moved the view (the host's own test, view_custom)? Then +/- zoom that view, not the following one.
+        {
+            const std::string w = kMapWidget[kind];
+            const double vz = host->get_f64 ? host->get_f64(host->userdata, ("@view_zoom:" + w).c_str(), 1.0) : 1.0;
+            const double vpx = host->get_f64 ? host->get_f64(host->userdata, ("@view_pan_x:" + w).c_str(), 0.0) : 0.0;
+            const double vpy = host->get_f64 ? host->get_f64(host->userdata, ("@view_pan_y:" + w).c_str(), 0.0) : 0.0;
+            const bool look = std::fabs(vz - 1.0) > 0.001 || std::fabs(vpx) > 0.5 || std::fabs(vpy) > 0.5;
+            if (std::isfinite(vz) && vz > 0) in->view_zoom[kind] = vz;
+            host->publish_i64(host->userdata, kind ? "ffr.map.world_follow" : "ffr.map.town_follow", !look);
+            host->publish_i64(host->userdata, kind ? "ffr.map.world_look" : "ffr.map.town_look", look);
+        }
+        // An arrow at the edge of the map for each objective out of view, in its colour, pointing the way. The view as the host
+        // last drew it (one tick behind): its centre and px per map unit.
+        std::vector<MapFrame::Pin> arrows;
+        const std::string a = kMapArea[kind];
+        const double mcx = host->get_f64 ? host->get_f64(host->userdata, ("@map_view_cx:" + a).c_str(), NAN) : NAN;
+        const double mcy = host->get_f64 ? host->get_f64(host->userdata, ("@map_view_cy:" + a).c_str(), NAN) : NAN;
+        const double ppw = host->get_f64 ? host->get_f64(host->userdata, ("@map_view_ppw:" + a).c_str(), NAN) : NAN;
+        if (std::isfinite(mcx) && std::isfinite(mcy) && std::isfinite(ppw) && ppw > 0) {
+            const double halfw = ffr::kMapW / 2.0, halfh = ffr::kMapH / 2.0;
+            for (auto& g : f.goal) {
+                const double dx = (g.x - mcx) * ppw, dy = (mcy - g.y) * ppw;  // px from the centre on screen (the map's y is up)
+                if (std::fabs(dx) < halfw - 12 && std::fabs(dy) < halfh - 12) continue;  // in view: its own marker shows it
+                // on the edge, inset by the arrow's size (and on the right, clear of the zoom buttons)
+                const double ex = dx > 0 ? halfw - 52 - 104 : halfw - 52, ey = halfh - 52;
+                const double t = std::min(ex / std::max(std::fabs(dx), 1e-6), ey / std::max(std::fabs(dy), 1e-6));
+                const double deg = std::atan2(dy, dx) * 180 / M_PI;  // 0 = right, clockwise on screen
+                const int bucket = (int(std::lround(deg / 15)) % 24 + 24) % 24;
+                arrows.push_back({mcx + dx * t / ppw, mcy - dy * t / ppw,
+                                  std::string(kKeys) + "arrow:" + (g.main && g.cls ? "b" : g.main ? "m" : "s") + ":" + std::to_string(bucket), 0, g.main});
+            }
+            // the gold ones drawn last, over the others
+            std::stable_sort(arrows.begin(), arrows.end(), [](const MapFrame::Pin& p, const MapFrame::Pin& q) { return p.main < q.main; });
+        }
         auto pins = [&](const std::vector<MapFrame::Pin>& v, std::vector<std::array<std::string, 3>>& keys, const char* stem, int max) {
             if (keys.empty())
                 for (int i = 0; i < max; ++i) {
@@ -463,7 +520,9 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
             }
         };
         pins(f.icons, in->icon_keys, "icon", kMaxIcons);
-        pins(f.goal, in->goal_keys, "goal", 1);
+        std::vector<MapFrame::Pin> goals(f.goal.rbegin(), f.goal.rend());  // the gold ones (first) drawn last
+        pins(goals, in->goal_keys, "goal", kMaxGoals);
+        pins(arrows, in->arrow_keys, "arrow", kMaxGoals);
         for (int c = 0; c < kIslandClasses; ++c) {
             std::vector<MapFrame::Pin> v;
             for (auto& p : f.islands)
@@ -509,6 +568,18 @@ EdenDsmodBool OnAction(void* p, const char* action, int64_t arg) {
         else return EDEN_DSMOD_FALSE;  // nothing the game would take now
         in->drive = d;
         return EDEN_DSMOD_TRUE;
+    } else if (a == "zoom") {  // the map's following zoom: in (> 0) or out, refused at the limit
+        const int kind = in->frame.mode == 2 ? 1 : 0;
+        const double z = std::clamp(in->zoom[kind] * (arg > 0 ? kZoomStep : 1 / kZoomStep), kZoomMin[kind], kZoomMax[kind]);
+        if (std::fabs(z - in->zoom[kind]) < 1e-9 || !in->frame.mode) return EDEN_DSMOD_FALSE;
+        in->zoom[kind] = z;
+        ++in->map_serial;  // a new page: the host redraws the map at the new window now, not at the player's next step
+    } else if (a == "home") {  // back to the player, at the zoom on screen: the module's times the host's (a pinch)
+        if (!in->frame.mode) return EDEN_DSMOD_FALSE;
+        const int kind = in->frame.mode == 2 ? 1 : 0;
+        in->zoom[kind] = std::clamp(in->zoom[kind] * in->view_zoom[kind], kZoomMin[kind], kZoomMax[kind]);
+        in->reset = kind;
+        ++in->map_serial;
     } else if (a == "member") {
         if (arg < 0 || arg >= int(ffr::Roster(in->state).size())) return EDEN_DSMOD_FALSE;
         v.member = int(arg);
@@ -535,8 +606,10 @@ EdenDsmodBool OnAction(void* p, const char* action, int64_t arg) {
     return EDEN_DSMOD_TRUE;
 }
 
+constexpr ffr::Rgba kGold = ffr::C(0xFFE6C36B), kBlue = ffr::C(0xFF5AA8F0);  // the objectives: main story, side quests (the game's own blue)
+
 // The map's pictures: the area's capture in the game's map tone, an island padded into its marker square, a UI texture as is,
-// and the zoom buttons.
+// the objectives and their arrows, and the zoom buttons.
 bool MapPicture(Instance* in, const std::string& k, void* receiver, EdenDsmodImageSink sink) {
     auto send = [&](const ffr::Canvas& c) { sink(receiver, uint32_t(c.w()), uint32_t(c.h()), c.pixels().data(), c.pixels().size()); return true; };
     auto img = [&](const std::string& path) { return in->assets.Image(path); };
@@ -570,7 +643,7 @@ bool MapPicture(Instance* in, const std::string& k, void* receiver, EdenDsmodIma
         c.Blit(*im, (n - d) / 2, (n - d) / 2, d, d);
         return send(c);
     }
-    if (k.rfind("btn:", 0) == 0) {  // a round map button: zoom in, zoom out, back to the player
+    if (k.rfind("btn:", 0) == 0) {  // a round map button: zoom in, zoom out
         ffr::Canvas c(96, 96);
         c.Disc(48, 48, 44, ffr::C(0xFF5EC4E6));
         c.Disc(48, 48, 41, ffr::C(0xF0101E28));
@@ -586,13 +659,43 @@ bool MapPicture(Instance* in, const std::string& k, void* receiver, EdenDsmodIma
         }
         return send(c);
     }
-    if (k == "goal") {  // the objective: the game's "!" map icon on a gold badge, so it stands out from the other icons
+    // a small blue badge on a gold one's lower right: a place both the story and a side quest lead to
+    auto side_badge = [&](ffr::Canvas& c, float cx, float cy, float r) {
+        c.Disc(cx, cy, r + 4, ffr::C(0x90000000));
+        c.Disc(cx, cy, r, kBlue);
+        c.Disc(cx, cy, r * 0.74f, ffr::C(0xF0182C3A));
+        c.Fill(int(cx - r * 0.12f), int(cy - r * 0.5f), int(r * 0.24f) + 1, int(r * 0.55f), ffr::C(0xFFF2F5F7));
+        c.Fill(int(cx - r * 0.12f), int(cy + r * 0.18f), int(r * 0.24f) + 1, int(r * 0.24f) + 1, ffr::C(0xFFF2F5F7));
+    };
+    if (k == "goal" || k == "goal:side" || k == "goal:both") {  // an objective: the game's quest map icon on a gold (side quests: blue) badge
         ffr::Canvas c(128, 128);
-        c.Disc(64, 64, 60, ffr::C(0x60000000));
-        c.Disc(64, 64, 54, ffr::C(0xFFE6C36B));
-        c.Disc(64, 64, 47, ffr::C(0xF0182C3A));
-        if (const ffr::Image* ic = img("FFRS/Content/UI/Textures/Icon/MAP/ICON_MAP_L_Check.uasset")) c.Blit(*ic, 24, 24, 80, 80);
-        else c.Fill(58, 34, 12, 40, ffr::C(0xFFF2F5F7)), c.Fill(58, 82, 12, 12, ffr::C(0xFFF2F5F7));
+        const bool both = k == "goal:both";
+        const float r = both ? 46.f : 54.f, cx = both ? 56.f : 64.f;
+        c.Disc(cx, cx, r + 6, ffr::C(0x60000000));
+        c.Disc(cx, cx, r, k == "goal:side" ? kBlue : kGold);
+        c.Disc(cx, cx, r - 7, ffr::C(0xF0182C3A));
+        const int is = int(r * 1.48f);
+        if (const ffr::Image* ic = img("FFRS/Content/UI/Textures/Icon/MAP/ICON_MAP_L_Check.uasset")) c.Blit(*ic, int(cx) - is / 2, int(cx) - is / 2, is, is);
+        else c.Fill(int(cx) - 6, int(cx) - 30, 12, 40, ffr::C(0xFFF2F5F7)), c.Fill(int(cx) - 6, int(cx) + 18, 12, 12, ffr::C(0xFFF2F5F7));
+        if (both) side_badge(c, 100, 100, 22);
+        return send(c);
+    }
+    if (k.rfind("arrow:", 0) == 0 && k.size() >= 9) {  // arrow:<m|s|b (main, side, both)>:<15 degree step, 0 = right, clockwise>
+        const ffr::Rgba col = k[6] == 's' ? kBlue : kGold;
+        const double rad = std::atoi(k.c_str() + 8) * 15 * M_PI / 180, ux = std::cos(rad), uy = std::sin(rad);
+        ffr::Canvas c(128, 128);
+        auto tri = [&](double tip, double back, double half, ffr::Rgba cc) {  // a point toward the objective
+            c.Triangle(float(64 + ux * tip), float(64 + uy * tip), float(64 + ux * back - uy * half), float(64 + uy * back + ux * half),
+                       float(64 + ux * back + uy * half), float(64 + uy * back - ux * half), cc);
+        };
+        tri(63, 20, 30, ffr::C(0x70000000));
+        tri(58, 24, 24, col);
+        c.Disc(64, 64, 34, ffr::C(0x70000000));
+        c.Disc(64, 64, 31, col);
+        c.Disc(64, 64, 26, ffr::C(0xF0182C3A));
+        if (const ffr::Image* ic = img("FFRS/Content/UI/Textures/Icon/MAP/ICON_MAP_L_Check.uasset")) c.Blit(*ic, 38, 38, 52, 52);
+        else c.Fill(60, 46, 8, 22, ffr::C(0xFFF2F5F7)), c.Fill(60, 72, 8, 8, ffr::C(0xFFF2F5F7));
+        if (k[6] == 'b') side_badge(c, 64 - float(ux) * 30 + float(uy) * 22, 64 - float(uy) * 30 - float(ux) * 22, 15);  // behind, off to one side
         return send(c);
     }
     if (k == "blank") return send(ffr::Canvas(4, 4));  // transparent

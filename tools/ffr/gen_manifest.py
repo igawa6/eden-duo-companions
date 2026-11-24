@@ -9,7 +9,7 @@ W, H, TAB_Y, HEADER_H = 1240, 1080, 968, 112
 CARD_Y, CARD_H, CARD_GAP = 132, 200, 14
 ROW_Y, ROW_H, ROWS = 222, 84, 7
 MAP = [30, HEADER_H + 16, W - 60, TAB_Y - (HEADER_H + 16) - 16]  # kMapX, kMapY, kMapW, kMapH
-TOWN_N, WORLD_N, MAX_ICONS = 4096, 4096, 64
+TOWN_N, WORLD_N, MAX_ICONS, MAX_GOALS = 4096, 4096, 64, 16
 # The town picture reaches TOWN_PAD past the capture's square on the left and right (the menu background), so a view as wide as
 # the widget (1180 x 824) never runs off it: keep in step with kTownPad in the module.
 TOWN_PAD = 904
@@ -26,6 +26,7 @@ def tap(rect, action, need=None, **extra):
 
 
 def main():
+    resets = []  # the map views' home resets, run by the module (enforce)
     actions, widgets = {}, [{"type": "image", "rect": [0, 0, W, H], "src_bind": "ffr.page", "src_hold": True}]
     for i in range(4):
         actions[f"tab{i}"] = {"kind": "module", "action": "tab", "argument": i}
@@ -36,7 +37,8 @@ def main():
     actions["back"] = {"kind": "module", "action": "back", "argument": 0}
     widgets.append(tap([0, 112, W, TAB_Y - 112], "back", "ffr.party_detail"))
     # The live map: one widget for a town or dungeon capture, one for the world map's islands. The module publishes the
-    # player every tick (ffr.map.px / py / yaw) and the pictures as module keys; pinch and the +/- buttons zoom.
+    # player every tick (ffr.map.px / py / yaw), the view around them (ffr.map.vx0 ..) and the pictures as module keys; drag and
+    # pinch look around.
     # The world's ocean: 4 x 4 tiles of the game's ocean texture, mirrored in turn so they meet without seams
     ocean = [{"src": f"module:ffr:ocean:{tx % 2}{ty % 2}", "x0": tx * 1024, "y0": ty * 1024, "x1": tx * 1024 + 1024, "y1": ty * 1024 + 1024}
              for ty in range(4) for tx in range(4)]
@@ -49,17 +51,29 @@ def main():
              "view_rect_x1_bind": "ffr.map.vx1", "view_rect_y1_bind": "ffr.map.vy1", "view_rect_pad": 0}
         if area == "ffr_town":
             w["image_bind"] = "ffr.map.base"
-            w["min_zoom"] = 1.0  # the whole town at most, as the game's map: the picture fills the frame at every zoom
         else:
             w["overlays"] = ocean
             w["bg"] = "#FF485756"  # the ocean's own tone where no tile is drawn
         widgets.append(w)
+        # The buttons. While the map follows the player (the view at home: ffr.map.<kind>_follow), + and - set the module's own
+        # zoom, and the map keeps following at it. Once the player drags or pinches to look around (ffr.map.<kind>_look), they
+        # zoom that view, as a pinch would. Home takes the zoom on screen (pinch included) as the module's, then the module has
+        # the host send its view home (an enforce rule on ffr.map.<kind>_reset): the map follows the player again at that zoom.
         bx = MAP[0] + MAP[2] - 16 - 88
-        for i, (key, factor, y) in enumerate((("in", 1.25, MAP[1] + 16), ("out", 0.8, MAP[1] + 120), ("home", 0, MAP[1] + MAP[3] - 104))):
+        kind = "world" if area == "ffr_world" else "town"
+        for key, factor, y in (("in", 1.25, MAP[1] + 16), ("out", 0.8, MAP[1] + 120), ("home", 0, MAP[1] + MAP[3] - 104)):
             act = f"{name}_{key}"
-            actions[act] = {"kind": "view_reset", "view": name} if key == "home" else {"kind": "view_zoom_step", "view": name, "factor": factor}
             widgets.append({"type": "image", "rect": [bx, y, 88, 88], "src": f"module:ffr:btn:{key}", "need_bind": gate})
-            widgets.append(tap([bx - 6, y - 6, 100, 100], act, gate, haptic="light"))
+            if key == "home":
+                actions[act] = {"kind": "module", "action": "home", "argument": 0}
+                actions[act + "_reset"] = {"kind": "view_reset", "view": name, "enabled_bind": f"ffr.map.{kind}_reset"}
+                resets.append({"action": act + "_reset", "every_ms": 1})
+                widgets.append(tap([bx - 6, y - 6, 100, 100], act, gate, haptic="light"))
+                continue
+            actions[act] = {"kind": "module", "action": "zoom", "argument": 1 if factor > 1 else -1}
+            actions[act + "_look"] = {"kind": "view_zoom_step", "view": name, "factor": factor}
+            widgets.append(tap([bx - 6, y - 6, 100, 100], act, f"ffr.map.{kind}_follow", haptic="light"))
+            widgets.append(tap([bx - 6, y - 6, 100, 100], act + "_look", f"ffr.map.{kind}_look", haptic="light"))
     # The battle page: the module hit-tests the tap point against the layout it drew (cards, the command window, Back)
     actions["btap"] = {"kind": "module", "action": "btap", "argument": "$payload"}
     widgets.append(tap([0, HEADER_H, W, TAB_Y - HEADER_H], "btap", "ffr.battle_menu", payload="$tap"))
@@ -78,18 +92,22 @@ def main():
     for key, button in BUTTONS.items():
         actions[f"ffr.press.{key}"] = {"kind": "button", "button": button, "frames": 4, "enabled_bind": f"ffr.drv.{key}"}
         enforce.append({"action": f"ffr.press.{key}", "every_ms": 1})
+    enforce += resets
     icons = {"group": "icon", "count": MAX_ICONS, "x": "ffr.map.icon{i}.x", "y": "ffr.map.icon{i}.y",
              "icon_src_bind": "ffr.map.icon{i}.src", "size": 52}
     islands = [{"group": f"isl{c}", "count": ISLANDS_PER_CLASS, "x": f"ffr.map.isl{c}_{{i}}.x", "y": f"ffr.map.isl{c}_{{i}}.y",
                 "icon_src_bind": f"ffr.map.isl{c}_{{i}}.src", "size_world": size} for c, size in enumerate(ISLAND_SIZES)]
-    # the objective (the minimap entry the game marks as the quest target), over the other icons, in both maps
-    goal = {"group": "goal", "count": 1, "x": "ffr.map.goal{i}.x", "y": "ffr.map.goal{i}.y", "icon_src_bind": "ffr.map.goal{i}.src",
-            "size": 72}
+    # the objectives (the game's marked quest target in gold, the side quests in progress in blue), over the other icons, in
+    # both maps; and for each one out of view, an arrow at the edge of the map in its colour, pointing the way (kMaxGoals)
+    goal = {"group": "goal", "count": MAX_GOALS, "x": "ffr.map.goal{i}.x", "y": "ffr.map.goal{i}.y",
+            "icon_src_bind": "ffr.map.goal{i}.src", "size": 72}
+    arrow = {"group": "arrow", "count": MAX_GOALS, "x": "ffr.map.arrow{i}.x", "y": "ffr.map.arrow{i}.y",
+             "icon_src_bind": "ffr.map.arrow{i}.src", "size": 76}
     map_cfg = {"style": {"background": "#FF0A131B"}, "areas": {
-        "ffr_town": {"min": [-TOWN_PAD, 0], "max": [TOWN_N + TOWN_PAD, TOWN_N], "image": "module:ffr:blank", "clamp_view": True,
-                     "dynamic_markers": [icons, goal]},
+        "ffr_town": {"min": [-TOWN_PAD, 0], "max": [TOWN_N + TOWN_PAD, TOWN_N], "image": "module:ffr:blank",
+                     "dynamic_markers": [icons, goal, arrow]},
         "ffr_world": {"min": [0, 0], "max": [WORLD_N, WORLD_N], "image": "module:ffr:blank",
-                      "clamp_view": True, "dynamic_markers": islands + [goal]},
+                      "dynamic_markers": islands + [goal, arrow]},
     }}
     manifest = {
         "format": 1,

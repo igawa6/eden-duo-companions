@@ -5,8 +5,10 @@ build `84E182F72EE1DA4F477804BD05B54C1500000000000000000000000000000000`.
 Requires runtime 22. Tested on an AYN Thor with Peanuts Native 0.1.7. Includes Android arm64-v8a and Linux x86-64 modules.
 
 - **Map.** The default tab. The current town's or dungeon's floor plan, or the world map with its islands. Your position and
-  heading move live. Shops, the inn, save points and the current objective are marked with the game's own icons. Pinch or use
-  +/- to zoom, and reset to come back to the player.
+  heading move live: you stay in the centre and the map moves around you, at the zoom you set with +/-, kept for the next visit.
+  Drag or pinch to look around; Home brings the map back to you at the zoom on screen and follows you again. Shops, the inn and save points
+  are marked with the game's own icons. The story objective is marked in gold and side quests in progress in blue, and an arrow
+  at the edge of the map points to each objective that is out of view.
 - **Party.** Your party and the members who have joined, with the game's character art, HP and MP, and the equipped weapon, armor
   and vision. Tap a member for the full portrait, stats and every equipment slot.
 - **Items.** Items, Equipment, Key Items and Artifacts, with counts and the game's descriptions. Equipment shows who has each piece

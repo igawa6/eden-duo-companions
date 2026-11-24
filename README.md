@@ -1090,7 +1090,7 @@ Code: GPL-3.0-or-later.
 <details>
 <summary>Screenshots and details</summary>
 
-`0100606026F12000` · game version 1.0.1 · companion 1.0.5
+`0100606026F12000` · game version 1.0.1 · companion 1.0.6
 
 | Map | Party | Battle |
 |:---:|:---:|:---:|
@@ -1098,7 +1098,7 @@ Code: GPL-3.0-or-later.
 
 The map, your party, your items and the battle on the second screen, drawn in the game's own look. Requires runtime 22.
 
-- **Map.** The default tab. The current town's or dungeon's floor plan, or the world map with its islands. Your position and heading move live. Shops, the inn, save points and the current objective are marked with the game's own icons. Pinch or use +/- to zoom.
+- **Map.** The default tab. The current town's or dungeon's floor plan, or the world map with its islands. Your position and heading move live: you stay in the centre and the map moves around you, at the zoom you set with +/-, kept for the next visit. Drag or pinch to look around; Home brings the map back to you at the zoom on screen and follows you again. Shops, the inn and save points are marked with the game's own icons. The story objective is marked in gold and side quests in progress in blue. An arrow at the edge of the map points to each objective that is out of view.
 - **Party.** Your party and the members who have joined, with the game's character art, HP and MP, and the equipped weapon, armor and vision. Stats and max HP/MP include the vision's mastery bonuses. Tap a member for the full portrait, stats and every equipment slot.
 - **Items.** Items, Equipment, Key Items and Artifacts, with counts and the game's descriptions. Equipment shows who has each piece equipped.
 - **Battle.** Opens by itself in a battle and returns to the tab you had open afterwards. Enemies on the left, the party and any guest ally on the right, with HP and MP, a tag on staggered enemies, and each vision beside the character it is equipped to.
