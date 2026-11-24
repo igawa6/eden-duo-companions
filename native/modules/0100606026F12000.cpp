@@ -198,6 +198,7 @@ struct Assets {
     ffr::IoStore io;
     ffr::Pak pak;
     std::unordered_map<std::string, std::string> loc;
+    std::unordered_map<std::string, std::string> quest_keys;  // "<namespace>\x1f<Japanese text>" -> key, for the quest tables (ja locres)
     ffr::Font regular, bold, title;
     std::map<std::string, std::unique_ptr<ffr::Image>> images;  // nullptr value = failed
     EdenDsmodHostApi host{};                                    // the worker's host copy for romfs reads
@@ -214,6 +215,15 @@ struct Assets {
         if (!pak.Open(rd, "romfs:/FFRS/Content/Paks/FFRS-Switch.pak", err)) { why = "pak: " + err; return false; }
         std::vector<uint8_t> b, t;
         if (pak.Read("FFRS/Content/Localization/Game/en/Game.locres", b)) ffr::ParseLocres(b, loc);
+        // A quest name the game has not looked up yet comes as its Japanese source text (Reader::StringTableSource): the
+        // game's ja locres gives its key, and en its English
+        std::unordered_map<std::string, std::string> ja;
+        if (pak.Read("FFRS/Content/Localization/Game/ja/Game.locres", b) && ffr::ParseLocres(b, ja))
+            for (auto& [k, text] : ja) {
+                const size_t sep = k.find('\x1f');
+                if (sep != std::string::npos && k.find("Quest") < sep)  // (the quest tables only: ST_EventQuestTitle ...)
+                    quest_keys.emplace(k.substr(0, sep + 1) + text, k.substr(sep + 1));
+            }
         auto font = [&](const char* f, ffr::Font& out) {
             if (pak.Read(std::string("FFRS/Content/UI/Font/FontFace/SE/") + f, b) && ffr::UnwrapFontFace(b, t)) out.Load(t);
         };
@@ -736,7 +746,8 @@ void ItemsView(Instance* in, const EdenDsmodHostApi* host) {
     if (v.tab == ffr::kTabItems && v.item_cat == 1 && !roster.empty()) {
         const int unit = roster[size_t(v.eq_member)]->id;
         const auto ids = ffr::EquipChoices(in->state, v);
-        if (in->wear_known && in->wear_unit == unit) {
+        if (in->wear_known && in->wear_unit != unit) in->wear_known = false;  // another member: ask the game for them
+        if (in->wear_known) {
             for (int id : ids) if (std::find(in->wear_ok.begin(), in->wear_ok.end(), id) != in->wear_ok.end()) v.wearable.push_back(id);
             // every piece asked about must be among those known (a new piece picked up: ask again)
             bool all = true;
@@ -1201,6 +1212,8 @@ EdenDsmodBool OnAction(void* p, const char* action, int64_t arg) {
             const ffr::UnitState& u = *roster[size_t(std::clamp(v.eq_member, 0, int(roster.size()) - 1))];
             const int now_id = ffr::SlotItem(u, v.eq_slot);
             if (t.kind == T::kChoice && t.id == now_id) return EDEN_DSMOD_FALSE;  // (already worn there)
+            if (t.kind == T::kChoice && (!v.wearable_known || std::find(v.wearable.begin(), v.wearable.end(), t.id) == v.wearable.end()))
+                return EDEN_DSMOD_FALSE;  // (only what the game says this member can wear)
             in->job = Instance::Job{};
             in->job.unit = u.id, in->job.slot = v.eq_slot;
             if (t.kind == T::kRemove) in->job.kind = Instance::Job::kUnequip, in->job.item = now_id;
@@ -1498,6 +1511,13 @@ EdenDsmodBool LoadImage(void* p, const EdenDsmodHostApi* host, const char* key, 
             s = in->state;
             v = in->view;
         }
+        for (auto& q : s.quests)  // names the game has not looked up yet: through its own localization files
+            if (q.name.empty() && !q.name_src.empty()) {
+                const auto k = in->assets.quest_keys.find(q.name_ns + '\x1f' + q.name_src);
+                if (k == in->assets.quest_keys.end()) continue;
+                const auto t = in->assets.loc.find(q.name_ns + '\x1f' + k->second);
+                if (t != in->assets.loc.end()) q.name = t->second;
+            }
         ffr::Canvas c(ffr::kW, ffr::kH);
         if (!art) {
             static ffr::Font none;

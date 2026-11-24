@@ -18,7 +18,8 @@ Requires runtime 22. Tested on an AYN Thor with Peanuts Native 0.1.7. Includes A
   help light up, the others say why not, and the card shows what it did ("+120 HP", "Revived!"). Party items heal everyone in
   one tap; battle-only items are dimmed. Key Items and Artifacts are listed with the game's descriptions.
 - **Equipment.** Pick a member, a slot, then a piece. Only the pieces the game lets that member wear are listed, each with its
-  stat changes in the game's stat icons, and the face of whoever wears it now. One tap equips; accessories can be removed.
+  stat changes in the game's stat icons, its description in the game's words (such as more EXP or gil), and the face of whoever
+  wears it now. The piece in the chosen slot shows its description beside the slots. One tap equips; accessories can be removed.
   Items and equipment work with the game's menu open too (not during a scene or a save).
 - **Quests.** The journal's Main and Side tabs, each quest with its place and story so far. Track or stop tracking a quest, as
   the journal's Track does; the story quest is always followed, as in the game.
@@ -38,6 +39,10 @@ check and use, its equippable check, equip and unequip, its journal's Track, and
 decide, and the companion shows its answer. When the helper is not installed or does not answer, fast travel opens the game's
 world map and travels through it with button presses instead, and the other actions say the helper is not running. The companion
 never writes the game's memory or saves itself; what the game's code changes, the game saves as usual.
+
+On Peanuts Native, the helper is installed while the game starts, and frame generation keeps that from working: with frame
+generation on at launch, the helper is not installed. Start the game with frame generation off, and turn it on in the in-game
+panel once the game is running; the helper keeps working.
 
 Made for and tested mainly on Peanuts Native, the version that runs the game best. Reports from Eden Duo are welcome.
 

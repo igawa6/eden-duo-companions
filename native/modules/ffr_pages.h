@@ -67,7 +67,7 @@ BattleTap BattleHit(const GameState& s, int x, int y);
 // member, a slot, then a piece), Key Items and Artifacts are lists. Taps land on one area (the module hit-tests them: ItemsHit).
 constexpr int kUseRows = 5, kUseCardY = 748, kUseCardH = 206;
 constexpr int kEqChipY = 222, kEqChipH = 84, kEqSlotY = 320, kEqSlotH = 86, kEqSlotW = 500;
-constexpr int kEqListX = 548, kEqListY = 388, kEqRowH = 80, kEqRows = 7;
+constexpr int kEqListX = 548, kEqListY = 388, kEqRowH = 112, kEqRows = 5;  // a piece: its name, its stat changes, what it does
 struct ItemsTap {
     enum Kind { kNone, kRow, kTarget, kMember, kSlot, kChoice, kRemove } kind = kNone;
     int index = -1;  // kRow: index in the list; kMember: index in Roster; kSlot: slot

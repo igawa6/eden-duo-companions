@@ -270,6 +270,18 @@ Same method as fast travel (static RE of main, checked live with the dev probe).
 - QuestData (QuestDataMap value, 0x98): Property {IconTag, bCanPreferred +0x8, Priolity +0xc}, ID +0x10, Category +0x14, Name
   +0x18 (a generated text: its FString inline at FTextData +0x18), Subtitle +0x28, DestinationTitle +0x38, Description +0x48,
   SummaryList +0x58, Progression +0x68, bIsPreferred +0x80.
+  The texts can be missing for a while after the quest is in the map (a completed side quest read at load had an empty
+  Name; seconds later it read 'Dream of an Idealist'): the reader reads a quest's texts again every 3 s while its name is empty.
+  The cause: a side quest's Name is a string table text (FTextHistory_StringTableEntry) that the game resolves only when its
+  journal shows it; until then TextData +0x20's reference has no display string. The reference holds the table (FName +0x20, the
+  full path /Game/Datatable/Strings/Quest/ST_EventQuestTitle.ST_EventQuestTitle) and the key as an FTextKey index (+0x28). The
+  loaded UStringTable (class StringTable, object name ST_EventQuestTitle): its FStringTable at +0x28, KeysToEntries at +0x20
+  (TSet elements of 0x20: the key's FTextKey index +0, the entry +8), the entry's SourceString FString at +0x10 (Japanese). The
+  key strings themselves are not in reachable memory, so the module maps the source text through the game's ja Game.locres
+  to the key (EventQuestTitle_032 for quest 14) and en Game.locres to the English title.
+- Peanuts Native installs the load plan at launch by stopping the game's threads (40 tries, ~2 s). With frame generation on,
+  every try timed out ("40 times they did not all stop"); with it off, the plan installed at once. Turning frame generation on
+  after launch keeps the helper working (the user, 2026-11-24).
 - Companion 1.0.7 (dev): Items is a use page (an item, then a party card), Equipment a member > slot > piece manager with the
   game's equippable answer, Quests a journal (Main, Side) with Track; the battle page takes the whole screen and has no tab.
 

@@ -47,6 +47,9 @@ struct Quest {
     bool can_track = false, tracked = false;      // QuestProperty.bCanPreferred; the game's tracked quest (PreferredQuestId)
     std::string name, subtitle, place, desc;      // Name, Subtitle, DestinationTitle, Description
     std::vector<std::string> log;                 // SummaryList: what has happened so far, oldest first
+    // A Name the game has not looked up yet (a string table entry without its display string): the table's namespace and the
+    // entry's source text (Japanese), for the module to look up in the game's own localization files
+    std::string name_ns, name_src;
 };
 
 // A point of interest the game's minimap shows (a shop, the inn, a save point), in land coordinates.
@@ -328,11 +331,14 @@ private:
     std::unordered_map<int, std::string> map_names_;
     std::string MapName(int id);
     std::string FTextString(uint64_t ftext, int max_chars = 256);
+    bool StringTableSource(uint64_t ftext, std::string& ns, std::string& src);
+    std::string FStringAt(uint64_t fstring, int max_chars);
     void ReadQuestList(GameState& s);
     std::vector<Quest> quest_list_;
     uint64_t last_quest_list_ms_ = 0;
-    struct QuestTexts { int prog = -1, summaries = -1; Quest q; };
+    struct QuestTexts { int prog = -1, summaries = -1; uint64_t read_ms = 0; Quest q; };
     std::unordered_map<int, QuestTexts> quest_texts_;
+    std::unordered_map<std::string, Obj> string_tables_;  // the loaded UStringTable objects by name (ST_EventQuestTitle)
     std::unordered_map<int, EquipInfo> equipment_;
     bool equipment_loaded_ = false;
     uint64_t last_scan_ms_ = 0;

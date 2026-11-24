@@ -73,7 +73,7 @@ uint64_t GameState::Hash() const {
     mix(map.name.data(), map.name.size());
     mix(&in_battle, 1);
     mix(&tracked_quest, 4);
-    for (auto& k : quests) { mix(&k.id, 4), mix(&k.prog, 4), mix(&k.can_track, 1); const size_t n = k.log.size(); mix(&n, sizeof n); }
+    for (auto& k : quests) { mix(&k.id, 4), mix(&k.prog, 4), mix(&k.can_track, 1); const size_t n = k.log.size(), nm = k.name.size() + k.name_src.size(); mix(&n, sizeof n), mix(&nm, sizeof nm); }
     mix(&menu.valid, 1), mix(&menu.open, 1), mix(&menu.state, 4), mix(&menu.cursor, 4), mix(&menu.actor, 4);
     for (auto& e : menu.entries) mix(&e, sizeof e);
     for (auto& e : menu.path) mix(&e, sizeof e);
@@ -194,6 +194,7 @@ void Reader::Scan() {
     if (!objs || num <= 0 || nchunks <= 0 || nchunks > 64) return;
     Obj save, quest, mini, btl, pc, am, mode, vm, mgr, wsub, wvm, wlist, dlg, mmvm, gwm, wpar, sact, stgt;
     std::vector<Obj> ups, maps, lists;
+    std::unordered_map<std::string, Obj> tables;
     std::vector<uint8_t> items;
     for (int32_t c = 0; c < nchunks; ++c) {
         const uint64_t chunk = g_.Get<uint64_t>(objs + 8ull * c);
@@ -254,6 +255,7 @@ void Reader::Scan() {
                 else if (n == "DA_UI_SkillTargeting") stgt = {a, h.cls, uint32_t(h.index)};
                 continue;
             }
+            if (cn == "StringTable") { tables[Name(h.name)] = {a, h.cls, uint32_t(h.index)}; continue; }
             const bool up = cn == "CPP_UnitParameter" || cn == "CPP_BtlUnitParameter";
             Obj* slot = cn == "CPP_MuchaSaveDataManager" ? &save : cn == "CPP_QuestSubsystem" ? &quest : cn == "CPP_MiniMapSubsystem" ? &mini : cn == "CPP_BtlManager" ? &btl
                       : cn == "CPP_MuchaPlayerController" ? &pc : cn == "CPP_AppAssetManager" ? &am : nullptr;
@@ -265,6 +267,7 @@ void Reader::Scan() {
     }
     save_mgr_ = save;
     quest_sub_ = quest;
+    string_tables_ = std::move(tables);
     minimap_ = mini;
     battle_ = btl;
     controller_ = pc;
@@ -731,9 +734,12 @@ void Reader::ReadQuestList(GameState& s) {
             TArr sum{};
             std::memcpy(&sum, q + 0x58, sizeof sum);
             QuestTexts& t = quest_texts_[k.id];
-            if (t.prog != k.prog || t.summaries != sum.num) {
-                t.prog = k.prog, t.summaries = sum.num;
+            // (read again while the name is missing: the game loads a quest's texts some time after the quest itself)
+            if (t.prog != k.prog || t.summaries != sum.num || (t.q.name.empty() && now - t.read_ms >= 3000)) {
+                t.prog = k.prog, t.summaries = sum.num, t.read_ms = now;
                 t.q.name = FTextString(v + 0x18), t.q.subtitle = FTextString(v + 0x28), t.q.place = FTextString(v + 0x38);
+                t.q.name_ns.clear(), t.q.name_src.clear();
+                if (t.q.name.empty()) StringTableSource(v + 0x18, t.q.name_ns, t.q.name_src);
                 t.q.desc = FTextString(v + 0x48, 2048);
                 t.q.log.clear();
                 for (int32_t i = 0; sum.data && i < sum.num && i < 24; ++i) {
@@ -741,6 +747,7 @@ void Reader::ReadQuestList(GameState& s) {
                     if (!line.empty()) t.q.log.push_back(std::move(line));
                 }
             }
+            k.name_ns = t.q.name_ns, k.name_src = t.q.name_src;
             k.name = t.q.name, k.subtitle = t.q.subtitle, k.place = t.q.place, k.desc = t.q.desc, k.log = t.q.log;
             list.push_back(std::move(k));
             return list.size() < 1024;
@@ -1347,6 +1354,53 @@ std::string Reader::FTextString(uint64_t ftext, int max_chars) {
         else { out += char(0xE0 | (c >> 12)); out += char(0x80 | ((c >> 6) & 0x3F)); out += char(0x80 | (c & 0x3F)); }
     }
     return out;
+}
+
+// An FString (data, num, max) as UTF-8
+std::string Reader::FStringAt(uint64_t fstring, int max_chars) {
+    struct { uint64_t data; int32_t num, max; } fs{};
+    if (!g_.Read(fstring, &fs, sizeof fs) || !fs.data || fs.num <= 1 || fs.num > max_chars || fs.max < fs.num) return "";
+    std::vector<uint16_t> w(size_t(fs.num));
+    if (!g_.Read(fs.data, w.data(), w.size() * 2)) return "";
+    std::string out;
+    for (size_t i = 0; i + 1 < w.size(); ++i) {
+        const uint32_t c = w[i];
+        if (c < 0x80) out += char(c);
+        else if (c < 0x800) { out += char(0xC0 | (c >> 6)); out += char(0x80 | (c & 0x3F)); }
+        else { out += char(0xE0 | (c >> 12)); out += char(0x80 | ((c >> 6) & 0x3F)); out += char(0x80 | (c & 0x3F)); }
+    }
+    return out;
+}
+
+// A string table text the game has not looked up yet (no display string; the quest journal does that when it opens): its
+// reference (TextData +0x20) names the table (FName +0x20) and the key (FTextKey index +0x28). The loaded UStringTable of that
+// name holds its FStringTable at +0x28, whose KeysToEntries set (+0x20: elements of 0x20, the key's index at +0, the entry at
+// +8) gives the entry, and the entry its source text (FString +0x10, the game's Japanese). Checked live on side quest 14:
+// ST_EventQuestTitle, key 0x10b09, 「きれいごとを胸に抱いて」, which the game's ja locres has as EventQuestTitle_032.
+bool Reader::StringTableSource(uint64_t ftext, std::string& ns, std::string& src) {
+    const uint64_t td = g_.Get<uint64_t>(ftext);
+    const uint64_t rec = td ? g_.Get<uint64_t>(td + 0x20) : 0;
+    if (!rec) return false;
+    const uint32_t table = g_.Get<uint32_t>(rec + 0x20), key = g_.Get<uint32_t>(rec + 0x28);
+    const std::string path = Name(table);  // /Game/.../ST_EventQuestTitle.ST_EventQuestTitle
+    const auto it = string_tables_.find(path.substr(path.rfind('.') + 1));
+    if (it == string_tables_.end() || !Alive(it->second)) return false;
+    const uint64_t st = g_.Get<uint64_t>(it->second.addr + 0x28);
+    const TArr els = st ? g_.Get<TArr>(st + 0x20) : TArr{};
+    if (!els.data || els.num <= 0 || els.num > 65536) return false;
+    std::vector<uint8_t> b(size_t(els.num) * 0x20);
+    if (!g_.Read(els.data, b.data(), b.size())) return false;
+    for (size_t i = 0; i < size_t(els.num); ++i) {
+        uint32_t k;
+        uint64_t entry;
+        std::memcpy(&k, &b[i * 0x20], 4);
+        std::memcpy(&entry, &b[i * 0x20 + 8], 8);
+        if (k != key || !entry) continue;
+        src = FStringAt(entry + 0x10, 512);
+        ns = it->first;
+        return !src.empty() && !ns.empty();
+    }
+    return false;
 }
 
 void Reader::LoadMapRows() {

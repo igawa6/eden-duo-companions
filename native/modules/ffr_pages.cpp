@@ -557,8 +557,26 @@ void Equip(Canvas& c, const GameState& s, const View& v, const Art& a) {
             c.Text(*a.bold, "\xE2\x80\xA6", float(30 + kEqSlotW - 20), float(y + 30), 30, kGold, Align::Right);
         }
     }
+    // What the piece in the chosen slot does, in the game's words (EquipmentDescription: a passive such as more EXP shows only here)
+    const int dy = kEqSlotY + 4 * kEqSlotH + 4, dh = 110;
+    {
+        Panel(c, a, 30, dy, kEqSlotW, dh);
+        c.SetClip(30, dy, kEqSlotW, dh);
+        const int worn = SlotItem(u, v.eq_slot);
+        const std::string d = worn > 0 ? ItemDesc(a, worn) : "";
+        if (!d.empty()) {
+            const auto lines = Wrap(*a.regular, d, 23, float(kEqSlotW - 40));
+            for (int i = 0; i < int(lines.size()) && i < 3; ++i) {
+                const bool last = i == 2 && lines.size() > 3;
+                c.Text(*a.regular, last ? lines[size_t(i)] + " ..." : lines[size_t(i)], 50, float(dy + 32 + 29 * i), 23, kInk, Align::Left, float(kEqSlotW - 40));
+            }
+        } else {
+            c.Text(*a.regular, worn > 0 ? "" : std::string("Nothing in the ") + kSlotNames[v.eq_slot] + " slot", 50, float(dy + dh / 2 + 9), 23, kInkFaint, Align::Left, float(kEqSlotW - 40));
+        }
+        c.ResetClip();
+    }
     // The member's stats (as the Party page counts them)
-    const int py = kEqSlotY + 4 * kEqSlotH + 4, ph = kTabBarY - 14 - py;
+    const int py = dy + dh + 8, ph = kTabBarY - 14 - py;
     Panel(c, a, 30, py, kEqSlotW, ph);
     if (u.stats[0] >= 0) {
         const int rows = 4, rh = (ph - 16) / rows;
@@ -595,11 +613,11 @@ void Equip(Canvas& c, const GameState& s, const View& v, const Art& a) {
         const bool worn = id == now_id;
         RowBack(c, a, lx + 10, y, lw - 20, kEqRowH - 6, worn, r);
         if (id < 0) {
-            c.Text(*a.bold, "Remove", float(lx + 92), float(y + 48), 30, alpha < 1 ? kInkDim : kInk);
-            c.Text(*a.regular, "Take off " + ItemName(a, now_id), float(lx + lw - 30), float(y + 46), 22, kInkFaint, Align::Right, float(lw - 300));
+            c.Text(*a.bold, "Remove", float(lx + 92), float(y + 62), 30, alpha < 1 ? kInkDim : kInk);
+            c.Text(*a.regular, "Take off " + ItemName(a, now_id), float(lx + lw - 30), float(y + 60), 22, kInkFaint, Align::Right, float(lw - 300));
             continue;
         }
-        if (const Image* ic = a.image(ItemIcon(id))) c.Blit(*ic, lx + 24, y + 10, 54, 54, alpha);
+        if (const Image* ic = a.image(ItemIcon(id))) c.Blit(*ic, lx + 24, y + 12, 54, 54, alpha);
         // who wears it now: this member (Equipped) or another (their face: equipping it takes it from them, as the game does)
         int other = 0;
         for (auto& m : s.units) {
@@ -619,7 +637,18 @@ void Equip(Canvas& c, const GameState& s, const View& v, const Art& a) {
             right -= 56;
         }
         c.Text(*a.bold, ItemName(a, id), float(lx + 92), float(y + 34), 28, alpha < 1 ? kInkDim : kInk, Align::Left, right - (lx + 92) - 8, kShadow);
-        if (!worn && Deltas(c, s, a, now_id, id, lx + 92, y + 66, 4) == 0) c.Text(*a.regular, "No stat change", float(lx + 92), float(y + 66), 20, kInkFaint);
+        // its stat changes against what is worn (none for the worn piece, or a piece that changes nothing), then what it does in
+        // the game's words: on the line below the changes, or on both lines when there are none
+        const int changes = worn ? 0 : Deltas(c, s, a, now_id, id, lx + 92, y + 66, 4);
+        const std::string d = ItemDesc(a, id);
+        const float dw = float(lw - 92 - 40);
+        if (changes) {
+            c.Text(*a.regular, d, float(lx + 92), float(y + 94), 20, kInkFaint, Align::Left, dw);
+        } else {
+            const auto lines = Wrap(*a.regular, d.empty() ? (worn ? "" : "No stat change") : d, 20, dw);
+            for (int i = 0; i < int(lines.size()) && i < 2; ++i)
+                c.Text(*a.regular, i == 1 && lines.size() > 2 ? lines[1] + " ..." : lines[size_t(i)], float(lx + 92), float(y + 66 + 26 * i), 20, kInkFaint, Align::Left, dw);
+        }
     }
     if (rows.empty()) c.Text(*a.regular, v.wearable_known ? "Nothing this member can wear here" : "", float(lx + lw / 2), float(kEqListY + 120), 26, kInkDim, Align::Center);
     ScrollBar(c, kW - 44, kEqListY, kEqRows, kEqRowH, v.eq_scroll, int(rows.size()));
