@@ -9,19 +9,37 @@ Requires runtime 22. Tested on an AYN Thor with Peanuts Native 0.1.7. Includes A
   Drag or pinch to look around; Home brings the map back to you at the zoom on screen and follows you again. Shops, the inn and save points
   are marked with the game's own icons. The story objective is marked in gold and side quests in progress in blue, and an arrow
   at the edge of the map points to each objective that is out of view.
+- **Fast travel.** On the world map, the places you know are marked; tap one for its card, then Fast Travel. The game's own
+  travel runs, with its own rules: no travel out of a dungeon, during a story event or to a place you have not visited yet, and
+  the card says why when the game refuses. In a town or dungeon, a World switch shows the world map, and Back returns to where you are.
 - **Party.** Your party and the members who have joined, with the game's character art, HP and MP, and the equipped weapon, armor
   and vision. Tap a member for the full portrait, stats and every equipment slot.
-- **Items.** Items, Equipment, Key Items and Artifacts, with counts and the game's descriptions. Equipment shows who has each piece
-  equipped. Tap an item to read its description, and swipe to scroll.
-- **Battle.** Opens by itself in a battle, then returns to the tab that was open before. It shows enemies on the left and the
+- **Items.** Outside battle, use recovery items with one finger: tap an item, then the member to use it on. The members it can
+  help light up, the others say why not, and the card shows what it did ("+120 HP", "Revived!"). Party items heal everyone in
+  one tap; battle-only items are dimmed. Key Items and Artifacts are listed with the game's descriptions.
+- **Equipment.** Pick a member, a slot, then a piece. Only the pieces the game lets that member wear are listed, each with its
+  stat changes in the game's stat icons, and the face of whoever wears it now. One tap equips; accessories can be removed.
+  Items and equipment work with the game's menu open too (not during a scene or a save).
+- **Quests.** The journal's Main and Side tabs, each quest with its place and story so far. Track or stop tracking a quest, as
+  the journal's Track does; the story quest is always followed, as in the game.
+- **Battle.** Opens by itself in a battle and takes the whole screen; the tabs come back when it ends. It shows enemies on the left and the
   party and any guest ally on the right, with HP and MP, a tag on staggered enemies, and each vision beside the character it is equipped to.
 - **Battle commands by touch.** The command window is mirrored on the second screen: tap a command, a skill or an item, then
   tap a target. The game's target pointer is shown, and the resonance wheel's choices can be tapped too. Limit Bursts appear
   only when the game lists them.
 
-The commands are sent as ordinary button presses, one at a time, and only while the game shows the matching menu. A press of A
-goes out only once the game's own cursor is on the tapped entry or target. The companion never writes the game's memory and never
-touches its saves.
+Battle commands are sent as ordinary button presses, one at a time, and only while the game shows the matching menu. A press of A
+goes out only once the game's own cursor is on the tapped entry or target.
+
+Fast travel, items, equipment, quest tracking and the menu sounds use a guest helper (`dualscreen/guest/<build>/load-plan.json`,
+source `native/helper/ffr_guest_helper.S`). It hooks one function the game calls every frame and, when the companion asks, runs
+the game's own code on the game's thread: its fast-travel check and travel (what Yes on the world map's dialog runs), its item
+check and use, its equippable check, equip and unequip, its journal's Track, and its UI sounds by tag. The game's own rules
+decide, and the companion shows its answer. When the helper is not installed or does not answer, fast travel opens the game's
+world map and travels through it with button presses instead, and the other actions say the helper is not running. The companion
+never writes the game's memory or saves itself; what the game's code changes, the game saves as usual.
+
+Made for and tested mainly on Peanuts Native, the version that runs the game best. Reports from Eden Duo are welcome.
 
 The companion ships no game art. Its fonts (Vogel and Garrick), icons, portraits, map captures, menu art and English text are
 decoded at runtime from your own `FFRS-Switch.utoc/.ucas` and `FFRS-Switch.pak`. Oodle decoding uses the vendored ooz

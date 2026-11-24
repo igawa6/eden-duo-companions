@@ -4,6 +4,7 @@
  "name": "FINAL FANTASY RESONANCE dual screen",
  "min_runtime": 25,
  "requires_module": true,
+ "load_plan": "guest/<build>/load-plan.json",
  "canvas_w": 1240,
  "canvas_h": 1080,
  "background": "#FF0A131B",
@@ -115,6 +116,36 @@
    "view": "ffr_world_map",
    "enabled_bind": "ffr.map.world_reset"
   },
+  "mark": {
+   "kind": "module",
+   "action": "mark",
+   "argument": "$payload"
+  },
+  "mark_close": {
+   "kind": "module",
+   "action": "mark",
+   "argument": -1
+  },
+  "scope_world": {
+   "kind": "module",
+   "action": "scope",
+   "argument": 1
+  },
+  "scope_here": {
+   "kind": "module",
+   "action": "scope",
+   "argument": 0
+  },
+  "travel": {
+   "kind": "module",
+   "action": "travel",
+   "argument": 0
+  },
+  "travel_cancel": {
+   "kind": "module",
+   "action": "travel_cancel",
+   "argument": 0
+  },
   "btap": {
    "kind": "module",
    "action": "btap",
@@ -150,40 +181,15 @@
    "action": "scroll",
    "argument": -1
   },
-  "row0": {
+  "itap": {
    "kind": "module",
-   "action": "row",
-   "argument": 0
+   "action": "itap",
+   "argument": "$payload"
   },
-  "row1": {
+  "qtap": {
    "kind": "module",
-   "action": "row",
-   "argument": 1
-  },
-  "row2": {
-   "kind": "module",
-   "action": "row",
-   "argument": 2
-  },
-  "row3": {
-   "kind": "module",
-   "action": "row",
-   "argument": 3
-  },
-  "row4": {
-   "kind": "module",
-   "action": "row",
-   "argument": 4
-  },
-  "row5": {
-   "kind": "module",
-   "action": "row",
-   "argument": 5
-  },
-  "row6": {
-   "kind": "module",
-   "action": "row",
-   "argument": 6
+   "action": "qtap",
+   "argument": "$payload"
   },
   "ffr.press.a": {
    "kind": "button",
@@ -220,6 +226,24 @@
    "button": "DRight",
    "frames": 4,
    "enabled_bind": "ffr.drv.right"
+  },
+  "ffr.press.minus": {
+   "kind": "button",
+   "button": "Minus",
+   "frames": 4,
+   "enabled_bind": "ffr.drv.minus"
+  },
+  "ffr.press.zl": {
+   "kind": "button",
+   "button": "ZL",
+   "frames": 4,
+   "enabled_bind": "ffr.drv.zl"
+  },
+  "ffr.press.r": {
+   "kind": "button",
+   "button": "R",
+   "frames": 4,
+   "enabled_bind": "ffr.drv.r"
   }
  },
  "enforce": [
@@ -245,6 +269,18 @@
   },
   {
    "action": "ffr.press.right",
+   "every_ms": 1
+  },
+  {
+   "action": "ffr.press.minus",
+   "every_ms": 1
+  },
+  {
+   "action": "ffr.press.zl",
+   "every_ms": 1
+  },
+  {
+   "action": "ffr.press.r",
    "every_ms": 1
   },
   {
@@ -362,6 +398,14 @@
       "size_world": 181
      },
      {
+      "group": "lm",
+      "count": 64,
+      "x": "ffr.map.lm{i}.x",
+      "y": "ffr.map.lm{i}.y",
+      "icon_src_bind": "ffr.map.lm{i}.src",
+      "size": 60
+     },
+     {
       "group": "goal",
       "count": 16,
       "x": "ffr.map.goal{i}.x",
@@ -418,7 +462,7 @@
      ],
      "color": "#00000000",
      "on_tap": "tab1",
-     "need_bind": "ffr.in_game"
+     "need_bind": "ffr.tabs"
     },
     {
      "type": "rect",
@@ -430,7 +474,7 @@
      ],
      "color": "#00000000",
      "on_tap": "tab2",
-     "need_bind": "ffr.in_game"
+     "need_bind": "ffr.tabs"
     },
     {
      "type": "rect",
@@ -442,7 +486,7 @@
      ],
      "color": "#00000000",
      "on_tap": "tab3",
-     "need_bind": "ffr.in_game"
+     "need_bind": "ffr.tabs"
     },
     {
      "type": "rect",
@@ -505,6 +549,17 @@
      "need_bind": "ffr.party_detail"
     },
     {
+     "type": "image",
+     "rect": [
+      30,
+      128,
+      1180,
+      824
+     ],
+     "src": "module:ffr:bg:1180x824",
+     "need_bind": "ffr.map.town"
+    },
+    {
      "type": "map",
      "id": "ffr_town_map",
      "rect": [
@@ -519,7 +574,7 @@
      "min_zoom": 0.6,
      "max_zoom": 10,
      "need_bind": "ffr.map.town",
-     "bg": "#FF0A131B",
+     "bg": "#00000000",
      "marker_x_bind": "ffr.map.px",
      "marker_y_bind": "ffr.map.py",
      "marker_rotate_bind": "ffr.map.yaw",
@@ -662,6 +717,11 @@
      "view_rect_x1_bind": "ffr.map.vx1",
      "view_rect_y1_bind": "ffr.map.vy1",
      "view_rect_pad": 0,
+     "on_marker_tap": "mark",
+     "marker_tap_groups": [
+      "lm"
+     ],
+     "marker_hit_px": 44,
      "overlays": [
       {
        "src": "module:ffr:ocean:00",
@@ -876,12 +936,122 @@
      "haptic": "light"
     },
     {
+     "type": "image",
+     "rect": [
+      46,
+      144,
+      560,
+      72
+     ],
+     "src_bind": "ffr.map.scope_src",
+     "need_bind": "ffr.map.scope"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      40,
+      138,
+      212,
+      84
+     ],
+     "color": "#00000000",
+     "on_tap": "scope_world",
+     "need_bind": "ffr.map.scope",
+     "haptic": "light"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      256,
+      138,
+      356,
+      84
+     ],
+     "color": "#00000000",
+     "on_tap": "scope_here",
+     "need_bind": "ffr.map.scope",
+     "haptic": "light"
+    },
+    {
+     "type": "image",
+     "rect": [
+      46,
+      860,
+      420,
+      76
+     ],
+     "src_bind": "ffr.map.back_src",
+     "need_bind": "ffr.map.back"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      40,
+      854,
+      432,
+      88
+     ],
+     "color": "#00000000",
+     "on_tap": "scope_here",
+     "need_bind": "ffr.map.back",
+     "haptic": "light"
+    },
+    {
+     "type": "image",
+     "rect": [
+      470,
+      812,
+      620,
+      124
+     ],
+     "src_bind": "ffr.map.card_src",
+     "need_bind": "ffr.map.card"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      470,
+      812,
+      396,
+      124
+     ],
+     "color": "#00000000",
+     "on_tap": "mark_close",
+     "need_bind": "ffr.map.card"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      866,
+      812,
+      224,
+      124
+     ],
+     "color": "#00000000",
+     "on_tap": "travel",
+     "need_bind": "ffr.map.card_go",
+     "haptic": "light"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      866,
+      812,
+      224,
+      124
+     ],
+     "color": "#00000000",
+     "on_tap": "travel_cancel",
+     "need_bind": "ffr.map.card_cancel",
+     "haptic": "light"
+    },
+    {
      "type": "rect",
      "rect": [
       0,
       112,
       1240,
-      856
+      968
      ],
      "color": "#00000000",
      "on_tap": "btap",
@@ -939,98 +1109,30 @@
     {
      "type": "rect",
      "rect": [
-      30,
+      0,
       222,
-      1180,
-      84
+      1240,
+      746
      ],
      "color": "#00000000",
-     "on_tap": "row0",
+     "on_tap": "itap",
      "need_bind": "ffr.items",
+     "payload": "$tap",
      "on_swipe_up": "scroll_down",
      "on_swipe_down": "scroll_up"
     },
     {
      "type": "rect",
      "rect": [
-      30,
-      306,
-      1180,
-      84
+      0,
+      128,
+      1240,
+      840
      ],
      "color": "#00000000",
-     "on_tap": "row1",
-     "need_bind": "ffr.items",
-     "on_swipe_up": "scroll_down",
-     "on_swipe_down": "scroll_up"
-    },
-    {
-     "type": "rect",
-     "rect": [
-      30,
-      390,
-      1180,
-      84
-     ],
-     "color": "#00000000",
-     "on_tap": "row2",
-     "need_bind": "ffr.items",
-     "on_swipe_up": "scroll_down",
-     "on_swipe_down": "scroll_up"
-    },
-    {
-     "type": "rect",
-     "rect": [
-      30,
-      474,
-      1180,
-      84
-     ],
-     "color": "#00000000",
-     "on_tap": "row3",
-     "need_bind": "ffr.items",
-     "on_swipe_up": "scroll_down",
-     "on_swipe_down": "scroll_up"
-    },
-    {
-     "type": "rect",
-     "rect": [
-      30,
-      558,
-      1180,
-      84
-     ],
-     "color": "#00000000",
-     "on_tap": "row4",
-     "need_bind": "ffr.items",
-     "on_swipe_up": "scroll_down",
-     "on_swipe_down": "scroll_up"
-    },
-    {
-     "type": "rect",
-     "rect": [
-      30,
-      642,
-      1180,
-      84
-     ],
-     "color": "#00000000",
-     "on_tap": "row5",
-     "need_bind": "ffr.items",
-     "on_swipe_up": "scroll_down",
-     "on_swipe_down": "scroll_up"
-    },
-    {
-     "type": "rect",
-     "rect": [
-      30,
-      726,
-      1180,
-      84
-     ],
-     "color": "#00000000",
-     "on_tap": "row6",
-     "need_bind": "ffr.items",
+     "on_tap": "qtap",
+     "need_bind": "ffr.quests",
+     "payload": "$tap",
      "on_swipe_up": "scroll_down",
      "on_swipe_down": "scroll_up"
     }

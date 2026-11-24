@@ -24,6 +24,8 @@ constexpr BuildRoots kBuilds[] = {
 
 // Reflection offsets (UE 5.6 dump of /Script/mucha, tools/ffr/NOTES.md)
 constexpr uint64_t kSaveMgrGameSave = 0x60;
+constexpr uint64_t kSaveMap = 0x1a8, kSavePerMap = 0x1c8;  // CPP_MuchaGameSaveData.Map, SaveData_Map.perMapSaveDataMap
+constexpr int32_t kWorldMapId = 1000;  // the world map (DA_WldMapParameter.WldMapId)
 constexpr uint64_t kSavePlayer = 0x28, kSaveUnitParams = 0x60, kSaveParty = 0x90, kSaveInventory = 0xa8, kSaveVisions = 0x118;
 constexpr size_t kUnitParamSize = 0xa0;
 constexpr uint64_t kMiniAreaMgr = 0x80, kMiniPropKey = 0x88, kMiniPlayerLoc = 0x170;
@@ -35,7 +37,7 @@ constexpr uint64_t kBtlUnitMgr = 0x48, kBtlUnitList = 0x28, kBtlUnitParam = 0x83
 constexpr uint64_t kUpId = 0xf8, kUpLevel = 0x100, kUpHp = 0x10c, kUpMaxHp = 0x120, kUpStats = 0x12c;
 constexpr uint64_t kPcPawn = 0x350, kActorRoot = 0x1b8, kSceneLoc = 0x140, kSceneRot = 0x158;
 constexpr uint64_t kAssetDataTables = 0xd0, kDataTableRows = 0x30;
-constexpr uint8_t kDtItemEquipment = 44, kDtSkillEffect = 29, kDtPassiveSkill = 26, kDtVisionAwakening = 46, kDtVisionSynchro = 47;
+constexpr uint8_t kDtItemConsumables = 39, kDtSkillData = 25, kDtItemEquipment = 44, kDtSkillEffect = 29, kDtPassiveSkill = 26, kDtVisionAwakening = 46, kDtVisionSynchro = 47;
 
 uint64_t NowMs() {
     return uint64_t(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());
@@ -70,6 +72,8 @@ uint64_t GameState::Hash() const {
     mix(&map.world, 1);
     mix(map.name.data(), map.name.size());
     mix(&in_battle, 1);
+    mix(&tracked_quest, 4);
+    for (auto& k : quests) { mix(&k.id, 4), mix(&k.prog, 4), mix(&k.can_track, 1); const size_t n = k.log.size(); mix(&n, sizeof n); }
     mix(&menu.valid, 1), mix(&menu.open, 1), mix(&menu.state, 4), mix(&menu.cursor, 4), mix(&menu.actor, 4);
     for (auto& e : menu.entries) mix(&e, sizeof e);
     for (auto& e : menu.path) mix(&e, sizeof e);
@@ -128,6 +132,32 @@ std::string Reader::Name(uint32_t id) {
     return s;
 }
 
+bool Reader::FindNames(const EdenDsmodHostApi* host, const std::vector<std::string>& want, std::vector<uint32_t>& ids) {
+    g_.Set(host);
+    if (ids.size() != want.size()) ids.assign(want.size(), 0), find_block_ = 0;
+    if (std::all_of(ids.begin(), ids.end(), [](uint32_t i) { return i != 0; })) return true;
+    if (!blocks_) return false;
+    const uint32_t cur = g_.Get<uint32_t>(blocks_ - 8, ~0u), cursor = g_.Get<uint32_t>(blocks_ - 4);
+    if (cur >= 8192) return false;
+    if (find_block_ > cur) return true;  // searched (a missing one stays 0)
+    const uint32_t block = find_block_++;
+    const uint32_t size = block == cur ? std::min<uint32_t>(cursor, 0x20000) : 0x20000;
+    const uint64_t base = g_.Get<uint64_t>(blocks_ + 8ull * block);
+    find_buf_.resize(size);
+    if (!base || !size || !g_.Read(base, find_buf_.data(), size)) return false;
+    for (uint32_t off = 0; off + 2 <= size;) {
+        const uint16_t hdr = uint16_t(find_buf_[off] | find_buf_[off + 1] << 8);
+        const uint32_t len = hdr >> 6, bytes = len * ((hdr & 1) ? 2 : 1);
+        if (!len || off + 2 + bytes > size) break;
+        if (!(hdr & 1))
+            for (size_t i = 0; i < want.size(); ++i)
+                if (!ids[i] && want[i].size() == len && std::memcmp(find_buf_.data() + off + 2, want[i].data(), len) == 0)
+                    ids[i] = block << 16 | off / 2;
+        off += (2 + bytes + 1) & ~1u;
+    }
+    return find_block_ > cur || std::all_of(ids.begin(), ids.end(), [](uint32_t i) { return i != 0; });
+}
+
 std::string Reader::ClassName(uint64_t cls) {
     auto it = class_names_.find(cls);
     if (it != class_names_.end()) return it->second;
@@ -162,7 +192,7 @@ void Reader::Scan() {
     const uint64_t objs = g_.Get<uint64_t>(objarr_);
     const int32_t num = g_.Get<int32_t>(objarr_ + 20), nchunks = g_.Get<int32_t>(objarr_ + 28);
     if (!objs || num <= 0 || nchunks <= 0 || nchunks > 64) return;
-    Obj save, quest, mini, btl, pc, am, mode, vm, mgr;
+    Obj save, quest, mini, btl, pc, am, mode, vm, mgr, wsub, wvm, wlist, dlg, mmvm, gwm, wpar, sact, stgt;
     std::vector<Obj> ups, maps, lists;
     std::vector<uint8_t> items;
     for (int32_t c = 0; c < nchunks; ++c) {
@@ -194,6 +224,36 @@ void Reader::Scan() {
                 else if (IsA(h.cls, "CPP_BtlCmdListBase")) lists.push_back({a, h.cls, uint32_t(h.index)});
                 continue;
             }
+            if (cn.find("WldMap") != std::string::npos) {  // the world map menu's view models (blueprint subclasses), its subsystem
+                if (Name(h.name).rfind("Default__", 0) == 0) continue;
+                if (cn == "CPP_DA_WldMapParameter") { if (Name(h.name) == "DA_WldMapParameter") wpar = {a, h.cls, uint32_t(h.index)}; }
+                else if (cn == "CPP_UI_WldMapSubsystem") wsub = {a, h.cls, uint32_t(h.index)};
+                else if (cn.find("MiniMap") == std::string::npos && IsA(h.cls, "CPP_VM_WldMap")) wvm = {a, h.cls, uint32_t(h.index)};
+                else if (IsA(h.cls, "CPP_VM_WldMapLandmarkList")) wlist = {a, h.cls, uint32_t(h.index)};
+                continue;
+            }
+            if (cn == "CPP_DA_LandmarkList") {
+                if (Name(h.name) == "DA_LandmarkList") lm_list_ = {a, h.cls, uint32_t(h.index)};
+                continue;
+            }
+            if (cn == "CPP_GameWidgetManagerSubsystem") {
+                if (Name(h.name).rfind("Default__", 0) != 0) gwm = {a, h.cls, uint32_t(h.index)};
+                continue;
+            }
+            if (cn == "CPP_VM_MainMenu") {
+                if (Name(h.name).rfind("Default__", 0) != 0) mmvm = {a, h.cls, uint32_t(h.index)};
+                continue;
+            }
+            if (cn == "CPP_DialogManager") {
+                if (Name(h.name).rfind("Default__", 0) != 0) dlg = {a, h.cls, uint32_t(h.index)};
+                continue;
+            }
+            if (cn == "CPP_DA_UI_SkillAction" || cn == "CPP_DA_UI_SkillTargeting") {
+                const std::string n = Name(h.name);
+                if (n == "DA_UI_SkillAction") sact = {a, h.cls, uint32_t(h.index)};
+                else if (n == "DA_UI_SkillTargeting") stgt = {a, h.cls, uint32_t(h.index)};
+                continue;
+            }
             const bool up = cn == "CPP_UnitParameter" || cn == "CPP_BtlUnitParameter";
             Obj* slot = cn == "CPP_MuchaSaveDataManager" ? &save : cn == "CPP_QuestSubsystem" ? &quest : cn == "CPP_MiniMapSubsystem" ? &mini : cn == "CPP_BtlManager" ? &btl
                       : cn == "CPP_MuchaPlayerController" ? &pc : cn == "CPP_AppAssetManager" ? &am : nullptr;
@@ -215,6 +275,14 @@ void Reader::Scan() {
     cmd_vm_ = vm;
     cmd_mgr_ = mgr;
     cmd_lists_ = std::move(lists);
+    wld_sub_ = wsub;
+    wld_vm_ = wvm;
+    wld_list_ = wlist;
+    dialogs_ = dlg;
+    main_vm_ = mmvm;
+    widgets_ = gwm;
+    wld_param_ = wpar;
+    skill_action_ = sact, skill_targeting_ = stgt;
 }
 
 bool Reader::IsA(uint64_t cls, const char* base) {
@@ -389,7 +457,26 @@ void Reader::ReadMap(GameState& s) {
         if (land) {
             // Map<int, MapLandCaptureData(0x70)>: key 0, value 8, element 0x80
             ForEachMap(g_, land + kLandCaptureMap, 0x80, [&](uint64_t e) {
-                if (g_.Get<int32_t>(e) != m.map_id) return true;
+                const int32_t key = g_.Get<int32_t>(e);
+                if (key == kWorldMapId && m.map_id != kWorldMapId) {  // the world's islands, for the world view from here
+                    ForEachMap(g_, e + 8 + 0x20, 0x130, [&](uint64_t a) {
+                        Island is;
+                        is.area = g_.Get<int32_t>(a);
+                        struct { double x, y; } wl{}, bs{};
+                        g_.Read(a + 8 + 0x50, &wl, sizeof wl);
+                        g_.Read(a + 8 + 0x60, &bs, sizeof bs);
+                        is.wx = wl.x, is.wy = wl.y, is.bw = bs.x, is.bh = bs.y;
+                        ForEachMap(g_, a + 8, 0x38, [&](uint64_t t) {
+                            is.texture = SoftPath(t + 8);
+                            return is.texture.empty();
+                        });
+                        if (!is.texture.empty() && is.bw > 0 && is.bh > 0 && is.bw < 1e8 && is.bh < 1e8 && is.texture.find("/MapCapture/Wld/") != std::string::npos)
+                            m.world_islands.push_back(is);
+                        return m.world_islands.size() < 64;
+                    });
+                    return true;
+                }
+                if (key != m.map_id) return true;
                 // MapLandCaptureData.AreaLandCaptureDataMap (+0x20): Map<int, LandCaptureData(0x120)>: element 0x130.
                 // Every area of the map: the current one is the town or dungeon picture; on the world map each island is one.
                 ForEachMap(g_, e + 8 + 0x20, 0x130, [&](uint64_t a) {
@@ -410,24 +497,194 @@ void Reader::ReadMap(GameState& s) {
                     if (is.texture.find("/MapCapture/Wld/") != std::string::npos) m.islands.push_back(is);
                     return m.islands.size() < 64;
                 });
-                return false;
+                return true;  // (go on: the world map's entry may come after)
             });
         }
     }
     // The world map: its areas are the islands' captures. Some islands have story variants at the same place (Wld_7 / 17 / 18,
     // near-identical pictures): one per place, the first.
-    std::sort(m.islands.begin(), m.islands.end(), [](const Island& a, const Island& b) { return a.area < b.area; });
-    std::vector<Island> uniq;
-    for (auto& is : m.islands) {
-        bool dup = false;
-        for (auto& u : uniq) dup = dup || (std::abs(u.wx - is.wx) < 300 && std::abs(u.wy - is.wy) < 300 && std::abs(std::max(u.bw, u.bh) - std::max(is.bw, is.bh)) < 600);
-        if (!dup) uniq.push_back(is);
-    }
-    m.islands = std::move(uniq);
+    auto uniq = [](std::vector<Island>& v) {
+        std::sort(v.begin(), v.end(), [](const Island& a, const Island& b) { return a.area < b.area; });
+        std::vector<Island> u;
+        for (auto& is : v) {
+            bool dup = false;
+            for (auto& o : u) dup = dup || (std::abs(o.wx - is.wx) < 300 && std::abs(o.wy - is.wy) < 300 && std::abs(std::max(o.bw, o.bh) - std::max(is.bw, is.bh)) < 600);
+            if (!dup) u.push_back(is);
+        }
+        v = std::move(u);
+    };
+    uniq(m.islands);
+    uniq(m.world_islands);
     m.world = !m.islands.empty();
+    if (m.world) m.world_islands = m.islands;
     m.valid = m.map_id > 0;
     if (m.valid) m.name = MapName(m.map_id);
     if (m.valid) ReadIcons(m);  // (on the world map only the objectives: its other icons are dozens of towns)
+    if (m.valid) ReadLandmarks(m);
+    if (m.valid && m.world) last_here_ = -1;  // out on the world map: no town to remember
+}
+
+// The places the world map shows, whether each was visited, and the one the player is in.
+void Reader::ReadLandmarks(MapState& m) {
+    std::unordered_map<int, uint8_t> flags;  // CPP_MuchaGameSaveData.Map.perMapSaveDataMap: Map<int, SaveData_PerMap{known, visited, cleared}>
+    if (const uint64_t save = Alive(save_mgr_) ? g_.Get<uint64_t>(save_mgr_.addr + kSaveMgrGameSave) : 0)
+        ForEachMap(g_, save + kSaveMap + kSavePerMap, 0x10, [&](uint64_t e) {
+            const uint8_t b[2] = {g_.Get<uint8_t>(e + 4), g_.Get<uint8_t>(e + 5)};
+            flags[g_.Get<int32_t>(e)] = uint8_t((b[0] & 1) | (b[1] & 1) << 1);
+            return flags.size() < 4096;
+        });
+    auto flag = [&](const std::vector<int>& ids, uint8_t bit) {
+        for (int i : ids) { auto it = flags.find(i); if (it != flags.end() && (it->second & bit)) return true; }
+        return false;
+    };
+    auto add = [&](int key, int id, std::vector<int> ids, double wx, double wy) {
+        Landmark l;
+        l.key = key, l.map_id = id;
+        l.x = wy, l.y = -wx;  // land = (world Y, -world X)
+        for (int j : Mates(id)) if (std::find(ids.begin(), ids.end(), j) == ids.end()) ids.push_back(j);
+        l.ids = std::move(ids);
+        l.visited = flag(l.ids, 2);
+        const MapRow& r = MapInfo(id);
+        l.type = r.type, l.name = r.name;
+        for (size_t j = 0; l.name.empty() && j < l.ids.size(); ++j) l.name = MapInfo(l.ids[j]).name;  // (a variant row may lack it)
+        m.landmarks.push_back(std::move(l));
+    };
+    // The world map's own table (CPP_UI_WldMapSubsystem.FldObjDataMap: the known places), filled once its menu has opened:
+    // Map<int, StaticFieldObjectData(0x50)>: value +8, element 0x60. RelatedMapId +0x18, Location +0x30.
+    if (Alive(wld_sub_))
+        ForEachMap(g_, wld_sub_.addr + 0x48, 0x60, [&](uint64_t e) {
+            const uint64_t v = e + 8;
+            const int id = g_.Get<int32_t>(v + 0x18);
+            struct { double x, y, z; } loc{};
+            if (id > 0 && g_.Read(v + 0x30, &loc, sizeof loc) && std::isfinite(loc.x) && std::isfinite(loc.y)) {
+                add(g_.Get<int32_t>(e), id, {id}, loc.x, loc.y);
+                m.landmarks.back().landing = g_.Get<int32_t>(v + 0x48, -1);  // LandingPointId
+            }
+            return m.landmarks.size() < 128;
+        });
+    // Before that: the game's landmark list (DA_LandmarkList.DataList +0x38, MAP_LANDMARK_DATA_LIST 0x50: landmarkDataList +0x08
+    // {Condition, mapId +0x10} 0x18 each, Location +0x18). A row is a place the player knows when one of its maps (or of their
+    // group) is known in the save; it is named by the first such map.
+    if (m.landmarks.empty() && Alive(lm_list_)) {
+        TArr rows = g_.Get<TArr>(lm_list_.addr + 0x38);
+        for (int32_t i = 0; rows.data && i < rows.num && i < 512; ++i) {
+            const uint64_t e = rows.data + 0x50ull * uint32_t(i);
+            TArr ld = g_.Get<TArr>(e + 8);
+            std::vector<int> ids;
+            for (int32_t j = 0; ld.data && j < ld.num && j < 8; ++j) {
+                const int id = g_.Get<int32_t>(ld.data + 0x18ull * uint32_t(j) + 0x10);
+                if (id > 0) ids.push_back(id);
+            }
+            int pick = -1;
+            for (int id : ids) if (pick < 0 && flag({id}, 1)) pick = id;
+            for (int id : ids) if (pick < 0 && flag(Mates(id), 1)) pick = id;
+            struct { double x, y, z; } loc{};
+            if (pick > 0 && g_.Read(e + 0x18, &loc, sizeof loc) && std::isfinite(loc.x) && std::isfinite(loc.y)) add(10000 + i, pick, ids, loc.x, loc.y);
+        }
+    }
+    std::sort(m.landmarks.begin(), m.landmarks.end(), [](const Landmark& a, const Landmark& b) { return a.key < b.key; });
+    if (m.world) return;
+    if (m.map_id > 0) m.map_type = MapInfo(m.map_id).type;  // (DA_WldMapParameter.FastTravelMapTypeEnableMap {Dungeon: 0})
+    // Where the player is: the place that is this map (or one of its group: a dungeon's floors); inside a building with a map of
+    // its own, the last place found
+    for (size_t i = 0; i < m.landmarks.size() && m.here < 0; ++i) {
+        const auto& ids = m.landmarks[i].ids;
+        if (std::find(ids.begin(), ids.end(), m.map_id) != ids.end()) m.here = int(i);
+    }
+    for (size_t i = 0; i < m.landmarks.size() && m.here < 0; ++i)
+        if (m.landmarks[i].map_id == last_here_) m.here = int(i);
+    if (m.here >= 0) last_here_ = m.landmarks[size_t(m.here)].map_id;
+}
+
+bool Reader::ReadUi(const EdenDsmodHostApi* host, UiState& u) {
+    g_.Set(host);
+    u = UiState{};
+    if (!Alive(widgets_)) {
+        const uint64_t now = NowMs();
+        if (now - last_wm_scan_ms_ > 1500) { last_wm_scan_ms_ = now; Scan(); last_scan_ms_ = now; }
+        if (!Alive(widgets_)) return false;
+    }
+    const uint64_t lay = g_.Get<uint64_t>(widgets_.addr + 0x30);  // CPP_EU_GameLayoutSubsystem.PrimaryGameLayout
+    if (!lay) return false;
+    if (lay != layout_ || layers_.empty()) {  // Layers (+0x3a0): Map<GameplayTag, CommonActivatableWidgetContainerBase*>, element 0x18
+        layers_.clear();
+        ForEachMap(g_, lay + 0x3a0, 0x18, [&](uint64_t e) {
+            layers_.push_back({Name(g_.Get<uint32_t>(e)), g_.Get<uint64_t>(e + 8)});
+            return layers_.size() < 32;
+        });
+        layout_ = lay;
+        if (layers_.empty()) return false;
+    }
+    const uint64_t cur = g_.Get<uint64_t>(lay + 0x540);  // CurrentInputTargetLayer
+    for (auto& [tag, stack] : layers_) {
+        const int32_t n = g_.Get<int32_t>(stack + 0x190 + 8);  // WidgetList.Num
+        if (stack == cur) u.input = tag;
+        if (tag == "UI.Layer.Event") u.event = n > 0;
+        if (tag == "UI.Layer.Save") u.save = n > 0;
+    }
+    if (cur && u.input.empty()) u.input = "?";
+    u.valid = true;
+    return true;
+}
+
+bool Reader::TravelAsset(const EdenDsmodHostApi* host, uint64_t& da, uint64_t& cls) {
+    g_.Set(host);
+    if (!Alive(wld_param_)) {
+        const uint64_t now = NowMs();
+        if (now - last_wm_scan_ms_ > 1500) { last_wm_scan_ms_ = now; Scan(); last_scan_ms_ = now; }
+        if (!Alive(wld_param_)) return false;
+    }
+    da = wld_param_.addr, cls = wld_param_.cls;
+    return true;
+}
+
+bool Reader::ItemAssets(const EdenDsmodHostApi* host, uint64_t& action, uint64_t& action_cls, uint64_t& target, uint64_t& target_cls) {
+    g_.Set(host);
+    if (!Alive(skill_action_)) {
+        const uint64_t now = NowMs();
+        if (now - last_wm_scan_ms_ > 1500) { last_wm_scan_ms_ = now; Scan(); last_scan_ms_ = now; }
+        if (!Alive(skill_action_)) return false;
+    }
+    action = skill_action_.addr, action_cls = skill_action_.cls;
+    const bool t = Alive(skill_targeting_);
+    target = t ? skill_targeting_.addr : 0, target_cls = t ? skill_targeting_.cls : 0;
+    return true;
+}
+
+int Reader::PlayerMapId(const EdenDsmodHostApi* host) {
+    g_.Set(host);
+    return Alive(minimap_) ? g_.Get<int32_t>(minimap_.addr + kMiniPropKey) : -1;
+}
+
+bool Reader::ReadWorldMenu(const EdenDsmodHostApi* host, WorldMenu& w, bool scan) {
+    g_.Set(host);
+    w = WorldMenu{};
+    if (scan && !(Alive(wld_vm_) && Alive(wld_list_) && Alive(dialogs_) && Alive(main_vm_))) {
+        const uint64_t now = NowMs();
+        if (now - last_wm_scan_ms_ > 700) {
+            last_wm_scan_ms_ = now;
+            Scan();
+            last_scan_ms_ = now;
+        }
+    }
+    if (Alive(dialogs_)) w.dialog = g_.Get<uint64_t>(dialogs_.addr + 0x40) != 0;  // DialogWidget
+    if (Alive(main_vm_)) {  // SceneDataStack (+0x80): the main menu's scenes, empty when it is closed
+        const int32_t n = g_.Get<int32_t>(main_vm_.addr + 0x80 + 8);
+        w.main_menu = n > 0 && n < 64 ? n : 0;
+    }
+    if (!Alive(wld_vm_) || !Alive(wld_list_)) return false;
+    w.found = true;
+    w.list_open = Name(g_.Get<uint32_t>(wld_vm_.addr + 0x180)) == "UI.WldMap.Scene.Location";  // SceneTag
+    w.focus = g_.Get<int32_t>(wld_vm_.addr + 0x3a0 + 0x18);  // FocusObjectData.RelatedMapId
+    w.can_travel = g_.Get<uint8_t>(wld_vm_.addr + 0x408) & 1;  // FastTravelBehavior.bCanTravel
+    w.travel_dialog = Name(g_.Get<uint32_t>(wld_vm_.addr + 0x40c));  // FastTravelBehavior.DialogTag
+    w.category = g_.Get<uint32_t>(wld_list_.addr + 0x90) != 0;  // DisplayCategory (None: the map is closed)
+    TArr ids = g_.Get<TArr>(wld_list_.addr + 0xa8);  // DisplayLandmarkIdList
+    if (ids.data && ids.num > 0 && ids.num < 256) {
+        w.list.resize(size_t(ids.num));
+        if (!g_.Read(ids.data, w.list.data(), w.list.size() * 4)) w.list.clear();
+    }
+    return true;
 }
 
 namespace {
@@ -452,6 +709,55 @@ const char* IconForTag(const std::string& tag) {
 
 // The quests (CPP_QuestSubsystem +0x38 QuestDataMap: Map<int, QuestData(0x98)>, element 0xa8). In QuestData: ID +0x10,
 // Category +0x14 (EQuestCategory: 1 Main, 2 Sub, 3 Mini), Progression +0x68 (EQuestProgression: 1 Start, 2 Progress, 3 Complete).
+// The journal: every quest of QuestDataMap (Map<int, QuestData 0x98>: value +8, element 0xa8). Its texts are read again only
+// when the quest moves on (its progression or the length of its summary list).
+void Reader::ReadQuestList(GameState& s) {
+    if (!Alive(quest_sub_)) return;
+    s.tracked_quest = g_.Get<int32_t>(quest_sub_.addr + 0x9c);  // PreferredQuestId
+    const uint64_t now = NowMs();
+    if (now - last_quest_list_ms_ >= 1000 || quest_list_.empty()) {
+        last_quest_list_ms_ = now;
+        std::vector<Quest> list;
+        ForEachMap(g_, quest_sub_.addr + 0x38, 0xa8, [&](uint64_t e) {
+            const uint64_t v = e + 8;
+            uint8_t q[0x98];
+            if (!g_.Read(v, q, sizeof q)) return true;
+            Quest k;
+            std::memcpy(&k.id, q + 0x10, 4);
+            std::memcpy(&k.priority, q + 0x0c, 4);
+            k.cat = q[0x14], k.prog = q[0x68];
+            k.can_track = q[0x08] & 1, k.tracked = q[0x80] & 1;
+            if (k.id <= 0 || k.cat < 1 || k.cat > 3 || k.prog > 3) return true;
+            TArr sum{};
+            std::memcpy(&sum, q + 0x58, sizeof sum);
+            QuestTexts& t = quest_texts_[k.id];
+            if (t.prog != k.prog || t.summaries != sum.num) {
+                t.prog = k.prog, t.summaries = sum.num;
+                t.q.name = FTextString(v + 0x18), t.q.subtitle = FTextString(v + 0x28), t.q.place = FTextString(v + 0x38);
+                t.q.desc = FTextString(v + 0x48, 2048);
+                t.q.log.clear();
+                for (int32_t i = 0; sum.data && i < sum.num && i < 24; ++i) {
+                    std::string line = FTextString(sum.data + 0x10ull * uint32_t(i), 2048);
+                    if (!line.empty()) t.q.log.push_back(std::move(line));
+                }
+            }
+            k.name = t.q.name, k.subtitle = t.q.subtitle, k.place = t.q.place, k.desc = t.q.desc, k.log = t.q.log;
+            list.push_back(std::move(k));
+            return list.size() < 1024;
+        });
+        quest_list_ = std::move(list);
+    }
+    s.quests = quest_list_;
+    for (Quest& k : s.quests) k.tracked = k.id == s.tracked_quest;
+}
+
+bool Reader::QuestSystem(const EdenDsmodHostApi* host, uint64_t& sub, uint64_t& cls) {
+    g_.Set(host);
+    if (!Alive(quest_sub_)) return false;
+    sub = quest_sub_.addr, cls = quest_sub_.cls;
+    return true;
+}
+
 void Reader::ReadQuests() {
     const uint64_t now = NowMs();
     if (now - last_quest_ms_ < 1000 && !quests_.empty()) return;
@@ -916,6 +1222,44 @@ void Reader::LoadEquipment() {
     equipment_loaded_ = equipment_.size() > 10;
 }
 
+// The consumables (eDataTableType ItemConsumablesData 39: CONSUMABLES_ITEM_DATA) and their skills (SkillData 25: SKILL_DATA), as
+// the game's item menus use them: checked live, Potion (1) is usableScene Any, skill 100010 HitPoint Single; Phoenix Down (4)
+// targets the dead (defaultTargetState Dead); the party potions are TargetType Group; bombs are BattleOnly.
+void Reader::LoadConsumables() {
+    if (consumables_loaded_ || !assets_.addr) return;
+    uint64_t items = 0, skills = 0;
+    ForEachMap(g_, assets_.addr + kAssetDataTables, 0x18, [&](uint64_t e) {
+        const uint8_t type = g_.Get<uint8_t>(e);
+        if (type == kDtItemConsumables) items = g_.Get<uint64_t>(e + 8);
+        if (type == kDtSkillData) skills = g_.Get<uint64_t>(e + 8);
+        return true;
+    });
+    if (!items || !skills) return;
+    std::unordered_map<int, uint64_t> skill_rows;
+    ForEachMap(g_, skills + kDataTableRows, 0x18, [&](uint64_t e) {
+        if (const uint64_t row = g_.Get<uint64_t>(e + 8)) skill_rows[g_.Get<int32_t>(row + 8)] = row;
+        return true;
+    });
+    ForEachMap(g_, items + kDataTableRows, 0x18, [&](uint64_t e) {
+        const uint64_t row = g_.Get<uint64_t>(e + 8);
+        if (!row) return true;
+        ConsumableInfo c;
+        const int id = g_.Get<int32_t>(row + 8);
+        const uint8_t scene = g_.Get<uint8_t>(row + 0x7d);  // eItemUsableScene: BattleOnly 1, MapOnly 2, Any 3
+        c.field = scene == 2 || scene == 3;
+        c.skill = g_.Get<int32_t>(row + 0x80);
+        if (auto it = skill_rows.find(c.skill); it != skill_rows.end()) {
+            const uint64_t sk = it->second;
+            const uint8_t ptype = g_.Get<uint8_t>(sk + 0x7d), target = g_.Get<uint8_t>(sk + 0x7f), state = g_.Get<uint8_t>(sk + 0x83);
+            c.kind = state == 1 ? ConsumableInfo::kRevive : ptype == 1 ? ConsumableInfo::kHp : ptype == 2 ? ConsumableInfo::kMp : ConsumableInfo::kOther;
+            c.party = target == 2;  // eSkillTargetType Group
+        }
+        if (id > 0) consumables_[id] = c;
+        return true;
+    });
+    consumables_loaded_ = consumables_.size() > 10;
+}
+
 void Reader::LoadSkillTables() {
     if (skills_loaded_ || !assets_.addr) return;
     auto table = [&](uint8_t type) {
@@ -984,13 +1328,15 @@ void Reader::LoadSkillTables() {
 
 // An FText from a string table, as displayed: TextData -> string table history (+0x20) -> shared display string (+0x40),
 // whose FString is at +8 (this build; checked on MAP_DATA.Name).
-std::string Reader::FTextString(uint64_t ftext) {
+std::string Reader::FTextString(uint64_t ftext, int max_chars) {
     const uint64_t td = g_.Get<uint64_t>(ftext);
     const uint64_t rec = td ? g_.Get<uint64_t>(td + 0x20) : 0;
     const uint64_t disp = rec ? g_.Get<uint64_t>(rec + 0x40) : 0;
-    if (!disp) return "";
     struct { uint64_t data; int32_t num, max; } fs{};
-    if (!g_.Read(disp + 8, &fs, sizeof fs) || !fs.data || fs.num <= 1 || fs.num > 256 || fs.max < fs.num) return "";
+    const bool localized = disp && g_.Read(disp + 8, &fs, sizeof fs) && fs.data && fs.num > 1 && fs.num <= max_chars && fs.max >= fs.num;
+    // A generated text (a formatted one: the quests' "Chapter 1 - ...") holds its string itself, an FString at +0x18
+    if (!localized && !(td && g_.Read(td + 0x18, &fs, sizeof fs) && fs.data && fs.num > 1 && fs.num <= max_chars && fs.max >= fs.num && fs.max < 65536))
+        return "";
     std::vector<uint16_t> w(size_t(fs.num));
     if (!g_.Read(fs.data, w.data(), w.size() * 2)) return "";
     std::string out;
@@ -1003,23 +1349,47 @@ std::string Reader::FTextString(uint64_t ftext) {
     return out;
 }
 
-std::string Reader::MapName(int id) {
-    auto it = map_names_.find(id);
-    if (it != map_names_.end()) return it->second;
-    std::string name;
+void Reader::LoadMapRows() {
+    if (rows_loaded_) return;
+    size_t n = 0;
     for (const Obj& t : map_tables_) {
         if (!Alive(t)) continue;
         ForEachMap(g_, t.addr + kDataTableRows, 0x18, [&](uint64_t e) {
             const uint64_t row = g_.Get<uint64_t>(e + 8);
-            if (!row || g_.Get<int32_t>(row + 8) != id) return true;
-            name = FTextString(row + 0x20);  // MAP_DATA.Name
-            return false;
+            if (!row) return true;
+            MapRow& r = map_rows_[g_.Get<int32_t>(row + 8)];
+            r.found = true, r.row = row;
+            r.group = g_.Get<int32_t>(row + 0x10);  // GroupId (a dungeon's floors share one)
+            r.same = g_.Get<int32_t>(row + 0x18);   // sameMapId
+            r.type = g_.Get<uint8_t>(row + 0x101);  // MapType
+            ++n;
+            return true;
         });
-        if (!name.empty()) break;
     }
-    if (!name.empty()) map_names_[id] = name;  // a table that is not loaded yet is looked up again later
-    return name;
+    rows_loaded_ = n > 100;  // (the tables are all there: a few hundred maps)
 }
+
+const Reader::MapRow& Reader::MapInfo(int id) {
+    LoadMapRows();
+    MapRow& r = map_rows_[id];
+    if (r.found && r.name.empty() && NowMs() - r.name_ms > 3000) {  // the name: looked up again until the game has it
+        r.name_ms = NowMs();
+        r.name = FTextString(r.row + 0x20);  // MAP_DATA.Name
+    }
+    return r;
+}
+
+std::vector<int> Reader::Mates(int id) {
+    std::vector<int> out{id};
+    const MapRow& m = MapInfo(id);
+    for (auto& [j, r] : map_rows_) {
+        if (j == id || !r.found) continue;
+        if ((m.group > 0 && (r.group == m.group || j == m.group)) || (m.same > 0 && (r.same == m.same || j == m.same))) out.push_back(j);
+    }
+    return out;
+}
+
+std::string Reader::MapName(int id) { return MapInfo(id).name; }
 
 void Reader::ReadUnitParams(GameState& s) {
     std::unordered_map<int, uint64_t> by_id;
@@ -1102,7 +1472,10 @@ void Reader::Update(const EdenDsmodHostApi* host, GameState& out) {
     ReadSave(out);
     LoadEquipment();
     LoadSkillTables();
+    LoadConsumables();
     out.equipment = equipment_;
+    out.consumables = consumables_;
+    ReadQuestList(out);
     if (out.save_ok) ReadUnitParams(out);
     if (minimap_.addr) ReadMap(out);
     if (battle_.addr) ReadBattle(out);

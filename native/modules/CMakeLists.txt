@@ -1575,8 +1575,9 @@ if(BUILD_TESTING AND NOT ANDROID)
         01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
 endif()
 
-# FINAL FANTASY RESONANCE 1.0.1 (update): party, items, live map and battle panel; battle commands
-# by touch through button presses. Art, fonts and English text are decoded at runtime from the
+# FINAL FANTASY RESONANCE 1.0.1 (update): party, items, quests, live map and battle panel; battle commands
+# by touch through button presses; fast travel, item use, equipment, quest tracking and menu sounds through the package's guest helper
+# (native/helper/ffr_guest_helper.S, tools/ffr/build_helper_plan.py). Art, fonts and English text are decoded at runtime from the
 # player's own FFRS-Switch.utoc/.ucas and FFRS-Switch.pak (Oodle via the vendored ooz).
 set(FFR_CORE_SOURCES
     ffr_assets.cpp

@@ -51,7 +51,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 31 | [My Time at Sandrock](#my-time-at-sandrock) | `0100B63016916000` | 1.4.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/my-time-at-sandrock-1.0.0) | 🥇<br><a href="https://ko-fi.com/U7U71VTM7K"><img src="https://img.shields.io/badge/Helen_Tracy-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Helen Tracy"></a> |
 | 32 | [Resident Evil 4](#resident-evil-4) | `010099A00BC1E000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/resident-evil-4-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/4rd-Poll-Next-Switch-Game-on-Eden-Duo-I7Z428XZNI"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 | 33 | [The Legend of Zelda: Skyward Sword HD](#the-legend-of-zelda-skyward-sword-hd) | `01002DA013484000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/skyward-sword-hd-1.0.0) | 🥇<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/eminham-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="eminham"></a> |
-| 34 | [FINAL FANTASY RESONANCE](#final-fantasy-resonance) | `0100606026F12000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/final-fantasy-resonance-1.0.6) | ⭐<br><a href="https://github.com/danielcamilo1"><img src="https://img.shields.io/badge/danielcamilo1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="danielcamilo1"></a> |
+| 34 | [FINAL FANTASY RESONANCE](#final-fantasy-resonance) | `0100606026F12000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/final-fantasy-resonance-1.0.7) | ⭐<br><a href="https://github.com/danielcamilo1"><img src="https://img.shields.io/badge/danielcamilo1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="danielcamilo1"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -1090,21 +1090,25 @@ Code: GPL-3.0-or-later.
 <details>
 <summary>Screenshots and details</summary>
 
-`0100606026F12000` · game version 1.0.1 · companion 1.0.6
+`0100606026F12000` · game version 1.0.1 · companion 1.0.7
 
 | Map | Party | Battle |
 |:---:|:---:|:---:|
 | <img src="screenshots/final-fantasy-resonance/map.png" width="300" alt="FINAL FANTASY RESONANCE: Map"> | <img src="screenshots/final-fantasy-resonance/party.png" width="300" alt="FINAL FANTASY RESONANCE: Party"> | <img src="screenshots/final-fantasy-resonance/battle.png" width="300" alt="FINAL FANTASY RESONANCE: Battle"> |
 
-The map, your party, your items and the battle on the second screen, drawn in the game's own look. Requires runtime 22.
+The map, your party, your items, your quests and the battle on the second screen, drawn in the game's own look. Requires runtime 22.
 
 - **Map.** The default tab. The current town's or dungeon's floor plan, or the world map with its islands. Your position and heading move live: you stay in the centre and the map moves around you, at the zoom you set with +/-, kept for the next visit. Drag or pinch to look around; Home brings the map back to you at the zoom on screen and follows you again. Shops, the inn and save points are marked with the game's own icons. The story objective is marked in gold and side quests in progress in blue. An arrow at the edge of the map points to each objective that is out of view.
+- **Fast travel.** On the world map, the places you know are marked; tap one for its card, then Fast Travel. The game's own travel runs, with its own rules: no travel out of a dungeon, during a story event or to a place you have not visited, and the card says why when the game refuses. In a town or dungeon, a World switch shows the world map, and Back returns to where you are.
 - **Party.** Your party and the members who have joined, with the game's character art, HP and MP, and the equipped weapon, armor and vision. Stats and max HP/MP include the vision's mastery bonuses. Tap a member for the full portrait, stats and every equipment slot.
-- **Items.** Items, Equipment, Key Items and Artifacts, with counts and the game's descriptions. Equipment shows who has each piece equipped.
-- **Battle.** Opens by itself in a battle and returns to the tab you had open afterwards. Enemies on the left, the party and any guest ally on the right, with HP and MP, a tag on staggered enemies, and each vision beside the character it is equipped to.
+- **Items.** Outside battle, use recovery items with one finger: tap a Potion, then tap the member to heal. The members it can help light up, the others say why not ("HP is full", "KO"), and the card shows "+120 HP". Party items heal everyone in one tap. Key Items and Artifacts are listed with the game's descriptions.
+- **Equipment.** Pick a member, a slot, then a piece: only the pieces the game lets that member wear are listed, each with its stat changes in the game's stat icons. One tap equips it, and accessories can be removed. Both work with the game's own menu open.
+- **Quests.** The game's journal with its Main and Side tabs: each quest's place and story so far. Track or stop tracking a side quest, as the journal's Track does; the map's objective follows it.
+- **Battle.** Opens by itself and takes the whole screen; the tabs come back when the battle ends. Enemies on the left, the party and any guest ally on the right, with HP and MP, a tag on staggered enemies, and each vision beside the character it is equipped to.
 - **Battle commands by touch.** The command window is mirrored: tap a command, skill or item, then a target. The game's target pointer is shown, and the resonance wheel's choices can be tapped too. Limit Bursts appear only when the game lists them.
-- **How commands work.** They are ordinary button presses, one at a time, sent only while the game shows the matching menu. Nothing is written to the game's memory or saves.
-- **Limits.** English text only. Game version 1.0.1 only; other builds are refused. Tested on an AYN Thor with Peanuts Native 0.1.7.
+- **Sounds.** Taps play the game's own menu sounds: the cursor, equip and unequip, heal, error, and tracking on or off.
+- **How commands work.** Battle commands are ordinary button presses, one at a time, sent only while the game shows the matching menu. Fast travel, items, equipment, quest tracking and the sounds call the game's own code through a small guest helper, on the game's thread, with the game's own checks. Without the helper, fast travel falls back to button presses through the game's map. The companion never writes the game's memory or saves itself; what the game's code changes is saved by the game as usual.
+- **Limits.** English text only. Game version 1.0.1 only; other builds are refused. Made for and tested mainly on Peanuts Native 0.1.7 (AYN Thor), the version that runs the game best. Feedback from Eden Duo players is welcome. An item count already on screen in the game's open menu updates when you reopen it.
 
 The companion ships no game art: fonts, icons, portraits, map captures, menu art and text are read from your own game files.
 Contributed by [danielcamilo1](https://github.com/danielcamilo1). Code: GPL-3.0-or-later.

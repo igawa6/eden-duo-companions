@@ -103,6 +103,9 @@ The opt-in `dsmod-ffr` target is the FINAL FANTASY RESONANCE companion for updat
 the vendored ooz and the runtime's BC decoder. Its test target `dsmod-ffr-test` needs no game files:
 `ctest --test-dir <build-directory> -R '^dsmod-ffr$' --output-on-failure`. Package it with
 `GAMES=ffr`, `FFR_LINUX_SO` and `FFR_ANDROID_SO`; see [`tools/ffr/README.md`](../tools/ffr/README.md).
+Its fast travel, item use, equipment, quest tracking and menu sounds use a format-2 guest helper, [`helper/ffr_guest_helper.S`](helper/ffr_guest_helper.S). The committed
+`packages/FinalFantasyResonance/dualscreen/guest/<build>/load-plan.json` is built from it by `tools/ffr/build_helper_plan.py`,
+from the player's own exefs `main`; the script checks every word of main the plan relies on.
 
 ## Source provenance
 

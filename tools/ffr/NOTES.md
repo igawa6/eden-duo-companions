@@ -181,3 +181,105 @@ Found live, in addition to the reflection dump:
 - Edge arrows: for each objective out of view, a dynamic marker (`arrow` group) on the view's edge, inset 52 px (and clear of
   the zoom buttons on the right). The view is the host's last drawn one: `get_f64("@map_view_cx|cy|ppw:<area>")`. The
   picture is `module:ffr:arrow:<m|s>:<0-23>`, 15-degree steps clockwise from the right (markers cannot rotate).
+
+## World map from a town, fast travel (research, 2026-11-23, live in Kol)
+- Loaded everywhere: `/Game/Datatable/Map/DA_MapLandmark` (CPP_DA_MapLandmark.landmarkDataList +0x38, MAP_LANDMARK_DATA_LIST 0x50:
+  landmarkDataList {Str Condition, int mapId} 0x18 each, Location +0x18 (world vector; land = (Y, -X)), airShipLandingPointId +0x30),
+  `DA_LandmarkList` (same row type, 80 rows with story variants).
+- `CPP_UI_WldMapSubsystem` (a WorldSubsystem, present in towns, WldMapId +0x40 = 1000): FldObjDataMap +0x48 Map<int,
+  StaticFieldObjectData 0x50> (element 0x60): the landmarks the world map shows (known ones only; 7 in this save). Value: TypeData
+  +0x08 (type 6, id), InteractTag +0x10 (Field.Object.Interact.Type.Landmark), RelatedMapId +0x18, Location +0x30, LandingPointId +0x48.
+  Kol = map 2020 at land (15000, -12775).
+- Visited: CPP_MuchaGameSaveData.Map (+0x1a8) .perMapSaveDataMap (+0x1c8): Map<int, SaveData_PerMap{bIsKnown, bIsVisited, bIsCleared}>
+  (element 0x10).
+- Rules (DA_WldMapParameter): bEnableFastTravelUnvisitedMap 0; FastTravelMapTypeEnableMap {Dungeon: 0}; default behaviour travel with
+  dialog UI.Dialog.Box.Map.FastTravel; refused with ...CanNot.MapType / ...CanNot.Event (a progress event) / ...CanNot.LockMap.
+  IsJumpMapEntryWhenClick 1. Menu view model: CPP_VM_WldMap (CursorPosition +0x2e0, FocusObjectId +0x39c, FastTravelBehavior +0x408).
+- The menu, checked live by hand (2026-11-23): VM_WldMap_C (IsA CPP_VM_WldMap) and VM_WldMapLandmarkList_C exist only after the
+  map first opens. Minus opens it (SceneTag stays UI.WldMap.Scene.Normal, focus jumps to the current place); ZL opens the list
+  (SceneTag UI.WldMap.Scene.Location, DisplayCategory Town, cursor on the first entry); R / L change category (Town, Dungeon,
+  Shrine) and reset the cursor to the first entry; the d-pad moves it and FocusObjectData.RelatedMapId follows; one A opens the
+  dialog (CPP_DialogManager.DialogWidget +0x40 set). B closes the dialog, B the list, then the map; DisplayCategory goes back to
+  None when the map closes. Presses sent with `adb shell input` do not reach the game: only the module's button actions do.
+- Companion 1.0.7 (dev): world map places (group lm) with on_marker_tap, a card with Fast Travel driving the above (Travel in the
+  module), and in towns a World > place scope switch with Back. MAP_DATA.MapType at +0x101 (0 town, 1 dungeon, 4 shrine),
+  GroupId +0x10 (a dungeon's floors), sameMapId +0x18.
+- Correction (live, 2026-11-23): FastTravelMapTypeEnableMap {Dungeon: 0} is about the map the player is in (CanNot.MapType), not
+  the destination: the Earth Shrine (3001, a dungeon) is a valid destination once visited. Destinations need only bIsVisited.
+  FldObjDataMap is empty after a restart until the game's map first opens; DA_LandmarkList filtered by bIsKnown gives the same
+  places before that.
+- Menus (live, 2026-11-23): CPP_VM_MainMenu.SceneDataStack (+0x80, GameplayTags) is empty in the field, [Root] with the main
+  menu open, [Root, Party] / [Root, ActionEquip] in its screens. The system/save menu, NPC talk and shops do not show in it,
+  nor in CPP_GameWidgetManagerSubsystem.InputMappingCount (always 0). The fast travel dialog: FastTravelBehavior
+  (VM_WldMap +0x408 bCanTravel, +0x40c DialogTag UI.Dialog.Box.Map.FastTravel) and the DialogManager widget; it opens on No, so Up
+  then A travels. Peanuts Native has no BRK guest-call bridge (pnrt_stubs.cpp), but it installs a package's format-2 load plan
+  (peanuts_helper.cpp): see "Fast travel through the game's own code" below.
+- Who has the controls (live, 2026-11-23): CPP_GameWidgetManagerSubsystem +0x30 (CPP_EU_GameLayoutSubsystem.PrimaryGameLayout) ->
+  WBP_OverAllLayout_C (CPP_EU_WBP_GameLayout): Layers +0x3a0 Map<GameplayTag, CommonActivatableWidgetContainerBase*> (element
+  0x18), CurrentInputTargetLayer +0x540; a stack's WidgetList +0x190. Field: no input layer, Game=[WBP_FieldLayout_C]. Main menu and
+  world map: input UI.Layer.System (WBP_MainMenuLayout_C); system menu WBP_SystemMenuLayout_C (+ Front1 WBP_LoadLayout_C); a
+  conversation: input UI.Layer.Event (WBP_TalkEventLayout_C, the field layout gone); a shop: System over the conversation. The fast
+  travel runs only from the field (no input layer, Event and Save empty) and stops if Event or Save fills while it runs.
+
+### Fast travel pacing (tried, reverted)
+Pacing presses by the reader's state (90 ms floor, next press as soon as the list/focus changed) broke the sequence live: the game ignores presses that come too soon after the last one, even when its view model already shows the change. The fixed waits (230–650 ms per step) are what works.
+- Dungeon rule in the companion: MapState.map_type = MAP_DATA.MapType of the player's map; type 1 (Dungeon) shows the card as
+  "Leave the dungeon to fast travel" (state D, no button) and the travel action refuses. Shrines (4) and towns (0) are allowed.
+
+### Fast travel through the game's own code (guest helper, 2026-11-24)
+
+Static RE of this build's main (a pack's main.patched.bin is a flat image; pointers in it are already relocated to base 0). UE's
+native-function tables pair each UFunction name with its exec thunk (`{"HandleTransitionDialogClose", exec}` at 0x72f5828).
+
+- `CPP_VM_WldMap::HandleTransitionDialogClose` (0x4381f18, exec 0x4050a54): on a result with button 0 (Yes) it tail-calls the
+  travel, 0x4381770(vm). That reads only vm+0x3b8 (FocusObjectData.RelatedMapId), vm+0x3e8 (LandingPointId) and one virtual call
+  vm->vtable[0x188] (the map widget, to close it; null returns at once).
+- The travel proper: 0x41e6070(mapId): CPP_MapManager (0x41c37b4: GEngine 0x8c29430 -> world -> subsystem) gets a transition
+  request (0x41be44c), and a NewObject<CPP_MapTaskTransition> goes to CPP_TaskManager (0x42d128c). The rest of 0x4381770 is the
+  map manager's units and the menu (UI layer 107); the landing point (0x4172be8) is used only while that menu is up.
+- The game's rules: `UpdateFastTravelBehavior` 0x43806b0(vm) (vm+0x168 WldMapDA = DA_WldMapParameter, vm+0x3b8) writes
+  FastTravelBehavior +0x408 {bCanTravel, DialogTag +0x40c}: FastTravelMapTypeEnableMap for the current map's type, event flag 13,
+  the visited check (0x4296c00) unless bEnableFastTravelUnvisitedMap. DecideObject (0x4380a10) only opens the dialog that names.
+- Hook: CPP_TaskManager's FTickableGameObject vtable (0x7283308, from its constructor 0x3feb970) slot 0 = Tick 0x42d630c
+  (`ldr x8, [x0, #0x8]`), the only reference; IsTickable 1, no world: every frame on the game thread. Nothing of these is in
+  main.changed.tsv.
+- native/helper/ffr_guest_helper.S hands the game a view model of its own in the mailbox (+0x400; its vtable +0x900 with +0x188
+  returning null): op 1 the verdict, op 2 the verdict and the travel. The module (ffr_helper_mailbox.h) uses it when the
+  heartbeat moves, otherwise the button sequence. Plan: tools/ffr/build_helper_plan.py --nso <exefs main> --main-bin <image>.
+
+
+### Items, equipment and quest tracking through the game's own code (guest helper, 2026-11-24)
+
+Same method as fast travel (static RE of main, checked live with the dev probe). The helper's mailbox is 8 KiB now.
+
+- Recovery items (the main menu's item and heal pages, CPP_VM_SkillActionBase): SetUseAction 0x438e9b0(vm, UISkillActionData
+  {UserUnitId, TmpNum, ActionKey{category 2 item, id}}) fills UseItemData +0x88 (GetConsumablesDataById) and UseSkillData +0x118
+  (the item's SkillId, 0x42bf718); it needs SkillActionDA +0x68 (DA_UI_SkillAction) and reads SkillTargetingDA +0x70, then three
+  field notifications (vtable +0x2e8). The check 0x438ef60 (owned, usableScene MapOnly/Any) wants UserUnitParam +0x260
+  (GetUnitParameter 0x43cb110). ApplyActionToUnit 0x438ed40(vm, &target, reserve): uses the item up (0x428ee90(id, -1) when
+  isConsumedAfterUse), applies the skill to the target or the party (TargetType Group; reserve adds the reserve members), and
+  sends CPP_ApplySkillActionDelVal through the event dispatcher (the menu's sound). ApplyHealSkill only snapshots HP/MP around it.
+- Live, the consumables (eDataTableType 39) and skills (25): Potion 1 / Hi-Potion 2 / 14 / 22 HP Single, Ether 3 / 18 / 20 MP,
+  23 and 31-36 Group, Phoenix Down 4 / 37 defaultTargetState Dead; bombs and status items usableScene BattleOnly.
+- Equipment: CPP_BFL_Unit::SetEquipmentId 0x43ced00(unit, item, slot) is the whole equip: when every copy is worn it takes one
+  off another member, writes the save (0x429ef30: the item's type picks weapon +0x24, armor +0x28, accessory list +0x30[slot],
+  appended past its end), applies it to the live unit and recalculates. UnequipmentId 0x43ceec8, IsEquipableEquipment 0x43b47f8.
+  GetEquipSlotNum's table (0x664a5b0): weapon 1, armor 1, accessory 2, vision 1.
+- Quest tracking: CPP_QuestSubsystem::SetPreferredQuestId 0x4283aa4(sub, id): the game's CanPreferred check, then the id (the
+  tracked one again: -1) into PreferredQuestId +0x9c and the save, and the PreferredChange delegates (minimap, notices).
+- QuestData (QuestDataMap value, 0x98): Property {IconTag, bCanPreferred +0x8, Priolity +0xc}, ID +0x10, Category +0x14, Name
+  +0x18 (a generated text: its FString inline at FTextData +0x18), Subtitle +0x28, DestinationTitle +0x38, Description +0x48,
+  SummaryList +0x58, Progression +0x68, bIsPreferred +0x80.
+- Companion 1.0.7 (dev): Items is a use page (an item, then a party card), Equipment a member > slot > piece manager with the
+  game's equippable answer, Quests a journal (Main, Side) with Track; the battle page takes the whole screen and has no tab.
+
+### The game's menu sounds
+
+The game's UI sounds are gameplay tags played by `CPP_BFL_Sound::PlaySound2DByTag` (exec thunk main+0x3e5a5e4, the
+implementation main+0x42c8f90, `sub sp, sp, #0x60`). It takes the FGameplayTag by value in x0 (its FName: comparison index,
+number), finds `CPP_SoundSubsystem` itself from GEngine (main+0x42c8ff8) and returns when there is none. The tags are in the
+name pool from startup: `Sound.UI.Cursor`, `Sound.UI.Cancel`, `Sound.UI.Error`, `Sound.UI.Common.Tab.Switch`,
+`Sound.UI.Item.Equip` / `Unequip`, `Sound.UI.Status.Heal`, `Sound.UI.MainMenu.Map.Target.On` / `Off`, and more under
+`Sound.UI.` (a live dump of the pool, 2026-11-24). Their indices depend on the session, so the module looks them up by name
+(`Reader::FindNames`, one 128 KiB pool block per tick). The helper plays them on a channel of their own in the mailbox
+(sound_seq 0x078, sound_ack 0x07C, tag 0x080) at the start of each tick, so a sound never waits on a request.

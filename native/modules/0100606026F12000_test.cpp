@@ -162,6 +162,90 @@ void Taps() {
     CHECK(ffr::BattleHit(s, ffr::kW / 2, ffr::kBattleY + ffr::kBattleH / 2).kind == ffr::BattleTap::kNone);
 }
 
+// The Items tab's use page and equipment manager, and the Quests tab: the game's rules as the pages apply them, and every tap
+// landing where the page drew it
+ffr::GameState Usable() {
+    ffr::GameState s = Sample();
+    s.units[0].max_hp = 200, s.units[0].hp = 100;             // 1001: hurt
+    s.units[1].max_hp = 100, s.units[1].hp = 100;             // 1002: full HP
+    s.units[1].max_mp = 50, s.units[1].mp = 10;
+    s.consumables[1] = {true, 100010, ffr::ConsumableInfo::kHp, false};
+    s.consumables[3] = {true, 100030, ffr::ConsumableInfo::kMp, false};
+    s.consumables[4] = {true, 100050, ffr::ConsumableInfo::kRevive, false};
+    s.consumables[9] = {false, 100200, ffr::ConsumableInfo::kHp, false};
+    s.inventory.push_back({9, 2});
+    s.equipment[10100].type = 1, s.equipment[10101].type = 1, s.equipment[11000].type = 2, s.equipment[12000].type = 3;
+    s.equipment[10101].params[5] = 12;
+    s.inventory.push_back({10101, 1});
+    s.inventory.push_back({12000, 2});
+    ffr::Quest m, side, done, hidden;
+    m.id = 1001, m.cat = 1, m.prog = 2, m.name = "Chapter 1", m.log = {"Began.", "Went on."};
+    side.id = 2005, side.cat = 2, side.prog = 1, side.can_track = true, side.name = "A request";
+    done.id = 2001, done.cat = 3, done.prog = 3, done.can_track = true, done.name = "Done";
+    hidden.id = 2009, hidden.cat = 2, hidden.prog = 0;
+    s.quests = {m, side, done, hidden};
+    return s;
+}
+
+void ItemsAndQuests() {
+    const ffr::GameState s = Usable();
+    const auto& hp = s.consumables.at(1), &mp = s.consumables.at(3), &rev = s.consumables.at(4), &bomb = s.consumables.at(9);
+    ffr::UnitState ko = s.units[0];
+    ko.hp = 0;
+    CHECK(ffr::UseTargetOk(s.units[0], hp) && !ffr::UseTargetOk(s.units[1], hp));  // full HP: the potion is not wasted
+    CHECK(ffr::UseTargetOk(s.units[1], mp) && !ffr::UseTargetOk(ko, hp) && !ffr::UseTargetOk(ko, mp));
+    CHECK(ffr::UseTargetOk(ko, rev) && !ffr::UseTargetOk(s.units[0], rev) && !ffr::UseTargetOk(s.units[0], bomb));
+    // the use page: rows, then the party's cards (the party only, in its order)
+    ffr::View v;
+    v.tab = ffr::kTabItems, v.item_cat = 0;
+    auto t = ffr::ItemsHit(s, v, 300, ffr::kItemListY + 10);
+    CHECK(t.kind == ffr::ItemsTap::kRow && t.index == 0);
+    const auto targets = ffr::UseTargets(s);
+    CHECK(targets.size() == 2 && targets[0]->id == 1002 && targets[1]->id == 1001);
+    std::vector<int> hit;
+    for (int x = 0; x < ffr::kW; x += 8) {
+        t = ffr::ItemsHit(s, v, x, ffr::kUseCardY + ffr::kUseCardH / 2);
+        if (t.kind == ffr::ItemsTap::kTarget && (hit.empty() || hit.back() != t.id)) hit.push_back(t.id);
+    }
+    CHECK(hit == std::vector<int>({1002, 1001}));
+    // equipment: the weapons the player has, the member's slots, a choice, Remove on a worn accessory
+    v.item_cat = 1;
+    CHECK(ffr::EquipChoices(s, v) == std::vector<int>({10100, 10101}));
+    v.eq_slot = 2;
+    CHECK(ffr::EquipChoices(s, v) == std::vector<int>({12000}));
+    CHECK(ffr::SlotType(0) == 1 && ffr::SlotType(1) == 2 && ffr::SlotType(3) == 3);
+    v.eq_slot = 0;
+    t = ffr::ItemsHit(s, v, 100, ffr::kEqSlotY + ffr::kEqSlotH + 10);
+    CHECK(t.kind == ffr::ItemsTap::kSlot && t.index == 1);
+    t = ffr::ItemsHit(s, v, 40, ffr::kEqChipY + 10);
+    CHECK(t.kind == ffr::ItemsTap::kMember && t.index == 0);
+    v.wearable_known = true, v.wearable = {10101};  // the game said: only this one
+    t = ffr::ItemsHit(s, v, ffr::kEqListX + 100, ffr::kEqListY + 10);
+    CHECK(t.kind == ffr::ItemsTap::kChoice && t.id == 10101);
+    CHECK(ffr::ItemsHit(s, v, ffr::kEqListX + 100, ffr::kEqListY + ffr::kEqRowH + 10).kind == ffr::ItemsTap::kNone);
+    ffr::GameState worn = s;
+    worn.units[1].accessories = {12000};  // 1002 (the first member) wears one: Remove comes first
+    v.eq_slot = 2, v.wearable = {12000};
+    CHECK(ffr::ItemsHit(worn, v, ffr::kEqListX + 100, ffr::kEqListY + 10).kind == ffr::ItemsTap::kRemove);
+    CHECK(ffr::ListCount(worn, v) == 2);
+    // quests: the journal's tabs, in progress first, the never-started ones left out; Track only where the game allows it
+    auto mains = ffr::QuestsOf(s, 0), sides = ffr::QuestsOf(s, 1);
+    CHECK(mains.size() == 1 && sides.size() == 2 && sides[0]->id == 2005 && sides[1]->id == 2001);
+    ffr::View q;
+    q.tab = ffr::kTabQuests;
+    CHECK(ffr::QuestsHit(s, q, ffr::kW - 100, ffr::kQuestCatY + 20).kind == ffr::QuestsTap::kCat);
+    CHECK(ffr::QuestsHit(s, q, ffr::kW - 100, ffr::kQuestCatY + 20).index == 1);
+    q.quest_cat = 1;
+    auto qt = ffr::QuestsHit(s, q, 100, ffr::kQuestListY + ffr::kQuestRowH + 10);
+    CHECK(qt.kind == ffr::QuestsTap::kRow && qt.index == 1);
+    q.quest_sel = 0;
+    CHECK(ffr::QuestsHit(s, q, ffr::kW - 200, ffr::kQuestTrackY + 10).kind == ffr::QuestsTap::kTrack);
+    q.quest_sel = 1;  // completed: no Track
+    CHECK(ffr::QuestsHit(s, q, ffr::kW - 200, ffr::kQuestTrackY + 10).kind == ffr::QuestsTap::kNone);
+    q.quest_cat = 0, q.quest_sel = 0;  // the story quest: the game does not let it be tracked
+    CHECK(ffr::QuestsHit(s, q, ffr::kW - 200, ffr::kQuestTrackY + 10).kind == ffr::QuestsTap::kNone);
+}
+
 void Pages() {
     // No game files: no art and fonts that failed to load. Every page still draws, opaque.
     ffr::Font none;
@@ -172,7 +256,7 @@ void Pages() {
     ffr::GameState title;
     const ffr::GameState s = Sample(), btl = Battle();
     std::vector<std::pair<const ffr::GameState*, ffr::View>> views;
-    for (int tab = 0; tab < ffr::kTabCount; ++tab) {
+    for (int tab = 0; tab <= ffr::kTabBattle; ++tab) {
         ffr::View v;
         v.tab = tab;
         views.push_back({&s, v});
@@ -189,6 +273,22 @@ void Pages() {
         views.push_back({&s, v});
     }
     views.push_back({&title, ffr::View{}});
+    // the use page, the equipment and the quests in each of their states (an item chosen, feedback, busy, no helper)
+    static const ffr::GameState u = Usable();
+    for (int act = 0; act < 4; ++act) {
+        ffr::View v;
+        v.tab = ffr::kTabItems, v.act = act, v.item_sel = 0;
+        v.fx.push_back({1001, -1, "+120 HP", true});
+        v.busy_unit = 1002;
+        views.push_back({&u, v});
+        v.item_cat = 1, v.wearable_known = act % 2, v.wearable = {10101}, v.eq_slot = act;
+        v.fx = {{1002, act, "Equipped", true}};
+        views.push_back({&u, v});
+        ffr::View q;
+        q.tab = ffr::kTabQuests, q.act = act, q.quest_act = act, q.quest_cat = act % 2, q.quest_sel = act / 2 - 1;
+        q.fx = {{-2, 2005, "Now tracked", true}};
+        views.push_back({&u, q});
+    }
     for (auto& [state, v] : views) {
         ffr::Canvas c(ffr::kW, ffr::kH);
         ffr::ComposePage(c, *state, v, art);
@@ -207,6 +307,7 @@ int main() {
     Lists();
     Hash();
     Taps();
+    ItemsAndQuests();
     Pages();
     std::printf("ffr: %d checks passed\n", g_checks);
     return 0;

@@ -161,9 +161,9 @@ void Header(Canvas& c, const GameState& s, const Art& a, const std::string& titl
 void TabBar(Canvas& c, const Art& a, int tab, bool map_ok) {
     c.GradientV(0, kTabBarY, kW, kH - kTabBarY, C(0xC0101E28), C(0xF8081118));
     GlowLine(c, 0, kTabBarY, kW, kLineDim);
-    const char* names[kTabCount] = {"Map", "Party", "Items", "Battle"};
+    const char* names[kTabCount] = {"Map", "Party", "Items", "Quests"};
     const std::string icons[kTabCount] = {Ui("Icon/MAP/ICON_MAP_L_Town"), Ui("Icon/Menu/ICON_Battle_Fight"), Ui("Icon/Menu/ICON_Battle_Item"),
-                                         Ui("Icon/Menu/ICON_Battle_Attack")};
+                                         Ui("Icon/MAP/ICON_MAP_L_Check")};
     const int tw = kW / kTabCount;
     for (int i = 0; i < kTabCount; ++i) {
         const int x = i * tw;
@@ -298,77 +298,440 @@ void PartyDetail(Canvas& c, const GameState& s, const Art& a, const UnitState& u
 }
 
 // ---- Items ----
-void Items(Canvas& c, const GameState& s, const View& v, const Art& a) {
-    const char* cats[4] = {"Items", "Equipment", "Key Items", "Artifacts"};
+const char* kCatNames[4] = {"Items", "Equipment", "Key Items", "Artifacts"};
+
+void CategoryBar(Canvas& c, const View& v, const Art& a) {
     const std::string icons[4] = {Ui("Icon/Menu/ICON_Battle_Item"), Ui("Icon/Menu/ICON_Item_Brade"), Ui("Icon/Menu/ICON_Item_Key"), Ui("Icon/Menu/ICON_Item_Kira")};
     const int tw = (kW - 60) / 4;
     for (int i = 0; i < 4; ++i) {
         const int x = 30 + i * tw;
         Panel(c, a, x + 4, 128, tw - 8, 76, i == v.item_cat);
         if (const Image* ic = a.image(icons[i])) c.Blit(*ic, x + 20, 140, 52, 52, i == v.item_cat ? 1.f : .55f);
-        c.Text(*a.bold, cats[i], x + 82, 178, 28, i == v.item_cat ? kInk : kInkDim, Align::Left, tw - 96);
+        c.Text(*a.bold, kCatNames[i], x + 82, 178, 28, i == v.item_cat ? kInk : kInkDim, Align::Left, tw - 96);
     }
+}
+
+void RowBack(Canvas& c, const Art& a, int x, int y, int w, int h, bool sel, int r) {
+    if (sel) {
+        if (const Image* hl = a.image(Ui("Menu/T_CommonListSelect"))) c.Blit(*hl, x, y, w, h);
+        else c.Fill(x, y, w, h, C(0x605EC4E6));
+    } else {
+        c.Fill(x, y, w, h, r % 2 ? C(0x60142632) : C(0x80142632));
+    }
+}
+
+void ScrollBar(Canvas& c, int x, int top, int rows, int row_h, int first, int count) {
+    if (count <= rows) return;
+    const int track = rows * row_h;
+    const int th = std::max(40, track * rows / count);
+    const int ty = top + (track - th) * first / std::max(1, count - rows);
+    c.Fill(x, top, 6, track, C(0x40FFFFFF));
+    c.Fill(x, ty, 6, th, kLine);
+}
+
+void Description(Canvas& c, const Art& a, int x, int y, int w, int h, const std::string& text, const std::string& hint) {
+    Panel(c, a, x, y, w, h);
+    c.SetClip(x, y, w, h);  // nothing spills onto what is below
+    if (!text.empty()) {
+        const auto lines = Wrap(*a.regular, text, 27, float(w - 44));
+        const int max_lines = std::max(1, (h - 16) / 34);
+        for (int i = 0; i < int(lines.size()) && i < max_lines; ++i) {
+            const bool last = i == max_lines - 1 && int(lines.size()) > max_lines;
+            c.Text(*a.regular, last ? lines[size_t(i)] + " ..." : lines[size_t(i)], x + 22, y + 38 + 34 * i, 27, kInk, Align::Left, float(w - 44));
+        }
+    } else {
+        c.Text(*a.regular, hint, x + 22, y + h / 2 + 10, 26, kInkFaint, Align::Left, float(w - 44));
+    }
+    c.ResetClip();
+}
+
+const View::Fx* FxFor(const View& v, int unit, int slot) {
+    for (auto& f : v.fx)
+        if (f.unit == unit && f.slot == slot) return &f;
+    return nullptr;
+}
+
+// Why the game does not take a change now (View::act), for the line above the cards or the choices
+const char* ActWhy(int act, bool equip) {
+    switch (act) {
+    case View::kActBattle: return equip ? "Equipment can be changed after the battle" : "In a battle, use items from the battle page";
+    case View::kActBusy: return equip ? "Wait for the scene to end to change equipment" : "Wait for the scene to end to use items";
+    case View::kActNoHelper: return "The companion's game helper is not running";
+    default: return "";
+    }
+}
+
+// Key Items and Artifacts: the game's list, with descriptions
+void ItemList(Canvas& c, const GameState& s, const View& v, const Art& a) {
     auto items = ItemsOf(s, v.item_cat);
     const int top = kItemListY;
     for (int r = 0; r < kItemRows; ++r) {
         const int idx = v.item_scroll + r;
         if (idx >= int(items.size())) break;
         const int y = top + r * kItemRowH;
-        const bool sel = idx == v.item_sel;
-        if (sel) {
-            if (const Image* hl = a.image(Ui("Menu/T_CommonListSelect"))) c.Blit(*hl, 30, y, kW - 60, kItemRowH - 6);
-            else c.Fill(30, y, kW - 60, kItemRowH - 6, C(0x605EC4E6));
-        } else {
-            c.Fill(30, y, kW - 60, kItemRowH - 6, r % 2 ? C(0x60142632) : C(0x80142632));
-        }
+        RowBack(c, a, 30, y, kW - 60, kItemRowH - 6, idx == v.item_sel, r);
         const int id = items[size_t(idx)].id;
-        if (VisionFace(a, id)) VisionBadge(c, a, id, 46, y + 8, 62);
-        else if (const Image* ic = a.image(ItemIcon(id))) c.Blit(*ic, 46, y + 8, 62, 62);
-        // Who has it equipped: their faces, as the game marks equipped gear
-        std::vector<int> users;
-        for (auto& u : s.units) {
-            bool on = u.weapon == id || u.armor == id || u.vision == id;
-            for (int x : u.accessories) on = on || x == id;
-            if (on && u.join == 0) users.push_back(u.id);
-        }
+        if (const Image* ic = a.image(ItemIcon(id))) c.Blit(*ic, 46, y + 8, 62, 62);
         const float qty_w = a.bold->Measure(std::to_string(items[size_t(idx)].num), 38) + a.regular->Measure("x", 28) + 10;
-        int fx = int(1190 - qty_w - 16 - 52 * int(users.size()));
-        for (int uid : users) {
-            if (const Image* face = a.image(Ui("Icon/Unit_Face_Timeline/ICON_UnitFace_unit" + std::to_string(uid)))) {
-                c.Disc(float(fx + 23), float(y + 39), 25, C(0xC0101E28));
-                c.BlitFit(*face, fx, y + 16, 46, 46);
-            }
-            fx += 52;
-        }
-        const int name_w = int(1190 - qty_w - 24 - 52 * int(users.size())) - 128;
-        c.Text(*a.bold, ItemName(a, id), 128, y + 52, 36, kInk, Align::Left, float(std::max(200, name_w)), kShadow);
+        c.Text(*a.bold, ItemName(a, id), 128, y + 52, 36, kInk, Align::Left, float(1190 - qty_w - 24 - 128), kShadow);
         c.Text(*a.regular, "x", 1190 - qty_w + 4, y + 52, 28, kInkDim);
         c.Text(*a.bold, std::to_string(items[size_t(idx)].num), 1190, y + 54, 38, kInk, Align::Right);
     }
     if (items.empty()) c.Text(*a.regular, "Nothing here yet.", kW / 2, 480, 34, kInkDim, Align::Center);
-    // scroll indicator
-    if (int(items.size()) > kItemRows) {
-        const int track = kItemRows * kItemRowH;
-        const int th = std::max(40, track * kItemRows / int(items.size()));
-        const int ty = top + (track - th) * v.item_scroll / std::max(1, int(items.size()) - kItemRows);
-        c.Fill(kW - 18, top, 6, track, C(0x40FFFFFF));
-        c.Fill(kW - 18, ty, 6, th, kLine);
+    ScrollBar(c, kW - 18, top, kItemRows, kItemRowH, v.item_scroll, int(items.size()));
+    const int dy = top + kItemRows * kItemRowH + 6;
+    Description(c, a, 30, dy, kW - 60, kTabBarY - dy - 14,
+                v.item_sel >= 0 && v.item_sel < int(items.size()) ? ItemDesc(a, items[size_t(v.item_sel)].id) : "",
+                "Tap an item to read its description. Swipe to scroll.");
+}
+
+ConsumableInfo InfoOf(const GameState& s, int id) {
+    auto it = s.consumables.find(id);
+    return it == s.consumables.end() ? ConsumableInfo{} : it->second;
+}
+
+// The tag a recovery item shows: what it restores, in the colour of that bar (gold: a revive), "Battle" when it is not for the map
+void ItemTag(Canvas& c, const Art& a, const ConsumableInfo& ci, float right, int y) {
+    std::string t;
+    Rgba col = kInkFaint, back = C(0x40FFFFFF);
+    if (!ci.field) t = "Battle";
+    else if (ci.kind == ConsumableInfo::kHp) t = ci.party ? "Party HP" : "HP", col = kHp, back = C(0x5022362A);
+    else if (ci.kind == ConsumableInfo::kMp) t = ci.party ? "Party MP" : "MP", col = kMp, back = C(0x501C2D3C);
+    else if (ci.kind == ConsumableInfo::kRevive) t = "Revive", col = kGold, back = C(0x50302A18);
+    else t = "Field";
+    const float w = a.bold->Measure(t, 22) + 28;
+    c.Fill(int(right - w), y - 22, int(w), 32, back);
+    c.Frame(int(right - w), y - 22, int(w), 32, 1, col);
+    c.Text(*a.bold, t, right - w / 2, y + 2, 22, col, Align::Center);
+}
+
+struct CardBox { int x, y, w, h; };
+std::vector<CardBox> UseCards(size_t n) {
+    std::vector<CardBox> out;
+    if (!n) return out;
+    const int gap = 14, w = std::min(420, int((kW - 60 - gap * int(n - 1)) / int(n)));
+    const int total = w * int(n) + gap * int(n - 1), x0 = (kW - total) / 2;
+    for (size_t i = 0; i < n; ++i) out.push_back({x0 + int(i) * (w + gap), kUseCardY, w, kUseCardH});
+    return out;
+}
+
+// Items: the recovery items with what each restores; below, the party as cards to tap. An item, then a member: the game uses it.
+void ItemsUse(Canvas& c, const GameState& s, const View& v, const Art& a) {
+    auto items = ItemsOf(s, 0);
+    const int top = kItemListY;
+    const bool has_sel = v.item_sel >= 0 && v.item_sel < int(items.size());
+    const ConsumableInfo sel = has_sel ? InfoOf(s, items[size_t(v.item_sel)].id) : ConsumableInfo{};
+    for (int r = 0; r < kUseRows; ++r) {
+        const int idx = v.item_scroll + r;
+        if (idx >= int(items.size())) break;
+        const int y = top + r * kItemRowH;
+        const int id = items[size_t(idx)].id;
+        const ConsumableInfo ci = InfoOf(s, id);
+        RowBack(c, a, 30, y, kW - 60, kItemRowH - 6, idx == v.item_sel, r);
+        const float alpha = ci.field ? 1.f : .45f;
+        if (const Image* ic = a.image(ItemIcon(id))) c.Blit(*ic, 46, y + 8, 62, 62, alpha);
+        const std::string qty = std::to_string(items[size_t(idx)].num);
+        const float qty_w = a.bold->Measure(qty, 38) + a.regular->Measure("x", 28) + 10;
+        c.Text(*a.regular, "x", 1190 - qty_w + 4, y + 52, 28, kInkDim);
+        c.Text(*a.bold, qty, 1190, y + 54, 38, ci.field ? kInk : kInkDim, Align::Right);
+        ItemTag(c, a, ci, 1190 - qty_w - 18, y + 46);
+        c.Text(*a.bold, ItemName(a, id), 128, y + 52, 36, ci.field ? kInk : kInkDim, Align::Left, float(1190 - qty_w - 160 - 128), kShadow);
     }
-    // description
-    const int dy = top + kItemRows * kItemRowH + 6, dh = kTabBarY - dy - 14;
-    Panel(c, a, 30, dy, kW - 60, dh);
-    c.SetClip(30, dy, kW - 60, dh);  // nothing spills onto the tab bar
-    if (v.item_sel >= 0 && v.item_sel < int(items.size())) {
-        const auto lines = Wrap(*a.regular, ItemDesc(a, items[size_t(v.item_sel)].id), 28, kW - 104);
-        const int max_lines = std::max(1, (dh - 20) / 36);
-        for (int i = 0; i < int(lines.size()) && i < max_lines; ++i) {
-            const bool last = i == max_lines - 1 && int(lines.size()) > max_lines;
-            c.Text(*a.regular, last ? lines[size_t(i)] + " ..." : lines[size_t(i)], 52, dy + 42 + 36 * i, 28, kInk, Align::Left, kW - 104);
+    if (items.empty()) c.Text(*a.regular, "No items yet.", kW / 2, 420, 34, kInkDim, Align::Center);
+    ScrollBar(c, kW - 18, top, kUseRows, kItemRowH, v.item_scroll, int(items.size()));
+    // The item's description, or what to do (and why not now)
+    const int dy = top + kUseRows * kItemRowH + 4, dh = kUseCardY - dy - 10;
+    std::string hint = "Tap a recovery item, then tap who gets it.";
+    if (has_sel && !sel.field) hint = "This item can only be used in a battle.";
+    const std::string why = ActWhy(v.act, false);
+    if (!why.empty() && (!has_sel || sel.field)) hint = why;
+    const bool show_desc = has_sel && sel.field && v.act == View::kActNow;
+    Description(c, a, 30, dy, kW - 60, dh, show_desc ? ItemDesc(a, items[size_t(v.item_sel)].id) : "", hint);
+    // The party: each member's HP and MP, lit when the selected item can be used on them
+    const auto members = UseTargets(s);
+    const auto boxes = UseCards(members.size());
+    const bool armed = has_sel && sel.field && v.act == View::kActNow;
+    for (size_t i = 0; i < members.size(); ++i) {
+        const UnitState& u = *members[i];
+        const CardBox& b = boxes[i];
+        const char* why_not = nullptr;
+        const bool ok = armed && UseTargetOk(u, sel, &why_not);
+        const View::Fx* fx = FxFor(v, u.id, -1);
+        Panel(c, a, b.x, b.y, b.w, b.h, ok);
+        if (ok) GlowLine(c, b.x + 10, b.y + b.h - 4, b.w - 20, kGold);
+        if (fx) c.Frame(b.x, b.y, b.w, b.h, 3, fx->good ? kGold : kFoe);
+        const bool ko = u.hp <= 0;
+        const float dim = armed && !ok ? .45f : 1.f;
+        const int face = std::min(88, b.w / 4);
+        c.Disc(float(b.x + 18 + face / 2), float(b.y + 16 + face / 2), face / 2.f + 2, ko ? kFoe : (ok ? kGold : kLineDim));
+        if (const Image* f = a.image(Ui("Icon/Unit_Face_Timeline/ICON_UnitFace_unit" + std::to_string(u.id)))) c.BlitFit(*f, b.x + 18, b.y + 16, face, face, dim);
+        const int tx = b.x + 30 + face, tw = b.x + b.w - 16 - tx;
+        c.Text(*a.bold, UnitName(a, u.id), float(tx), float(b.y + 52), 30, dim < 1 ? kInkDim : kInk, Align::Left, float(tw), kShadow);
+        if (ko) c.Text(*a.bold, "KO", float(tx), float(b.y + 86), 24, kFoe);
+        else if (u.level > 0) c.Text(*a.regular, "Lv " + std::to_string(u.level), float(tx), float(b.y + 86), 24, kInkDim);
+        const int sw = b.w - 36;
+        Stat(c, a, b.x + 18, b.y + 116, "HP", u.hp, u.max_hp, kHp, kHpBack, sw);
+        Stat(c, a, b.x + 18, b.y + 162, "MP", u.mp, u.max_mp, kMp, kMpBack, sw);
+        if (fx) {  // what the item did, over the card
+            c.Fill(b.x + 3, b.y + 3, b.w - 6, 62, C(0xC0101E28));
+            c.Text(*a.bold, fx->text, float(b.x + b.w / 2), float(b.y + 48), 40, fx->good ? (fx->text.find("MP") != std::string::npos ? kMp : kHp) : kFoeInk, Align::Center, float(b.w - 20), kShadow);
+        } else if (v.busy_unit == u.id) {
+            c.Fill(b.x + 3, b.y + 3, b.w - 6, 62, C(0xC0101E28));
+            c.Text(*a.bold, "\xE2\x80\xA6", float(b.x + b.w / 2), float(b.y + 48), 40, kGold, Align::Center);
+        } else if (armed) {
+            const char* label = ok ? (sel.party ? "Tap: the whole party" : "Tap to use") : (why_not ? why_not : "");
+            c.Text(*a.bold, label, float(b.x + b.w - 16), float(b.y + 86), 22, ok ? kGold : kInkFaint, Align::Right, float(b.w / 2));
         }
-    } else {
-        c.Text(*a.regular, "Tap an item to read its description. Swipe to scroll.", 52, dy + 52, 26, kInkFaint, Align::Left, kW - 104);
+    }
+}
+
+const char* kSlotNames[4] = {"Weapon", "Armor", "Accessory", "Accessory"};
+
+// The equipment's stat changes against what is worn: Attack, Defense, Magic, Spirit, Divine, Agility, HP, MP
+void Lines(const GameState& s, int id, int out[8]) {
+    for (int i = 0; i < 8; ++i) out[i] = 0;
+    auto it = s.equipment.find(id);
+    if (it == s.equipment.end()) return;
+    const int* p = it->second.params;
+    const int v[8] = {p[5] + p[12], p[6] + p[13], p[7] + p[14], p[8] + p[15], p[16], p[9], p[1], p[2]};
+    for (int i = 0; i < 8; ++i) out[i] = v[i];
+}
+const char* kStatIconNames[6] = {"ICON_Status_attack", "ICON_Status_defense", "ICON_Status_magic", "ICON_Status_mental", "ICON_Status_divine", "ICON_Status_speed"};
+
+// Up to max changes as the game's stat icons with + (green) / - (red) numbers; returns how many were drawn
+int Deltas(Canvas& c, const GameState& s, const Art& a, int now_id, int new_id, int x, int y, int max) {
+    int was[8], will[8], n = 0;
+    Lines(s, now_id, was), Lines(s, new_id, will);
+    for (int i = 0; i < 8 && n < max; ++i) {
+        const int d = will[i] - was[i];
+        if (!d) continue;
+        const std::string t = (d > 0 ? "+" : "") + std::to_string(d);
+        if (i < 6) {
+            if (const Image* ic = a.image(Ui(std::string("Icon/Menu/") + kStatIconNames[i]))) c.Blit(*ic, x, y - 24, 30, 30);
+            x += 32;
+        } else {
+            x += int(c.Text(*a.bold, i == 6 ? "HP" : "MP", float(x), float(y), 20, kInkDim)) + 4;
+        }
+        x += int(c.Text(*a.bold, t, float(x), float(y), 24, d > 0 ? kHp : kFoe)) + 18;
+        ++n;
+    }
+    return n;
+}
+
+int SlotTypeOf(int slot) { return slot == 0 ? 1 : slot == 1 ? 2 : 3; }
+
+// Equipment: a member (the chips), their slots and stats on the left, the pieces for the chosen slot on the right
+void Equip(Canvas& c, const GameState& s, const View& v, const Art& a) {
+    const auto roster = Roster(s);
+    if (roster.empty()) { c.Text(*a.regular, "No party data yet.", kW / 2, 480, 34, kInkDim, Align::Center); return; }
+    const int n = std::min<int>(int(roster.size()), 8);
+    const int gap = 10, cw = std::min(300, (kW - 60 - gap * (n - 1)) / n);
+    for (int i = 0; i < n; ++i) {
+        const UnitState& u = *roster[size_t(i)];
+        const int x = 30 + i * (cw + gap);
+        const bool on = i == v.eq_member;
+        Panel(c, a, x, kEqChipY, cw, kEqChipH, on);
+        if (on) GlowLine(c, x + 10, kEqChipY + kEqChipH - 4, cw - 20, kGold);
+        if (const Image* f = a.image(Ui("Icon/Unit_Face_Timeline/ICON_UnitFace_unit" + std::to_string(u.id)))) c.BlitFit(*f, x + 10, kEqChipY + 12, 60, 60, on ? 1.f : .6f);
+        if (cw > 120) c.Text(*a.bold, UnitName(a, u.id), float(x + 78), float(kEqChipY + 54), 26, on ? kInk : kInkDim, Align::Left, float(cw - 86));
+    }
+    const int mi = std::clamp(v.eq_member, 0, n - 1);
+    const UnitState& u = *roster[size_t(mi)];
+    // The slots
+    for (int sl = 0; sl < 4; ++sl) {
+        const int y = kEqSlotY + sl * kEqSlotH;
+        const bool on = sl == v.eq_slot;
+        Panel(c, a, 30, y, kEqSlotW, kEqSlotH - 8, on);
+        const int id = SlotItem(u, sl);
+        c.Text(*a.regular, kSlotNames[sl], 48, float(y + 28), 20, on ? kGold : kInkFaint);
+        if (id > 0) {
+            if (const Image* ic = a.image(ItemIcon(id))) c.Blit(*ic, 46, y + 30, 44, 44);
+            c.Text(*a.bold, ItemName(a, id), 102, float(y + 64), 30, kInk, Align::Left, kEqSlotW - 90, kShadow);
+        } else {
+            c.Text(*a.regular, "Empty", 102, float(y + 64), 28, kInkFaint);
+        }
+        if (const View::Fx* fx = FxFor(v, u.id, sl)) {
+            c.Frame(30, y, kEqSlotW, kEqSlotH - 8, 3, fx->good ? kGold : kFoe);
+            c.Text(*a.bold, fx->text, float(30 + kEqSlotW - 16), float(y + 28), 22, fx->good ? kGold : kFoeInk, Align::Right);
+        } else if (v.busy_unit == u.id && v.busy_slot == sl) {
+            c.Text(*a.bold, "\xE2\x80\xA6", float(30 + kEqSlotW - 20), float(y + 30), 30, kGold, Align::Right);
+        }
+    }
+    // The member's stats (as the Party page counts them)
+    const int py = kEqSlotY + 4 * kEqSlotH + 4, ph = kTabBarY - 14 - py;
+    Panel(c, a, 30, py, kEqSlotW, ph);
+    if (u.stats[0] >= 0) {
+        const int rows = 4, rh = (ph - 16) / rows;
+        for (int i = 0; i < 8; ++i) {
+            const int col = i / rows, row = i % rows;
+            const int x = 48 + col * (kEqSlotW / 2), y = py + 8 + row * rh;
+            const int k = col == 0 ? (row == 0 ? 6 : row == 1 ? 0 : row == 2 ? 2 : 4) : (row == 0 ? 7 : row == 1 ? 1 : row == 2 ? 3 : 5);
+            if (k >= 6) {
+                c.Text(*a.bold, k == 6 ? "HP" : "MP", float(x), float(y + rh / 2 + 9), 22, kInkDim);
+                c.Text(*a.bold, Num(k == 6 ? u.max_hp : u.max_mp), float(x + kEqSlotW / 2 - 40), float(y + rh / 2 + 10), 28, kInk, Align::Right);
+            } else {
+                if (const Image* ic = a.image(Ui(std::string("Icon/Menu/") + kStatIconNames[k]))) c.Blit(*ic, x - 4, y + rh / 2 - 18, 34, 34);
+                c.Text(*a.bold, std::to_string(u.stats[k]), float(x + kEqSlotW / 2 - 40), float(y + rh / 2 + 10), 28, kInk, Align::Right);
+            }
+        }
+    }
+    // The choices for the slot
+    const int lx = kEqListX, lw = kW - 30 - lx;
+    Panel(c, a, lx, kEqSlotY, lw, kTabBarY - 14 - kEqSlotY);
+    c.Text(*a.title, kSlotNames[v.eq_slot], float(lx + 22), float(kEqSlotY + 48), 34, kGold);
+    const std::string why = ActWhy(v.act, true);
+    c.Text(*a.regular, !why.empty() ? why : v.wearable_known ? "Tap to equip" : "Asking the game\xE2\x80\xA6", float(lx + lw - 22), float(kEqSlotY + 46), 22,
+           !why.empty() ? kGold : kInkFaint, Align::Right, float(lw - 200));
+    GlowLine(c, lx + 16, kEqSlotY + 60, lw - 32, kLineDim);
+    const int now_id = SlotItem(u, v.eq_slot);
+    std::vector<int> rows;
+    if (SlotTypeOf(v.eq_slot) == 3 && now_id > 0) rows.push_back(-1);  // Remove
+    for (int id : v.wearable_known ? v.wearable : EquipChoices(s, v)) rows.push_back(id);
+    const float alpha = v.act == View::kActNow && v.wearable_known ? 1.f : .5f;
+    for (int r = 0; r < kEqRows; ++r) {
+        const int idx = v.eq_scroll + r;
+        if (idx >= int(rows.size())) break;
+        const int y = kEqListY + r * kEqRowH, id = rows[size_t(idx)];
+        const bool worn = id == now_id;
+        RowBack(c, a, lx + 10, y, lw - 20, kEqRowH - 6, worn, r);
+        if (id < 0) {
+            c.Text(*a.bold, "Remove", float(lx + 92), float(y + 48), 30, alpha < 1 ? kInkDim : kInk);
+            c.Text(*a.regular, "Take off " + ItemName(a, now_id), float(lx + lw - 30), float(y + 46), 22, kInkFaint, Align::Right, float(lw - 300));
+            continue;
+        }
+        if (const Image* ic = a.image(ItemIcon(id))) c.Blit(*ic, lx + 24, y + 10, 54, 54, alpha);
+        // who wears it now: this member (Equipped) or another (their face: equipping it takes it from them, as the game does)
+        int other = 0;
+        for (auto& m : s.units) {
+            if (m.id == u.id || m.join != 0) continue;
+            bool on = m.weapon == id || m.armor == id;
+            for (int x : m.accessories) on = on || x == id;
+            if (on) { other = m.id; break; }
+        }
+        float right = float(lx + lw - 30);
+        if (worn) {
+            right -= c.Text(*a.bold, "Equipped", right, float(y + 34), 22, kGold, Align::Right) + 10;
+        } else if (other) {
+            if (const Image* f = a.image(Ui("Icon/Unit_Face_Timeline/ICON_UnitFace_unit" + std::to_string(other)))) {
+                c.Disc(right - 22, float(y + 37), 24, C(0xC0101E28));
+                c.BlitFit(*f, int(right - 44), y + 15, 44, 44, alpha);
+            }
+            right -= 56;
+        }
+        c.Text(*a.bold, ItemName(a, id), float(lx + 92), float(y + 34), 28, alpha < 1 ? kInkDim : kInk, Align::Left, right - (lx + 92) - 8, kShadow);
+        if (!worn && Deltas(c, s, a, now_id, id, lx + 92, y + 66, 4) == 0) c.Text(*a.regular, "No stat change", float(lx + 92), float(y + 66), 20, kInkFaint);
+    }
+    if (rows.empty()) c.Text(*a.regular, v.wearable_known ? "Nothing this member can wear here" : "", float(lx + lw / 2), float(kEqListY + 120), 26, kInkDim, Align::Center);
+    ScrollBar(c, kW - 44, kEqListY, kEqRows, kEqRowH, v.eq_scroll, int(rows.size()));
+}
+
+void Items(Canvas& c, const GameState& s, const View& v, const Art& a) {
+    CategoryBar(c, v, a);
+    if (v.item_cat == 0) ItemsUse(c, s, v, a);
+    else if (v.item_cat == 1) Equip(c, s, v, a);
+    else ItemList(c, s, v, a);
+}
+
+// ---- Quests ----
+// The quest's state as the journal marks it: the tracked one in gold, a completed one dim
+void QuestMark(Canvas& c, const Art& a, int cx, int cy, int r, bool main, bool tracked, bool done) {
+    const Rgba ring = done ? kInkFaint : main ? kGold : C(0xFF5AA8F0);
+    c.Disc(float(cx), float(cy), float(r), tracked ? ring : C(0xA0101E28));
+    c.Disc(float(cx), float(cy), float(r - 3), C(0xF0182C3A));
+    if (const Image* ic = a.image(Ui("Icon/MAP/ICON_MAP_L_Check"))) c.Blit(*ic, cx - r + 4, cy - r + 4, 2 * r - 8, 2 * r - 8, done ? .4f : 1.f);
+}
+
+void Quests(Canvas& c, const GameState& s, const View& v, const Art& a) {
+    // Main, Side: the journal's tabs
+    const int tw = (kW - 60) / 2;
+    for (int i = 0; i < 2; ++i) {
+        const int x = 30 + i * tw;
+        const bool on = i == v.quest_cat;
+        Panel(c, a, x + 4, kQuestCatY, tw - 8, 76, on);
+        if (on) GlowLine(c, x + 20, kQuestCatY + 72, tw - 40, i == 0 ? kGold : C(0xFF5AA8F0));
+        QuestMark(c, a, x + 50, kQuestCatY + 38, 26, i == 0, true, false);
+        const auto list = QuestsOf(s, i);
+        int open = 0;
+        for (auto* q : list) open += q->prog != 3;
+        c.Text(*a.bold, i == 0 ? "Main" : "Side", float(x + 92), float(kQuestCatY + 50), 32, on ? kInk : kInkDim);
+        c.Text(*a.regular, std::to_string(open) + " in progress", float(x + tw - 30), float(kQuestCatY + 48), 24, on ? kInkDim : kInkFaint, Align::Right);
+    }
+    const auto list = QuestsOf(s, v.quest_cat);
+    const int lx = 30, lw = kQuestListW;
+    for (int r = 0; r < kQuestRows; ++r) {
+        const int idx = v.quest_scroll + r;
+        if (idx >= int(list.size())) break;
+        const Quest& q = *list[size_t(idx)];
+        const int y = kQuestListY + r * kQuestRowH;
+        RowBack(c, a, lx, y, lw, kQuestRowH - 6, idx == v.quest_sel, r);
+        const bool done = q.prog == 3;
+        QuestMark(c, a, lx + 38, y + 41, 24, q.cat == 1, q.tracked, done);
+        c.Text(*a.bold, q.name.empty() ? "Quest " + std::to_string(q.id) : q.name, float(lx + 76), float(y + 38), 27, done ? kInkDim : kInk, Align::Left, float(lw - 92), kShadow);
+        std::string sub = done ? "Complete" : q.tracked ? "Tracked" : !q.place.empty() ? q.place : q.subtitle;
+        c.Text(*a.regular, sub, float(lx + 76), float(y + 70), 22, done ? kInkFaint : q.tracked ? kGold : kInkDim, Align::Left, float(lw - 92));
+    }
+    if (list.empty()) c.Text(*a.regular, v.quest_cat == 0 ? "No story quests yet." : "No side quests yet.", float(lx + lw / 2), 440, 30, kInkDim, Align::Center);
+    ScrollBar(c, lx + lw + 4, kQuestListY, kQuestRows, kQuestRowH, v.quest_scroll, int(list.size()));
+    // The quest: its name, where, and its story so far (the newest first), with Track at the foot
+    const int dx = lx + lw + 20, dw = kW - 30 - dx, dy = kQuestListY, dh = kTabBarY - 14 - dy;
+    Panel(c, a, dx, dy, dw, dh);
+    if (v.quest_sel < 0 || v.quest_sel >= int(list.size())) {
+        c.Text(*a.regular, "Tap a quest to read it and track it.", float(dx + dw / 2), float(dy + dh / 2), 26, kInkFaint, Align::Center, float(dw - 40));
+        return;
+    }
+    const Quest& q = *list[size_t(v.quest_sel)];
+    int y = dy + 52;
+    for (const auto& line : Wrap(*a.title, q.name, 34, float(dw - 48))) {
+        c.Text(*a.title, line, float(dx + 24), float(y), 34, q.cat == 1 ? kGold : C(0xFF8CC4F5), Align::Left, float(dw - 48), kShadow);
+        y += 42;
+        if (y > dy + 140) break;
+    }
+    if (!q.subtitle.empty()) { c.Text(*a.bold, q.subtitle, float(dx + 24), float(y + 4), 26, kInk, Align::Left, float(dw - 48)); y += 38; }
+    if (!q.place.empty()) {
+        if (const Image* ic = a.image(Ui("Icon/MAP/ICON_MAP_L_Town"))) c.Blit(*ic, dx + 22, y - 18, 30, 30);
+        c.Text(*a.regular, q.place, float(dx + 60), float(y + 4), 24, kInkDim, Align::Left, float(dw - 84));
+        y += 36;
+    }
+    GlowLine(c, dx + 16, y, dw - 32, kLineDim);
+    y += 16;
+    const bool track_row = q.prog != 3;
+    const int text_bottom = track_row ? kQuestTrackY - 12 : dy + dh - 16;
+    c.SetClip(dx, y, dw, text_bottom - y);
+    std::vector<std::string> paras(q.log.rbegin(), q.log.rend());
+    if (paras.empty() && !q.desc.empty()) paras.push_back(q.desc);
+    bool first = true;
+    for (const auto& para : paras) {
+        for (const auto& line : Wrap(*a.regular, para, 25, float(dw - 48))) {
+            if (y + 34 > text_bottom) break;
+            y += 32;
+            c.Text(*a.regular, line, float(dx + 24), float(y), 25, first ? kInk : kInkDim, Align::Left, float(dw - 48));
+        }
+        y += 14;
+        first = false;
+        if (y + 34 > text_bottom) break;
     }
     c.ResetClip();
+    if (!track_row) return;
+    // Track, as the journal's own action: the game's rule says whether this quest can be tracked
+    const int bx = dx + 20, bw = dw - 40, by = kQuestTrackY;
+    const View::Fx* fx = FxFor(v, -2, q.id);
+    if (!q.can_track) {
+        c.Text(*a.regular, q.cat == 1 ? "The story quest is always followed" : "This quest can't be tracked", float(dx + dw / 2), float(by + 46), 24, kInkFaint, Align::Center);
+    } else if (q.tracked) {
+        c.Fill(bx, by, bw, kQuestTrackH, C(0xE0182C3A));
+        c.Frame(bx, by, bw, kQuestTrackH, 2, kGold);
+        QuestMark(c, a, bx + 44, by + kQuestTrackH / 2, 24, q.cat == 1, true, false);
+        c.Text(*a.bold, "Tracked", float(bx + 84), float(by + 50), 30, kGold);
+        c.Text(*a.regular, "Tap to stop tracking", float(bx + bw - 24), float(by + 48), 22, kInkDim, Align::Right);
+    } else {
+        c.Fill(bx, by, bw, kQuestTrackH, C(0xFF8A6A1E));
+        c.Fill(bx + 3, by + 3, bw - 6, kQuestTrackH - 6, kGold);
+        c.Text(*a.bold, "Track this quest", float(bx + bw / 2), float(by + 50), 30, kNavy, Align::Center);
+    }
+    if (fx) c.Text(*a.bold, fx->text, float(bx + bw / 2), float(by - 14), 22, fx->good ? kGold : kFoeInk, Align::Center);
+    else if (v.busy_unit == -2) c.Text(*a.bold, "\xE2\x80\xA6", float(bx + bw / 2), float(by - 14), 26, kGold, Align::Center);
+    else if (v.quest_act != View::kActNow && q.can_track) c.Text(*a.regular, v.quest_act == View::kActNoHelper ? "The companion's game helper is not running" : "Close the game's menu to change the tracked quest",
+                                                       float(bx + bw / 2), float(by - 14), 22, kGold, Align::Center);
 }
 
 // ---- Map ----
@@ -388,7 +751,7 @@ void Map(Canvas& c, const GameState& s, const Art& a) {
 // The top half is the battlefield as the game lays it out (enemies left, the party right); the bottom half is the game's
 // command window, always in the same place: lit on the player's turn, dimmed while the battle plays out. One layout serves
 // drawing and taps (BattleHit).
-constexpr int kFieldY = kHeaderH + 10, kWinY = 560, kWinB = kTabBarY - 10;
+constexpr int kFieldY = kHeaderH + 10, kWinY = 600, kWinB = kH - 14;  // the whole screen below the header
 struct Geom {
     struct Card { int x, y, w, h, unit; bool foe, vision = false; };
     std::vector<Card> cards;
@@ -771,6 +1134,134 @@ BattleTap BattleHit(const GameState& s, int x, int y) {
     return t;
 }
 
+int SlotType(int slot) { return SlotTypeOf(slot); }
+int SlotItem(const UnitState& u, int slot) {
+    if (slot == 0) return u.weapon;
+    if (slot == 1) return u.armor;
+    const size_t i = size_t(slot - 2);
+    return i < u.accessories.size() ? u.accessories[i] : -1;
+}
+
+std::vector<int> EquipChoices(const GameState& s, const View& v) {
+    std::vector<int> out;
+    const int type = SlotTypeOf(v.eq_slot);
+    for (auto& i : s.inventory) {
+        if (i.num <= 0) continue;
+        auto e = s.equipment.find(i.id);
+        if (e != s.equipment.end() && e->second.type == type) out.push_back(i.id);
+    }
+    std::sort(out.begin(), out.end());
+    out.erase(std::unique(out.begin(), out.end()), out.end());
+    if (out.size() > 256) out.resize(256);
+    return out;
+}
+
+std::vector<const UnitState*> UseTargets(const GameState& s) {
+    std::vector<const UnitState*> out;
+    for (int id : s.party)
+        for (auto& u : s.units)
+            if (u.id == id && out.size() < 4) out.push_back(&u);
+    return out;
+}
+
+bool UseTargetOk(const UnitState& u, const ConsumableInfo& c, const char** why) {
+    auto no = [&](const char* w) { if (why) *why = w; return false; };
+    if (!c.field) return no("Battle only");
+    const bool ko = u.hp <= 0;
+    if (c.kind == ConsumableInfo::kRevive) return ko ? true : no("Not KO");
+    if (ko) return no("KO");
+    if (c.kind == ConsumableInfo::kHp && u.max_hp > 0 && u.hp >= u.max_hp) return no("HP is full");
+    if (c.kind == ConsumableInfo::kMp && u.max_mp > 0 && u.mp >= u.max_mp) return no("MP is full");
+    return true;
+}
+
+int ListRows(const View& v) { return v.tab == kTabQuests ? kQuestRows : v.item_cat == 0 ? kUseRows : v.item_cat == 1 ? kEqRows : kItemRows; }
+
+int ListCount(const GameState& s, const View& v) {
+    if (v.tab == kTabQuests) return int(QuestsOf(s, v.quest_cat).size());
+    if (v.item_cat != 1) return int(ItemsOf(s, v.item_cat).size());
+    const auto roster = Roster(s);
+    if (roster.empty()) return 0;
+    const UnitState& u = *roster[size_t(std::clamp(v.eq_member, 0, int(roster.size()) - 1))];
+    const int extra = SlotTypeOf(v.eq_slot) == 3 && SlotItem(u, v.eq_slot) > 0 ? 1 : 0;
+    return extra + int(v.wearable_known ? v.wearable.size() : EquipChoices(s, v).size());
+}
+
+ItemsTap ItemsHit(const GameState& s, const View& v, int x, int y) {
+    ItemsTap t;
+    if (v.item_cat == 0) {
+        const int n = int(ItemsOf(s, 0).size());
+        if (y >= kItemListY && y < kItemListY + kUseRows * kItemRowH) {
+            const int idx = v.item_scroll + (y - kItemListY) / kItemRowH;
+            if (idx < n) t.kind = ItemsTap::kRow, t.index = idx;
+            return t;
+        }
+        const auto members = UseTargets(s);
+        const auto boxes = UseCards(members.size());
+        for (size_t i = 0; i < boxes.size(); ++i)
+            if (In(x, y, boxes[i].x, boxes[i].y, boxes[i].w, boxes[i].h)) return t.kind = ItemsTap::kTarget, t.id = members[i]->id, t;
+        return t;
+    }
+    if (v.item_cat == 1) {
+        const auto roster = Roster(s);
+        const int n = std::min<int>(int(roster.size()), 8);
+        if (!n) return t;
+        const int gap = 10, cw = std::min(300, (kW - 60 - gap * (n - 1)) / n);
+        if (y >= kEqChipY && y < kEqChipY + kEqChipH) {
+            for (int i = 0; i < n; ++i)
+                if (x >= 30 + i * (cw + gap) && x < 30 + i * (cw + gap) + cw) return t.kind = ItemsTap::kMember, t.index = i, t;
+            return t;
+        }
+        if (x >= 30 && x < 30 + kEqSlotW && y >= kEqSlotY && y < kEqSlotY + 4 * kEqSlotH) return t.kind = ItemsTap::kSlot, t.index = (y - kEqSlotY) / kEqSlotH, t;
+        if (x >= kEqListX && y >= kEqListY && y < kEqListY + kEqRows * kEqRowH) {
+            const UnitState& u = *roster[size_t(std::clamp(v.eq_member, 0, n - 1))];
+            std::vector<int> rows;
+            if (SlotTypeOf(v.eq_slot) == 3 && SlotItem(u, v.eq_slot) > 0) rows.push_back(-1);
+            for (int id : v.wearable_known ? v.wearable : EquipChoices(s, v)) rows.push_back(id);
+            const int idx = v.eq_scroll + (y - kEqListY) / kEqRowH;
+            if (idx < int(rows.size())) {
+                if (rows[size_t(idx)] < 0) t.kind = ItemsTap::kRemove;
+                else t.kind = ItemsTap::kChoice, t.id = rows[size_t(idx)];
+            }
+        }
+        return t;
+    }
+    if (y >= kItemListY && y < kItemListY + kItemRows * kItemRowH) {
+        const int idx = v.item_scroll + (y - kItemListY) / kItemRowH;
+        if (idx < int(ItemsOf(s, v.item_cat).size())) t.kind = ItemsTap::kRow, t.index = idx;
+    }
+    return t;
+}
+
+std::vector<const Quest*> QuestsOf(const GameState& s, int cat) {
+    std::vector<const Quest*> out;
+    for (auto& q : s.quests)
+        if (q.prog >= 1 && (cat == 0 ? q.cat == 1 : q.cat >= 2)) out.push_back(&q);
+    std::stable_sort(out.begin(), out.end(), [](const Quest* a, const Quest* b) {
+        const bool da = a->prog == 3, db = b->prog == 3;
+        if (da != db) return !da;                       // in progress first
+        if (a->tracked != b->tracked) return a->tracked;  // the tracked one on top
+        return da ? a->id > b->id : a->id < b->id;      // the newest completed first
+    });
+    return out;
+}
+
+QuestsTap QuestsHit(const GameState& s, const View& v, int x, int y) {
+    QuestsTap t;
+    if (y >= kQuestCatY && y < kQuestCatY + 76) return t.kind = QuestsTap::kCat, t.index = x < kW / 2 ? 0 : 1, t;
+    const auto list = QuestsOf(s, v.quest_cat);
+    if (x >= 30 && x < 30 + kQuestListW && y >= kQuestListY && y < kQuestListY + kQuestRows * kQuestRowH) {
+        const int idx = v.quest_scroll + (y - kQuestListY) / kQuestRowH;
+        if (idx < int(list.size())) t.kind = QuestsTap::kRow, t.index = idx;
+        return t;
+    }
+    if (x >= 30 + kQuestListW + 20 && y >= kQuestTrackY && y < kQuestTrackY + kQuestTrackH && v.quest_sel >= 0 && v.quest_sel < int(list.size())) {
+        const Quest& q = *list[size_t(v.quest_sel)];
+        if (q.can_track && q.prog != 3) t.kind = QuestsTap::kTrack;
+    }
+    return t;
+}
+
 std::vector<const UnitState*> Roster(const GameState& s) {
     std::vector<const UnitState*> out;
     for (int id : s.party)
@@ -784,7 +1275,7 @@ std::vector<const UnitState*> Roster(const GameState& s) {
 void ComposePage(Canvas& c, const GameState& s, const View& v, const Art& a) {
     g_icon_state = &s;
     Background(c, a);
-    static const char* kTitles[kTabCount] = {"Map", "Party", "Items", "Battle"};
+    static const char* kTitles[kTabCount + 1] = {"Map", "Party", "Items", "Quests", "Battle"};
     if (!s.in_game || !s.save_ok) {  // title screen, boot or loading: the game's logo until a game is loaded
         c.GradientV(0, 0, kW, kH, C(0x600A131B), C(0xB00A131B));
         const Image* emblem = a.image(Ui("Title/T_TitleLogoImageRGB"));
@@ -808,7 +1299,8 @@ void ComposePage(Canvas& c, const GameState& s, const View& v, const Art& a) {
         break;
     }
     case kTabItems: Items(c, s, v, a); break;
-    default: Battle(c, s, a); break;
+    case kTabQuests: Quests(c, s, v, a); break;
+    default: Battle(c, s, a); return;  // a battle has the whole screen
     }
     TabBar(c, a, v.tab, v.map_ok);
 }
