@@ -1,0 +1,9 @@
+{
+ "format": 1,
+ "type": "dual-screen-mod",
+ "title_id": "010065301A2E0000",
+ "name": "Star Ocean: The Second Story R dual screen",
+ "version": "1.0.0",
+ "requires_module": true,
+ "min_runtime": 22
+}

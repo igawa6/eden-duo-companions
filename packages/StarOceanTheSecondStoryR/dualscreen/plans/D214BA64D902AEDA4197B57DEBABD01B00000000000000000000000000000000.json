@@ -1,0 +1,81 @@
+{
+ "format": 2,
+ "module": "main",
+ "title_id": "010065301A2E0000",
+ "build_id": "D214BA64D902AEDA4197B57DEBABD01B00000000000000000000000000000000",
+ "layout": {
+  "segments": [
+   {
+    "location": 0,
+    "size": 46314584
+   },
+   {
+    "location": 46317568,
+    "size": 20762684
+   },
+   {
+    "location": 67084288,
+    "size": 10071608
+   }
+  ],
+  "bss_size": 20009416
+ },
+ "mailbox_size": 4096,
+ "patches": [
+  {
+   "offset": 27804640,
+   "expected": "ff4301d1",
+   "replacement": "00000014",
+   "relocations": [
+    {
+     "offset": 0,
+     "kind": "aarch64_branch26",
+     "target": "code",
+     "addend": 0
+    }
+   ]
+  }
+ ],
+ "payloads": [],
+ "guest_code": {
+  "bytes": "fd7bbda9fd030091e00701a9f35302a91300009073020091680640b908050011680600b9680240b969ea89524906a9721f01096b4104005474020491881240b968030034800240f9200300b4090840f9e90200b4090040f98a0640f93f010aeb61020054e1031faa00000094000200b4881240b91f090071c0000054e1031faa000000948006032d822200bd05000014802640bd810a452de1031faa00000094881640b908050011881600b994c2009168420f919f0208eb21fcff54f35342a9e00741a9fd7bc3a8ff4301d100000014",
+  "relocations": [
+   {
+    "offset": 16,
+    "kind": "aarch64_adrp",
+    "target": "mailbox",
+    "addend": 0
+   },
+   {
+    "offset": 20,
+    "kind": "aarch64_add_lo12",
+    "target": "mailbox",
+    "addend": 0
+   },
+   {
+    "offset": 104,
+    "kind": "aarch64_branch26",
+    "target": "main",
+    "addend": 38784080
+   },
+   {
+    "offset": 128,
+    "kind": "aarch64_branch26",
+    "target": "main",
+    "addend": 38833264
+   },
+   {
+    "offset": 156,
+    "kind": "aarch64_branch26",
+    "target": "main",
+    "addend": 38833472
+   },
+   {
+    "offset": 204,
+    "kind": "aarch64_branch26",
+    "target": "main",
+    "addend": 27804644
+   }
+  ]
+ }
+}
