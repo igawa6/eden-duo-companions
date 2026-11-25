@@ -51,6 +51,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 31 | [My Time at Sandrock](#my-time-at-sandrock) | `0100B63016916000` | 1.4.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/my-time-at-sandrock-1.0.0) | 🥇<br><a href="https://ko-fi.com/U7U71VTM7K"><img src="https://img.shields.io/badge/Helen_Tracy-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Helen Tracy"></a> |
 | 32 | [Resident Evil 4](#resident-evil-4) | `010099A00BC1E000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/resident-evil-4-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/4rd-Poll-Next-Switch-Game-on-Eden-Duo-I7Z428XZNI"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 | 33 | [The Legend of Zelda: Skyward Sword HD](#the-legend-of-zelda-skyward-sword-hd) | `01002DA013484000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/skyward-sword-hd-1.0.0) | 🥇<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/eminham-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="eminham"></a> |
+| 34 | [Star Ocean: The Second Story R](#star-ocean-the-second-story-r) | `010065301A2E0000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/star-ocean-the-second-story-r-1.0.0) | ⭐<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -1077,6 +1078,30 @@ The companion ships no game art: maps, icons, fonts and item names are read from
 Code: GPL-3.0-or-later.
 
 </details>
+
+---
+
+<a id="star-ocean-the-second-story-r"></a>
+
+## Star Ocean: The Second Story R
+
+⭐ <a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a>
+
+`010065301A2E0000` · game version 1.0.1 · companion 1.0.0 (by jadesigns.)
+
+Your party, the Guide Map, missions and the battle controls on the second screen, in the game's own look, so the top screen stays on the game.
+
+- **Party.** The roster in the Party Formation look with level, HP and MP, and Leader. Status with every stat, elements, ailments, Friendship Level and Talents. Equipment slots with item icons beside full-body art, Special Arts/Spells with levels and BP cost, and Skills with their levels and costs. Equip, arts and Improve open the game's own screens.
+- **Guide Map.** The game's minimap of your area and floor, or the Expel / Nede world map, with your position and the game's icons for towns, dungeons, the destination, Private Actions, save points, shops and enemies. Place and floor names, the next objective, the battle party bar, and shortcuts to the game's Items, IC/Specialty, Quick Heal, Camp Menu and Switch PA.
+- **Missions.** Challenge Missions in the four rank tabs and Guild Missions with their progress; tapping one opens it in the game's Missions menu.
+- **Battle.** The controlled member with level, HP and MP, the other members' cards (tap to switch control), ailments, the bonus gauge, Assault Action members, and the battle buttons with the game's own button icons.
+- **Hide HUD (optional).** Hides the top screen's shortcut list, minimaps, place names and field icons, and in battle the party status, button guide, bonus gauge, assist panel and item cool time. Off at each launch; switching it off restores them. Game files on disk are not changed; this switch patches game code in memory while the game runs.
+
+Use **NCE**, not JIT: it was developed and tested with NCE only.
+
+The companion ships no game art: every picture, the game's fonts and the words are read from your own game files. The Hide HUD switch follows the Dave the Diver companion's approach.
+
+Requires Eden Duo 1.3.2.2 or newer (runtime 22). Game version 1.0.1 only.
 
 ---
 
