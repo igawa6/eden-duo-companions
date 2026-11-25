@@ -90,7 +90,7 @@ bool WorldInto(MapFrame& f, const std::vector<ffr::Island>& isl) {
         if (per[c] >= kIslandsPerClass) continue;
         ++per[c];
         // The picture: 1.5 times its class's world size in pixels, at most 1024 (the capture's own size). The host holds 64 MiB of
-        // module pictures and drops the oldest loaded first, in use or not: the whole world (ocean, islands) must stay well
+        // module pictures and drops the oldest loaded first, in use or not: the whole world's islands must stay well
         // under that, or its pictures reload over and over (the flicker).
         char frac[64];
         std::snprintf(frac, sizeof frac, "%d:%.3f", int(std::min(1024.0, 1.5 * kIslandSizes[c])), std::min(1.0, sz / kIslandSizes[c]));
@@ -1391,23 +1391,18 @@ bool MapPicture(Instance* in, const std::string& k, void* receiver, EdenDsmodIma
         }
         return send(c);
     }
-    if (k == "blank") return send(ffr::Canvas(4, 4));  // transparent
-    if (k.rfind("ocean:", 0) == 0 && k.size() >= 8) {  // ocean:<flip x><flip y>: mirrored tiles meet without seams
+    if (k.rfind("sea:", 0) == 0) {  // sea:<w>x<h>: the world's ocean fixed behind the widget at a widget's size, like the menu art
+        int w = 0, h = 0;
+        if (std::sscanf(k.c_str() + 4, "%dx%d", &w, &h) != 2 || w < 16 || h < 16 || w > 2048 || h > 2048) return false;
         const ffr::Image* im = img("FFRS/Content/UI/Textures/MapCapture/Wld/T_Wld_ocean.uasset");
-        if (!im) return false;
-        const bool fx = k[6] == '1', fy = k[7] == '1';
-        const int n = 512;  // (a soft texture: a quarter of the memory, nothing lost on screen)
-        ffr::Canvas c(n, n);
-        c.Blit(*im, 0, 0, n, n);
-        if (fx || fy) {
-            std::vector<uint8_t> px = c.pixels(), out(px.size());
-            for (int y = 0; y < n; ++y)
-                for (int x = 0; x < n; ++x)
-                    std::memcpy(&out[(size_t(y) * n + x) * 4], &px[(size_t(fy ? n - 1 - y : y) * n + (fx ? n - 1 - x : x)) * 4], 4);
-            c.CopyFrom(out);
-        }
+        ffr::Canvas c(w, h);
+        c.Clear(ffr::C(0xFF485756));  // the ocean's own tone
+        // The game's sea chart (a 1920 x 1080 picture, compass roses and lines) once, filling the widget with its aspect kept:
+        // only the islands and markers move when the map follows or zooms, and the chart stays sharp at any zoom
+        if (im) c.BlitFit(*im, 0, 0, w, h, 1.f, true);
         return send(c);
     }
+    if (k == "blank") return send(ffr::Canvas(4, 4));  // transparent
     return false;
 }
 

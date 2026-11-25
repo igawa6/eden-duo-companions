@@ -44,9 +44,6 @@ def main():
     # The live map: one widget for a town or dungeon capture, one for the world map's islands. The module publishes the
     # player every tick (ffr.map.px / py / yaw), the view around them (ffr.map.vx0 ..) and the pictures as module keys; drag and
     # pinch look around.
-    # The world's ocean: 4 x 4 tiles of the game's ocean texture, mirrored in turn so they meet without seams
-    ocean = [{"src": f"module:ffr:ocean:{tx % 2}{ty % 2}", "x0": tx * 1024, "y0": ty * 1024, "x1": tx * 1024 + 1024, "y1": ty * 1024 + 1024}
-             for ty in range(4) for tx in range(4)]
     for name, area, gate in (("ffr_town_map", "ffr_town", "ffr.map.town"), ("ffr_world_map", "ffr_world", "ffr.map.world")):
         w = {"type": "map", "id": name, "rect": MAP, "area": area, "area_label": False, "pan_zoom": True,
              "min_zoom": 0.6, "max_zoom": 10, "need_bind": gate, "bg": "#FF0A131B",
@@ -63,8 +60,10 @@ def main():
             w["bg"] = "#00000000"
             widgets.append({"type": "image", "rect": MAP, "src": f"module:ffr:bg:{MAP[2]}x{MAP[3]}", "need_bind": gate})
         else:
-            w["overlays"] = ocean
-            w["bg"] = "#FF485756"  # the ocean's own tone where no tile is drawn
+            # The world's ocean fixed behind the map the same way: only the islands and markers move and zoom, and the ocean
+            # stays sharp at any zoom
+            w["bg"] = "#00000000"
+            widgets.append({"type": "image", "rect": MAP, "src": f"module:ffr:sea:{MAP[2]}x{MAP[3]}", "need_bind": gate})
         widgets.append(w)
         # The buttons. While the map follows the player (the view at home: ffr.map.<kind>_follow), + and - set the module's own
         # zoom, and the map keeps following at it. Once the player drags or pinches to look around (ffr.map.<kind>_look), they
