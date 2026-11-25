@@ -54,6 +54,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 34 | [Star Ocean: The Second Story R](#star-ocean-the-second-story-r) | `010065301A2E0000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/star-ocean-the-second-story-r-1.0.0) | ⭐<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a> |
 | 35 | [Pokémon Legends: Z-A](#pokemon-legends-za) | `0100F43008C44000` | 2.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-legends-z-a-1.0.0) | ⭐<br><a href="https://ko-fi.com/sickops"><img src="https://img.shields.io/badge/Sickops-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Support Sickops on Ko-fi"></a> |
 | 36 | [FINAL FANTASY RESONANCE](#final-fantasy-resonance) | `0100606026F12000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/final-fantasy-resonance-1.0.0) | ⭐<br><a href="https://github.com/danielcamilo1"><img src="https://img.shields.io/badge/danielcamilo1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="danielcamilo1"></a> |
+| 37 | [The Legend of Zelda: Tears of the Kingdom](#the-legend-of-zelda-tears-of-the-kingdom) | `0100F2C0115B6000` | 1.4.3 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/tears-of-the-kingdom-1.2.0) | ⭐<br><a href="https://github.com/aldotms89"><img src="https://img.shields.io/badge/aldotms89-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="aldotms89"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -1170,6 +1171,36 @@ The map, your party, your items, your quests and the battle on the second screen
 
 The companion ships no game art: fonts, icons, portraits, map captures, menu art and text are read from your own game files.
 Contributed by [danielcamilo1](https://github.com/danielcamilo1). Code: GPL-3.0-or-later.
+
+</details>
+
+---
+
+<a id="the-legend-of-zelda-tears-of-the-kingdom"></a>
+
+## The Legend of Zelda: Tears of the Kingdom
+
+⭐ <a href="https://github.com/aldotms89"><img src="https://img.shields.io/badge/aldotms89-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="aldotms89"></a>
+
+<details>
+<summary>Screenshots and details</summary>
+
+`0100F2C0115B6000` · game version 1.4.3 (update v720896) · companion 1.2.0 · runtime 22
+
+Screenshots of the current pages are still to come.
+
+A read-only second screen in the game's own look. It reads the running game and never changes it.
+
+- **Status.** The place (Sky, Surface or Depths) and Link's position, rupees and poes, hearts as heart icons in quarters (bonus hearts yellow, gloom hearts purple), stamina wheels, battery, the equipped weapon, bow, shield and armor with icons and in-game names, the active ability and the five sages with their cooldowns.
+- **Map.** The game's own Sky, Surface and Depths maps, with Link's marker and heading. Drag and pinch; Center returns to Link; the layer follows you or you pick one.
+- **Items.** The eight pouch tabs, an icon grid with durability or count, and the game's own name and description for the selected item.
+- **Info.** Diagnostics: build match, the game-data tables, the player actor and the raw values.
+- **Art pack.** The font, UI sprites, item icons, item names and descriptions (in the language you choose) and the maps are not part of the package. `tools/totk/make_art.py` makes them from your own game (`.nup`) and `tools/totk/push_art.sh` copies them next to the installed companion. Without them the companion still runs with a built-in font and no pictures.
+- **Limits.** Game version 1.4.3 only (main build `277178B7DBA1B6D4…`); another build does not load the module. Stamina shows capacity, not the current value. No item actions. Item names are the game's own, in the language of the art pack.
+
+Tested on Peanuts Native on an AYN Thor; not yet verified on Eden Duo. Parts of the reader are ported from [TotK Native](https://github.com/AurelioB/totk-android) (MIT, see `packages/TearsOfTheKingdom/dualscreen/NOTICE-TotKNative.txt`).
+
+Contributed by [aldotms89](https://github.com/aldotms89). Code: GPL-3.0-or-later, with the MIT-licensed parts noted above.
 
 </details>
 

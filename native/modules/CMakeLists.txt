@@ -1623,3 +1623,14 @@ if(BUILD_TESTING AND NOT ANDROID)
         SOURCES 0100606026F12000_test.cpp 0100606026F12000.cpp ${FFR_CORE_SOURCES}
         INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
 endif()
+
+# The Legend of Zelda: Tears of the Kingdom 1.4.3 (v720896): read-only status, map, items. Reads the GameData
+# manager and the player actor; art, font and text come from an art pack the player builds from their own game
+# (tools/totk/make_art.py), nothing is decoded in the module. Test: no game files needed.
+dsmod_add_module(dsmod-totk EXCLUDE_FROM_ALL
+    TITLE 0100F2C0115B6000
+    SOURCES 0100F2C0115B6000.cpp totk_gamedata.h
+    EXPORTS eden_dsmod_get_module)
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-totk KEEP_ASSERTS SOURCES 0100F2C0115B6000_test.cpp 0100F2C0115B6000.cpp)
+endif()

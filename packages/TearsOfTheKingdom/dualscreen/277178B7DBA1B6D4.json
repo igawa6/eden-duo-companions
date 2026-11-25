@@ -1,0 +1,5 @@
+{
+ "_game": "The Legend of Zelda: Tears of the Kingdom 1.4.3 (v720896), 0100F2C0115B6000",
+ "_build_id": "277178b7dba1b6d4949a84778d4abc58",
+ "_note": "Empty on purpose: the native module reads the GameData manager live (see README.md)."
+}

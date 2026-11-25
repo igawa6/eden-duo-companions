@@ -1,0 +1,33 @@
+This package's Tears of the Kingdom reader (native/modules/totk_gamedata.h and
+0100F2C0115B6000.cpp, packages/TearsOfTheKingdom) ports game-memory layout knowledge and flag names from
+TotK Native (https://github.com/AurelioB/totk-android), games/totk/runtime/companion_snapshot.c and
+companion.h: the GameData table offsets/strides and Vector3 value offset, MurmurHash3 flag names
+("PlayerStatus.*", "Pouch.*", "MapData.*"), string-array elements, the pouch partition selector, the
+category/slot tables, and the scene -> resident actor "Player" walk (actor +0x218/+0x2B4/+0x2C0).
+That code is distributed under the MIT License:
+
+MIT License
+
+Copyright (c) 2026 MacNativeGames contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+tools/totk/make_art.py additionally ports from the same TotK Native file (make_companion_assets.py): the SARC, BYML, MSBT
+and BNTX readers, the block-linear deswizzle and texture decode, the UI texture name table, the pouch-name logic
+(rsdb, base_actors, pouch_name_sources) and the map tile selection, under the same MIT license and copyright notice above.
