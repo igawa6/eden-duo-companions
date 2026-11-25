@@ -1596,3 +1596,30 @@ if(BUILD_TESTING AND NOT ANDROID)
     dsmod_add_test(dsmod-sshd-swipe KEEP_ASSERTS SOURCES sshd_swipe_test.cpp
         01002DA013484000.cpp sshd_art.cpp sshd_dpad.cpp sshd_hudhide.cpp)
 endif()
+
+# FINAL FANTASY RESONANCE 1.0.1 (update): party, items, quests, live map and battle panel; battle commands
+# by touch through button presses; fast travel, item use, equipment, quest tracking and menu sounds through the package's guest helper
+# (native/helper/ffr_guest_helper.S, tools/ffr/build_helper_plan.py). Art, fonts and English text are decoded at runtime from the
+# player's own FFRS-Switch.utoc/.ucas and FFRS-Switch.pak (Oodle via the vendored ooz).
+set(FFR_CORE_SOURCES
+    ffr_assets.cpp
+    ffr_assets.h
+    ffr_draw.cpp
+    ffr_draw.h
+    ffr_pages.cpp
+    ffr_pages.h
+    ffr_reader.cpp
+    ffr_reader.h
+    third_party/stb_truetype.h
+    "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+    ${DQ3_OOZ_SOURCES})
+dsmod_add_module(dsmod-ffr EXCLUDE_FROM_ALL
+    TITLE 0100606026F12000
+    SOURCES 0100606026F12000.cpp ${FFR_CORE_SOURCES}
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions
+    INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-ffr KEEP_ASSERTS
+        SOURCES 0100606026F12000_test.cpp 0100606026F12000.cpp ${FFR_CORE_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+endif()

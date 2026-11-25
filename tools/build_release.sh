@@ -13,6 +13,7 @@
 #   0100C510166F0000-ChainedEchoesDS-<ver>.dsmod.zip
 #   0100DCD01525A000-Persona3PortableDS-<ver>.dsmod.zip
 #   01008CF01BAAC000-EchoesOfWisdom-<ver>.dsmod.zip
+#   0100606026F12000-FinalFantasyResonance-<ver>.dsmod.zip (opt-in GAMES=ffr)
 #
 # usage: tools/build_release.sh [out dir]            (default: dist)
 #
@@ -36,9 +37,11 @@
 #   OT0_LINUX_SO / OT0_ANDROID_SO       Octopath Traveler 0 (dsmod-ot0, opt-in GAMES=ot0)
 #   COTL_LINUX_SO / COTL_ANDROID_SO     Cult of the Lamb (dsmod-cotl, opt-in GAMES=cotl)
 #   ECHOES_LINUX_SO / ECHOES_ANDROID_SO The Legend of Zelda: Echoes of Wisdom (dsmod-echoes, opt-in GAMES=echoes)
+#   FFR_LINUX_SO / FFR_ANDROID_SO       FINAL FANTASY RESONANCE (dsmod-ffr, opt-in GAMES=ffr)
 # Versions default to each package's current release; override with P5R_VERSION, DREAD_VERSION,
 # LA_VERSION, MK8D_VERSION, WONDER_VERSION, LP_VERSION, LP_PEARL_VERSION, CTR_VERSION, DQ3_VERSION,
-# CE_VERSION, P3P_VERSION, ECHOES_VERSION; OT0_VERSION defaults to 1.0.0 and COTL_VERSION to 1.1.0.
+# CE_VERSION, P3P_VERSION, ECHOES_VERSION; OT0_VERSION defaults to 1.0.0, COTL_VERSION to 1.1.0
+# and FFR_VERSION to 1.0.0.
 # GAMES selects which archives to build (default: "p5r dread la mk8d wonder acnh fe3h isaac
 # lp lp-pearl ctr dq3 ce p3p"); only the selected
 # games' modules are required.
@@ -96,6 +99,9 @@ if want cotl; then
 fi
 if want echoes; then
   : "${ECHOES_LINUX_SO:?set ECHOES_LINUX_SO}" "${ECHOES_ANDROID_SO:?set ECHOES_ANDROID_SO}"
+fi
+if want ffr; then
+  : "${FFR_LINUX_SO:?set FFR_LINUX_SO}" "${FFR_ANDROID_SO:?set FFR_ANDROID_SO}"
 fi
 PY=${PYTHON:-python3}
 export PYTHONDONTWRITEBYTECODE=1
@@ -208,20 +214,26 @@ if want p3p; then
     $(build_ids Persona3Portable)
 fi
 if want ot0; then
-  pkg OctopathTraveler0 OctopathTraveler0DS "${OT0_VERSION:-1.0.0}" --min-runtime 22 \
+  pkg OctopathTraveler0 OctopathTraveler0DS "${OT0_VERSION:-1.0.0}" --min-runtime 25 \
     --module "linux-x86_64=$OT0_LINUX_SO" --module "android-arm64-v8a=$OT0_ANDROID_SO" \
     --build-id 9FE60A212CFF9B9A3656AB63D4F882E500000000000000000000000000000000
 fi
 if want cotl; then
   # Game versions 1.5.27 and 1.5.28 share this build.
-  pkg CultOfTheLamb CultOfTheLambDS "${COTL_VERSION:-1.1.0}" --min-runtime 22 \
+  pkg CultOfTheLamb CultOfTheLambDS "${COTL_VERSION:-1.1.0}" --min-runtime 25 \
     --module "linux-x86_64=$COTL_LINUX_SO" --module "android-arm64-v8a=$COTL_ANDROID_SO" \
     --build-id 316A4D4881A9F1E077A07262E917917C00000000000000000000000000000000
 fi
 if want echoes; then
   # shellcheck disable=SC2046
-  pkg EchoesOfWisdom EchoesOfWisdom "${ECHOES_VERSION:-1.0.2}" --min-runtime 22 \
+  pkg EchoesOfWisdom EchoesOfWisdom "${ECHOES_VERSION:-1.0.2}" --min-runtime 25 \
     --module "linux-x86_64=$ECHOES_LINUX_SO" --module "android-arm64-v8a=$ECHOES_ANDROID_SO" \
     $(build_ids EchoesOfWisdom)
+fi
+if want ffr; then
+  # Update 1.0.1; other builds are refused.
+  pkg FinalFantasyResonance FinalFantasyResonance "${FFR_VERSION:-1.0.0}" --min-runtime 25 \
+    --module "linux-x86_64=$FFR_LINUX_SO" --module "android-arm64-v8a=$FFR_ANDROID_SO" \
+    --build-id 84E182F72EE1DA4F477804BD05B54C1500000000000000000000000000000000
 fi
 (cd "$OUT" && sha256sum ./*.dsmod.zip)

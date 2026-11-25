@@ -81,6 +81,7 @@ not require a separately distributed `libc++_shared.so`. ACNH diagnostics defaul
 | `dsmod-ce` | `0100C510166F0000.so` |
 | `dsmod-ot0` (development, runtime 22) | `01005270232F2000.so` |
 | `dsmod-cotl` (runtime 22) | `01002E7016C46000.so` |
+| `dsmod-ffr` (runtime 25) | `0100606026F12000.so` |
 | `dsmod-kirby` (runtime 17; research tools with `-DEDEN_KIRBY_BUILD_DEV=ON`, off by default) | `01006B601380E000.so` |
 
 Strip each platform's library with the matching toolchain's `llvm-strip --strip-all` and pass
@@ -97,6 +98,14 @@ Set `OT0_PAK` to your own merged `pakchunk0-Switch.pak` to additionally validate
 members and real-asset ABI rendering. Private fixtures are optional and never packaged.
 Package only this development companion with `GAMES=ot0`, `OT0_LINUX_SO` and
 `OT0_ANDROID_SO`; see its [scope](../packages/OctopathTraveler0/README.md).
+
+The opt-in `dsmod-ffr` target is the FINAL FANTASY RESONANCE companion for update 1.0.1. It reuses
+the vendored ooz and the runtime's BC decoder. Its test target `dsmod-ffr-test` needs no game files:
+`ctest --test-dir <build-directory> -R '^dsmod-ffr$' --output-on-failure`. Package it with
+`GAMES=ffr`, `FFR_LINUX_SO` and `FFR_ANDROID_SO`; see [`tools/ffr/README.md`](../tools/ffr/README.md).
+Its fast travel, item use, equipment, quest tracking and menu sounds use a format-2 guest helper, [`helper/ffr_guest_helper.S`](helper/ffr_guest_helper.S). The committed
+`packages/FinalFantasyResonance/dualscreen/guest/<build>/load-plan.json` is built from it by `tools/ffr/build_helper_plan.py`,
+from the player's own exefs `main`; the script checks every word of main the plan relies on.
 
 ## Source provenance
 
