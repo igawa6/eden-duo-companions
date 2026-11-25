@@ -15,6 +15,7 @@
 | `luminescent-platinum/` | Pokémon Brilliant Diamond / Shining Pearl (Luminescent Platinum) page and guest load-plan generators, string tables and manifest tests. |
 | `ctr/` | Crash Team Racing Nitro-Fueled page generator. |
 | `dq3/` | Dragon Quest III HD-2D Remake page and guest load-plan generators, with the load-plan test. |
+| `za/` | Pokémon Legends: Z-A manifest, Android package, and guest load-plan generators. See [the build guide](za/README.md). |
 | `chained-echoes/` | Chained Echoes page generator. |
 
 ## Requirements

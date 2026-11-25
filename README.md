@@ -52,6 +52,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 32 | [Resident Evil 4](#resident-evil-4) | `010099A00BC1E000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/resident-evil-4-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/4rd-Poll-Next-Switch-Game-on-Eden-Duo-I7Z428XZNI"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 | 33 | [The Legend of Zelda: Skyward Sword HD](#the-legend-of-zelda-skyward-sword-hd) | `01002DA013484000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/skyward-sword-hd-1.0.0) | 🥇<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/eminham-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="eminham"></a> |
 | 34 | [Star Ocean: The Second Story R](#star-ocean-the-second-story-r) | `010065301A2E0000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/star-ocean-the-second-story-r-1.0.0) | ⭐<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a> |
+| 35 | [Pokémon Legends: Z-A](#pokemon-legends-za) | `0100F43008C44000` | 2.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-legends-z-a-1.0.0) | ⭐<br><a href="https://ko-fi.com/sickops"><img src="https://img.shields.io/badge/Sickops-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Support Sickops on Ko-fi"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -1102,6 +1103,38 @@ Use **NCE**, not JIT: it was developed and tested with NCE only.
 The companion ships no game art: every picture, the game's fonts and the words are read from your own game files. The Hide HUD switch follows the Dave the Diver companion's approach.
 
 Requires Eden Duo 1.3.2.2 or newer (runtime 22). Game version 1.0.1 only.
+
+<a id="pokemon-legends-za"></a>
+
+## Pokémon Legends: Z-A
+
+⭐ <a href="https://ko-fi.com/sickops"><img src="https://img.shields.io/badge/Sickops-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Support Sickops on Ko-fi"></a>
+
+Community companion by [Sickops](https://github.com/Sickops).
+
+<details>
+<summary>Screenshots and details</summary>
+
+`0100F43008C44000` · game version 2.0.2 · companion 1.0.0 · needs Eden Duo 1.4.0 or later (runtime 25)
+
+| Team | Map | Pokédex |
+|:---:|:---:|:---:|
+| <img src="screenshots/pokemon-legends-za/01-team.png" width="300" alt="Party and touch move buttons"> | <img src="screenshots/pokemon-legends-za/10-map.png" width="300" alt="Lumiose map with a highlighted mission"> | <img src="screenshots/pokemon-legends-za/05-pokedex.png" width="300" alt="Lumiose Pokédex with Chikorita selected"> |
+
+Keep the game on the main screen and use the touchscreen for the live party, Lumiose map, and reference screens. The contributor tested it on Pocket DS with Eden Duo 1.4.0 (runtime 25). The screenshots show example data for the live-only controls and map states.
+
+**This companion changes your game.** Replacing a move, swapping a boxed Pokémon with a party member, changing held items, using medicine, placing a waypoint, requesting fast travel, and the touch buttons that press game buttons all act on the running game. What they change is written to your save the next time the game saves. Use them at your own risk and keep a backup of your save. Only Pokémon Legends: Z-A 2.0.2 is supported; on any other version the companion shows a message and does nothing.
+
+- **Team and moves.** Follow HP and recharge, send out the selected Pokémon, and use moves from the touch controls. Inspect or replace party moves and see power, accuracy, and type.
+- **Map and missions.** Follow your position, filter map points, and jump to known active mission locations. Inspect Wild Zone encounters and Hyperspace distortions, set or clear a waypoint, and request fast travel with the game's confirmation.
+- **Pokédex and Boxes.** Search stored Pokémon and browse the Lumiose, Mega Dimension, and Mega Evolution catalogs. Inspect stats and moves, or swap a boxed Pokémon with a party member.
+- **Bag and planning.** Use supported medicine and held-item actions, follow Mable's research and Z-A Royale progress, and pin goals in the Notebook to build a capture plan.
+
+The companion reads Pokémon artwork, map art, and game text from the player's own game files.
+
+[Full feature list and installation](packages/PokemonLegendsZA/README.md) · [Build the Android package](tools/za/README.md)
+
+</details>
 
 ---
 

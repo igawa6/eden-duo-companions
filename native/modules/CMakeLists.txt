@@ -725,6 +725,28 @@ set(DQ3_OOZ_SOURCES
     third_party/ooz/ooz.h
     third_party/ooz/ooz_simd.h
     third_party/ooz/stdafx.h)
+
+dsmod_add_module(dsmod-za EXCLUDE_FROM_ALL
+    TITLE 0100F43008C44000
+    SOURCES 0100F43008C44000.cpp za_live.cpp za_save.cpp za_assets.cpp
+        ${DQ3_OOZ_SOURCES} "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+    INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder"
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_save_extensions)
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-za-save KEEP_ASSERTS SOURCES 0100F43008C44000_test.cpp za_save.cpp)
+    dsmod_add_test(dsmod-za-live KEEP_ASSERTS SOURCES za_live_test.cpp za_save.cpp)
+    dsmod_add_test(dsmod-za-mailbox KEEP_ASSERTS SOURCES za_guest_mailbox_test.cpp)
+    dsmod_add_test(dsmod-za-build KEEP_ASSERTS SOURCES za_build_test.cpp)
+    dsmod_add_test(dsmod-za-language KEEP_ASSERTS
+        SOURCES za_language_test.cpp za_assets.cpp za_save.cpp ${DQ3_OOZ_SOURCES}
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    set_tests_properties(dsmod-za-live dsmod-za-language PROPERTIES SKIP_RETURN_CODE 77)
+    if(WIN32)
+        dsmod_add_test(dsmod-za-module-host KEEP_ASSERTS SOURCES za_module_host_test.cpp)
+        set_tests_properties(dsmod-za-module-host PROPERTIES SKIP_RETURN_CODE 77)
+    endif()
+endif()
 # ooz type-puns through pointer casts; its upstream code is kept as is (warnings off). Its LZ
 # copies read 8-byte words that overlap the bytes they write (delta literals at a small negative
 # last offset); GCC's vectorizer at -O3 reorders those and decodes wrongly (found by the
