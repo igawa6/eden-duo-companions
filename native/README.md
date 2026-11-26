@@ -110,8 +110,7 @@ from the player's own exefs `main`; the script checks every word of main the pla
 
 The opt-in `dsmod-totk` target is The Legend of Zelda: Tears of the Kingdom 1.4.3. It is read-only and needs no
 game files to test: `ctest --test-dir <build-directory> -R '^dsmod-totk$' --output-on-failure`. Package it with
-`tools/totk/build_package.py` (the manifest points at an art pack the player builds, so the generic packager is not
-used); see [`../packages/TearsOfTheKingdom/README.md`](../packages/TearsOfTheKingdom/README.md).
+`GAMES=totk TOTK_LINUX_SO=… TOTK_ANDROID_SO=… tools/build_release.sh`; see [`../packages/TearsOfTheKingdom/README.md`](../packages/TearsOfTheKingdom/README.md).
 
 ## Source provenance
 

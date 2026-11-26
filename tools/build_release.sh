@@ -14,6 +14,7 @@
 #   0100DCD01525A000-Persona3PortableDS-<ver>.dsmod.zip
 #   01008CF01BAAC000-EchoesOfWisdom-<ver>.dsmod.zip
 #   0100606026F12000-FinalFantasyResonance-<ver>.dsmod.zip (opt-in GAMES=ffr)
+#   0100F2C0115B6000-TearsOfTheKingdom-<ver>.dsmod.zip (opt-in GAMES=totk)
 #
 # usage: tools/build_release.sh [out dir]            (default: dist)
 #
@@ -38,10 +39,11 @@
 #   COTL_LINUX_SO / COTL_ANDROID_SO     Cult of the Lamb (dsmod-cotl, opt-in GAMES=cotl)
 #   ECHOES_LINUX_SO / ECHOES_ANDROID_SO The Legend of Zelda: Echoes of Wisdom (dsmod-echoes, opt-in GAMES=echoes)
 #   FFR_LINUX_SO / FFR_ANDROID_SO       FINAL FANTASY RESONANCE (dsmod-ffr, opt-in GAMES=ffr)
+#   TOTK_LINUX_SO / TOTK_ANDROID_SO     The Legend of Zelda: Tears of the Kingdom (dsmod-totk, opt-in GAMES=totk)
 # Versions default to each package's current release; override with P5R_VERSION, DREAD_VERSION,
 # LA_VERSION, MK8D_VERSION, WONDER_VERSION, LP_VERSION, LP_PEARL_VERSION, CTR_VERSION, DQ3_VERSION,
 # CE_VERSION, P3P_VERSION, ECHOES_VERSION; OT0_VERSION defaults to 1.0.0, COTL_VERSION to 1.1.0
-# and FFR_VERSION to 1.0.0.
+# FFR_VERSION to 1.0.0 and TOTK_VERSION to 1.0.0.
 # GAMES selects which archives to build (default: "p5r dread la mk8d wonder acnh fe3h isaac
 # lp lp-pearl ctr dq3 ce p3p"); only the selected
 # games' modules are required.
@@ -102,6 +104,9 @@ if want echoes; then
 fi
 if want ffr; then
   : "${FFR_LINUX_SO:?set FFR_LINUX_SO}" "${FFR_ANDROID_SO:?set FFR_ANDROID_SO}"
+fi
+if want totk; then
+  : "${TOTK_LINUX_SO:?set TOTK_LINUX_SO}" "${TOTK_ANDROID_SO:?set TOTK_ANDROID_SO}"
 fi
 PY=${PYTHON:-python3}
 export PYTHONDONTWRITEBYTECODE=1
@@ -235,5 +240,11 @@ if want ffr; then
   pkg FinalFantasyResonance FinalFantasyResonance "${FFR_VERSION:-1.0.0}" --min-runtime 25 \
     --module "linux-x86_64=$FFR_LINUX_SO" --module "android-arm64-v8a=$FFR_ANDROID_SO" \
     --build-id 84E182F72EE1DA4F477804BD05B54C1500000000000000000000000000000000
+fi
+if want totk; then
+  # Game version 1.4.3 (main build 277178B7DBA1B6D4...); the art pack is the player's own (user:art), not in the package.
+  pkg TearsOfTheKingdom TearsOfTheKingdom "${TOTK_VERSION:-1.0.0}" --min-runtime 22 \
+    --module "linux-x86_64=$TOTK_LINUX_SO" --module "android-arm64-v8a=$TOTK_ANDROID_SO" \
+    --build-id 277178B7DBA1B6D4
 fi
 (cd "$OUT" && sha256sum ./*.dsmod.zip)

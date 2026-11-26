@@ -9,7 +9,6 @@
 #include <array>
 #include <cmath>
 #include <cstdio>
-#include <cstdlib>
 #include <cstring>
 #include <strings.h>
 #include <unordered_map>
@@ -92,13 +91,13 @@ std::string ReadFile(const EdenDsmodHostApi* h, const char* path) {
   return s;
 }
 
-// art/text/items.tsv: actor id <TAB> name <TAB> description (written by tools/totk/make_art.py).
+// user:art/text/items.tsv (the art pack, see make_art.py): actor id <TAB> name <TAB> description (written by tools/totk/make_art.py).
 void LoadText(const EdenDsmodHostApi* h, Text& t) {
   t.loaded = true;
-  const std::string lang = ReadFile(h, "file:art/text/lang.txt");
+  const std::string lang = ReadFile(h, "user:art/text/lang.txt");
   if (lang.size() >= 4) t.lang = lang.substr(0, 4);
   {
-    const std::string ix = ReadFile(h, "file:art/text/icons.tsv");
+    const std::string ix = ReadFile(h, "user:art/text/icons.tsv");
     size_t pos = 0; int line = 0;
     while (pos < ix.size()) {
       size_t e = ix.find('\n', pos);
@@ -111,7 +110,7 @@ void LoadText(const EdenDsmodHostApi* h, Text& t) {
       ++line;
     }
   }
-  const std::string tsv = ReadFile(h, "file:art/text/items.tsv");
+  const std::string tsv = ReadFile(h, "user:art/text/items.tsv");
   size_t pos = 0;
   while (pos < tsv.size()) {
     size_t e = tsv.find('\n', pos);
@@ -443,39 +442,6 @@ Flags ReadFlags(const EdenDsmodHostApi* h) {
   return f;
 }
 
-#ifdef TOTK_PREVIEW
-// Preview build (never shipped): synthetic state so rt_test can render every page.
-void PreviewState(const Text& t, State& st, const Flags& fl) {
-  st = State();
-  st.actor_ok = st.hearts_ok = st.pos_ok = st.pouch_ok = true;
-  st.life = 31; st.max = 52; st.extra = 6; st.broken = 4;
-  st.rupees = 12345; st.poes = 87;
-  st.stamina = 3500; st.stamina_extra = 0; st.energy = 2000;
-  st.ability = "Obj_UltraHand";
-  st.pos[0] = -1234; st.pos[1] = 520; st.pos[2] = 640; st.heading = 135; st.layer = 1;
-  st.weapon = {"Weapon_Sword_001", 100}; st.bow = {"Weapon_Bow_001", 30}; st.shield = {"Weapon_Shield_004", 55};
-  st.armor[0] = {"Armor_001_Head", -1}; st.armor[1] = {"Armor_001_Upper", -1}; st.armor[2] = {"Armor_001_Lower", -1};
-  st.sages[0] = {true, true, false, -1}; st.sages[1] = {true, true, true, 95}; st.sages[2] = {true, true, false, 0};
-  st.sages[3] = {true, false, false, -1}; st.sages[4] = {true, true, false, 32};
-  static const char* const kIds[kTabs][14] = {
-      {"Weapon_Sword_001", "Weapon_Sword_002", "Weapon_Lsword_001", "Weapon_Spear_001", "Weapon_Sword_019", "Weapon_Lsword_019", "Weapon_Spear_021", "Weapon_Sword_020", "Weapon_Lsword_020", "Weapon_Spear_022", "Weapon_Sword_003", "Weapon_Lsword_002", "Weapon_Spear_002", "Weapon_Sword_021"},
-      {"Weapon_Bow_001", "Weapon_Bow_002", "Weapon_Bow_003", "NormalArrow"},
-      {"Weapon_Shield_004", "Weapon_Shield_001", "Weapon_Shield_002", "Weapon_Shield_003", "Weapon_Shield_005"},
-      {"Armor_001_Head", "Armor_001_Upper", "Armor_001_Lower", "Armor_002_Head", "Armor_002_Upper", "Armor_002_Lower"},
-      {"Item_Fruit_A", "Item_Fruit_B", "Item_Fruit_C", "Item_Fruit_E", "Item_Fruit_F", "Item_PlantGet_A", "Item_PlantGet_B", "Item_Mushroom_A", "Item_Meat_01", "Item_Meat_02", "Item_FishGet_A", "Item_FishGet_B", "Item_Ore_A", "Item_Ore_B"},
-      {"Item_Cook_A_01", "Item_Cook_A_02", "Item_Cook_A_03", "Item_Cook_C_17_AllSpeed", "Item_Cook_C_17_AttackUp", "Item_Cook_C_16"},
-      {"Obj_DungeonClearSeal"},
-      {"Obj_DungeonClearSeal"}};
-  const int cnt[kTabs] = {14, 4, 5, 6, 14, 6, 1, 1};
-  for (int i = 0; i < cnt[fl.tab]; ++i) {
-    Row r; r.id = kIds[fl.tab][i];
-    if (fl.tab <= 2 && i < (fl.tab == 1 ? 3 : 14)) r.life = 20 + 7 * i; else r.count = 1 + 3 * i;
-    r.equipped = i == 0;
-    st.rows.push_back(r);
-  }
-  (void)t;
-}
-#endif
 
 void Sample(void* pi, const EdenDsmodHostApi* h) {
   auto* inst = static_cast<Instance*>(pi);
@@ -485,15 +451,6 @@ void Sample(void* pi, const EdenDsmodHostApi* h) {
   p.i("totk.build_ok", inst->build_ok ? 1 : 0);
   inst->reader.h = h;
   const Flags fl = ReadFlags(h);
-#ifdef TOTK_PREVIEW
-  p.i("totk.mgr_ok", 1); p.i("totk.tables_ok", 1); p.i("totk.actor_ok", 1); p.i("totk.int_count", 5675);
-  Flags pf = fl;
-  if (const char* e = std::getenv("TOTK_TAB")) pf.tab = std::clamp(std::atoi(e), 0, kTabs - 1);
-  if (const char* e = std::getenv("TOTK_SEL")) pf.sel = std::clamp(std::atoi(e), 0, kRows - 1);
-  PreviewState(inst->text, inst->state, pf);
-  PublishState(p, inst->text, inst->state, pf);
-  return;
-#endif
   State empty;
   PublishState(p, inst->text, empty, fl);  // chrome strings and zeros first; overwritten below
   if (!inst->build_ok) return;

@@ -14,8 +14,8 @@
  "canvas_w": 1240,
  "canvas_h": 1080,
  "background": "#FF0B1114",
- "font": "file:art/font/game.mfnt",
- "font_atlas": "file:art/font/game.png",
+ "font": "user:art/font/game.mfnt",
+ "font_atlas": "user:art/font/game.png",
  "flags": {
   "inv_tab": 0,
   "inv_page": 0,
@@ -194,7 +194,7 @@
       64,
       64
      ],
-     "src": "file:art/ui/rupee.png"
+     "src": "user:art/ui/rupee.png"
     },
     {
      "type": "label",
@@ -216,7 +216,7 @@
       44,
       44
      ],
-     "src": "file:art/ui/poe.png"
+     "src": "user:art/ui/poe.png"
     },
     {
      "type": "label",
@@ -250,7 +250,7 @@
       62,
       62
      ],
-     "src": "file:art/ui/heart_empty.png",
+     "src": "user:art/ui/heart_empty.png",
      "tint": "#FF4A3F43",
      "repeat": 40,
      "need_bind": "totk.h.{i}.on",
@@ -267,7 +267,7 @@
       62
      ],
      "bind": "totk.h.{i}.q",
-     "src_format": "file:art/ui/heart_%d.png",
+     "src_format": "user:art/ui/heart_%d.png",
      "repeat": 40,
      "need_bind": "totk.h.{i}.n",
      "repeat_cols": 10,
@@ -283,7 +283,7 @@
       62
      ],
      "bind": "totk.h.{i}.q",
-     "src_format": "file:art/ui/heartx_%d.png",
+     "src_format": "user:art/ui/heartx_%d.png",
      "repeat": 40,
      "need_bind": "totk.h.{i}.y",
      "repeat_cols": 10,
@@ -298,7 +298,7 @@
       62,
       62
      ],
-     "src": "file:art/ui/heart_broken.png",
+     "src": "user:art/ui/heart_broken.png",
      "tint": "#FF9B6BD0",
      "repeat": 40,
      "need_bind": "totk.h.{i}.k",
@@ -365,7 +365,7 @@
       90,
       90
      ],
-     "src": "file:art/ui/stamina_ring.png",
+     "src": "user:art/ui/stamina_ring.png",
      "tint": "#FF2C3538",
      "repeat": 10,
      "need_bind": "totk.sw.{i}.on",
@@ -382,7 +382,7 @@
       90
      ],
      "bind": "totk.sw.{i}.q",
-     "src_format": "file:art/ui/ring_%d.png",
+     "src_format": "user:art/ui/ring_%d.png",
      "repeat": 10,
      "need_bind": "totk.sw.{i}.n",
      "repeat_cols": 5,
@@ -398,7 +398,7 @@
       90
      ],
      "bind": "totk.sw.{i}.q",
-     "src_format": "file:art/ui/ringx_%d.png",
+     "src_format": "user:art/ui/ringx_%d.png",
      "repeat": 10,
      "need_bind": "totk.sw.{i}.g",
      "repeat_cols": 5,
@@ -425,7 +425,7 @@
       100,
       64
      ],
-     "src": "file:art/ui/battery.png",
+     "src": "user:art/ui/battery.png",
      "tint": "#FF4A5558",
      "repeat": 10,
      "need_bind": "totk.bat.{i}.on",
@@ -442,7 +442,7 @@
       64
      ],
      "bind": "totk.bat.{i}.q",
-     "src_format": "file:art/ui/bat_%d.png",
+     "src_format": "user:art/ui/bat_%d.png",
      "repeat": 10,
      "need_bind": "totk.bat.{i}.n",
      "repeat_cols": 5,
@@ -458,7 +458,7 @@
       64
      ],
      "bind": "totk.bat.{i}.q",
-     "src_format": "file:art/ui/batx_%d.png",
+     "src_format": "user:art/ui/batx_%d.png",
      "repeat": 10,
      "need_bind": "totk.bat.{i}.g",
      "repeat_cols": 5,
@@ -485,7 +485,7 @@
       92,
       92
      ],
-     "src": "file:art/ui/sage_Wind.png",
+     "src": "user:art/ui/sage_Wind.png",
      "tint_bind": "totk.sage.0.joined",
      "tint_colors": [
       "#FF3A4448",
@@ -524,7 +524,7 @@
       92,
       92
      ],
-     "src": "file:art/ui/sage_Fire.png",
+     "src": "user:art/ui/sage_Fire.png",
      "tint_bind": "totk.sage.1.joined",
      "tint_colors": [
       "#FF3A4448",
@@ -563,7 +563,7 @@
       92,
       92
      ],
-     "src": "file:art/ui/sage_Water.png",
+     "src": "user:art/ui/sage_Water.png",
      "tint_bind": "totk.sage.2.joined",
      "tint_colors": [
       "#FF3A4448",
@@ -602,7 +602,7 @@
       92,
       92
      ],
-     "src": "file:art/ui/sage_Electric.png",
+     "src": "user:art/ui/sage_Electric.png",
      "tint_bind": "totk.sage.3.joined",
      "tint_colors": [
       "#FF3A4448",
@@ -641,7 +641,7 @@
       92,
       92
      ],
-     "src": "file:art/ui/sage_Soul.png",
+     "src": "user:art/ui/sage_Soul.png",
      "tint_bind": "totk.sage.4.joined",
      "tint_colors": [
       "#FF3A4448",
@@ -705,7 +705,7 @@
       88
      ],
      "bind": "totk.eq.weapon.ix",
-     "src_format": "file:art/icons/%d.png"
+     "src_format": "user:art/icons/%d.png"
     },
     {
      "type": "label",
@@ -754,7 +754,7 @@
       88
      ],
      "bind": "totk.eq.bow.ix",
-     "src_format": "file:art/icons/%d.png"
+     "src_format": "user:art/icons/%d.png"
     },
     {
      "type": "label",
@@ -803,7 +803,7 @@
       88
      ],
      "bind": "totk.eq.shield.ix",
-     "src_format": "file:art/icons/%d.png"
+     "src_format": "user:art/icons/%d.png"
     },
     {
      "type": "label",
@@ -852,7 +852,7 @@
       88
      ],
      "bind": "totk.eq.head.ix",
-     "src_format": "file:art/icons/%d.png"
+     "src_format": "user:art/icons/%d.png"
     },
     {
      "type": "rect",
@@ -875,7 +875,7 @@
       88
      ],
      "bind": "totk.eq.upper.ix",
-     "src_format": "file:art/icons/%d.png"
+     "src_format": "user:art/icons/%d.png"
     },
     {
      "type": "rect",
@@ -898,7 +898,7 @@
       88
      ],
      "bind": "totk.eq.lower.ix",
-     "src_format": "file:art/icons/%d.png"
+     "src_format": "user:art/icons/%d.png"
     },
     {
      "type": "rect",
@@ -921,7 +921,7 @@
       88
      ],
      "bind": "totk.ability.ix",
-     "src_format": "file:art/icons/%d.png"
+     "src_format": "user:art/icons/%d.png"
     },
     {
      "type": "label",
@@ -1043,6 +1043,46 @@
      "text_scale": 6,
      "color": "#FF8C9A9E",
      "align": "center"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#F00B1114",
+     "need_bind": "!module_ready",
+     "input_block": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      430,
+      0,
+      80
+     ],
+     "text": "Requires game version 1.4.3",
+     "text_scale": 10,
+     "color": "#FFD9B96B",
+     "align": "center",
+     "need_bind": "!module_ready"
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      540,
+      0,
+      50
+     ],
+     "text": "This game version is not supported by the companion.",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center",
+     "need_bind": "!module_ready"
     }
    ]
   },
@@ -1076,7 +1116,7 @@
      "id": "totk_map",
      "marker_x_bind": "totk.map.x",
      "marker_y_bind": "totk.map.y",
-     "marker_src": "file:art/ui/map_player.png",
+     "marker_src": "user:art/ui/map_player.png",
      "marker_size": [
       84,
       84
@@ -1355,6 +1395,46 @@
      "text_scale": 6,
      "color": "#FF8C9A9E",
      "align": "center"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#F00B1114",
+     "need_bind": "!module_ready",
+     "input_block": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      430,
+      0,
+      80
+     ],
+     "text": "Requires game version 1.4.3",
+     "text_scale": 10,
+     "color": "#FFD9B96B",
+     "align": "center",
+     "need_bind": "!module_ready"
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      540,
+      0,
+      50
+     ],
+     "text": "This game version is not supported by the companion.",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center",
+     "need_bind": "!module_ready"
     }
    ]
   },
@@ -1406,7 +1486,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_weapons.png",
+     "src": "user:art/ui/cat_weapons.png",
      "tint": "#FFF2EBD3",
      "need_bind": "ui.tab0"
     },
@@ -1418,7 +1498,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_weapons.png",
+     "src": "user:art/ui/cat_weapons.png",
      "tint": "#FF8C9A9E",
      "need_bind": "ui.ntab0"
     },
@@ -1456,7 +1536,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_bows.png",
+     "src": "user:art/ui/cat_bows.png",
      "tint": "#FFF2EBD3",
      "need_bind": "ui.tab1"
     },
@@ -1468,7 +1548,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_bows.png",
+     "src": "user:art/ui/cat_bows.png",
      "tint": "#FF8C9A9E",
      "need_bind": "ui.ntab1"
     },
@@ -1506,7 +1586,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_shields.png",
+     "src": "user:art/ui/cat_shields.png",
      "tint": "#FFF2EBD3",
      "need_bind": "ui.tab2"
     },
@@ -1518,7 +1598,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_shields.png",
+     "src": "user:art/ui/cat_shields.png",
      "tint": "#FF8C9A9E",
      "need_bind": "ui.ntab2"
     },
@@ -1556,7 +1636,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_armor.png",
+     "src": "user:art/ui/cat_armor.png",
      "tint": "#FFF2EBD3",
      "need_bind": "ui.tab3"
     },
@@ -1568,7 +1648,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_armor.png",
+     "src": "user:art/ui/cat_armor.png",
      "tint": "#FF8C9A9E",
      "need_bind": "ui.ntab3"
     },
@@ -1606,7 +1686,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_materials.png",
+     "src": "user:art/ui/cat_materials.png",
      "tint": "#FFF2EBD3",
      "need_bind": "ui.tab4"
     },
@@ -1618,7 +1698,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_materials.png",
+     "src": "user:art/ui/cat_materials.png",
      "tint": "#FF8C9A9E",
      "need_bind": "ui.ntab4"
     },
@@ -1656,7 +1736,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_food.png",
+     "src": "user:art/ui/cat_food.png",
      "tint": "#FFF2EBD3",
      "need_bind": "ui.tab5"
     },
@@ -1668,7 +1748,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_food.png",
+     "src": "user:art/ui/cat_food.png",
      "tint": "#FF8C9A9E",
      "need_bind": "ui.ntab5"
     },
@@ -1706,7 +1786,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_zonai.png",
+     "src": "user:art/ui/cat_zonai.png",
      "tint": "#FFF2EBD3",
      "need_bind": "ui.tab6"
     },
@@ -1718,7 +1798,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_zonai.png",
+     "src": "user:art/ui/cat_zonai.png",
      "tint": "#FF8C9A9E",
      "need_bind": "ui.ntab6"
     },
@@ -1756,7 +1836,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_keyItems.png",
+     "src": "user:art/ui/cat_keyItems.png",
      "tint": "#FFF2EBD3",
      "need_bind": "ui.tab7"
     },
@@ -1768,7 +1848,7 @@
       56,
       56
      ],
-     "src": "file:art/ui/cat_keyItems.png",
+     "src": "user:art/ui/cat_keyItems.png",
      "tint": "#FF8C9A9E",
      "need_bind": "ui.ntab7"
     },
@@ -1816,7 +1896,7 @@
       120
      ],
      "bind": "totk.inv.{i}.ix",
-     "src_format": "file:art/icons/%d.png",
+     "src_format": "user:art/icons/%d.png",
      "need_bind": "totk.inv.{i}.on",
      "repeat": 12,
      "repeat_cols": 4,
@@ -1922,7 +2002,7 @@
       200
      ],
      "bind": "totk.sel.ix",
-     "src_format": "file:art/icons/%d.png"
+     "src_format": "user:art/icons/%d.png"
     },
     {
      "type": "label",
@@ -2073,6 +2153,46 @@
      "text_scale": 6,
      "color": "#FF8C9A9E",
      "align": "center"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#F00B1114",
+     "need_bind": "!module_ready",
+     "input_block": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      430,
+      0,
+      80
+     ],
+     "text": "Requires game version 1.4.3",
+     "text_scale": 10,
+     "color": "#FFD9B96B",
+     "align": "center",
+     "need_bind": "!module_ready"
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      540,
+      0,
+      50
+     ],
+     "text": "This game version is not supported by the companion.",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center",
+     "need_bind": "!module_ready"
     }
    ]
   },
@@ -2398,7 +2518,7 @@
       1120,
       240
      ],
-     "text": "1 = yes, 0 = no. Read-only companion for TotK 1.4.3. Pictures, font and item text come from the art pack made from your own game by tools/totk/make_art.py (pushed to dualscreen/art/). Offsets and flag names: TotK Native (MIT, see NOTICE-TotKNative.txt).",
+     "text": "1 = yes, 0 = no. Read-only companion for TotK 1.4.3. Pictures, font and item text come from the art pack you build from your own game with tools/totk/make_art.py (read from the user: folder, art/). Offsets and flag names: TotK Native (MIT, see NOTICE-TotKNative.txt).",
      "text_scale": 5,
      "color": "#FF8C9A9E",
      "wrap_width": 1120,
@@ -2511,6 +2631,46 @@
      "text_scale": 6,
      "color": "#FFF2EBD3",
      "align": "center"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#F00B1114",
+     "need_bind": "!module_ready",
+     "input_block": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      430,
+      0,
+      80
+     ],
+     "text": "Requires game version 1.4.3",
+     "text_scale": 10,
+     "color": "#FFD9B96B",
+     "align": "center",
+     "need_bind": "!module_ready"
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      540,
+      0,
+      50
+     ],
+     "text": "This game version is not supported by the companion.",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center",
+     "need_bind": "!module_ready"
     }
    ]
   }
@@ -2673,7 +2833,7 @@
  "map": {
   "areas": {
    "Ground": {
-    "image": "file:art/map/ground.png",
+    "image": "user:art/map/ground.png",
     "min": [
      -6000,
      -5000
@@ -2685,7 +2845,7 @@
     "clamp_view": true
    },
    "Sky": {
-    "image": "file:art/map/sky.png",
+    "image": "user:art/map/sky.png",
     "min": [
      -6000,
      -5000
@@ -2697,7 +2857,7 @@
     "clamp_view": true
    },
    "UnderGround": {
-    "image": "file:art/map/underground.png",
+    "image": "user:art/map/underground.png",
     "min": [
      -6000,
      -5000

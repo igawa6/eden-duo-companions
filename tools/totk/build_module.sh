@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Build the Tears of the Kingdom module for linux-x86_64 and android-arm64-v8a, stripped.
 #
 #   EDEN_SOURCE_ROOT=/path/with/src/core/mods ANDROID_NDK=/path/to/ndk/28.2.13676358 \

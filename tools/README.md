@@ -128,10 +128,15 @@ library only). See [`ffr/README.md`](ffr/README.md) for the development tools.
 
 ## The Legend of Zelda: Tears of the Kingdom
 
-`totk/build_module.sh` builds the module for Linux and Android arm64; `totk/gen_manifest.py` writes the manifest
-(standard library only); `totk/build_package.py` packs `<TITLEID>-TearsOfTheKingdom-<ver>.dsmod.zip`. The manifest
-refers to pictures under `art/` that exist only on the player's device, so the packer stages empty placeholders for
-the repository packager's file check and removes them from the finished archive: the zip contains no art.
-`totk/make_art.py` builds that art pack from the player's own game (`.nup`) and `totk/push_art.sh` copies it to a
-Peanuts Native install. Parts of these tools are ported from TotK Native (MIT), see
-`packages/TearsOfTheKingdom/dualscreen/NOTICE-TotKNative.txt`.
+Build `dsmod-totk` (or `totk/build_module.sh`) for Linux and Android arm64, strip each library, then package it with
+
+```sh
+GAMES="totk" TOTK_LINUX_SO=totk-linux.so TOTK_ANDROID_SO=totk-android.so tools/build_release.sh dist
+```
+
+`TOTK_VERSION` overrides the version (default `1.0.0`). The package supports game version 1.4.3 only and declares
+runtime 22. `totk/gen_manifest.py` writes the manifest (standard library only). The pictures, font and item text are
+not in the package: the player builds an art pack from their own RomFS with `totk/make_art.py` and puts it in the
+title's `user:` folder (`totk/push_art.sh` does that over adb); see
+[`../packages/TearsOfTheKingdom/README.md`](../packages/TearsOfTheKingdom/README.md). Parts of these tools are ported
+from TotK Native (MIT), see `packages/TearsOfTheKingdom/dualscreen/NOTICE-TotKNative.txt`.

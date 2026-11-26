@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Generate packages/TearsOfTheKingdom/dualscreen/manifest.json and the per-build data file.
 
 Standard library only:  tools/totk/gen_manifest.py [package dir]
-All pictures are read at runtime from `art/` next to the manifest (made on the PC from the player's own game by
-tools/totk/make_art.py); without them the pages still work with the built-in font and flat colours.
+All pictures, the font and the item text are read at runtime through the `user:` source (`user:art/...`, the player's
+own art pack made by tools/totk/make_art.py); without it the pages still work with the built-in font and flat colours.
 """
 import json
 import sys
@@ -12,7 +13,7 @@ from pathlib import Path
 TITLE_ID = "0100F2C0115B6000"
 BUILD16 = "277178B7DBA1B6D4"  # first 8 bytes of the 1.4.3 main build id 277178b7dba1b6d4949a84778d4abc58
 W, H = 1240, 1080
-ART = "file:art/"
+ART = "user:art/"
 
 INK, GOLD, DIM = "#FFF2EBD3", "#FFD9B96B", "#FF8C9A9E"
 PANEL, FRAME, BG = "#D0121B1F", "#FF3D4F55", "#FF0B1114"
@@ -42,7 +43,7 @@ def btext(x, y, w, h, bind, scale=5, color=INK, **kw):
 
 
 def img(x, y, w, h, src, **kw):
-    return {"type": "image", "rect": [x, y, w, h], "src": src if src.startswith("file:") else ART + src, **kw}
+    return {"type": "image", "rect": [x, y, w, h], "src": src if src.startswith(("file:", "user:")) else ART + src, **kw}
 
 
 def simg(x, y, w, h, bind, **kw):
@@ -201,11 +202,19 @@ def info_page():
         w.append(text(660, y, 300, 50, t, 6))
         w.append(btext(960, y, 240, 50, b, 6, GREEN))
     w.append(text(60, 720, 1120, 240, "1 = yes, 0 = no. Read-only companion for TotK 1.4.3. Pictures, font and "
-                  "item text come from the art pack made from your own game by tools/totk/make_art.py (pushed to "
-                  "dualscreen/art/). Offsets and flag names: TotK Native (MIT, see NOTICE-TotKNative.txt).", 5, DIM,
+                  "item text come from the art pack you build from your own game with tools/totk/make_art.py "
+                  "(read from the user: folder, art/). Offsets and flag names: TotK Native (MIT, see NOTICE-TotKNative.txt).", 5, DIM,
                   wrap_width=1120, max_lines=6))
     w += nav("info")
     return {"id": "info", "title": "Info", "widgets": w}
+
+
+def unsupported():
+    """Shown over every page while the module is not running (another game version): module_ready is 0."""
+    return [rect(0, 0, W, H, "#F00B1114", need_bind="!module_ready", input_block=True),
+            text(620, 430, 0, 80, "Requires game version 1.4.3", 10, GOLD, align="center", need_bind="!module_ready"),
+            text(620, 540, 0, 50, "This game version is not supported by the companion.", 5, INK, align="center",
+                 need_bind="!module_ready")]
 
 
 def page_action(page):
@@ -238,7 +247,7 @@ def main():
         "font": ART + "font/game.mfnt", "font_atlas": ART + "font/game.png",
         "flags": {"inv_tab": 0, "inv_page": 0, "inv_sel": 0, "map_layer": 0},
         "derived": derived,
-        "pages": [status_page(), map_page(), inv_page(), info_page()],
+        "pages": [dict(p, widgets=p["widgets"] + unsupported()) for p in (status_page(), map_page(), inv_page(), info_page())],
         "actions": actions,
         "map": {"areas": {"Ground": area("ground"), "Sky": area("sky"), "UnderGround": area("underground")}},
         "haptics": True,

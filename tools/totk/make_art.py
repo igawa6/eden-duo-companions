@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Parts ported from TotK Native (MIT, Copyright (c) 2026 MacNativeGames contributors), see the docstring.
 """Build the optional art pack of the Tears of the Kingdom companion from the player's own game files.
 
-    make_art.py --nup <game .nup> --nup-py <dm/tools/nup.py of Peanuts Native> --out <dir> [--lang USes]
+    make_art.py --romfs <romfs dir> [--romfs <update romfs dir>] --out <dir> [--lang USen]
+    make_art.py --nup <game .nup> --nup-py <Peanuts Native dm/tools/nup.py> --out <dir>      (alternative input)
 
-Writes <dir>/art/ (font, UI sprites, item icons, localized item text, map layers). Nothing here ships in the
-package or the repository: push <dir>/art to <install folder>/dualscreen/art/ on the device. Keep <dir> outside
-any git checkout. Requires Python 3.14 (compression.zstd), Pillow and texture2ddecoder.
+--romfs is the player's own extracted RomFS of 1.4.3 (Eden Duo: right-click the game, Dump RomFS, with the update
+installed; or the base RomFS followed by the update's: later folders win). Writes <dir>/art/ (font, UI sprites, item
+icons, item text in the chosen language, the three map layers). The companion reads it through the `user:` source, so
+<dir> should be the title's user folder (see README); nothing here ships in the package or the repository. Keep <dir>
+outside any git checkout. Requires Python 3.14 (compression.zstd), Pillow and texture2ddecoder.
 
 The container readers (SARC, BYML, MSBT, BNTX, block-linear deswizzle, texture decode) and the table logic that
 names pouch items (rsdb, base_actors, pouch_name_sources), the UI texture names and the map tile selection are ported
@@ -318,32 +323,17 @@ COMMON = 'UI/LayoutArchive/Common.Product.140.Nin_NX_NVN.blarc.zs'
 
 
 class Reader:
-    """The game's RomFS inside a .nup (base + update, update wins), with the game's zstd dictionaries."""
+    """The game's RomFS (a dump directory, or the RomFS inside a .nup), with the game's zstd dictionaries."""
 
-    def __init__(self, nup_py, nup_path):
-        sys.path.insert(0, str(Path(nup_py).parent))
-        import nup
-        self.n = nup.Nup(str(nup_path))
-        self.roots = []
-        for p in self.n.packages:
-            try:
-                self.roots.append(self.n.find('romfs', ('pkg', p.index)))
-            except FileNotFoundError:
-                pass
+    def __init__(self):
         self.files = {}
-        for k in self.roots:
-            for d, _, files in self.n.walk(k):
-                for f in files:
-                    self.files[f'{d}/{f}' if d else f] = k
         self.dicts = {}
+
+    def finish(self):
         for blob in sarc(zstd.decompress(self.raw('Pack/ZsDic.pack.zs'))).values():
             z = zstd.ZstdDict(blob)
             self.dicts[z.dict_id] = z
-
-    def raw(self, path):
-        k = self.files[path] if hasattr(self, 'files') and path in self.files else self.roots[-1]
-        with self.n.open(self.n.find(path, k)) as r:
-            return r.read()
+        return self
 
     def get(self, path):
         data = self.raw(path)
@@ -351,6 +341,50 @@ class Reader:
             did = zstd.get_frame_info(data).dictionary_id
             return zstd.decompress(data, zstd_dict=self.dicts[did] if did else None)
         return data
+
+
+class DirReader(Reader):
+    """One or more extracted RomFS folders; a later folder (the update) overrides an earlier one."""
+
+    def __init__(self, roots):
+        super().__init__()
+        for root in roots:
+            root = Path(root)
+            if not root.is_dir():
+                sys.exit(f'not a folder: {root}')
+            for f in root.rglob('*'):
+                if f.is_file():
+                    self.files[f.relative_to(root).as_posix()] = f
+        if 'Pack/ZsDic.pack.zs' not in self.files:
+            sys.exit('no Pack/ZsDic.pack.zs: this is not the Tears of the Kingdom RomFS (give the folder that holds '
+                     'Pack/, UI/, Mals/ ...)')
+        self.finish()
+
+    def raw(self, path):
+        return self.files[path].read_bytes()
+
+
+class NupReader(Reader):
+    """The RomFS inside a .nup (Peanuts Native's game container), read with its nup.py."""
+
+    def __init__(self, nup_py, nup_path):
+        super().__init__()
+        sys.path.insert(0, str(Path(nup_py).parent))
+        import nup
+        self.n = nup.Nup(str(nup_path))
+        for p in self.n.packages:
+            try:
+                k = self.n.find('romfs', ('pkg', p.index))
+            except FileNotFoundError:
+                continue
+            for d, _, files in self.n.walk(k):
+                for f in files:
+                    self.files[f'{d}/{f}' if d else f] = k
+        self.finish()
+
+    def raw(self, path):
+        with self.n.open(self.n.find(path, self.files[path])) as r:
+            return r.read()
 
 
 def save_png(image, path):
@@ -381,7 +415,10 @@ def make_ui(reader, out):
 
 
 def make_text(reader, out, lang):
-    path = f'Mals/{lang}.Product.142.sarc.zs'
+    found = sorted(f for f in reader.files if f.startswith(f'Mals/{lang}.Product.') and f.endswith('.sarc.zs'))
+    if not found:
+        sys.exit(f'no text for language {lang}: have ' + ', '.join(sorted({f.split('/')[1].split('.')[0] for f in reader.files if f.startswith('Mals/')})))
+    path = found[-1]
     archive = sarc(reader.get(path))
     pouch = msbt(archive['ActorMsg/PouchContent.msbt'])
     attachment = msbt(archive['ActorMsg/Attachment.msbt'])
@@ -575,10 +612,11 @@ def build_font_atlas(font_bytes, out, px=40, first=0x20, last=0x17F):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--nup', required=True)
-    ap.add_argument('--nup-py', required=True, help="Peanuts Native's dm/tools/nup.py")
+    ap.add_argument('--romfs', action='append', default=[], help='extracted RomFS folder; repeat for base then update')
+    ap.add_argument('--nup', help='alternative input: a Peanuts Native .nup (needs --nup-py)')
+    ap.add_argument('--nup-py', help="Peanuts Native's dm/tools/nup.py")
     ap.add_argument('--out', required=True, help='output folder (outside any repository); art/ is created inside')
-    ap.add_argument('--lang', default='USes', help='Mals language: USes, EUes, USen, ... (default USes)')
+    ap.add_argument('--lang', default='USen', help='in-game language: USen (default), EUen, USes, EUes, EUfr, EUde, EUit, JPja, ...')
     ap.add_argument('--icon-size', type=int, default=96)
     ap.add_argument('--only', help='comma list of: ui,text,icons,map,font')
     args = ap.parse_args()
@@ -586,7 +624,12 @@ def main():
     out = Path(args.out) / 'art'
     out.mkdir(parents=True, exist_ok=True)
     t0 = time.monotonic()
-    reader = Reader(args.nup_py, args.nup)
+    if args.romfs:
+        reader = DirReader(args.romfs)
+    elif args.nup and args.nup_py:
+        reader = NupReader(args.nup_py, args.nup)
+    else:
+        ap.error('give --romfs <folder> (or --nup with --nup-py)')
     print(f'{len(reader.files)} files', flush=True)
     items, sources = {}, {}
     if 'ui' in steps:
