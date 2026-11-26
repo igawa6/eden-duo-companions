@@ -37,41 +37,33 @@ GOLD = (255, 192, 62, 255)
 
 
 def title_background(route: int) -> Image.Image:
-    """Draw stylized abstract circles/ribbons, no external texture sources."""
+    """Original route-toned moon graphic, drawn from circles and ribbons."""
     c = ROUTES[route]
-    canvas = Image.new("RGBA", (W * SCALE, H * SCALE), c["base"])
+    navy=(3, 22, 60, 255) if route == 0 else (60, 11, 44, 255)
+    moon=(196, 227, 249, 255) if route == 0 else (255, 202, 228, 255)
+    dot=(148, 197, 237, 150) if route == 0 else (234, 143, 191, 150)
+    canvas = Image.new("RGBA", (W * SCALE, H * SCALE), navy)
     d = ImageDraw.Draw(canvas)
-    def poly(points, color):
-        d.polygon([(x*SCALE, y*SCALE) for x, y in points], fill=color)
-
-    # Deliberately original composition: two diagonal ribbons and a radial dial.
-    poly([(770,0),(1240,0),(1240,1080),(510,1080)], c["light"])
-    poly([(965,0),(1240,0),(1240,1080),(690,1080)], c["shade"])
-    poly([(1090,0),(1180,0),(450,1080),(360,1080)], GOLD)
-    poly([(1155,0),(1225,0),(495,1080),(425,1080)], c["ink"])
-    cx,cy=835*SCALE,510*SCALE
-    for radius,alpha,width in [(376,32,4),(307,115,3),(250,54,3)]:
-        rr=radius*SCALE
-        d.ellipse((cx-rr,cy-rr,cx+rr,cy+rr),
-                  outline=(255,255,255,alpha),width=width*SCALE)
-    # Seeded microstars give repeatable texture without a source photograph.
+    moon_x,moon_y,radius = 904*SCALE,472*SCALE,329*SCALE
+    d.ellipse((moon_x-radius, moon_y-radius, moon_x+radius, moon_y+radius),
+              fill=moon)
+    # Independent, seeded crater geometry; no source moon imagery.
     rng=random.Random(12052026+route)
-    for _ in range(440):
-        x,y=rng.randrange(120,1170),rng.randrange(100,1030)
-        rr=rng.choice((1,1,1,2))
-        alpha=rng.randrange(25,85)
-        d.ellipse((x*SCALE-rr*SCALE,y*SCALE-rr*SCALE,
-                   x*SCALE+rr*SCALE,y*SCALE+rr*SCALE),
-                  fill=(255,255,255,alpha))
-    for i in range(48):
-        angle=math.pi*i/24
-        r1,r2=319*SCALE,334*SCALE
-        x1=cx+int(math.cos(angle)*r1);y1=cy+int(math.sin(angle)*r1)
-        x2=cx+int(math.cos(angle)*r2);y2=cy+int(math.sin(angle)*r2)
-        d.line((x1,y1,x2,y2),fill=(255,255,255,105),width=3*SCALE)
+    for _ in range(64):
+        angle=rng.random()*2*math.pi
+        radius_factor=math.sqrt(rng.random())*.91
+        px=moon_x+int(math.cos(angle)*radius*radius_factor)
+        py=moon_y+int(math.sin(angle)*radius*radius_factor)
+        rr=rng.choice((9,10,12,16,22,27))*SCALE
+        d.ellipse((px-rr,py-rr,px+rr,py+rr),fill=dot)
+    # Route color appears only as a lower-right accent; keep text legible.
+    for color,offset in ((c["base"],0),(GOLD,24)):
+        d.polygon([(W*SCALE,(890+offset)*SCALE),
+                   (W*SCALE,(935+offset)*SCALE),
+                   ((910-offset)*SCALE,H*SCALE),
+                   ((865-offset)*SCALE,H*SCALE)],fill=color)
     d.rectangle((0,0,28*SCALE,H*SCALE),fill=GOLD)
     return canvas.resize((W,H),Image.Resampling.LANCZOS)
-
 
 def title_word(word: str, dimensions: tuple[int,int], font_path: Path) -> Image.Image:
     """Neutral sans typography, explicitly NOT a copy of the game logo."""
