@@ -5,7 +5,7 @@ on:
     branches:
       - p3p-thor-ui-source-port
     paths:
-      - '.github/workflows/p3p-package-dryrun.yml'
+      - '.github/workflows/p3p-thor-test-archive-once.yml'
   workflow_dispatch:
 
 permissions:
