@@ -654,6 +654,8 @@ if(BUILD_TESTING AND NOT ANDROID)
     dsmod_add_test(dsmod-fe3h-language KEEP_ASSERTS SOURCES fe3h_language_test.cpp fe3h_language.cpp)
     dsmod_add_test(dsmod-fe3h-labels KEEP_ASSERTS
         SOURCES fe3h_labels_test.cpp fe3h_labels.cpp fe3h_language.cpp)
+    dsmod_add_test(dsmod-fe3h-romfs KEEP_ASSERTS
+        SOURCES fe3h_romfs_test.cpp fe3h_romfs.cpp dread_mapgen_util.cpp)
 endif()
 
 
