@@ -53,7 +53,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 33 | [The Legend of Zelda: Skyward Sword HD](#the-legend-of-zelda-skyward-sword-hd) | `01002DA013484000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/skyward-sword-hd-1.0.0) | 🥇<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/eminham-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="eminham"></a> |
 | 34 | [Star Ocean: The Second Story R](#star-ocean-the-second-story-r) | `010065301A2E0000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/star-ocean-the-second-story-r-1.0.0) | ⭐<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a> |
 | 35 | [Pokémon Legends: Z-A](#pokemon-legends-za) | `0100F43008C44000` | 2.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-legends-z-a-1.0.0) | ⭐<br><a href="https://ko-fi.com/sickops"><img src="https://img.shields.io/badge/Sickops-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Support Sickops on Ko-fi"></a> |
-| 36 | [FINAL FANTASY RESONANCE](#final-fantasy-resonance) | `0100606026F12000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/final-fantasy-resonance-1.0.0) | ⭐<br><a href="https://github.com/danielcamilo1"><img src="https://img.shields.io/badge/danielcamilo1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="danielcamilo1"></a> |
+| 36 | [FINAL FANTASY RESONANCE](#final-fantasy-resonance) | `0100606026F12000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/final-fantasy-resonance-1.0.1) | ⭐<br><a href="https://github.com/danielcamilo1"><img src="https://img.shields.io/badge/danielcamilo1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="danielcamilo1"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -1148,13 +1148,15 @@ The companion reads Pokémon artwork, map art, and game text from the player's o
 <details>
 <summary>Screenshots and details</summary>
 
-`0100606026F12000` · game version 1.0.1 · companion 1.0.0
+`0100606026F12000` · game version 1.0.1 · companion 1.0.1
 
-Screenshots of the current pages are still to come.
+| Map | Equipment | Battle |
+|:---:|:---:|:---:|
+| <img src="screenshots/final-fantasy-resonance/map.png" width="300" alt="FINAL FANTASY RESONANCE: Map"> | <img src="screenshots/final-fantasy-resonance/equipment.png" width="300" alt="FINAL FANTASY RESONANCE: Equipment"> | <img src="screenshots/final-fantasy-resonance/battle.png" width="300" alt="FINAL FANTASY RESONANCE: Battle"> |
 
 The map, your party, your items, your quests and the battle on the second screen, drawn in the game's own look. Requires runtime 25 (Eden Duo 1.4.0 or later).
 
-- **Map.** The default tab. The current town's or dungeon's floor plan, or the world map with its islands. Your position and heading move live: you stay in the centre and the map moves around you, at the zoom you set with +/-, kept for the next visit. Drag or pinch to look around; Home brings the map back to you at the zoom on screen and follows you again. Shops, the inn and save points are marked with the game's own icons. The story objective is marked in gold and side quests in progress in blue. An arrow at the edge of the map points to each objective that is out of view.
+- **Map.** The default tab. The current town's or dungeon's floor plan, or the world map with its islands over the game's sea chart, which stays still while the map moves and zooms. Your position and heading move live: you stay in the centre and the map moves around you, at the zoom you set with +/-, kept for the next visit. Drag or pinch to look around; Home brings the map back to you at the zoom on screen and follows you again. Shops, the inn and save points are marked with the game's own icons. The story objective is marked in gold and side quests in progress in blue. An arrow at the edge of the map points to each objective that is out of view.
 - **Fast travel.** On the world map, the places you know are marked; tap one for its card, then Fast Travel. The game's own travel runs, with its own rules: no travel out of a dungeon, during a story event or to a place you have not visited, and the card says why when the game refuses. In a town or dungeon, a World switch shows the world map, and Back returns to where you are.
 - **Party.** Your party and the members who have joined, with the game's character art, HP and MP, and the equipped weapon, armor and vision. Stats and max HP/MP include the vision's mastery bonuses. Tap a member for the full portrait, stats and every equipment slot.
 - **Items.** Outside battle, use recovery items with one finger: tap a Potion, then tap the member to heal. The members it can help light up, the others say why not ("HP is full", "KO"), and the card shows "+120 HP". Party items heal everyone in one tap. Key Items and Artifacts are listed with the game's descriptions.

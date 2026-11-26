@@ -4,8 +4,8 @@ English companion for Switch update **1.0.1**, title `0100606026F12000`,
 build `84E182F72EE1DA4F477804BD05B54C1500000000000000000000000000000000`.
 Requires runtime 25 (Eden Duo 1.4.0 or later). Tested on Peanuts Native on an AYN Thor; not yet verified on Eden Duo. Includes Android arm64-v8a and Linux x86-64 modules.
 
-- **Map.** The default tab. The current town's or dungeon's floor plan, or the world map with its islands. Your position and
-  heading move live: you stay in the centre and the map moves around you, at the zoom you set with +/-, kept for the next visit.
+- **Map.** The default tab. The current town's or dungeon's floor plan, or the world map with its islands over the game's sea chart,
+  which stays still while the map moves and zooms. Your position and heading move live: you stay in the centre and the map moves around you, at the zoom you set with +/-, kept for the next visit.
   Drag or pinch to look around; Home brings the map back to you at the zoom on screen and follows you again. Shops, the inn and save points
   are marked with the game's own icons. The story objective is marked in gold and side quests in progress in blue, and an arrow
   at the edge of the map points to each objective that is out of view.
