@@ -42,6 +42,12 @@ jobs:
           llvm-strip-18 --strip-all /tmp/p3p-android/0100DCD01525A000.so
           readelf -h /tmp/p3p-linux/0100DCD01525A000.so | grep 'X86-64'
           readelf -h /tmp/p3p-android/0100DCD01525A000.so | grep 'AArch64'
+      - name: Verify checked-in source and asset provenance
+        run: |
+          python tools/p3p/test_thor_source.py
+          python tools/p3p/v1810/test_asset_audit.py
+          python tools/p3p/v1810/audit_assets.py --require-full-source-art
+          python -m compileall -q tools/p3p
       - name: Recreate source package as a complete private QA build
         run: |
           python tools/p3p/gen_manifest.py
