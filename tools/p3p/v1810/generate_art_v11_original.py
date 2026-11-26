@@ -82,6 +82,47 @@ def title_word(word: str, dimensions: tuple[int,int], font_path: Path) -> Image.
     return canvas.resize((w,h),Image.Resampling.LANCZOS)
 
 
+
+def approved_start_word(word: str, dimensions: tuple[int, int],
+                        font_path: Path) -> Image.Image:
+    """Generate the title treatment approved on real AYN Thor hardware.
+
+    Unlike the original seven-asset placeholder renderer, this crops the
+    natural glyph bounds *before* filling the allocated transparent canvas.
+    Keep the font and Pillow versions pinned: the output has been validated
+    against the two PNGs in the on-device title-fix test ZIP.
+
+    This is original text lettering, not a recreation of the game's logo.
+    """
+    fractions = {
+        'PERSONA 3': (0.924, 0.765),
+        'PORTABLE': (0.905, 0.830),
+    }
+    width_fraction, height_fraction = fractions[word]
+    width, height = dimensions
+    face = ImageFont.truetype(str(font_path), 380)
+    draw = ImageDraw.Draw(Image.new('RGBA', (8, 8)))
+    left, top, right, bottom = draw.textbbox((0, 0), word, font=face)
+    pad = 24
+    layer = Image.new('RGBA', (right-left+2*pad, bottom-top+2*pad), (0, 0, 0, 0))
+    art = ImageDraw.Draw(layer)
+    x, y = pad-left, pad-top
+    art.text((x+5, y+5), word, font=face, fill=(2, 24, 77, 190),
+             stroke_width=2, stroke_fill=(2, 24, 77, 190))
+    art.text((x, y), word, font=face, fill=(255, 255, 255, 255))
+    bbox = layer.getchannel('A').getbbox()
+    if bbox is None:
+        raise ValueError('Empty Start title')
+    glyphs = layer.crop(bbox)
+    target_width = round(width*width_fraction)
+    target_height = round(height*height_fraction)
+    glyphs = glyphs.resize((target_width, target_height),
+                           Image.Resampling.LANCZOS)
+    output = Image.new('RGBA', dimensions, (0, 0, 0, 0))
+    output.alpha_composite(glyphs, ((width-target_width)//2,
+                                   (height-target_height)//2))
+    return output
+
 def generate_all(output: Path, font_path: Path) -> list[Path]:
     if not font_path.is_file():
         raise FileNotFoundError(f"Pinned official Inter OTF required: {font_path}")
@@ -93,7 +134,10 @@ def generate_all(output: Path, font_path: Path) -> list[Path]:
         result.append(path)
     for name,(word,size) in WORDS.items():
         path=output/name
-        title_word(word,size,font_path).save(path)
+        if name in ('word_persona3.png', 'word_portable.png'):
+            approved_start_word(word, size, font_path).save(path, optimize=True)
+        else:
+            title_word(word, size, font_path).save(path)
         result.append(path)
     assert len(result)==7
     return result
