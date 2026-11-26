@@ -11,15 +11,38 @@ choices. Controls use the existing P3P native companion module and its
 supported game build. The UI includes male/female route colors, large
 touch targets and the original UI artist's custom geometric styling.
 
-## Design previews
+## AYN Thor screenshots
 
-These are **illustrative preview composites generated from our own source
-artwork**, not screenshots taken from an emulator. Replace them with real
-AYN Thor screenshots after the 1.1.0 graphics have passed device QA.
+These are **real dual-screen captures from an AYN Thor**, taken with
+Persona 3 Portable running in Eden Duo on November 26, 2026. The upper
+half shows the game and the lower half shows the live P3P companion.
+Both screens are included to demonstrate the relationship between the
+game state and the companion UI. These are not illustrative mockups.
 
-![Male-route UI design preview](docs/male-route-preview.png)
+### Start screen
 
-![Female-route UI design preview](docs/female-route-preview.png)
+The updated Start page with its larger, on-device-approved title
+lettering alongside the game's own title screen.
+
+<img src="docs/thor-title.webp" alt="AYN Thor dual-screen capture: Persona 3 Portable title screen above the companion Start page" width="680">
+
+### Main menu
+
+The companion's MAIN page displays navigation, the party's live HP/SP
+and current in-game details while Tartarus is visible above.
+
+<img src="docs/thor-main.webp" alt="AYN Thor dual-screen capture: Tartarus on the top screen and the companion MAIN menu with party stats below" width="680">
+
+### Battle
+
+The companion's Battle page displays party status and the enemy
+readout during a live encounter, below the game's battle interface.
+
+<img src="docs/thor-battle.webp" alt="AYN Thor dual-screen capture: in-game battle on the top screen and the companion Battle page with HP, SP and enemy data below" width="680">
+
+Screenshots are included for documentation and show copyrighted game
+imagery rendered by the user's own copy of the game. The package itself
+does not bundle those game assets.
 
 ## Source and generation
 
@@ -40,13 +63,12 @@ against the previously tested 1.8.10 reference. The **other seven** are
 new, expressly procedural replacement artwork: two route-specific Start
 backgrounds and five plain white title labels. They are **not** represented
 as pixel-identical versions of the older 1.8.10 assets and do not reproduce
-the game's logo. Their on-device appearance needs renewed review.
+the game's logo. The corrected Start title artwork has been tested and approved on an AYN Thor.
 
 ```sh
 python3 -m pip install "Pillow==12.3.0"
 python3 tools/p3p/v1810/prepare_fonts_for_checks.py --output /tmp/p3p-inter
 P3P_INTER_FONT_DIR=/tmp/p3p-inter python3 tools/p3p/gen_thor_assets.py
-P3P_INTER_FONT_DIR=/tmp/p3p-inter python3 tools/p3p/make_readme_previews.py
 ```
 
 The font source is the official [Inter](https://github.com/rsms/inter)
@@ -86,10 +108,11 @@ metadata into the packaged manifest. The source manifest deliberately
   compatible Eden Duo SDK. Native C++ unit tests passed on Linux.
 - The source-built test package based on the older 1.8.10 graphics received
   positive preliminary AYN Thor feedback.
-- The 1.1.0 title lettering has been tested and approved on an AYN Thor.
-  The Battle screen received positive on-device visual feedback on November 26,
-  2026. This is a hardware smoke test, not comprehensive combat/action QA.
-  Female-route and all other states still need broader verification.
+- On November 26, 2026, the revised Start page, MAIN page and Battle
+  page were captured on a physical AYN Thor with the game running in Eden Duo.
+  The corrected title lettering and Battle page received positive device
+  feedback. These were hardware smoke tests, not comprehensive combat,
+  interaction or full-playthrough QA; the female route remains unverified.
 - Original visual ownership/provenance and final attribution/license
   approval still require maintainer review before merging.
 
