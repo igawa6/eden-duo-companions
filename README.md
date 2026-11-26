@@ -1187,7 +1187,9 @@ Contributed by [danielcamilo1](https://github.com/danielcamilo1). Code: GPL-3.0-
 
 `0100F2C0115B6000` · game version 1.4.3 (update v720896) · companion 1.0.0 · runtime 22
 
-Screenshots of the current pages are still to come.
+| Status | Map | Items |
+|:---:|:---:|:---:|
+| <img src="screenshots/tears-of-the-kingdom/status.png" width="300" alt="The Legend of Zelda: Tears of the Kingdom: Status"> | <img src="screenshots/tears-of-the-kingdom/map.png" width="300" alt="The Legend of Zelda: Tears of the Kingdom: Map"> | <img src="screenshots/tears-of-the-kingdom/items.png" width="300" alt="The Legend of Zelda: Tears of the Kingdom: Items"> |
 
 A read-only second screen in the game's own look. It reads the running game and never changes it.
 
