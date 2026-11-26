@@ -1,0 +1,46 @@
+name: P3P apply approved title artwork once
+
+on:
+  push:
+    branches:
+      - p3p-thor-ui-source-port
+    paths:
+      - '.github/workflows/p3p-apply-approved-start-titles-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout approved P3P source
+        uses: actions/checkout@v4
+        with:
+          ref: p3p-thor-ui-source-port
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Use pinned image renderer
+        run: python -m pip install Pillow==12.3.0
+      - name: Obtain SHA-verified official Inter font
+        run: python tools/p3p/v1810/prepare_fonts_for_checks.py --output /tmp/p3p-inter
+      - name: Regenerate the seven new originals, select approved two
+        run: |
+          python tools/p3p/v1810/generate_art_v11_original.py --output /tmp/p3p-approved --font /tmp/p3p-inter/Inter-BlackItalic.otf
+          echo "18b7243c0ab9797f44c3afdc7e78cb69df0e5f5c70538e2e6808c2a642f5ef0f  /tmp/p3p-approved/word_persona3.png" | sha256sum -c
+          echo "d484df3348b1915ff1c18c774cf4878f508bab6109e8978f10a1f7dadaa5a183  /tmp/p3p-approved/word_portable.png" | sha256sum -c
+          cp /tmp/p3p-approved/word_persona3.png packages/Persona3Portable/dualscreen/img/word_persona3.png
+          cp /tmp/p3p-approved/word_portable.png packages/Persona3Portable/dualscreen/img/word_portable.png
+          python tools/p3p/test_thor_source.py
+          git diff --check
+      - name: Commit exactly two approved images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/Persona3Portable/dualscreen/img/word_persona3.png packages/Persona3Portable/dualscreen/img/word_portable.png
+          git diff --cached --stat
+          git diff --cached --name-only | tee /tmp/changed-files.txt
+          test "$(wc -l < /tmp/changed-files.txt)" -eq 2
+          git commit -m "fix(p3p): ship AYN Thor-tested final Start title assets"
+          git push origin HEAD:p3p-thor-ui-source-port
