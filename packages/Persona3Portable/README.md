@@ -86,8 +86,10 @@ metadata into the packaged manifest. The source manifest deliberately
   compatible Eden Duo SDK. Native C++ unit tests passed on Linux.
 - The source-built test package based on the older 1.8.10 graphics received
   positive preliminary AYN Thor feedback.
-- The *newly generated 1.1.0 replacement graphics* are still awaiting a
-  full device screenshot/navigation review; particularly Battle.
+- The 1.1.0 title lettering has been tested and approved on an AYN Thor.
+  The Battle screen received positive on-device visual feedback on November 26,
+  2026. This is a hardware smoke test, not comprehensive combat/action QA.
+  Female-route and all other states still need broader verification.
 - Original visual ownership/provenance and final attribution/license
   approval still require maintainer review before merging.
 
