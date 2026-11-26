@@ -76,6 +76,7 @@ for the exact `tools/build_dualscreen_package.py` packaging command.
 
 The original v1.8.10 redesign with its legacy images passed preliminary
 testing on the AYN Thor with source-built Linux/Android native modules. The
-v1.1.0 source package has **seven new, source-owned graphics**. Their
-composition and every live game-state screen, especially Battle, need a
-fresh hardware check before upstream merge.
+v1.1.0 source package has **seven new, source-owned graphics**. The final
+Start lettering and Battle screen have now received positive AYN Thor
+hardware checks (November 26, 2026). These are smoke tests; broader
+female-route, interaction, and full-game checks remain for release QA.
