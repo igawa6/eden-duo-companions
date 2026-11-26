@@ -24,7 +24,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "packages" / "StarOceanTheSecondStoryR" / "dualscreen" / "manifest.json"
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 TITLE = "010065301A2E0000"
 BUILD = "D214BA64D902AEDA"
 MIN_RUNTIME = 22          # derived expr, value group, image fill/slice, bar image (PACKAGE_FORMAT.md section 6)
@@ -753,7 +753,11 @@ def skills_widgets():
                 image(bx, by, bw, bh, pic("list_item_selected"), fill="slice", slice=game_slice("list_item_selected"),
                       need_bind=f"so2r.bt.lit{(2, 3, 11)[b]}")]
         if b < 2:
-            out += [image(bx + 14, by + (bh - 64) // 2, 64, 64, pic(("button_cell_6_0", "button_cell_1_4")[b]), **p3),
+            # 1.0.1 the Battle Skill 1 / 2 buttons as the game's Key Config sets them
+            out += [image(bx + 14, by + (bh - 64) // 2, 64, 64, src_bind=f"so2r.kb.i{b}", hide_bind=f"so2r.kb.hi{b}",
+                          keep_min=1, **p3),
+                    label(bx + 14 + 32, by + (bh - 40) // 2, None, 6, GOLD, bind_text=f"so2r.kb.l{b}", align="center",
+                          hide_bind=f"so2r.kb.nl{b}", keep_min=1, **p3),
                     label(bx + bw // 2 + 20, by + (bh - 40) // 2, None, 6, MENU, bind_text=f"so2r.a.eq{b}", align="center",
                           wrap_width=bw - 140, max_lines=1, fit_text=True, text_min_scale=3, **p3)]
         else:
@@ -910,13 +914,16 @@ def battle_page(diag):
     span_end = y0 - 18                                        # 0.9.110 both columns end here (the Y row's foot)
     rh_r = (span_end - ry0 - 3 * rgap) // 4                   # the right column: A, B, L, R (taller)
     rh_m = (span_end - ry0 - 4 * rgap) // 5                   # the middle: the four commands and Y (shorter)
-    def btn_icon(name, x, yy, size, always=False):
+    def btn_icon(slot, x, yy, size, always=False):
         """0.9.112 the game's own button icon (text_icon_switch, r73): bright in a battle, dimmed outside one
-        (always: the L / R arts, which work outside one too)"""
+        (always: the L / R arts, which work outside one too). 1.0.1 the button the game's Key Config puts the
+        action on (slot: so2r.kb.*), its letter while that button's icon is not matched yet"""
+        letter = label(x + size // 2, yy + (size - 40) // 2, None, 6, GOLD, bind_text=f"so2r.kb.l{slot}", align="center",
+                       need_bind=f"so2r.kb.nl{slot}")
         if always:
-            return [image(x, yy, size, size, pic(name), **on)]
-        return [image(x, yy, size, size, pic(name), need_bind="so2r.bt.inb"),
-                image(x, yy, size, size, pic(name), tint=DIM, need_bind="so2r.bt.outb")]
+            return [image(x, yy, size, size, src_bind=f"so2r.kb.i{slot}", need_bind=f"so2r.kb.hi{slot}"), letter]
+        return [image(x, yy, size, size, src_bind=f"so2r.kb.i{slot}", need_bind=f"so2r.kb.in{slot}"),
+                image(x, yy, size, size, src_bind=f"so2r.kb.i{slot}", tint=DIM, need_bind=f"so2r.kb.out{slot}"), letter]
     def card(x, yy, w, h, lit=None, **kw):
         """0.9.121 lit: the button's number -- the main tabs' blue (list_item_selected) over it while tapped"""
         c = image(x, yy, w, h, pic("list_item_unselected"), fill="slice", slice=game_slice("list_item_unselected"), **kw)
@@ -931,7 +938,7 @@ def battle_page(diag):
         # the right column, under the third card: A, B, L, R -- as tall as the middle's five rows together
         yy = ry0 + j * (rh_r + rgap)
         if j < 2:
-            icon, word, act = (("button_cell_0_1", "so2r.t.batk", "so2r.ba"), ("button_cell_0_2", "so2r.t.bctr", "so2r.bb"))[j]
+            icon, word, act = ((2, "so2r.t.batk", "so2r.ba"), (4, "so2r.t.bctr", "so2r.bb"))[j]   # 1.0.1 Key Config slots
             out += card(col_x, yy, col_w, rh_r, lit=j, **on) + btn_icon(icon, col_x + 14, yy + (rh_r - 64) // 2, 64) + [
                     label(col_x + col_w // 2 + 20, yy + (rh_r - 34) // 2, None, 5, MENU, bind_text=word, align="center",
                           wrap_width=col_w - 90, max_lines=1, fit_text=True, text_min_scale=3, **on),
@@ -939,7 +946,7 @@ def battle_page(diag):
         else:
             b2 = j - 2
             # 0.9.122 laid out like A / B: the icon at the left, the art's name centred (no "Button")
-            out += card(col_x, yy, col_w, rh_r, lit=j, **on) + btn_icon(("button_cell_6_0", "button_cell_1_4")[b2],
+            out += card(col_x, yy, col_w, rh_r, lit=j, **on) + btn_icon(b2,
                                                                    col_x + 14, yy + (rh_r - 64) // 2, 64, always=True) + [
                     label(col_x + col_w // 2 + 20, yy + (rh_r - 34) // 2, None, 5, MENU, bind_text=f"so2r.bt.art{b2}",
                           align="center", wrap_width=col_w - 100, max_lines=1, fit_text=True, text_min_scale=3, **on),
@@ -958,7 +965,7 @@ def battle_page(diag):
     bh2 = rh_m
     y = ry0 + 4 * (rh_m + rgap)
     # Y: the 1.0.1 sheet's cell 5,1 (the player's matching, 0.9.119's box #1)
-    out += card(cmd_x, y, cmd_w, bh2, lit=8, **on) + btn_icon("button_cell_5_1", cmd_x + 16, y + (bh2 - 60) // 2, 60) + [
+    out += card(cmd_x, y, cmd_w, bh2, lit=8, **on) + btn_icon(5, cmd_x + 16, y + (bh2 - 60) // 2, 60) + [
             # 0.9.81 the order now in force (the game's words)
             label(cmd_x + cmd_w // 2 + 20, y + (bh2 - 36) // 2, None, 6, TEXT, bind_text="so2r.bt.order", align="center",
                   wrap_width=cmd_w - 120, max_lines=1, fit_text=True, text_min_scale=3),
@@ -1035,6 +1042,8 @@ def diag_page():
     widgets.append(label(20, 12, None, 4, TEXT, bind_text="so2r.d.l{i}", wrap_width=1200,
                          max_lines=1, fit_text=True, text_min_scale=3, repeat=DIAG_LINES, repeat_dy=25))
     return {"id": "diag", "title": "Diag", "widgets": widgets, "no_auto_leave": True}   # 0.9.144 not left by page_binds
+
+
 
 
 TITLE_LOGO_W, TITLE_LOGO_H = 900, 668   # 0.9.145 the title logo's box (logo_title 1024 x 760, fitted, centred)
@@ -1129,6 +1138,14 @@ def build(diag):
         m["actions"][f"so2r.q_{nm_}"] = {"kind": "button", "button": btn, "frames": fr, "enabled_bind": f"so2r.q.f{j}"}
         # 0.9.155 in step with the acknowledgement (60 ms since 0.9.134): at 100 the acknowledgement could come first
         # and drop or delay the ZR press, so the switch stepped past the member tapped
+        m["enforce"].append({"action": f"so2r.q_{nm_}", "every_ms": 60})
+    # 1.0.1 the game's Key Config: ZL as a single press (13), and the character switch with another button held than
+    # ZR (14 + 3 x i: held, with the left stick down, up) for A B X Y L R ZL -- the module picks by the game's setting
+    extra = [("ZL", "ZL", 4)]
+    for hb in ("A", "B", "X", "Y", "L", "R", "ZL"):
+        extra += [(f"H{hb}", hb, 24), (f"H{hb}down", f"{hb}+LY-", 10), (f"H{hb}up", f"{hb}+LY+", 10)]
+    for j, (nm_, btn, fr) in enumerate(extra, start=13):
+        m["actions"][f"so2r.q_{nm_}"] = {"kind": "button", "button": btn, "frames": fr, "enabled_bind": f"so2r.q.f{j}"}
         m["enforce"].append({"action": f"so2r.q_{nm_}", "every_ms": 60})
     m["actions"]["so2r.q_ack"] = {"kind": "flag", "flag": "so2r.qp", "enabled_bind": "so2r.q.any"}
     m["enforce"].append({"action": "so2r.q_ack", "every_ms": 60})          # 0.9.134 (100)

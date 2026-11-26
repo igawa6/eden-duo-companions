@@ -2,7 +2,7 @@
  "format": 1,
  "title_id": "010065301A2E0000",
  "name": "Star Ocean: The Second Story R dual screen",
- "_about": "Star Ocean: The Second Story R companion 1.0.0: the title screen, the party and each member's status, equipment, arts and skills, the Guide Map with the player's position and the game's icons, the missions and the battle, read live from the game's own objects and drawn with the game's font, words and pictures read from the player's own game files. Ships no game assets.",
+ "_about": "Star Ocean: The Second Story R companion 1.0.1: the title screen, the party and each member's status, equipment, arts and skills, the Guide Map with the player's position and the game's icons, the missions and the battle, read live from the game's own objects and drawn with the game's font, words and pictures read from the player's own game files. Ships no game assets.",
  "min_runtime": 22,
  "requires_module": true,
  "load_plan": "plans/<build>.json",
@@ -1021,6 +1021,138 @@
    "button": "ZR+LY+",
    "frames": 10,
    "enabled_bind": "so2r.q.f12"
+  },
+  "so2r.q_ZL": {
+   "kind": "button",
+   "button": "ZL",
+   "frames": 4,
+   "enabled_bind": "so2r.q.f13"
+  },
+  "so2r.q_HA": {
+   "kind": "button",
+   "button": "A",
+   "frames": 24,
+   "enabled_bind": "so2r.q.f14"
+  },
+  "so2r.q_HAdown": {
+   "kind": "button",
+   "button": "A+LY-",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f15"
+  },
+  "so2r.q_HAup": {
+   "kind": "button",
+   "button": "A+LY+",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f16"
+  },
+  "so2r.q_HB": {
+   "kind": "button",
+   "button": "B",
+   "frames": 24,
+   "enabled_bind": "so2r.q.f17"
+  },
+  "so2r.q_HBdown": {
+   "kind": "button",
+   "button": "B+LY-",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f18"
+  },
+  "so2r.q_HBup": {
+   "kind": "button",
+   "button": "B+LY+",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f19"
+  },
+  "so2r.q_HX": {
+   "kind": "button",
+   "button": "X",
+   "frames": 24,
+   "enabled_bind": "so2r.q.f20"
+  },
+  "so2r.q_HXdown": {
+   "kind": "button",
+   "button": "X+LY-",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f21"
+  },
+  "so2r.q_HXup": {
+   "kind": "button",
+   "button": "X+LY+",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f22"
+  },
+  "so2r.q_HY": {
+   "kind": "button",
+   "button": "Y",
+   "frames": 24,
+   "enabled_bind": "so2r.q.f23"
+  },
+  "so2r.q_HYdown": {
+   "kind": "button",
+   "button": "Y+LY-",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f24"
+  },
+  "so2r.q_HYup": {
+   "kind": "button",
+   "button": "Y+LY+",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f25"
+  },
+  "so2r.q_HL": {
+   "kind": "button",
+   "button": "L",
+   "frames": 24,
+   "enabled_bind": "so2r.q.f26"
+  },
+  "so2r.q_HLdown": {
+   "kind": "button",
+   "button": "L+LY-",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f27"
+  },
+  "so2r.q_HLup": {
+   "kind": "button",
+   "button": "L+LY+",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f28"
+  },
+  "so2r.q_HR": {
+   "kind": "button",
+   "button": "R",
+   "frames": 24,
+   "enabled_bind": "so2r.q.f29"
+  },
+  "so2r.q_HRdown": {
+   "kind": "button",
+   "button": "R+LY-",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f30"
+  },
+  "so2r.q_HRup": {
+   "kind": "button",
+   "button": "R+LY+",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f31"
+  },
+  "so2r.q_HZL": {
+   "kind": "button",
+   "button": "ZL",
+   "frames": 24,
+   "enabled_bind": "so2r.q.f32"
+  },
+  "so2r.q_HZLdown": {
+   "kind": "button",
+   "button": "ZL+LY-",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f33"
+  },
+  "so2r.q_HZLup": {
+   "kind": "button",
+   "button": "ZL+LY+",
+   "frames": 10,
+   "enabled_bind": "so2r.q.f34"
   },
   "so2r.q_ack": {
    "kind": "flag",
@@ -5544,7 +5676,25 @@
       64
      ],
      "color": "#FFFFFFFF",
-     "src": "module:pic/button_cell_6_0",
+     "src_bind": "so2r.kb.i0",
+     "hide_bind": "so2r.kb.hi0",
+     "keep_min": 1,
+     "need_bind": "so2r.k.p3"
+    },
+    {
+     "type": "label",
+     "rect": [
+      86,
+      706,
+      0,
+      0
+     ],
+     "color": "#FFF2CF63",
+     "text_scale": 6,
+     "bind_text": "so2r.kb.l0",
+     "align": "center",
+     "hide_bind": "so2r.kb.nl0",
+     "keep_min": 1,
      "need_bind": "so2r.k.p3"
     },
     {
@@ -5627,7 +5777,25 @@
       64
      ],
      "color": "#FFFFFFFF",
-     "src": "module:pic/button_cell_1_4",
+     "src_bind": "so2r.kb.i1",
+     "hide_bind": "so2r.kb.hi1",
+     "keep_min": 1,
+     "need_bind": "so2r.k.p3"
+    },
+    {
+     "type": "label",
+     "rect": [
+      86,
+      798,
+      0,
+      0
+     ],
+     "color": "#FFF2CF63",
+     "text_scale": 6,
+     "bind_text": "so2r.kb.l1",
+     "align": "center",
+     "hide_bind": "so2r.kb.nl1",
+     "keep_min": 1,
      "need_bind": "so2r.k.p3"
     },
     {
@@ -14741,8 +14909,8 @@
       64
      ],
      "color": "#FFFFFFFF",
-     "src": "module:pic/button_cell_0_1",
-     "need_bind": "so2r.bt.inb"
+     "src_bind": "so2r.kb.i2",
+     "need_bind": "so2r.kb.in2"
     },
     {
      "type": "image",
@@ -14753,9 +14921,23 @@
       64
      ],
      "color": "#FFFFFFFF",
-     "src": "module:pic/button_cell_0_1",
+     "src_bind": "so2r.kb.i2",
      "tint": "#FF9DB3D1",
-     "need_bind": "so2r.bt.outb"
+     "need_bind": "so2r.kb.out2"
+    },
+    {
+     "type": "label",
+     "rect": [
+      968,
+      258,
+      0,
+      0
+     ],
+     "color": "#FFF2CF63",
+     "text_scale": 6,
+     "bind_text": "so2r.kb.l2",
+     "align": "center",
+     "need_bind": "so2r.kb.nl2"
     },
     {
      "type": "label",
@@ -14926,8 +15108,8 @@
       64
      ],
      "color": "#FFFFFFFF",
-     "src": "module:pic/button_cell_0_2",
-     "need_bind": "so2r.bt.inb"
+     "src_bind": "so2r.kb.i4",
+     "need_bind": "so2r.kb.in4"
     },
     {
      "type": "image",
@@ -14938,9 +15120,23 @@
       64
      ],
      "color": "#FFFFFFFF",
-     "src": "module:pic/button_cell_0_2",
+     "src_bind": "so2r.kb.i4",
      "tint": "#FF9DB3D1",
-     "need_bind": "so2r.bt.outb"
+     "need_bind": "so2r.kb.out4"
+    },
+    {
+     "type": "label",
+     "rect": [
+      968,
+      403,
+      0,
+      0
+     ],
+     "color": "#FFF2CF63",
+     "text_scale": 6,
+     "bind_text": "so2r.kb.l4",
+     "align": "center",
+     "need_bind": "so2r.kb.nl4"
     },
     {
      "type": "label",
@@ -15111,8 +15307,22 @@
       64
      ],
      "color": "#FFFFFFFF",
-     "src": "module:pic/button_cell_6_0",
-     "need_bind": "so2r.bt.on"
+     "src_bind": "so2r.kb.i0",
+     "need_bind": "so2r.kb.hi0"
+    },
+    {
+     "type": "label",
+     "rect": [
+      968,
+      548,
+      0,
+      0
+     ],
+     "color": "#FFF2CF63",
+     "text_scale": 6,
+     "bind_text": "so2r.kb.l0",
+     "align": "center",
+     "need_bind": "so2r.kb.nl0"
     },
     {
      "type": "label",
@@ -15283,8 +15493,22 @@
       64
      ],
      "color": "#FFFFFFFF",
-     "src": "module:pic/button_cell_1_4",
-     "need_bind": "so2r.bt.on"
+     "src_bind": "so2r.kb.i1",
+     "need_bind": "so2r.kb.hi1"
+    },
+    {
+     "type": "label",
+     "rect": [
+      968,
+      693,
+      0,
+      0
+     ],
+     "color": "#FFF2CF63",
+     "text_scale": 6,
+     "bind_text": "so2r.kb.l1",
+     "align": "center",
+     "need_bind": "so2r.kb.nl1"
     },
     {
      "type": "label",
@@ -15455,8 +15679,8 @@
       60
      ],
      "color": "#FFFFFFFF",
-     "src": "module:pic/button_cell_5_1",
-     "need_bind": "so2r.bt.inb"
+     "src_bind": "so2r.kb.i5",
+     "need_bind": "so2r.kb.in5"
     },
     {
      "type": "image",
@@ -15467,9 +15691,23 @@
       60
      ],
      "color": "#FFFFFFFF",
-     "src": "module:pic/button_cell_5_1",
+     "src_bind": "so2r.kb.i5",
      "tint": "#FF9DB3D1",
-     "need_bind": "so2r.bt.outb"
+     "need_bind": "so2r.kb.out5"
+    },
+    {
+     "type": "label",
+     "rect": [
+      350,
+      708,
+      0,
+      0
+     ],
+     "color": "#FFF2CF63",
+     "text_scale": 6,
+     "bind_text": "so2r.kb.l5",
+     "align": "center",
+     "need_bind": "so2r.kb.nl5"
     },
     {
      "type": "label",
@@ -16449,6 +16687,94 @@
   },
   {
    "action": "so2r.q_ZRup",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_ZL",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HA",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HAdown",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HAup",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HB",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HBdown",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HBup",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HX",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HXdown",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HXup",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HY",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HYdown",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HYup",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HL",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HLdown",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HLup",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HR",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HRdown",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HRup",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HZL",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HZLdown",
+   "every_ms": 60
+  },
+  {
+   "action": "so2r.q_HZLup",
    "every_ms": 60
   },
   {

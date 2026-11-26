@@ -25,8 +25,8 @@ Guide Map on the field and the world map, Battle when a battle starts.
   reveals it).
 - **Equipment:** the seven slots with the game's item icons, beside the member's full-body art.
   Tapping a slot opens the game's Equipment screen.
-- **Special Arts/Spells:** every art or spell with its level and BP cost, the arts set on L and R.
-  L / R open the game's Special Arts/Spells screen on that member; Improve opens Improve >
+- **Special Arts/Spells:** every art or spell with its level and BP cost, the arts set on the two art buttons (L and R by default).
+  The two art buttons open the game's Special Arts/Spells screen on that member; Improve opens Improve >
   Special Arts/Spells.
 - **Skills:** IC/Specialty Skills and Combat Skills with their levels and SP / BP costs (scrolling),
   IC / Specialty / Super Specialty levels; Improve opens the matching Improve screen.
@@ -55,12 +55,27 @@ Guide Map on the field and the world map, Battle when a battle starts.
 
 **BATTLE**
 - The controlled member's art with level, HP / MP, and the other members' cards; tapping a card
-  switches control to that member (the game's ZR + stick).
+  switches control to that member (the game's Swap Player Character button + stick).
 - Status ailments on each member (Poison, Paralysis, Petrification, Confusion, Silence) with the
   game's own battle icons.
 - The bonus gauge in the game's look and font, and the Assault Action members.
-- Buttons with the game's own button icons, lit when tapped: Attack (A), Counter (B), the arts set
-  on L and R, Items, Spells, Strategy, Escape, and the Y order.
+- Buttons with the game's own button icons, lit when tapped: Attack, Counter, the two arts (Activate
+  Move 1 / 2), Items, Spells, Strategy, Escape, and the AI-Targeting order.
+- **Follows the game's own Key Config** (Settings > Controller Settings): every battle button, and the
+  L / R arts on the Party page, press and show the button you set there (A B X Y L R ZL ZR), live.
+
+## Changes
+
+**1.0.1**
+- The battle buttons follow the game's own Key Config: each card presses, and shows the icon of, the
+  button the player set for that action (Attack, Perfect Counter, Menu, AI-Targeting, Swap Player
+  Character, Activate Move 1 / 2); the character switch holds whichever button Swap Player Character
+  is on. Suggested by a player who moved the arts onto X / Y.
+- Sturdier game-file reads (each picture file's size and header kept once read, a failed read tried
+  again), for hosts whose file reads answer only the first time.
+- README: the game update is 1.1.0 (1.0.0's notes said 1.0.1).
+
+**1.0.0**: first release.
 
 ## How it works
 

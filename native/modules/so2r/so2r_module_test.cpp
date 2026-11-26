@@ -64,8 +64,16 @@ static void lg(void*, uint32_t, const char* m) { std::printf("  log: %s\n", m); 
 static int64_t g_flag_qp = -1;    // the runtime flag so2r.qp (the quick menu's press toggles it)
 static int64_t gi(void*, const char* n, int64_t f) { return std::strcmp(n, "@flag:so2r.qp") == 0 ? g_flag_qp : f; }
 static std::string g_fx;
+// 1.0.1 SO2R_TEST_FLAKY=1: a host like Peanut was seen to be: a game file's size query and its read at offset 0
+// answer the first time only; =2: also no size query answers (the module falls back to the index's size)
+static std::map<std::string, int> g_flaky_seen;
 static size_t romfs(void*, const char* path, uint64_t off, void* out, size_t n) {
     std::string p = g_fx + "/" + (std::strncmp(path, "file:", 5) == 0 ? path + 5 : path);
+    if (std::getenv("SO2R_TEST_FLAKY") && std::strncmp(path, "file:", 5) != 0 && off == 0) {
+        int& seen = g_flaky_seen[std::string(path) + (out ? "#r" : "#s")];
+        if (seen++) return 0;
+        if (!out && std::getenv("SO2R_TEST_FLAKY")[0] == '2') return 0;   // 2: no size query answers at all
+    }
     FILE* f = std::fopen(p.c_str(), "rb");
     if (!f) return 0;
     std::fseek(f, 0, SEEK_END);

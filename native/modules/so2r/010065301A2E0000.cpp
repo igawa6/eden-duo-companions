@@ -85,7 +85,7 @@ namespace {
 extern char g_hh_diag[256];   // 0.9.142 HideHUD (defined after Sample)
 extern int g_hh_on;
 
-[[maybe_unused]] constexpr const char* kVersion = "1.0.0";
+[[maybe_unused]] constexpr const char* kVersion = "1.0.1";
 constexpr uint64_t kTitle = 0x010065301A2E0000ull;
 constexpr const char* kBuild = "D214BA64D902AEDA";
 
@@ -829,6 +829,68 @@ int32_t rd32(const uint8_t* b, uint64_t off) {   // field at object offset `off`
 // ---------------------------------------------------------------- names (the game's own tables)
 // charaNameID for every PlayerID from ScriptablePlayerParameter, then each one's firstName from
 // characterMessageDictionary -- the same text the game's menus show, in the game's language.
+// ---- 1.0.1 the game's own Key Config (Settings > Gamepad, r81 / r82): SystemConfigParameter (ParameterManager
+// +0x7D8) .aliasInputActions (+0x28, InputAction[128]); entry [action] = the action whose default button now makes
+// that action (0 or itself: its own). The screen only swaps among its eight battle actions, so every alias is one of
+// them, and the button that makes action k is the default button of the action its entry names
+// (GameInputManager.GetAliasInputAction / UIKeyConfigSelector.UpdateAliasAction). Slots: Battle Skill 1, 2,
+// Attack, Battle Menu, Step, Command (orders), Change Target, Change Player.
+constexpr uint64_t kPmSysCfg = 0x7D8, kScAlias = 0x28;
+constexpr int kKeyN = 8;
+constexpr int kKeyAct[kKeyN] = {64, 65, 66, 67, 77, 78, 79, 80};
+constexpr int kBtnZl = 13;                                    // 1.0.1 ZL (a single press)
+constexpr int kKeyDef[kKeyN] = {8, 9, 7, 4 /*X*/, 6 /*B*/, 5 /*Y*/, kBtnZl, 10};
+int g_key_alias[kKeyN] = {64, 65, 66, 67, 77, 78, 79, 80};   // as read (the defaults until read)
+int g_key_btn[kKeyN] = {8, 9, 7, 4, 6, 5, kBtnZl, 10};
+bool g_key_read;
+int KeyBtn(int slot) { return __atomic_load_n(&g_key_btn[slot], __ATOMIC_RELAXED); }
+void ReadKeys(const Guest& g, uint64_t pm) {
+    const uint64_t sc = g.ptr(pm + kPmSysCfg);
+    const uint64_t arr = Guest::objp(sc) ? g.ptr(sc + kScAlias) : 0;
+    bool ok = false;
+    const int32_t n = Guest::objp(arr) ? g.i32(arr + kArrLen, &ok) : 0;
+    if (!ok || n <= 80 || n > 4096) return;
+    for (int k = 0; k < kKeyN; ++k) {
+        int a = g.i32(arr + kArrItems + 4ull * static_cast<uint64_t>(kKeyAct[k]), &ok);
+        if (!ok) return;
+        if (a == 0) a = kKeyAct[k];
+        int from = k;
+        for (int j = 0; j < kKeyN; ++j) if (kKeyAct[j] == a) from = j;
+        g_key_alias[k] = a;
+        __atomic_store_n(&g_key_btn[k], kKeyDef[from], __ATOMIC_RELAXED);
+    }
+    g_key_read = true;
+}
+// a button's icon on the game's 1.0.1 button sheet (the player's matching, 0.9.119 / 0.9.120); all eight matched by 1.0.4
+const char* KeyIcon(int btn) {
+    switch (btn) {
+    case 7: return "button_cell_0_1";
+    case 6: return "button_cell_0_2";
+    case 8: return "button_cell_6_0";
+    case 9: return "button_cell_1_4";
+    case 5: return "button_cell_5_1";
+    case 4: return "button_cell_2_2";           // 1.0.3 X: 0.9.119's box #3 (the player's matching)
+    case 13: return "button_cell_1_1";          // 1.0.4 ZL (the player's matching on the diag Buttons page)
+    case 10: return "button_cell_1_5";          // 1.0.4 ZR
+    default: return nullptr;
+    }
+}
+const char* KeyLetter(int btn) {
+    switch (btn) {
+    case 7: return "A"; case 6: return "B"; case 4: return "X"; case 5: return "Y";
+    case 8: return "L"; case 9: return "R"; case kBtnZl: return "ZL"; case 10: return "ZR";
+    default: return "?";
+    }
+}
+// 1.0.1 the character switch with another button held than ZR: hold / with the stick down / up, for A B X Y L R ZL
+// (q.f 14 + 3 x i + 0 / 1 / 2; ZR keeps 10 / 11 / 12)
+constexpr int kHoldBtn[7] = {7, 6, 4, 5, 8, 9, kBtnZl};
+int HoldIdx(int kind) {                                       // kind 0 hold, 1 + stick down, 2 + stick up
+    const int b = KeyBtn(7);
+    if (b == 10) return 10 + kind;
+    for (int i = 0; i < 7; ++i) if (kHoldBtn[i] == b) return 14 + 3 * i + kind;
+    return 10 + kind;
+}
 void LoadNames(Instance& in, const Guest& g, uint64_t pm) {
     NameCache& nc = in.names;
     const uint64_t dict = g.ptr(pm + kPmCharMsg);
@@ -1579,6 +1641,7 @@ void ReadParty(Instance& in, const EdenDsmodHostApi* h) {
     g.class_name(pm, in.inst_name, sizeof in.inst_name);
 #endif
     if (!g.is(pm, "ParameterManager")) { in.why = "waiting for the game (no ParameterManager)"; return; }
+    ReadKeys(g, pm);                                  // 1.0.1 the game's Key Config
     const uint64_t up = g.ptr(pm + kPmUser);
     {   // 0.9.24 the Guide Map's "Next objective", as GameManager.GetCurrentDestinationMessage picks it (r44):
         // the first destinationParameter row (pm+0x718, its list) whose heroID (+0x10) is the hero
@@ -2123,7 +2186,20 @@ struct OpenBundle {
     uint64_t node_off[64];
     char node_name[64][48];
 };
-constexpr int kOpenSlots = 8;           // bundles kept open at once (least recently used goes)
+constexpr int kOpenSlots = 16;          // bundles kept open at once (least recently used goes; 1.0.1 16, was 8)
+// 1.0.1 for hosts whose read_romfs answers a file's first reads but not a quick second size query or header read
+// (seen in Peanut with the Dave the Diver companion): each bundle's size and 256-byte header are kept once read,
+// so reopening a bundle (after it left the open slots) asks the host only for its info and data blocks; a size query
+// that answers 0 falls back to the index's size (the header and blocks then decide); a failed read is tried once
+// more, and a bundle that failed to read (not one that is another version) is tried again later, at most 4 times.
+struct BundleMeta { uint64_t size; bool hdr_ok; uint8_t hdr[256]; uint16_t tries; uint32_t wait; };
+BundleMeta g_bm[kIdxBundles];
+[[maybe_unused]] uint32_t g_rd_sz0, g_rd_retry, g_rd_fail, g_rd_cached;   // diag: size queries answered 0, second tries, failed reads, reopens from the kept header
+size_t ReadRomfs(const EdenDsmodHostApi* h, const char* path, uint64_t off, void* out, size_t n) {
+    size_t got = h->read_romfs(h->userdata, path, off, out, n);
+    if (got != n) { ++g_rd_retry; got = h->read_romfs(h->userdata, path, off, out, n); if (got != n) ++g_rd_fail; }
+    return got;
+}
 OpenBundle g_ob[kOpenSlots];
 uint32_t g_ob_use;
 uint8_t g_info[kMaxInfo], g_infoz[kMaxInfo];
@@ -2134,8 +2210,18 @@ uint32_t g_use;
 
 // under g_file_lock
 OpenBundle* Open(const EdenDsmodHostApi* h, int id) {
-    for (auto& o : g_ob) if (o.id == id && (o.ok || o.err)) { o.use = ++g_ob_use; return o.ok ? &o : nullptr; }
     const IdxBundle* ib = FindBundle(id);
+    BundleMeta* bm = ib ? &g_bm[ib - g_ix.b] : nullptr;
+    for (auto& o : g_ob) if (o.id == id && (o.ok || o.err)) {
+        o.use = ++g_ob_use;
+        if (o.ok) return &o;
+        // 1.0.1 a read that failed (not another game version) is tried again later
+        if (!bm) return nullptr;
+        const bool readfail = o.err == 11 || o.err == 16 || (o.err == 10 && !o.dev_size && !bm->size);
+        if (!readfail || bm->tries >= 4 || ++bm->wait < 240) return nullptr;
+        bm->wait = 0; o.err = 0; o.id = -1;   // reopen below in a free slot
+        break;
+    }
     OpenBundle* ob = &g_ob[0];
     for (auto& o : g_ob) {
         if (!o.ok && !o.err) { ob = &o; break; }
@@ -2145,7 +2231,15 @@ OpenBundle* Open(const EdenDsmodHostApi* h, int id) {
     memset(ob, 0, sizeof *ob);
     ob->id = id; ob->use = ++g_ob_use;
     memcpy(ob->path, ib->path, sizeof ob->path);
-    const uint64_t fsize = h->read_romfs(h->userdata, ob->path, 0, nullptr, 0);
+    ++bm->tries;
+    uint64_t fsize = bm->size;
+    if (!fsize) {
+        fsize = h->read_romfs(h->userdata, ob->path, 0, nullptr, 0);
+        if (!fsize) fsize = h->read_romfs(h->userdata, ob->path, 0, nullptr, 0);
+        if (!fsize) { ++g_rd_sz0; fsize = ib->size; ob->dev_size = 0; }   // 1.0.1 the header and blocks decide
+    } else {
+        ++g_rd_cached;
+    }
     if (fsize != ib->size) {                                              // another game version
         ob->dev_size = fsize; ob->idx_size = ib->size;
         // 0.9.46: still opened when the index has fingerprints for its textures (they are found by search); a file
@@ -2155,21 +2249,23 @@ OpenBundle* Open(const EdenDsmodHostApi* h, int id) {
         if (!fsize || !sig) { ob->err = 10; return nullptr; }
         ob->moved = true;
     }
-    uint8_t hdr[256];
-    if (h->read_romfs(h->userdata, ob->path, 0, hdr, sizeof hdr) != sizeof hdr) { ob->err = 11; return nullptr; }
+    uint8_t* hdr = bm->hdr;
+    if (!bm->hdr_ok) {
+        if (ReadRomfs(h, ob->path, 0, hdr, sizeof bm->hdr) != sizeof bm->hdr) { ob->err = 11; return nullptr; }
+    }
     if (!starts(reinterpret_cast<const char*>(hdr), "UnityFS")) { ob->err = 12; return nullptr; }
     size_t i = 8;
     const uint32_t ver = Be32(hdr + i); i += 4;
     while (i < 200 && hdr[i]) ++i; ++i;            // player version
     while (i < 200 && hdr[i]) ++i; ++i;            // engine version
-    if (i + 20 > sizeof hdr) { ob->err = 13; return nullptr; }
+    if (i + 20 > sizeof bm->hdr) { ob->err = 13; return nullptr; }
     i += 8;                                         // total size
     const uint32_t csize = Be32(hdr + i), usize = Be32(hdr + i + 4), flags = Be32(hdr + i + 8); i += 12;
     if (flags & 0x1400) { ob->err = 14; return nullptr; }
     if (ver >= 7) i = (i + 15) & ~size_t{15};
     if (csize > kMaxInfo || usize > kMaxInfo) { ob->err = 15; return nullptr; }
     const uint64_t info_at = (flags & 0x80) ? fsize - csize : i;
-    if (h->read_romfs(h->userdata, ob->path, info_at, g_infoz, csize) != csize) { ob->err = 16; return nullptr; }
+    if (ReadRomfs(h, ob->path, info_at, g_infoz, csize) != csize) { ob->err = 16; return nullptr; }
     const uint32_t comp = flags & 0x3F;
     if (comp == 0) { if (csize != usize) { ob->err = 17; return nullptr; } memcpy(g_info, g_infoz, csize); }
     else if (comp == 2 || comp == 3) { if (!Lz4(g_infoz, csize, g_info, usize)) { ob->err = 18; return nullptr; } }
@@ -2205,6 +2301,7 @@ OpenBundle* Open(const EdenDsmodHostApi* h, int id) {
         }
     }
     ob->ok = true;
+    bm->size = fsize; bm->hdr_ok = true; bm->tries = 0;   // 1.0.1 kept: a reopen asks only for the info and blocks
     return ob;
 }
 const uint8_t* Chunk(const EdenDsmodHostApi* h, OpenBundle* ob, uint32_t k) {
@@ -2217,9 +2314,9 @@ const uint8_t* Chunk(const EdenDsmodHostApi* h, OpenBundle* ob, uint32_t k) {
     Slot& s = *best;
     s.use = 0;
     if (c == 0) {
-        if (h->read_romfs(h->userdata, ob->path, ob->fstart[k], s.data, ob->us[k]) != ob->us[k]) return nullptr;
+        if (ReadRomfs(h, ob->path, ob->fstart[k], s.data, ob->us[k]) != ob->us[k]) return nullptr;
     } else if (c == 2 || c == 3) {
-        if (h->read_romfs(h->userdata, ob->path, ob->fstart[k], g_raw, ob->cs[k]) != ob->cs[k]) return nullptr;
+        if (ReadRomfs(h, ob->path, ob->fstart[k], g_raw, ob->cs[k]) != ob->cs[k]) return nullptr;
         if (!Lz4(g_raw, ob->cs[k], s.data, ob->us[k])) return nullptr;
     } else {
         return nullptr;
@@ -5241,8 +5338,22 @@ void Publish(Instance& in, const EdenDsmodHostApi* h) {
         h->publish_i64(u, "so2r.goparty", __atomic_load_n(&g_goparty, __ATOMIC_RELAXED));
     }
     {   // 0.9.19 the quick menu's presses (the manifest's enforce rules press while one reads 1)
-        for (int b = 0; b <= 12; ++b) { Str k; k.add("so2r.q.f").num(b); h->publish_i64(u, k.s, g_qm.fire == b); }   // 0.9.64 + A, L, R; 0.9.86 + ZR, ZR+stick down / up
+        for (int b = 0; b <= 34; ++b) { Str k; k.add("so2r.q.f").num(b); h->publish_i64(u, k.s, g_qm.fire == b); }   // 1.0.1 + ZL (13), the other buttons held (14-34)   // 0.9.64 + A, L, R; 0.9.86 + ZR, ZR+stick down / up
         h->publish_i64(u, "so2r.q.any", g_qm.fire >= 0);
+        // 1.0.1 the battle buttons as the game's Key Config sets them: icon (the game's) or, not matched yet, the letter
+        const bool inb = in.scene == 6;
+        for (int k = 0; k < kKeyN; ++k) {
+            const int b = KeyBtn(k);
+            const char* ic = KeyIcon(b);
+            Str nm, v;
+            v.add("module:pic/").add(ic ? ic : "button_cell_0_1");
+            nm.add("so2r.kb.i").num(k); h->publish_text(u, nm.s, v.s);
+            nm.clear().add("so2r.kb.hi").num(k); h->publish_i64(u, nm.s, ic != nullptr);
+            nm.clear().add("so2r.kb.in").num(k); h->publish_i64(u, nm.s, ic != nullptr && inb);
+            nm.clear().add("so2r.kb.out").num(k); h->publish_i64(u, nm.s, ic != nullptr && !inb);
+            nm.clear().add("so2r.kb.nl").num(k); h->publish_i64(u, nm.s, ic == nullptr);
+            nm.clear().add("so2r.kb.l").num(k); h->publish_text(u, nm.s, KeyLetter(b));
+        }
         h->publish_i64(u, "so2r.q.open", in.win_n);
     }
     h->publish_text(u, "so2r.map.obj", in.ok ? in.obj : "");      // 0.9.24 the next objective
@@ -6186,6 +6297,10 @@ void Publish(Instance& in, const EdenDsmodHostApi* h) {
         .add("  sprites ").num(g_ix.ns).add("  textures ").num(g_ix.nt).add("  bundles ").num(g_ix.nb).add("  open");
     for (auto& o : g_ob) if (o.ok || o.err) { l.add(" ").num(o.id).add(o.ok ? ":ok" : ":err").num(o.ok ? o.n : o.err); }
     line(l);
+    // 1.0.1 the host's file reads: size queries that answered 0, second tries, reads that still failed, reopens
+    l.clear().add("reads (1.0.1): size0 ").num(g_rd_sz0).add("  retry ").num(g_rd_retry).add("  failed ").num(g_rd_fail)
+        .add("  reopen kept ").num(g_rd_cached);
+    line(l);
     // 0.9.44 a bundle the device has at another size (err 10): its path, the device's size (0: the host could not
     // open it) and the index's
     // (only when there is one: the page has no room otherwise, the last party row gives way)
@@ -6327,7 +6442,7 @@ void* Create(const EdenDsmodHostApi* host, const char*) {
     g_inst.main_base = host->main_base;
     g_inst.why = "waiting for the game";
     g_inst.map.why = "waiting for the game";
-    if (host->log) host->log(host->userdata, EDEN_DSMOD_LOG_INFO, SO2R_DIAG ? "SO2R module 1.0.0 (diag) ready" : "SO2R module 1.0.0 ready");
+    if (host->log) host->log(host->userdata, EDEN_DSMOD_LOG_INFO, SO2R_DIAG ? "SO2R module 1.0.1 (diag) ready" : "SO2R module 1.0.1 ready");
     return &g_inst;
 }
 
@@ -6522,7 +6637,7 @@ bool LeadStep(Instance& in, const EdenDsmodHostApi* h, QuickMenu& q) {
 // MissionID +0x10), input off while isDisableInput +0x89. Presses: d-pad up / down to a row, A, L / R for the tab.
 constexpr uint64_t kLsIndex = 0x8C, kLsData = 0x98, kCmiItem = 0x14, kMlsCat = 0xF8, kMlidParam = 0x30;
 constexpr int kBtnUp = 0, kBtnDown = 2, kBtnA = 7, kBtnL = 8, kBtnR = 9;
-constexpr int kBtnZr = 10, kBtnZrDown = 11, kBtnZrUp = 12;   // 0.9.86 ZR held; ZR with the left stick down / up
+// (1.0.1 ZR: q.f 10 held, 11 + stick down, 12 + stick up -- HoldIdx picks by the game's Key Config)   // 0.9.86 ZR held; ZR with the left stick down / up
 struct ListView { bool ok; int index, n; uint64_t items; };
 ListView ReadList(const Guest& g, uint64_t sel) {
     ListView v{}; v.index = -1;
@@ -7104,10 +7219,10 @@ bool BatStep(Instance& in, const EdenDsmodHostApi* h, QuickMenu& q) {
             press(kBtnB); break;
         }
         if (depth < 0) { stop(15); break; }
-        press(kBtnX); m.state = 2; break;
+        press(KeyBtn(3)); m.state = 2; break;          // 1.0.1 the Battle Menu button as set (X by default)
     case 2:
         if (menu && since >= 10) { m.state = 3; m.at = in.samples; break; }
-        if (depth == 0 && since >= 45 && m.retry < 3) { ++m.retry; press(kBtnX); break; }
+        if (depth == 0 && since >= 45 && m.retry < 3) { ++m.retry; press(KeyBtn(3)); break; }
         if (since > 180) stop(12);
         break;
     // ---- 0.9.82 an order (r62): Y opens UIBattleOperationSelector (a list selector on the battle screens' stack:
@@ -7122,7 +7237,7 @@ bool BatStep(Instance& in, const EdenDsmodHostApi* h, QuickMenu& q) {
             press(kBtnB); break;
         }
         if (depth < 0) { stop(25); break; }
-        press(kBtnY); m.state = 22; break;
+        press(KeyBtn(5)); m.state = 22; break;          // 1.0.1 the Command button as set (Y by default)
     case 22:
         if (in.op_open && since >= 10) { m.state = 23; m.at = in.samples; break; }
         if (depth == 0 && since >= 45 && m.retry < 3) { ++m.retry; press(kBtnY); break; }
@@ -7157,11 +7272,11 @@ bool BatStep(Instance& in, const EdenDsmodHostApi* h, QuickMenu& q) {
         if (in.ctrl_cid == m.want) { m.result = 1; m.state = 0; break; }
         if (depth != 0 || in.op_open) { stop(depth < 0 ? 35 : 31); break; }   // only on the open battle field
         if (m.moves >= 6) { stop(32); break; }
-        m.before = in.ctrl_cid; press(kBtnZr); m.state = 32; break;
+        m.before = in.ctrl_cid; press(HoldIdx(0)); m.state = 32; break;   // 1.0.1 the Change Player button as set
     case 32:
         // 0.9.156 the stick ~0.1 s after ZR as in 0.9.86-0.9.133 (presses every 100 ms then); at 60 ms it came
         // before the game's change mode was on, ZR alone handed control back to the leader
-        if (in.samples - q.at >= 4) { ++m.moves; press(m.retry ? kBtnZrUp : kBtnZrDown); m.state = 33; }   // from ZR's press (q.at: its acknowledgement): ZR+stick at ~0.12 s
+        if (in.samples - q.at >= 4) { ++m.moves; press(HoldIdx(m.retry ? 2 : 1)); m.state = 33; }   // from ZR's press (q.at: its acknowledgement): ZR+stick at ~0.12 s
         break;
     case 33:
         if (in.ctrl_cid == m.want) { m.result = 1; m.state = 0; break; }
@@ -7190,6 +7305,8 @@ bool BatStep(Instance& in, const EdenDsmodHostApi* h, QuickMenu& q) {
         const uint64_t top = BattleTop(in, g, &depth);
         l.clear().add("battle: steps ").num(g_bmac.kind).ch(':').num(g_bmac.state).ch('/').num(g_bmac.result).ch('/').num(g_bmac.why)
          .add(" | bm ").num(in.bm_step).add(in.bm ? " ok" : " -").add(" ctrl ").num(in.ctrl_idx).ch('/').num(in.ctrl_cid);
+    l.add(" | keys").add(g_key_read ? "" : "?");   // 1.0.1 the game's Key Config: each battle action <- its alias = button
+    for (int k = 0; k < kKeyN; ++k) l.ch(' ').num(kKeyAct[k]).ch('<').num(g_key_alias[k]).ch('=').add(KeyLetter(KeyBtn(k)));
     l.add(" | ab");   // 0.9.157 each battle member's BuffDebuffState word (bit n: BuffDebuffID n)
     for (int i = 0; i < in.rows && i < kRows; ++i) if (in.m[i].on && in.m[i].battle) l.ch(' ').num(in.m[i].cid).ch(':').hex(in.m[i].bd);
     l
@@ -7443,7 +7560,7 @@ EdenDsmodBool OnAction(void*, const char* action, int64_t) {
     }
     if (action && (eq(action, "so2r.bart0") || eq(action, "so2r.bart1"))) {   // 0.9.70 the Battle page's L / R
         Light(action[9] == '0' ? 2 : 3);
-        if (g_inst.scene == 6) __atomic_store_n(&g_btn_req, action[9] == '0' ? 8 : 9, __ATOMIC_RELEASE);
+        if (g_inst.scene == 6) __atomic_store_n(&g_btn_req, KeyBtn(action[9] == '0' ? 0 : 1), __ATOMIC_RELEASE);   // 1.0.1 as set in the game
         else __atomic_store_n(&g_art_req, 1, __ATOMIC_RELEASE);
         return EDEN_DSMOD_TRUE;
     }
@@ -7459,7 +7576,7 @@ EdenDsmodBool OnAction(void*, const char* action, int64_t) {
         return EDEN_DSMOD_TRUE;
     }
     if (action && (eq(action, "so2r.ba") || eq(action, "so2r.bb"))) {   // 0.9.95 the normal attack (A) / counter (B); 0.9.107 back
-        if (g_inst.scene == 6) { __atomic_store_n(&g_btn_req, action[6] == 'a' ? 7 : 6, __ATOMIC_RELEASE); Light(action[6] == 'a' ? 0 : 1); }
+        if (g_inst.scene == 6) { __atomic_store_n(&g_btn_req, KeyBtn(action[6] == 'a' ? 2 : 4), __ATOMIC_RELEASE); Light(action[6] == 'a' ? 0 : 1); }
         return EDEN_DSMOD_TRUE;
     }
     if (action && starts(action, "so2r.bas") && action[8] >= '0' && action[8] <= '3' && !action[9]) {   // 0.9.73
@@ -7471,7 +7588,7 @@ EdenDsmodBool OnAction(void*, const char* action, int64_t) {
             Light(8);
             const bool on = __atomic_load_n(&g_opick, __ATOMIC_RELAXED) || g_inst.op_open;   // hides them (B closes
             __atomic_store_n(&g_opick, on ? 0 : 1, __ATOMIC_RELEASE);                         // the game's list)
-            if (!on) __atomic_store_n(&g_btn_req, 5, __ATOMIC_RELEASE);
+            if (!on) __atomic_store_n(&g_btn_req, KeyBtn(5), __ATOMIC_RELEASE);   // 1.0.1 the Command button as set
             else if (g_inst.op_open) __atomic_store_n(&g_btn_req, 6, __ATOMIC_RELEASE);
         }
         return EDEN_DSMOD_TRUE;
