@@ -172,18 +172,27 @@ def main() -> None:
           f"{len(refs)} static PNG references verified against inventory")
     # Provenance is an explicitly tracked source-coverage signal, not an
     # automatic licensing determination or a native-module build check.
+    replaced = sorted(name for name, row in inventory.items()
+                      if "replaced for v1.1.0" in row["origin"])
     unsourced = sorted(name for name, row in inventory.items()
                        if "not yet recovered" in row["origin"])
-    print(f"Source artwork coverage: {len(inventory) - len(unsourced)}/{len(inventory)}")
+    verified_historical = len(inventory) - len(replaced) - len(unsourced)
+    print(f"Historical artwork reconstructed: {verified_historical}/{len(inventory)}")
+    print(f"New independent replacement graphics: {len(replaced)}")
+    print(f"Source artwork coverage for v1.1.0: {len(inventory) - len(unsourced)}/{len(inventory)}")
+    if replaced:
+        print("v1.1 replacement sources (not historical byte/pixel matches):")
+        for name in replaced:
+            print(f"  - {name}")
     if unsourced:
-        print("Not yet source-reproducible:")
+        print("Graphics still missing all source:")
         for name in unsourced:
             print(f"  - {name}")
     if args.require_full_source_art and unsourced:
-        raise SystemExit("Artwork source coverage incomplete; keep PR in draft")
+        raise SystemExit("Artwork source coverage incomplete")
 
     if args.archive:
-        print(f"Original ZIP: {check_archive(args.archive, inventory)} PNGs "
+        print(f"Historical ZIP: {check_archive(args.archive, inventory)} PNGs "
               "match the exact audited release")
 
     if args.candidate_dir:
