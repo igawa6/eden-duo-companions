@@ -1,0 +1,76 @@
+name: One-time P3P 1.1.0 source/package migration
+
+on:
+  push:
+    branches:
+      - p3p-thor-ui-source-port
+    paths:
+      - '.github/workflows/p3p-integrate-once.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out source branch to migrate
+        uses: actions/checkout@v4
+        with:
+          ref: p3p-thor-ui-source-port
+          persist-credentials: true
+          fetch-depth: 1
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install image generator
+        run: python -m pip install Pillow==12.3.0
+      - name: Obtain verified OFL Inter fonts
+        run: |
+          python tools/p3p/v1810/prepare_fonts_for_checks.py --output /tmp/p3p-inter
+          echo "P3P_INTER_FONT_DIR=/tmp/p3p-inter" >> "$GITHUB_ENV"
+      - name: Migrate to editable plain-JSON manifest and retire old generator
+        run: python tools/p3p/integrate_v1_1_once.py
+      - name: Generate all 62 independent artwork sources
+        run: python tools/p3p/gen_thor_assets.py
+      - name: Generate explicitly labeled design preview composites
+        run: python tools/p3p/make_readme_previews.py
+      - name: Validate resulting source package and generated layout
+        run: |
+          python tools/p3p/gen_manifest.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('packages/Persona3Portable/dualscreen')
+          m=json.loads((root/'manifest.json').read_text())
+          assert (len(m['pages']),len(m['actions']),len(m['module_outputs']))==(12,61,2798)
+          assets=list((root/'img').glob('*.png'))
+          assert len(assets)==62,(len(assets),[a.name for a in assets])
+          assert m['module']['libraries']=={}
+          refs=set()
+          def walk(o):
+              if isinstance(o,dict):
+                  for value in o.values():walk(value)
+              elif isinstance(o,list):
+                  for value in o:walk(value)
+              elif isinstance(o,str) and o.startswith('file:img/'):
+                  refs.add(o.removeprefix('file:img/'))
+          walk(m)
+          assert refs.issubset({p.name for p in assets}), sorted(refs-{p.name for p in assets})
+          print('PASS: 12 pages, 61 actions, 2798 outputs, 62 artwork PNGs and all referenced images')
+          PY
+          python -m compileall -q tools/p3p
+      - name: Commit source and generated images to pull-request branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/p3p/gen_manifest.py tools/p3p/layout_v1_1.json
+          git add packages/Persona3Portable/dualscreen/manifest.json packages/Persona3Portable/dualscreen/img/
+          git add packages/Persona3Portable/docs/
+          git diff --cached --check
+          git diff --cached --stat
+          git commit -m "feat(p3p): integrate complete readable 1.1.0 layout and 62 source-generated assets"
+          git push origin HEAD:p3p-thor-ui-source-port
