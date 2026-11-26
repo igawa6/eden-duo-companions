@@ -1,6 +1,6 @@
 # Star Ocean: The Second Story R — dual-screen companion
 
-Game: **STAR OCEAN THE SECOND STORY R** (Switch, title ID `010065301A2E0000`), update **1.0.1**
+Game: **STAR OCEAN THE SECOND STORY R** (Switch, title ID `010065301A2E0000`), update **1.1.0**
 (build `D214BA64D902AEDA`). Tested on Eden Duo 1.3.5 (runtime 23) on an AYN Thor (Android, NCE).
 `min_runtime` 22.
 

@@ -51,7 +51,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 31 | [My Time at Sandrock](#my-time-at-sandrock) | `0100B63016916000` | 1.4.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/my-time-at-sandrock-1.0.0) | 🥇<br><a href="https://ko-fi.com/U7U71VTM7K"><img src="https://img.shields.io/badge/Helen_Tracy-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Helen Tracy"></a> |
 | 32 | [Resident Evil 4](#resident-evil-4) | `010099A00BC1E000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/resident-evil-4-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/4rd-Poll-Next-Switch-Game-on-Eden-Duo-I7Z428XZNI"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 | 33 | [The Legend of Zelda: Skyward Sword HD](#the-legend-of-zelda-skyward-sword-hd) | `01002DA013484000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/skyward-sword-hd-1.0.0) | 🥇<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/eminham-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="eminham"></a> |
-| 34 | [Star Ocean: The Second Story R](#star-ocean-the-second-story-r) | `010065301A2E0000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/star-ocean-the-second-story-r-1.0.0) | ⭐<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a> |
+| 34 | [Star Ocean: The Second Story R](#star-ocean-the-second-story-r) | `010065301A2E0000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/star-ocean-the-second-story-r-1.0.0) | ⭐<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a> |
 | 35 | [Pokémon Legends: Z-A](#pokemon-legends-za) | `0100F43008C44000` | 2.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-legends-z-a-1.0.0) | ⭐<br><a href="https://ko-fi.com/sickops"><img src="https://img.shields.io/badge/Sickops-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Support Sickops on Ko-fi"></a> |
 | 36 | [FINAL FANTASY RESONANCE](#final-fantasy-resonance) | `0100606026F12000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/final-fantasy-resonance-1.0.0) | ⭐<br><a href="https://github.com/danielcamilo1"><img src="https://img.shields.io/badge/danielcamilo1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="danielcamilo1"></a> |
 
@@ -1089,7 +1089,7 @@ Code: GPL-3.0-or-later.
 
 ⭐ <a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a>
 
-`010065301A2E0000` · game version 1.0.1 · companion 1.0.0 (by jadesigns.)
+`010065301A2E0000` · game version 1.1.0 · companion 1.0.0 (by jadesigns.)
 
 Your party, the Guide Map, missions and the battle controls on the second screen, in the game's own look, so the top screen stays on the game.
 
@@ -1103,7 +1103,7 @@ Use **NCE**, not JIT: it was developed and tested with NCE only.
 
 The companion ships no game art: every picture, the game's fonts and the words are read from your own game files. The Hide HUD switch follows the Dave the Diver companion's approach.
 
-Requires Eden Duo 1.3.2.2 or newer (runtime 22). Game version 1.0.1 only.
+Requires Eden Duo 1.3.2.2 or newer (runtime 22). Game version 1.1.0 only.
 
 <a id="pokemon-legends-za"></a>
 
