@@ -11,8 +11,8 @@ index,asset,size_bytes,sha256,origin
 9,dualscreen/img/bg_main_1.png,13705,807c64e58c79947a52aa36ab272b7189480b034b0c2e9183f3dc28e694d8ed86,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
 10,dualscreen/img/bg_page_0.png,20835,60225f736a01ad9ab78aea260d67421848589ab3bb29859354dd9e3f13005011,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
 11,dualscreen/img/bg_page_1.png,21383,7e09b0628f0527f91c555169edc76d1892b81e86e66cf966d671e80c2f3728d4,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
-12,dualscreen/img/bg_start_0.png,60201,f86a43d4e32295c3fa02e070a261202bd5baf026573e577d0e3e3cdc2843ac14,Unchanged from local 1.7.1 build; generator source not yet recovered
-13,dualscreen/img/bg_start_1.png,59956,e6a2f68c7036eff8e128b8a41e2c2628c7df5184c1707c511d346d5e61eaaa15,Unchanged from local 1.7.1 build; generator source not yet recovered
+12,dualscreen/img/bg_start_0.png,60201,f86a43d4e32295c3fa02e070a261202bd5baf026573e577d0e3e3cdc2843ac14,Historical v1.8.10 artwork; replaced for v1.1.0 by original procedural source (not pixel-identical)
+13,dualscreen/img/bg_start_1.png,59956,e6a2f68c7036eff8e128b8a41e2c2628c7df5184c1707c511d346d5e61eaaa15,Historical v1.8.10 artwork; replaced for v1.1.0 by original procedural source (not pixel-identical)
 14,dualscreen/img/calendar_footer_lettering.png,14468,1525f4146e6f3ad09c125a1b4a0bc3dc8029078e4bedaddf59fc69ef59af8fe3,Unchanged from local 1.7.1 build; exact PNG reproduced by historical InterDisplay generator
 15,dualscreen/img/links_footer_lettering.png,11956,75b2498be6330617aa75fd6f3c2a7fff48ed1adb09b929314086658140c46176,Unchanged from local 1.7.1 build; exact PNG reproduced by historical InterDisplay generator
 16,dualscreen/img/moon_mask.png,17181,66be0b405b9e63840fcdff947f1d609ae21d787cdb0f3a023f749ec8dab17c97,Unchanged from local 1.7.1 build; independent Pillow reconstruction matches final RGBA pixels
@@ -56,8 +56,8 @@ index,asset,size_bytes,sha256,origin
 54,dualscreen/img/ui_title_skills.png,17667,377e58af4350ed483ec14a79721888ba4973d8313dfad6425d1099f705f0c96a,Matches local 1.8.0 design-system build; source script available for most
 55,dualscreen/img/ui_title_stats.png,28693,edaa33d6cf58dd111d073373577619ca55b7103291e006ad30435d6e4bfd5208,Matches local 1.8.0 design-system build; source script available for most
 56,dualscreen/img/ui_title_talk.png,16509,c2c01d7e371f6358469ee91af5dc686ba18ce2097f0a5d0ea63ad384a6af00a3,Matches local 1.8.0 design-system build; source script available for most
-57,dualscreen/img/word_battle.png,28749,70465b12a440dfe1c5382bfcd230f582d8bfbd82fd3b4d8a6288233875247f21,Unchanged from local 1.7.1 build; generator source not yet recovered
-58,dualscreen/img/word_map.png,22936,782d84261ac9711d5efac507c048830bcef308269b2eb658ac1423110cb7fc8b,Unchanged from local 1.7.1 build; generator source not yet recovered
-59,dualscreen/img/word_persona3.png,55620,8461048ca8a1b9a3d820f138d7d3f0cb1de1c14a6d26ad9731ef797795386c38,Unchanged from local 1.7.1 build; generator source not yet recovered
-60,dualscreen/img/word_portable.png,44597,edf88c80f8d4df49a699484e67cfb8bf0c4186a37dd63e56d5b55da04dedad31,Unchanged from local 1.7.1 build; generator source not yet recovered
-61,dualscreen/img/word_talk.png,22292,706e0cc9484965a3e46d4eba95ff8047238d051f46fa046f7c88d2acd8b2bc33,Unchanged from local 1.7.1 build; generator source not yet recovered
+57,dualscreen/img/word_battle.png,28749,70465b12a440dfe1c5382bfcd230f582d8bfbd82fd3b4d8a6288233875247f21,Historical v1.8.10 artwork; replaced for v1.1.0 by original procedural source (not pixel-identical)
+58,dualscreen/img/word_map.png,22936,782d84261ac9711d5efac507c048830bcef308269b2eb658ac1423110cb7fc8b,Historical v1.8.10 artwork; replaced for v1.1.0 by original procedural source (not pixel-identical)
+59,dualscreen/img/word_persona3.png,55620,8461048ca8a1b9a3d820f138d7d3f0cb1de1c14a6d26ad9731ef797795386c38,Historical v1.8.10 artwork; replaced for v1.1.0 by original procedural source (not pixel-identical)
+60,dualscreen/img/word_portable.png,44597,edf88c80f8d4df49a699484e67cfb8bf0c4186a37dd63e56d5b55da04dedad31,Historical v1.8.10 artwork; replaced for v1.1.0 by original procedural source (not pixel-identical)
+61,dualscreen/img/word_talk.png,22292,706e0cc9484965a3e46d4eba95ff8047238d051f46fa046f7c88d2acd8b2bc33,Historical v1.8.10 artwork; replaced for v1.1.0 by original procedural source (not pixel-identical)
