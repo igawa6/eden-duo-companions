@@ -1,60 +1,54 @@
-# Persona 3 Portable tools
+# Persona 3 Portable companion tooling
 
-Scripts for the Persona 3 Portable companion (`0100DCD01525A000`). The module is
-`native/modules/0100DCD01525A000.cpp` with `p3p_reader.h`; it supports only the base game build
-`663052C2C7E8C357BA6EAD36641EE2792397EB1F000000000000000000000000` and refuses any other.
+The P3P source package lives under [`packages/Persona3Portable/`](../../packages/Persona3Portable/).
+The redesigned layout is the proposed **v1.1.0 main P3P companion**, pending
+upstream artwork, rights and device QA review.
 
-## Compatibility and validation
+## Layout and artwork generation
 
-- Game version: **1.0.0 (base game)**, title ID `0100DCD01525A000`, exact build above only.
-- All companion features were manually tested on an **AYN Thor running Eden Duo 1.3.2.2**.
-- The package declares **runtime 19** as its minimum. Compatibility with older Eden Duo
-  versions has not been validated.
-- The UI font and help text use **English game resources**. Some names follow the loaded
-  language tables, but full multilingual support is not claimed. Dialogue text that cannot
-  be decoded exactly is omitted.
-
-## Runtime resources and interaction
-
-The package is asset-free. Names and skill data are read at runtime from the player's own game
-(the loaded tables in memory and `data_EN/umd0.cpk`), never shipped. Text is drawn in the game's
-own font: `p3p_font.h` reads `font/font0.fnt` from `init.bin` in `data_EN/umd0.cpk` and decodes it
-with the shared Atlus FNT decoder (`p5r_font.h`); `p3p_font.txt` in the package is only a marker.
-The look follows the native camp menu: `p3p_art.h` decodes the game's TMX textures and SPR0 sprite
-sheets from the same archives (the camp menu lettering and icons in `init_free.bin`, Persona artwork
-and camp portraits in `data/umd0.cpk`) and serves them as `module:p3p:` images, resampled to the
-size the manifest draws them at. As in the native menu, the backdrop (`module:p3p:bg/<route>`, drawn
-by the module) and the accents are blue or pink to match the protagonist's route.
-Help lines (items, equipment, skills) come from the game's `init/datMsg.pak` message tables in
-`init.bin` (`p3p_help.h`), read once in the background.
-While the game shows a choice list, the talk page opens by itself with the current line and the
-options, following the game's cursor (`p3p_talk.h`); it reads the open message window and the
-game's own loaded message file, and leaves out any text it cannot reproduce exactly. Tapping an
-option moves the game's cursor to it and tapping it again chooses it: the manifest presses the
-D-pad and A, as the player would, only while every option is spelled out. On the Items page's Use
-tab, tapping an item and then a party member uses it through the game's own camp menu
-(`p3p_drive.h`): the module reads the menu each sample and asks for one button press at a time,
-which the manifest's `enforce` rules make, then backs out to where the player was. On the Equip
-page, tapping a slot lists what the game's Equip screen offers that member (the game's own rule,
-`EquipChoices`), and tapping one equips it the same way. On the Personas page, "Use this Persona"
-switches the protagonist to the picked one through the game's PERSONA screen. The module itself
-never writes to the game.
-
-| Script | What it does |
-|---|---|
-| `gen_manifest.py` | Writes `packages/Persona3Portable/dualscreen/manifest.json`. Standard library only. |
-| `gen_pins.py <main NSO>` | Rewrites `native/modules/p3p_pins.inc`, the FNV-1a fingerprints of the game code the module relies on. Needs your own decrypted `main` from the supported build. |
-| `nso.py` | Decompresses and hash-checks an NSO (`--relocate` applies relative relocations). Needs system `liblz4.so.1`. |
-| `saves.py` | Bounded decoder for the save container; holds the supported build ID used by the generators. |
-| `cpk.py` | CRI CPK table-of-contents reader and CRILAYLA decompressor (`--entry`, `--inventory`). |
-| `assets.py` | Bounded readers for the startup PAK layouts and fixed-width name tables. |
-
-Game files, saves, keys and anything derived from them stay outside the repository.
-
-## Building
+There is now exactly **one** editable source of truth for the layout:
+[`layout_v1_1.json`](layout_v1_1.json), in ordinary, reviewable JSON.
+`gen_manifest.py` copies and validates that source into the packaged
+`dualscreen/manifest.json`. The old v1.0 page-building implementation has
+been retired; regeneration cannot silently overwrite the redesign.
 
 ```sh
 python3 tools/p3p/gen_manifest.py
+python3 -m pip install Pillow==12.3.0
+python3 tools/p3p/v1810/prepare_fonts_for_checks.py --output /tmp/p3p-inter
+P3P_INTER_FONT_DIR=/tmp/p3p-inter python3 tools/p3p/gen_thor_assets.py
+P3P_INTER_FONT_DIR=/tmp/p3p-inter python3 tools/p3p/make_readme_previews.py
+```
+
+The 62 custom UI PNGs are generated from the source scripts under
+`tools/p3p/v1810`. Of these, 55 recreate graphics from the previously
+tested community layout at exact PNG-file or exact decoded-pixel level.
+The remaining seven are newly designed original procedural alternatives to
+historic Start-screen backgrounds and five wordmark images. They are **not**
+byte-identical to the older package and deliberately do not reproduce a
+commercial game logo. No game artwork or font binaries are stored here.
+
+The generator uses pinned official Inter 4.1 OTFs under the
+[SIL Open Font License](https://openfontlicense.org/), and verifies their
+hashes before local rendering.
+
+## Native P3P reader
+
+The C++ reader is located at `native/modules/0100DCD01525A000.cpp`,
+with `p3p_reader.h` and helper headers. It supports the Persona 3 Portable
+base game version 1.0.0, title ID `0100DCD01525A000`, build
+`663052C2C7E8C357BA6EAD36641EE2792397EB1F000000000000000000000000`.
+
+The module reads the player's game resources during play; the package does
+not bundle decrypted files, protected textures, keys, fonts, saves or ROM
+contents. The game font is read at runtime; `p3p_font.txt` is just a marker.
+The reader uses game-menu button actions for item usage, equipment and
+choices rather than writing to guest game memory directly.
+
+To compile a local standalone native module against an Eden Duo source
+checkout (with Ninja, CMake and required C++ headers installed):
+
+```sh
 cmake -S native/modules -B build-mods -G Ninja -DCMAKE_BUILD_TYPE=Release \
   -DEDEN_SOURCE_ROOT="/absolute/path/to/eden-duo" -DEDEN_P3P_STANDALONE=ON \
   -DBUILD_TESTING=ON
@@ -62,26 +56,26 @@ cmake --build build-mods --parallel 4
 ctest --test-dir build-mods -R '^dsmod-p3p$' --output-on-failure
 ```
 
-`EDEN_P3P_STANDALONE` configures only the P3P targets. Package the stripped module with
-`tools/build_dualscreen_package.py --package packages/Persona3Portable` as for the other games.
-With `BUILD_TESTING=ON`, the default build includes `p3p-module-test`, registered with CTest
-as `dsmod-p3p` in both standalone and full configurations. With testing off, the executable
-remains available as an explicit build target.
+Cross-compile for Android ARM64 with the Android NDK and the matching
+platform; strip binary debug sections before release packaging.
+See the [package README](../../packages/Persona3Portable/README.md)
+for the exact `tools/build_dualscreen_package.py` packaging command.
 
-## Community AYN Thor v1.8.10 UI reference (draft PR)
+## Other utility tools
 
-The tested AYN Thor UI redesign is distributed as an [unofficial community
-v1.8.10 FINAL release](https://github.com/speerit1/eden-duo-companions/releases/tag/p3p-thor-v1.8.10-community).
-This source PR does **not** ship that binary package or copyrighted game
-resources.
+- `gen_pins.py`: generate supported native code fingerprint pins using
+  a decrypted game executable supplied privately by the user.
+- `nso.py`: bounded NSO decompression/relocation helper.
+- `cpk.py`, `assets.py`, `saves.py`: read private game resource structures
+  locally; no extracted game data is ever committed.
+- `gen_thor_assets.py`: generate/check all 62 custom UI PNG files.
+- `make_readme_previews.py`: render **illustrative previews**, not a claim of
+  screenshot evidence.
 
-A byte-exact reference of the tested 12-screen manifest (including its
-compositions, animations and 2,798 game-state outputs) is in
-[v1810/README.md](v1810/README.md). A recovered source generator reproduces
-55 of its 62 procedural PNG graphics either byte-for-byte (38 assets) or
-decoded-pixel-for-pixel (17 geometry and ring assets) using independent source scripts.
-The remaining seven graphics, font and artwork provenance review, and native
-module build validation are still outstanding. Do not package the manifest reference
-without its corresponding artwork. The earlier hand-recreated UI source
-prototype was found to have on-device regressions and has been removed from
-the active PR diff; it remains accessible through Git history.
+## Device QA
+
+The original v1.8.10 redesign with its legacy images passed preliminary
+testing on the AYN Thor with source-built Linux/Android native modules. The
+v1.1.0 source package has **seven new, source-owned graphics**. Their
+composition and every live game-state screen, especially Battle, need a
+fresh hardware check before upstream merge.
