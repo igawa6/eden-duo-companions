@@ -36,6 +36,12 @@ constexpr int kTabs = 8;
 constexpr int kTabCats[kTabs][2] = {{0, -1}, {1, 3}, {2, -1}, {4, -1}, {5, -1}, {6, -1}, {7, -1}, {8, -1}};
 constexpr int kRows = 12;       // items per inventory page (4 x 3)
 constexpr int kMaxHearts = 40;  // heart slots published
+// Layer limits on the raw Y of the player actor (TotK Native: above 800 the Sky, below -100 the Depths).
+constexpr float kSkyAbove = 800.f, kDepthsBelow = -100.f;
+// The game's minimap shows altitude = Y - 106 (measured once: Y 313 shows 0207); to be confirmed at other spots.
+constexpr int kAltitudeOffset = 106;
+constexpr int kBatterySlots = 24;  // one battery icon = 3 bars of 1000 energy; the game allows up to 24
+constexpr double kBatteryUnit = 3000.0;
 
 struct Row { std::string id; int32_t life{-1}, count{-1}; bool equipped{}; };
 struct Piece { std::string id; int32_t life{-1}; };
@@ -193,12 +199,15 @@ void ReadPlayer(const totk::Reader& r, State& st, uint64_t actor) {
   if (actor && r.rd(actor + totk::kActorPos, pos) && std::isfinite(pos[0]) && std::isfinite(pos[1]) && std::isfinite(pos[2])) have = true;
   if (!have) have = r.get_vec3("World_PlayerPos", pos);
   st.pos_ok = have;
+  // The layer comes from the height, like TotK Native's marker rule: MapData.CurrentLayer is the map screen's
+  // selection, not where Link stands (it read "Sky" on the surface on a device). The flag is only a fallback when
+  // there is no position.
   std::string layer;
-  if (r.get_enum_hash("MapData.CurrentLayer", e)) if (const char* n = EnumName(e, kLayers, 4)) layer = n;
   if (have) {
     std::memcpy(st.pos, pos, sizeof pos);
-    if (pos[1] < -400) layer = "UnderGround";
-    else if (layer == "UnderGround" && pos[1] > -100) layer = "Ground";
+    layer = pos[1] > kSkyAbove ? "Sky" : pos[1] < kDepthsBelow ? "UnderGround" : "Ground";
+  } else if (r.get_enum_hash("MapData.CurrentLayer", e)) {
+    if (const char* n = EnumName(e, kLayers, 4)) layer = n;
   }
   st.layer = layer == "Sky" ? 2 : layer == "UnderGround" ? 0 : layer.empty() ? -1 : 1;
   float rot[9];
@@ -349,9 +358,9 @@ void PublishState(const Pub& p, const Text& t, const State& st, const Flags& fl)
     p.i(b + ".q", on ? int(std::lround(std::clamp(wheels - i, 0.0, 1.0) * 20)) : 0);
   }
   p.t("totk.stamina.text", st.stamina >= 0 ? std::to_string(int(std::lround(wheels * 10)) / 10) + (int(std::lround(wheels * 10)) % 10 ? "." + std::to_string(int(std::lround(wheels * 10)) % 10) : "") : "-");
-  const double cells = st.energy >= 0 ? (st.energy + st.energy_extra) / 1000.0 : 0;
-  const int base_cells = st.energy >= 0 ? int(std::ceil(st.energy / 1000.0 - 1e-6)) : 0;
-  for (int i = 0; i < 10; ++i) {
+  const double cells = st.energy >= 0 ? (st.energy + st.energy_extra) / kBatteryUnit : 0;
+  const int base_cells = st.energy >= 0 ? int(std::ceil(st.energy / kBatteryUnit - 1e-6)) : 0;
+  for (int i = 0; i < kBatterySlots; ++i) {
     const std::string b = "totk.bat." + std::to_string(i);
     const bool on = cells > i + 1e-6, gold = i >= base_cells;
     p.i(b + ".on", st.energy >= 0 && i < int(std::ceil(cells - 1e-6)) ? 1 : 0);
@@ -360,7 +369,7 @@ void PublishState(const Pub& p, const Text& t, const State& st, const Flags& fl)
     p.i(b + ".q", on ? int(std::lround(std::clamp(cells - i, 0.0, 1.0) * 20)) : 0);
   }
   p.i("totk.energy.on", st.energy >= 0 ? 1 : 0);
-  p.t("totk.energy.text", st.energy >= 0 ? std::to_string(int(std::lround(cells * 10)) / 10) : "-");
+  p.t("totk.energy.text", st.energy >= 0 ? std::to_string(int(std::lround(cells * 10)) / 10) + (int(std::lround(cells * 10)) % 10 ? "." + std::to_string(int(std::lround(cells * 10)) % 10) : "") : "-");
   // position and layer
   p.i("totk.layer", st.layer);
   const int area = fl.layer ? (fl.layer == 1 ? 2 : fl.layer == 2 ? 1 : 0) : (st.layer < 0 ? 1 : st.layer);
@@ -369,12 +378,12 @@ void PublishState(const Pub& p, const Text& t, const State& st, const Flags& fl)
   p.t("totk.layer.text", st.layer == 2 ? c.sky : st.layer == 0 ? c.depths : st.layer == 1 ? c.ground : "");
   p.i("totk.map.on_layer", st.pos_ok && area == (st.layer < 0 ? 1 : st.layer) ? 1 : 0);
   if (st.pos_ok) {
-    p.f("totk.pos.x", st.pos[0]); p.f("totk.pos.y", st.pos[1]); p.f("totk.pos.z", st.pos[2]);
+    p.f("totk.pos.x", st.pos[0]); p.f("totk.pos.y", st.pos[1] - kAltitudeOffset); p.f("totk.pos.z", st.pos[2]);
     p.f("totk.map.x", st.pos[0]); p.f("totk.map.y", -st.pos[2]);
     const double half = 1400;  // world units around Link of the default map view
     p.f("totk.map.vx0", st.pos[0] - half); p.f("totk.map.vx1", st.pos[0] + half);
     p.f("totk.map.vy0", -st.pos[2] - half * 0.88); p.f("totk.map.vy1", -st.pos[2] + half * 0.88);
-    char b[64]; std::snprintf(b, sizeof b, "%d  %d  %d", int(st.pos[0]), int(-st.pos[2]), int(st.pos[1]));
+    char b[64]; std::snprintf(b, sizeof b, "%04d  %04d  %04d", int(st.pos[0]), int(-st.pos[2]), int(st.pos[1]) - kAltitudeOffset);
     p.t("totk.pos.text", b);
   }
   if (st.heading >= 0) p.f("totk.pos.heading", st.heading);

@@ -126,6 +126,13 @@
    "b": 0
   },
   {
+   "name": "ui.here",
+   "all_nonzero": [
+    "totk.ready",
+    "totk.pos.valid"
+   ]
+  },
+  {
    "name": "ui.nopos_on",
    "cmp": "eq",
    "a": "totk.pos.valid",
@@ -158,7 +165,7 @@
      "bind_text": "totk.layer.text",
      "text_scale": 14,
      "color": "#FFD9B96B",
-     "need_bind": "totk.pos.valid"
+     "need_bind": "ui.here"
     },
     {
      "type": "label",
@@ -171,7 +178,7 @@
      "bind_text": "totk.pos.text",
      "text_scale": 5,
      "color": "#FF8C9A9E",
-     "need_bind": "totk.pos.valid"
+     "need_bind": "ui.here"
     },
     {
      "type": "label",
@@ -409,9 +416,9 @@
      "type": "rect",
      "rect": [
       30,
-      690,
+      680,
       590,
-      120
+      142
      ],
      "bg": "#D0121B1F",
      "color": "#FF3D4F55",
@@ -420,50 +427,50 @@
     {
      "type": "image",
      "rect": [
-      55,
-      712,
-      100,
-      64
+      50,
+      692,
+      66,
+      42
      ],
      "src": "user:art/ui/battery.png",
      "tint": "#FF4A5558",
-     "repeat": 10,
+     "repeat": 24,
      "need_bind": "totk.bat.{i}.on",
-     "repeat_cols": 5,
-     "repeat_dx": 112,
-     "repeat_row_dy": 70
+     "repeat_cols": 8,
+     "repeat_dx": 70,
+     "repeat_row_dy": 44
     },
     {
      "type": "image",
      "rect": [
-      55,
-      712,
-      100,
-      64
+      50,
+      692,
+      66,
+      42
      ],
      "bind": "totk.bat.{i}.q",
      "src_format": "user:art/ui/bat_%d.png",
-     "repeat": 10,
+     "repeat": 24,
      "need_bind": "totk.bat.{i}.n",
-     "repeat_cols": 5,
-     "repeat_dx": 112,
-     "repeat_row_dy": 70
+     "repeat_cols": 8,
+     "repeat_dx": 70,
+     "repeat_row_dy": 44
     },
     {
      "type": "image",
      "rect": [
-      55,
-      712,
-      100,
-      64
+      50,
+      692,
+      66,
+      42
      ],
      "bind": "totk.bat.{i}.q",
      "src_format": "user:art/ui/batx_%d.png",
-     "repeat": 10,
+     "repeat": 24,
      "need_bind": "totk.bat.{i}.g",
-     "repeat_cols": 5,
-     "repeat_dx": 112,
-     "repeat_row_dy": 70
+     "repeat_cols": 8,
+     "repeat_dx": 70,
+     "repeat_row_dy": 44
     },
     {
      "type": "rect",
@@ -2470,7 +2477,7 @@
       300,
       50
      ],
-     "text": "battery cells",
+     "text": "batteries",
      "text_scale": 6,
      "color": "#FFF2EBD3"
     },

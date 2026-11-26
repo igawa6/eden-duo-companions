@@ -146,14 +146,18 @@ int main() {
   assert(g_i["totk.sw.0.n"] == 1 && g_i["totk.sw.2.q"] == 10 && g_i["totk.sw.3.on"] == 0);
   assert(g_i["totk.pos.valid"] == 1 && g_f["totk.pos.x"] == 100.0 && g_f["totk.map.y"] == 300.0);
   assert(std::fabs(g_f["totk.pos.heading"] - 90.0) < 0.01);
-  assert(g_t["totk.layer.text"] == "Sky" && g_i["totk.layer"] == 2 && g_t["totk.map.area"] == "Sky");
+  assert(g_t["totk.layer.text"] == "Surface" && g_i["totk.layer"] == 1 && g_t["totk.map.area"] == "Ground");
+  assert(g_t["totk.pos.text"] == "0100  0300  0094");
   assert(g_t["totk.eq.weapon.name"] == "Weapon_Sword_070" && g_t["totk.eq.weapon.dur"] == "33");
   assert(g_i["totk.inv.n"] == 2 && g_t["totk.inv.0.name"] == "Weapon_Sword_001" && g_t["totk.inv.0.info"] == "70");
   assert(g_t["totk.inv.1.name"] == "Weapon_Sword_070" && g_i["totk.inv.1.eq"] == 1 && g_i["totk.inv.0.eq"] == 0);
   assert(g_t["totk.inv.2.name"].empty() && g_i["totk.inv.2.on"] == 0 && g_t["totk.sel.name"] == "Weapon_Sword_001");
   api->destroy(inst);
 
-  // Depths by height, wrong build, null singleton.
+  // Sky by height (the enum flag says Sky above, and is ignored), then Depths, wrong build, null singleton.
+  { const float hi[3] = {1.f, 1000.f, 2.f}; putn(actor + totk::kActorPos, hi, 12);
+    inst = api->create(&h, "{}"); api->sample(inst, &h);
+    assert(g_t["totk.layer.text"] == "Sky" && g_i["totk.layer"] == 2 && g_t["totk.map.area"] == "Sky"); api->destroy(inst); }
   const float deep[3] = {1.f, -900.f, 2.f}; putn(actor + totk::kActorPos, deep, 12);
   inst = api->create(&h, "{}"); api->sample(inst, &h);
   assert(g_t["totk.layer.text"] == "Depths" && g_i["totk.layer"] == 0 && g_t["totk.map.area"] == "UnderGround");

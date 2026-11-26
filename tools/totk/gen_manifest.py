@@ -78,8 +78,8 @@ def nav(active):
 def status_page():
     w = [rect(0, 0, W, H, BG)]
     # header
-    w += [btext(40, 26, 620, 70, "totk.layer.text", 14, GOLD, need_bind="totk.pos.valid"),
-          btext(40, 104, 620, 40, "totk.pos.text", 5, DIM, need_bind="totk.pos.valid"),
+    w += [btext(40, 26, 620, 70, "totk.layer.text", 14, GOLD, need_bind="ui.here"),
+          btext(40, 104, 620, 40, "totk.pos.text", 5, DIM, need_bind="ui.here"),
           btext(40, 40, 900, 50, "ui.waiting", 8, GOLD, need_bind="ui.nodata"),
           img(850, 24, 64, 64, "ui/rupee.png"), btext(930, 28, 290, 60, "totk.rupees.text", 11, INK),
           img(856, 96, 44, 44, "ui/poe.png"), btext(930, 100, 290, 40, "totk.poes.text", 7, DIM)]
@@ -99,11 +99,11 @@ def status_page():
     w.append(img(55, 480, 90, 90, "ui/stamina_ring.png", tint=DARK, repeat=10, need_bind="totk.sw.{i}.on", **wc))
     w.append(fimg(55, 480, 90, 90, "totk.sw.{i}.q", "ring_%d.png", repeat=10, need_bind="totk.sw.{i}.n", **wc))
     w.append(fimg(55, 480, 90, 90, "totk.sw.{i}.q", "ringx_%d.png", repeat=10, need_bind="totk.sw.{i}.g", **wc))
-    w.append(panel(30, 690, 590, 120))
-    bc = {"repeat_cols": 5, "repeat_dx": 112, "repeat_row_dy": 70}
-    w.append(img(55, 712, 100, 64, "ui/battery.png", tint="#FF4A5558", repeat=10, need_bind="totk.bat.{i}.on", **bc))
-    w.append(fimg(55, 712, 100, 64, "totk.bat.{i}.q", "bat_%d.png", repeat=10, need_bind="totk.bat.{i}.n", **bc))
-    w.append(fimg(55, 712, 100, 64, "totk.bat.{i}.q", "batx_%d.png", repeat=10, need_bind="totk.bat.{i}.g", **bc))
+    w.append(panel(30, 680, 590, 142))
+    bc = {"repeat_cols": 8, "repeat_dx": 70, "repeat_row_dy": 44}
+    w.append(img(50, 692, 66, 42, "ui/battery.png", tint="#FF4A5558", repeat=24, need_bind="totk.bat.{i}.on", **bc))
+    w.append(fimg(50, 692, 66, 42, "totk.bat.{i}.q", "bat_%d.png", repeat=24, need_bind="totk.bat.{i}.n", **bc))
+    w.append(fimg(50, 692, 66, 42, "totk.bat.{i}.q", "batx_%d.png", repeat=24, need_bind="totk.bat.{i}.g", **bc))
     # sages
     w.append(panel(30, 830, 590, 150))
     for k, key in enumerate(("Wind", "Fire", "Water", "Electric", "Soul")):
@@ -190,7 +190,7 @@ def info_page():
             ("tables plausible", "totk.tables_ok"), ("player actor", "totk.actor_ok"),
             ("pouch partition", "totk.pouch_ok"), ("hearts flags", "totk.hearts.valid"),
             ("position", "totk.pos.valid")]
-    texts = [("rupees", "totk.rupees.text"), ("stamina wheels", "totk.stamina.text"), ("battery cells", "totk.energy.text"),
+    texts = [("rupees", "totk.rupees.text"), ("stamina wheels", "totk.stamina.text"), ("batteries", "totk.energy.text"),
              ("hearts", "totk.hearts.text")]
     w = [rect(0, 0, W, H, BG), text(60, 40, 1120, 70, "MODULE INFO", 12, GOLD)]
     for n, (t, b) in enumerate(rows):
@@ -236,6 +236,7 @@ def main():
     derived = [{"name": f"ui.tab{i}", "cmp": "eq", "a": "@flag:inv_tab", "b": i} for i in range(8)]
     derived += [{"name": f"ui.ntab{i}", "cmp": "ne", "a": "@flag:inv_tab", "b": i} for i in range(8)]
     derived += [{"name": "ui.nodata", "cmp": "eq", "a": "totk.ready", "b": 0},
+                {"name": "ui.here", "all_nonzero": ["totk.ready", "totk.pos.valid"]},
                 {"name": "ui.nopos_on", "cmp": "eq", "a": "totk.pos.valid", "b": 0}]
     area = lambda n: {"image": ART + f"map/{n}.png", "min": [-6000, -5000], "max": [6000, 5000], "clamp_view": True}
     manifest = {
