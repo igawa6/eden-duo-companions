@@ -82,6 +82,7 @@ not require a separately distributed `libc++_shared.so`. ACNH diagnostics defaul
 | `dsmod-ot0` (development, runtime 22) | `01005270232F2000.so` |
 | `dsmod-cotl` (runtime 22) | `01002E7016C46000.so` |
 | `dsmod-ffr` (runtime 25) | `0100606026F12000.so` |
+| `dsmod-totk` (runtime 22, opt-in) | `0100F2C0115B6000.so` |
 | `dsmod-kirby` (runtime 17; research tools with `-DEDEN_KIRBY_BUILD_DEV=ON`, off by default) | `01006B601380E000.so` |
 
 Strip each platform's library with the matching toolchain's `llvm-strip --strip-all` and pass
@@ -106,6 +107,10 @@ the vendored ooz and the runtime's BC decoder. Its test target `dsmod-ffr-test` 
 Its fast travel, item use, equipment, quest tracking and menu sounds use a format-2 guest helper, [`helper/ffr_guest_helper.S`](helper/ffr_guest_helper.S). The committed
 `packages/FinalFantasyResonance/dualscreen/guest/<build>/load-plan.json` is built from it by `tools/ffr/build_helper_plan.py`,
 from the player's own exefs `main`; the script checks every word of main the plan relies on.
+
+The opt-in `dsmod-totk` target is The Legend of Zelda: Tears of the Kingdom 1.4.3. It is read-only and needs no
+game files to test: `ctest --test-dir <build-directory> -R '^dsmod-totk$' --output-on-failure`. Package it with
+`GAMES=totk TOTK_LINUX_SO=… TOTK_ANDROID_SO=… tools/build_release.sh`; see [`../packages/TearsOfTheKingdom/README.md`](../packages/TearsOfTheKingdom/README.md).
 
 ## Source provenance
 

@@ -1,0 +1,2881 @@
+{
+ "format": 1,
+ "title_id": "0100F2C0115B6000",
+ "name": "Tears of the Kingdom companion",
+ "min_runtime": 22,
+ "requires_module": true,
+ "module": {
+  "abi": 1,
+  "build_ids": [
+   "277178B7DBA1B6D4"
+  ]
+ },
+ "_about": "Read-only status, map position and inventory from the game's GameData manager and player actor; pictures, font and item text come from the optional art pack (README.md, make_art.py).",
+ "canvas_w": 1240,
+ "canvas_h": 1080,
+ "background": "#FF0B1114",
+ "font": "user:art/font/game.mfnt",
+ "font_atlas": "user:art/font/game.png",
+ "flags": {
+  "inv_tab": 0,
+  "inv_page": 0,
+  "inv_sel": 0,
+  "map_layer": 0
+ },
+ "derived": [
+  {
+   "name": "ui.tab0",
+   "cmp": "eq",
+   "a": "@flag:inv_tab",
+   "b": 0
+  },
+  {
+   "name": "ui.tab1",
+   "cmp": "eq",
+   "a": "@flag:inv_tab",
+   "b": 1
+  },
+  {
+   "name": "ui.tab2",
+   "cmp": "eq",
+   "a": "@flag:inv_tab",
+   "b": 2
+  },
+  {
+   "name": "ui.tab3",
+   "cmp": "eq",
+   "a": "@flag:inv_tab",
+   "b": 3
+  },
+  {
+   "name": "ui.tab4",
+   "cmp": "eq",
+   "a": "@flag:inv_tab",
+   "b": 4
+  },
+  {
+   "name": "ui.tab5",
+   "cmp": "eq",
+   "a": "@flag:inv_tab",
+   "b": 5
+  },
+  {
+   "name": "ui.tab6",
+   "cmp": "eq",
+   "a": "@flag:inv_tab",
+   "b": 6
+  },
+  {
+   "name": "ui.tab7",
+   "cmp": "eq",
+   "a": "@flag:inv_tab",
+   "b": 7
+  },
+  {
+   "name": "ui.ntab0",
+   "cmp": "ne",
+   "a": "@flag:inv_tab",
+   "b": 0
+  },
+  {
+   "name": "ui.ntab1",
+   "cmp": "ne",
+   "a": "@flag:inv_tab",
+   "b": 1
+  },
+  {
+   "name": "ui.ntab2",
+   "cmp": "ne",
+   "a": "@flag:inv_tab",
+   "b": 2
+  },
+  {
+   "name": "ui.ntab3",
+   "cmp": "ne",
+   "a": "@flag:inv_tab",
+   "b": 3
+  },
+  {
+   "name": "ui.ntab4",
+   "cmp": "ne",
+   "a": "@flag:inv_tab",
+   "b": 4
+  },
+  {
+   "name": "ui.ntab5",
+   "cmp": "ne",
+   "a": "@flag:inv_tab",
+   "b": 5
+  },
+  {
+   "name": "ui.ntab6",
+   "cmp": "ne",
+   "a": "@flag:inv_tab",
+   "b": 6
+  },
+  {
+   "name": "ui.ntab7",
+   "cmp": "ne",
+   "a": "@flag:inv_tab",
+   "b": 7
+  },
+  {
+   "name": "ui.nodata",
+   "cmp": "eq",
+   "a": "totk.ready",
+   "b": 0
+  },
+  {
+   "name": "ui.here",
+   "all_nonzero": [
+    "totk.ready",
+    "totk.pos.valid"
+   ]
+  },
+  {
+   "name": "ui.nopos_on",
+   "cmp": "eq",
+   "a": "totk.pos.valid",
+   "b": 0
+  }
+ ],
+ "pages": [
+  {
+   "id": "status",
+   "title": "Status",
+   "widgets": [
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#FF0B1114"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      26,
+      620,
+      70
+     ],
+     "bind_text": "totk.layer.text",
+     "text_scale": 14,
+     "color": "#FFD9B96B",
+     "need_bind": "ui.here"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      104,
+      620,
+      40
+     ],
+     "bind_text": "totk.pos.text",
+     "text_scale": 5,
+     "color": "#FF8C9A9E",
+     "need_bind": "ui.here"
+    },
+    {
+     "type": "label",
+     "rect": [
+      40,
+      40,
+      900,
+      50
+     ],
+     "bind_text": "ui.waiting",
+     "text_scale": 8,
+     "color": "#FFD9B96B",
+     "need_bind": "ui.nodata"
+    },
+    {
+     "type": "image",
+     "rect": [
+      850,
+      24,
+      64,
+      64
+     ],
+     "src": "user:art/ui/rupee.png"
+    },
+    {
+     "type": "label",
+     "rect": [
+      930,
+      28,
+      290,
+      60
+     ],
+     "bind_text": "totk.rupees.text",
+     "text_scale": 11,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "image",
+     "rect": [
+      856,
+      96,
+      44,
+      44
+     ],
+     "src": "user:art/ui/poe.png"
+    },
+    {
+     "type": "label",
+     "rect": [
+      930,
+      100,
+      290,
+      40
+     ],
+     "bind_text": "totk.poes.text",
+     "text_scale": 7,
+     "color": "#FF8C9A9E"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      30,
+      150,
+      1180,
+      290
+     ],
+     "bg": "#D0121B1F",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "image",
+     "rect": [
+      56,
+      170,
+      62,
+      62
+     ],
+     "src": "user:art/ui/heart_empty.png",
+     "tint": "#FF4A3F43",
+     "repeat": 40,
+     "need_bind": "totk.h.{i}.on",
+     "repeat_cols": 10,
+     "repeat_dx": 68,
+     "repeat_row_dy": 66
+    },
+    {
+     "type": "image",
+     "rect": [
+      56,
+      170,
+      62,
+      62
+     ],
+     "bind": "totk.h.{i}.q",
+     "src_format": "user:art/ui/heart_%d.png",
+     "repeat": 40,
+     "need_bind": "totk.h.{i}.n",
+     "repeat_cols": 10,
+     "repeat_dx": 68,
+     "repeat_row_dy": 66
+    },
+    {
+     "type": "image",
+     "rect": [
+      56,
+      170,
+      62,
+      62
+     ],
+     "bind": "totk.h.{i}.q",
+     "src_format": "user:art/ui/heartx_%d.png",
+     "repeat": 40,
+     "need_bind": "totk.h.{i}.y",
+     "repeat_cols": 10,
+     "repeat_dx": 68,
+     "repeat_row_dy": 66
+    },
+    {
+     "type": "image",
+     "rect": [
+      56,
+      170,
+      62,
+      62
+     ],
+     "src": "user:art/ui/heart_broken.png",
+     "tint": "#FF9B6BD0",
+     "repeat": 40,
+     "need_bind": "totk.h.{i}.k",
+     "repeat_cols": 10,
+     "repeat_dx": 68,
+     "repeat_row_dy": 66
+    },
+    {
+     "type": "label",
+     "rect": [
+      800,
+      168,
+      400,
+      120
+     ],
+     "bind_text": "totk.hearts.text",
+     "text_scale": 22,
+     "color": "#FFF2EBD3",
+     "need_bind": "totk.hearts.valid"
+    },
+    {
+     "type": "label",
+     "rect": [
+      800,
+      292,
+      400,
+      50
+     ],
+     "bind_text": "totk.hearts.max_text",
+     "text_scale": 9,
+     "color": "#FF8C9A9E",
+     "need_bind": "totk.hearts.valid"
+    },
+    {
+     "type": "label",
+     "rect": [
+      800,
+      350,
+      400,
+      40
+     ],
+     "bind_text": "totk.hearts.extra_text",
+     "text_scale": 8,
+     "color": "#FFF2D45C",
+     "need_bind": "totk.hearts.valid"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      30,
+      460,
+      590,
+      210
+     ],
+     "bg": "#D0121B1F",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "image",
+     "rect": [
+      55,
+      480,
+      90,
+      90
+     ],
+     "src": "user:art/ui/stamina_ring.png",
+     "tint": "#FF2C3538",
+     "repeat": 10,
+     "need_bind": "totk.sw.{i}.on",
+     "repeat_cols": 5,
+     "repeat_dx": 110,
+     "repeat_row_dy": 96
+    },
+    {
+     "type": "image",
+     "rect": [
+      55,
+      480,
+      90,
+      90
+     ],
+     "bind": "totk.sw.{i}.q",
+     "src_format": "user:art/ui/ring_%d.png",
+     "repeat": 10,
+     "need_bind": "totk.sw.{i}.n",
+     "repeat_cols": 5,
+     "repeat_dx": 110,
+     "repeat_row_dy": 96
+    },
+    {
+     "type": "image",
+     "rect": [
+      55,
+      480,
+      90,
+      90
+     ],
+     "bind": "totk.sw.{i}.q",
+     "src_format": "user:art/ui/ringx_%d.png",
+     "repeat": 10,
+     "need_bind": "totk.sw.{i}.g",
+     "repeat_cols": 5,
+     "repeat_dx": 110,
+     "repeat_row_dy": 96
+    },
+    {
+     "type": "rect",
+     "rect": [
+      30,
+      680,
+      590,
+      142
+     ],
+     "bg": "#D0121B1F",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "image",
+     "rect": [
+      50,
+      692,
+      66,
+      42
+     ],
+     "src": "user:art/ui/battery.png",
+     "tint": "#FF4A5558",
+     "repeat": 24,
+     "need_bind": "totk.bat.{i}.on",
+     "repeat_cols": 8,
+     "repeat_dx": 70,
+     "repeat_row_dy": 44
+    },
+    {
+     "type": "image",
+     "rect": [
+      50,
+      692,
+      66,
+      42
+     ],
+     "bind": "totk.bat.{i}.q",
+     "src_format": "user:art/ui/bat_%d.png",
+     "repeat": 24,
+     "need_bind": "totk.bat.{i}.n",
+     "repeat_cols": 8,
+     "repeat_dx": 70,
+     "repeat_row_dy": 44
+    },
+    {
+     "type": "image",
+     "rect": [
+      50,
+      692,
+      66,
+      42
+     ],
+     "bind": "totk.bat.{i}.q",
+     "src_format": "user:art/ui/batx_%d.png",
+     "repeat": 24,
+     "need_bind": "totk.bat.{i}.g",
+     "repeat_cols": 8,
+     "repeat_dx": 70,
+     "repeat_row_dy": 44
+    },
+    {
+     "type": "rect",
+     "rect": [
+      30,
+      830,
+      590,
+      150
+     ],
+     "bg": "#D0121B1F",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "image",
+     "rect": [
+      52,
+      846,
+      92,
+      92
+     ],
+     "src": "user:art/ui/sage_Wind.png",
+     "tint_bind": "totk.sage.0.joined",
+     "tint_colors": [
+      "#FF3A4448",
+      "#FFF2EBD3"
+     ]
+    },
+    {
+     "type": "rect",
+     "rect": [
+      88,
+      936,
+      20,
+      6
+     ],
+     "bg": "#FFD9B96B",
+     "need_bind": "totk.sage.0.summoned"
+    },
+    {
+     "type": "label",
+     "rect": [
+      98,
+      946,
+      0,
+      30
+     ],
+     "bind_text": "totk.sage.0.cd",
+     "text_scale": 5,
+     "color": "#FFD9B96B",
+     "align": "center"
+    },
+    {
+     "type": "image",
+     "rect": [
+      166,
+      846,
+      92,
+      92
+     ],
+     "src": "user:art/ui/sage_Fire.png",
+     "tint_bind": "totk.sage.1.joined",
+     "tint_colors": [
+      "#FF3A4448",
+      "#FFF2EBD3"
+     ]
+    },
+    {
+     "type": "rect",
+     "rect": [
+      202,
+      936,
+      20,
+      6
+     ],
+     "bg": "#FFD9B96B",
+     "need_bind": "totk.sage.1.summoned"
+    },
+    {
+     "type": "label",
+     "rect": [
+      212,
+      946,
+      0,
+      30
+     ],
+     "bind_text": "totk.sage.1.cd",
+     "text_scale": 5,
+     "color": "#FFD9B96B",
+     "align": "center"
+    },
+    {
+     "type": "image",
+     "rect": [
+      280,
+      846,
+      92,
+      92
+     ],
+     "src": "user:art/ui/sage_Water.png",
+     "tint_bind": "totk.sage.2.joined",
+     "tint_colors": [
+      "#FF3A4448",
+      "#FFF2EBD3"
+     ]
+    },
+    {
+     "type": "rect",
+     "rect": [
+      316,
+      936,
+      20,
+      6
+     ],
+     "bg": "#FFD9B96B",
+     "need_bind": "totk.sage.2.summoned"
+    },
+    {
+     "type": "label",
+     "rect": [
+      326,
+      946,
+      0,
+      30
+     ],
+     "bind_text": "totk.sage.2.cd",
+     "text_scale": 5,
+     "color": "#FFD9B96B",
+     "align": "center"
+    },
+    {
+     "type": "image",
+     "rect": [
+      394,
+      846,
+      92,
+      92
+     ],
+     "src": "user:art/ui/sage_Electric.png",
+     "tint_bind": "totk.sage.3.joined",
+     "tint_colors": [
+      "#FF3A4448",
+      "#FFF2EBD3"
+     ]
+    },
+    {
+     "type": "rect",
+     "rect": [
+      430,
+      936,
+      20,
+      6
+     ],
+     "bg": "#FFD9B96B",
+     "need_bind": "totk.sage.3.summoned"
+    },
+    {
+     "type": "label",
+     "rect": [
+      440,
+      946,
+      0,
+      30
+     ],
+     "bind_text": "totk.sage.3.cd",
+     "text_scale": 5,
+     "color": "#FFD9B96B",
+     "align": "center"
+    },
+    {
+     "type": "image",
+     "rect": [
+      508,
+      846,
+      92,
+      92
+     ],
+     "src": "user:art/ui/sage_Soul.png",
+     "tint_bind": "totk.sage.4.joined",
+     "tint_colors": [
+      "#FF3A4448",
+      "#FFF2EBD3"
+     ]
+    },
+    {
+     "type": "rect",
+     "rect": [
+      544,
+      936,
+      20,
+      6
+     ],
+     "bg": "#FFD9B96B",
+     "need_bind": "totk.sage.4.summoned"
+    },
+    {
+     "type": "label",
+     "rect": [
+      554,
+      946,
+      0,
+      30
+     ],
+     "bind_text": "totk.sage.4.cd",
+     "text_scale": 5,
+     "color": "#FFD9B96B",
+     "align": "center"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      650,
+      460,
+      560,
+      520
+     ],
+     "bg": "#D0121B1F",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "rect",
+     "rect": [
+      670,
+      480,
+      96,
+      96
+     ],
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "image",
+     "rect": [
+      674,
+      484,
+      88,
+      88
+     ],
+     "bind": "totk.eq.weapon.ix",
+     "src_format": "user:art/icons/%d.png"
+    },
+    {
+     "type": "label",
+     "rect": [
+      786,
+      488,
+      400,
+      64
+     ],
+     "bind_text": "totk.eq.weapon.name",
+     "text_scale": 6,
+     "color": "#FFF2EBD3",
+     "wrap_width": 400,
+     "max_lines": 2
+    },
+    {
+     "type": "label",
+     "rect": [
+      786,
+      546,
+      400,
+      30
+     ],
+     "bind_text": "totk.eq.weapon.dur",
+     "text_scale": 5,
+     "color": "#FF8C9A9E"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      670,
+      590,
+      96,
+      96
+     ],
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "image",
+     "rect": [
+      674,
+      594,
+      88,
+      88
+     ],
+     "bind": "totk.eq.bow.ix",
+     "src_format": "user:art/icons/%d.png"
+    },
+    {
+     "type": "label",
+     "rect": [
+      786,
+      598,
+      400,
+      64
+     ],
+     "bind_text": "totk.eq.bow.name",
+     "text_scale": 6,
+     "color": "#FFF2EBD3",
+     "wrap_width": 400,
+     "max_lines": 2
+    },
+    {
+     "type": "label",
+     "rect": [
+      786,
+      656,
+      400,
+      30
+     ],
+     "bind_text": "totk.eq.bow.dur",
+     "text_scale": 5,
+     "color": "#FF8C9A9E"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      670,
+      700,
+      96,
+      96
+     ],
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "image",
+     "rect": [
+      674,
+      704,
+      88,
+      88
+     ],
+     "bind": "totk.eq.shield.ix",
+     "src_format": "user:art/icons/%d.png"
+    },
+    {
+     "type": "label",
+     "rect": [
+      786,
+      708,
+      400,
+      64
+     ],
+     "bind_text": "totk.eq.shield.name",
+     "text_scale": 6,
+     "color": "#FFF2EBD3",
+     "wrap_width": 400,
+     "max_lines": 2
+    },
+    {
+     "type": "label",
+     "rect": [
+      786,
+      766,
+      400,
+      30
+     ],
+     "bind_text": "totk.eq.shield.dur",
+     "text_scale": 5,
+     "color": "#FF8C9A9E"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      670,
+      812,
+      96,
+      96
+     ],
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "image",
+     "rect": [
+      674,
+      816,
+      88,
+      88
+     ],
+     "bind": "totk.eq.head.ix",
+     "src_format": "user:art/icons/%d.png"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      780,
+      812,
+      96,
+      96
+     ],
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "image",
+     "rect": [
+      784,
+      816,
+      88,
+      88
+     ],
+     "bind": "totk.eq.upper.ix",
+     "src_format": "user:art/icons/%d.png"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      890,
+      812,
+      96,
+      96
+     ],
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "image",
+     "rect": [
+      894,
+      816,
+      88,
+      88
+     ],
+     "bind": "totk.eq.lower.ix",
+     "src_format": "user:art/icons/%d.png"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      1000,
+      812,
+      96,
+      96
+     ],
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "image",
+     "rect": [
+      1004,
+      816,
+      88,
+      88
+     ],
+     "bind": "totk.ability.ix",
+     "src_format": "user:art/icons/%d.png"
+    },
+    {
+     "type": "label",
+     "rect": [
+      1200,
+      925,
+      0,
+      50
+     ],
+     "bind_text": "totk.ability.name",
+     "text_scale": 6,
+     "color": "#FFD9B96B",
+     "align": "right"
+    },
+    {
+     "type": "button",
+     "rect": [
+      30,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_status",
+     "pill": true,
+     "bg": "#FF2F4A44",
+     "color": "#FFD9B96B",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      170,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.status",
+     "text_scale": 6,
+     "color": "#FFF2EBD3",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      330,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_map",
+     "pill": true,
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      470,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.map",
+     "text_scale": 6,
+     "color": "#FF8C9A9E",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      630,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_inv",
+     "pill": true,
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      770,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.items",
+     "text_scale": 6,
+     "color": "#FF8C9A9E",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      930,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_info",
+     "pill": true,
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      1070,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.info",
+     "text_scale": 6,
+     "color": "#FF8C9A9E",
+     "align": "center"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#F00B1114",
+     "need_bind": "!module_ready",
+     "input_block": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      430,
+      0,
+      80
+     ],
+     "text": "Requires game version 1.4.3",
+     "text_scale": 10,
+     "color": "#FFD9B96B",
+     "align": "center",
+     "need_bind": "!module_ready"
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      540,
+      0,
+      50
+     ],
+     "text": "This game version is not supported by the companion.",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center",
+     "need_bind": "!module_ready"
+    }
+   ]
+  },
+  {
+   "id": "map",
+   "title": "Map",
+   "widgets": [
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#FF05080A"
+    },
+    {
+     "type": "map",
+     "area_bind": "totk.map.area",
+     "area": "Ground",
+     "rect": [
+      0,
+      0,
+      1240,
+      930
+     ],
+     "area_label": false,
+     "pan_zoom": true,
+     "max_zoom": 16,
+     "id": "totk_map",
+     "marker_x_bind": "totk.map.x",
+     "marker_y_bind": "totk.map.y",
+     "marker_src": "user:art/ui/map_player.png",
+     "marker_size": [
+      84,
+      84
+     ],
+     "marker_tint": "#FFFFE45C",
+     "marker_rotate_bind": "totk.pos.heading",
+     "need_bind": "totk.pos.valid",
+     "view_rect_x0_bind": "totk.map.vx0",
+     "view_rect_y0_bind": "totk.map.vy0",
+     "view_rect_x1_bind": "totk.map.vx1",
+     "view_rect_y1_bind": "totk.map.vy1"
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      450,
+      0,
+      60
+     ],
+     "bind_text": "ui.nopos",
+     "text_scale": 8,
+     "color": "#FFD9B96B",
+     "align": "center",
+     "need_bind": "ui.nopos_on"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      940,
+      1240,
+      54
+     ],
+     "bg": "#E00B1114"
+    },
+    {
+     "type": "button",
+     "rect": [
+      20,
+      944,
+      226,
+      46
+     ],
+     "on_tap": "map_auto",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": "",
+     "pill": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      133,
+      951,
+      0,
+      34
+     ],
+     "bind_text": "ui.auto",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      258,
+      944,
+      226,
+      46
+     ],
+     "on_tap": "map_sky",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": "",
+     "pill": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      371,
+      951,
+      0,
+      34
+     ],
+     "bind_text": "ui.sky",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      496,
+      944,
+      226,
+      46
+     ],
+     "on_tap": "map_ground",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": "",
+     "pill": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      609,
+      951,
+      0,
+      34
+     ],
+     "bind_text": "ui.ground",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      734,
+      944,
+      226,
+      46
+     ],
+     "on_tap": "map_depths",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": "",
+     "pill": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      847,
+      951,
+      0,
+      34
+     ],
+     "bind_text": "ui.depths",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      972,
+      944,
+      226,
+      46
+     ],
+     "on_tap": "map_recenter",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": "",
+     "pill": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      1085,
+      951,
+      0,
+      34
+     ],
+     "bind_text": "ui.recenter",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      30,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_status",
+     "pill": true,
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      170,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.status",
+     "text_scale": 6,
+     "color": "#FF8C9A9E",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      330,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_map",
+     "pill": true,
+     "bg": "#FF2F4A44",
+     "color": "#FFD9B96B",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      470,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.map",
+     "text_scale": 6,
+     "color": "#FFF2EBD3",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      630,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_inv",
+     "pill": true,
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      770,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.items",
+     "text_scale": 6,
+     "color": "#FF8C9A9E",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      930,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_info",
+     "pill": true,
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      1070,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.info",
+     "text_scale": 6,
+     "color": "#FF8C9A9E",
+     "align": "center"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#F00B1114",
+     "need_bind": "!module_ready",
+     "input_block": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      430,
+      0,
+      80
+     ],
+     "text": "Requires game version 1.4.3",
+     "text_scale": 10,
+     "color": "#FFD9B96B",
+     "align": "center",
+     "need_bind": "!module_ready"
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      540,
+      0,
+      50
+     ],
+     "text": "This game version is not supported by the companion.",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center",
+     "need_bind": "!module_ready"
+    }
+   ]
+  },
+  {
+   "id": "inv",
+   "title": "Items",
+   "widgets": [
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#FF0B1114"
+    },
+    {
+     "type": "button",
+     "rect": [
+      30,
+      20,
+      140,
+      84
+     ],
+     "on_tap": "tab_0",
+     "text": "",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      30,
+      20,
+      140,
+      84
+     ],
+     "bg": "#FF3A5A52",
+     "color": "#FFD9B96B",
+     "frame": 3,
+     "need_bind": "ui.tab0"
+    },
+    {
+     "type": "image",
+     "rect": [
+      72,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_weapons.png",
+     "tint": "#FFF2EBD3",
+     "need_bind": "ui.tab0"
+    },
+    {
+     "type": "image",
+     "rect": [
+      72,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_weapons.png",
+     "tint": "#FF8C9A9E",
+     "need_bind": "ui.ntab0"
+    },
+    {
+     "type": "button",
+     "rect": [
+      178,
+      20,
+      140,
+      84
+     ],
+     "on_tap": "tab_1",
+     "text": "",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      178,
+      20,
+      140,
+      84
+     ],
+     "bg": "#FF3A5A52",
+     "color": "#FFD9B96B",
+     "frame": 3,
+     "need_bind": "ui.tab1"
+    },
+    {
+     "type": "image",
+     "rect": [
+      220,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_bows.png",
+     "tint": "#FFF2EBD3",
+     "need_bind": "ui.tab1"
+    },
+    {
+     "type": "image",
+     "rect": [
+      220,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_bows.png",
+     "tint": "#FF8C9A9E",
+     "need_bind": "ui.ntab1"
+    },
+    {
+     "type": "button",
+     "rect": [
+      326,
+      20,
+      140,
+      84
+     ],
+     "on_tap": "tab_2",
+     "text": "",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      326,
+      20,
+      140,
+      84
+     ],
+     "bg": "#FF3A5A52",
+     "color": "#FFD9B96B",
+     "frame": 3,
+     "need_bind": "ui.tab2"
+    },
+    {
+     "type": "image",
+     "rect": [
+      368,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_shields.png",
+     "tint": "#FFF2EBD3",
+     "need_bind": "ui.tab2"
+    },
+    {
+     "type": "image",
+     "rect": [
+      368,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_shields.png",
+     "tint": "#FF8C9A9E",
+     "need_bind": "ui.ntab2"
+    },
+    {
+     "type": "button",
+     "rect": [
+      474,
+      20,
+      140,
+      84
+     ],
+     "on_tap": "tab_3",
+     "text": "",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      474,
+      20,
+      140,
+      84
+     ],
+     "bg": "#FF3A5A52",
+     "color": "#FFD9B96B",
+     "frame": 3,
+     "need_bind": "ui.tab3"
+    },
+    {
+     "type": "image",
+     "rect": [
+      516,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_armor.png",
+     "tint": "#FFF2EBD3",
+     "need_bind": "ui.tab3"
+    },
+    {
+     "type": "image",
+     "rect": [
+      516,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_armor.png",
+     "tint": "#FF8C9A9E",
+     "need_bind": "ui.ntab3"
+    },
+    {
+     "type": "button",
+     "rect": [
+      622,
+      20,
+      140,
+      84
+     ],
+     "on_tap": "tab_4",
+     "text": "",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      622,
+      20,
+      140,
+      84
+     ],
+     "bg": "#FF3A5A52",
+     "color": "#FFD9B96B",
+     "frame": 3,
+     "need_bind": "ui.tab4"
+    },
+    {
+     "type": "image",
+     "rect": [
+      664,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_materials.png",
+     "tint": "#FFF2EBD3",
+     "need_bind": "ui.tab4"
+    },
+    {
+     "type": "image",
+     "rect": [
+      664,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_materials.png",
+     "tint": "#FF8C9A9E",
+     "need_bind": "ui.ntab4"
+    },
+    {
+     "type": "button",
+     "rect": [
+      770,
+      20,
+      140,
+      84
+     ],
+     "on_tap": "tab_5",
+     "text": "",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      770,
+      20,
+      140,
+      84
+     ],
+     "bg": "#FF3A5A52",
+     "color": "#FFD9B96B",
+     "frame": 3,
+     "need_bind": "ui.tab5"
+    },
+    {
+     "type": "image",
+     "rect": [
+      812,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_food.png",
+     "tint": "#FFF2EBD3",
+     "need_bind": "ui.tab5"
+    },
+    {
+     "type": "image",
+     "rect": [
+      812,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_food.png",
+     "tint": "#FF8C9A9E",
+     "need_bind": "ui.ntab5"
+    },
+    {
+     "type": "button",
+     "rect": [
+      918,
+      20,
+      140,
+      84
+     ],
+     "on_tap": "tab_6",
+     "text": "",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      918,
+      20,
+      140,
+      84
+     ],
+     "bg": "#FF3A5A52",
+     "color": "#FFD9B96B",
+     "frame": 3,
+     "need_bind": "ui.tab6"
+    },
+    {
+     "type": "image",
+     "rect": [
+      960,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_zonai.png",
+     "tint": "#FFF2EBD3",
+     "need_bind": "ui.tab6"
+    },
+    {
+     "type": "image",
+     "rect": [
+      960,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_zonai.png",
+     "tint": "#FF8C9A9E",
+     "need_bind": "ui.ntab6"
+    },
+    {
+     "type": "button",
+     "rect": [
+      1066,
+      20,
+      140,
+      84
+     ],
+     "on_tap": "tab_7",
+     "text": "",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      1066,
+      20,
+      140,
+      84
+     ],
+     "bg": "#FF3A5A52",
+     "color": "#FFD9B96B",
+     "frame": 3,
+     "need_bind": "ui.tab7"
+    },
+    {
+     "type": "image",
+     "rect": [
+      1108,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_keyItems.png",
+     "tint": "#FFF2EBD3",
+     "need_bind": "ui.tab7"
+    },
+    {
+     "type": "image",
+     "rect": [
+      1108,
+      30,
+      56,
+      56
+     ],
+     "src": "user:art/ui/cat_keyItems.png",
+     "tint": "#FF8C9A9E",
+     "need_bind": "ui.ntab7"
+    },
+    {
+     "type": "button",
+     "rect": [
+      30,
+      130,
+      176,
+      228
+     ],
+     "text": "",
+     "bg": "#FF141D21",
+     "color": "#FF3D4F55",
+     "on_tap": "sel_{i}",
+     "need_bind": "totk.inv.{i}.on",
+     "repeat": 12,
+     "repeat_cols": 4,
+     "repeat_dx": 184,
+     "repeat_row_dy": 236
+    },
+    {
+     "type": "rect",
+     "rect": [
+      30,
+      130,
+      176,
+      228
+     ],
+     "bg": 0,
+     "color": "#FFD9B96B",
+     "frame": 4,
+     "need_bind": "totk.inv.{i}.sel",
+     "repeat": 12,
+     "repeat_cols": 4,
+     "repeat_dx": 184,
+     "repeat_row_dy": 236
+    },
+    {
+     "type": "image",
+     "rect": [
+      58,
+      142,
+      120,
+      120
+     ],
+     "bind": "totk.inv.{i}.ix",
+     "src_format": "user:art/icons/%d.png",
+     "need_bind": "totk.inv.{i}.on",
+     "repeat": 12,
+     "repeat_cols": 4,
+     "repeat_dx": 184,
+     "repeat_row_dy": 236
+    },
+    {
+     "type": "rect",
+     "rect": [
+      34,
+      134,
+      14,
+      14
+     ],
+     "bg": "#FFD9B96B",
+     "need_bind": "totk.inv.{i}.eq",
+     "repeat": 12,
+     "repeat_cols": 4,
+     "repeat_dx": 184,
+     "repeat_row_dy": 236
+    },
+    {
+     "type": "label",
+     "rect": [
+      120,
+      270,
+      0,
+      60
+     ],
+     "bind_text": "totk.inv.{i}.name",
+     "text_scale": 4,
+     "color": "#FFF2EBD3",
+     "wrap_width": 164,
+     "max_lines": 2,
+     "align": "center",
+     "repeat": 12,
+     "repeat_cols": 4,
+     "repeat_dx": 184,
+     "repeat_row_dy": 236
+    },
+    {
+     "type": "label",
+     "rect": [
+      118,
+      328,
+      0,
+      30
+     ],
+     "bind_text": "totk.inv.{i}.info",
+     "text_scale": 5,
+     "color": "#FFD9B96B",
+     "align": "center",
+     "repeat": 12,
+     "repeat_cols": 4,
+     "repeat_dx": 184,
+     "repeat_row_dy": 236
+    },
+    {
+     "type": "button",
+     "rect": [
+      30,
+      880,
+      300,
+      64
+     ],
+     "text": "",
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "on_tap": "page_next",
+     "pill": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      180,
+      894,
+      0,
+      40
+     ],
+     "bind_text": "totk.inv.page",
+     "text_scale": 6,
+     "color": "#FFF2EBD3",
+     "align": "center"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      780,
+      130,
+      430,
+      814
+     ],
+     "bg": "#D0121B1F",
+     "color": "#FF3D4F55",
+     "frame": 2
+    },
+    {
+     "type": "image",
+     "rect": [
+      895,
+      150,
+      200,
+      200
+     ],
+     "bind": "totk.sel.ix",
+     "src_format": "user:art/icons/%d.png"
+    },
+    {
+     "type": "label",
+     "rect": [
+      995,
+      366,
+      0,
+      110
+     ],
+     "bind_text": "totk.sel.name",
+     "text_scale": 7,
+     "color": "#FFD9B96B",
+     "wrap_width": 390,
+     "max_lines": 3,
+     "align": "center"
+    },
+    {
+     "type": "label",
+     "rect": [
+      995,
+      480,
+      0,
+      40
+     ],
+     "bind_text": "totk.sel.info",
+     "text_scale": 7,
+     "color": "#FFF2EBD3",
+     "align": "center"
+    },
+    {
+     "type": "label",
+     "rect": [
+      800,
+      540,
+      390,
+      390
+     ],
+     "bind_text": "totk.sel.desc",
+     "text_scale": 4,
+     "color": "#FFF2EBD3",
+     "wrap_width": 390,
+     "max_lines": 16
+    },
+    {
+     "type": "button",
+     "rect": [
+      30,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_status",
+     "pill": true,
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      170,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.status",
+     "text_scale": 6,
+     "color": "#FF8C9A9E",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      330,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_map",
+     "pill": true,
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      470,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.map",
+     "text_scale": 6,
+     "color": "#FF8C9A9E",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      630,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_inv",
+     "pill": true,
+     "bg": "#FF2F4A44",
+     "color": "#FFD9B96B",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      770,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.items",
+     "text_scale": 6,
+     "color": "#FFF2EBD3",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      930,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_info",
+     "pill": true,
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      1070,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.info",
+     "text_scale": 6,
+     "color": "#FF8C9A9E",
+     "align": "center"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#F00B1114",
+     "need_bind": "!module_ready",
+     "input_block": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      430,
+      0,
+      80
+     ],
+     "text": "Requires game version 1.4.3",
+     "text_scale": 10,
+     "color": "#FFD9B96B",
+     "align": "center",
+     "need_bind": "!module_ready"
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      540,
+      0,
+      50
+     ],
+     "text": "This game version is not supported by the companion.",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center",
+     "need_bind": "!module_ready"
+    }
+   ]
+  },
+  {
+   "id": "info",
+   "title": "Info",
+   "widgets": [
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#FF0B1114"
+    },
+    {
+     "type": "label",
+     "rect": [
+      60,
+      40,
+      1120,
+      70
+     ],
+     "text": "MODULE INFO",
+     "text_scale": 12,
+     "color": "#FFD9B96B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      60,
+      140,
+      400,
+      50
+     ],
+     "text": "build_ok",
+     "text_scale": 6,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "value",
+     "rect": [
+      450,
+      140,
+      150,
+      50
+     ],
+     "bind": "totk.build_ok",
+     "text_scale": 6,
+     "color": "#FF7FE88B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      60,
+      206,
+      400,
+      50
+     ],
+     "text": "manager",
+     "text_scale": 6,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "value",
+     "rect": [
+      450,
+      206,
+      150,
+      50
+     ],
+     "bind": "totk.mgr_ok",
+     "text_scale": 6,
+     "color": "#FF7FE88B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      60,
+      272,
+      400,
+      50
+     ],
+     "text": "int flags",
+     "text_scale": 6,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "value",
+     "rect": [
+      450,
+      272,
+      150,
+      50
+     ],
+     "bind": "totk.int_count",
+     "text_scale": 6,
+     "color": "#FF7FE88B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      60,
+      338,
+      400,
+      50
+     ],
+     "text": "tables plausible",
+     "text_scale": 6,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "value",
+     "rect": [
+      450,
+      338,
+      150,
+      50
+     ],
+     "bind": "totk.tables_ok",
+     "text_scale": 6,
+     "color": "#FF7FE88B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      60,
+      404,
+      400,
+      50
+     ],
+     "text": "player actor",
+     "text_scale": 6,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "value",
+     "rect": [
+      450,
+      404,
+      150,
+      50
+     ],
+     "bind": "totk.actor_ok",
+     "text_scale": 6,
+     "color": "#FF7FE88B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      60,
+      470,
+      400,
+      50
+     ],
+     "text": "pouch partition",
+     "text_scale": 6,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "value",
+     "rect": [
+      450,
+      470,
+      150,
+      50
+     ],
+     "bind": "totk.pouch_ok",
+     "text_scale": 6,
+     "color": "#FF7FE88B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      60,
+      536,
+      400,
+      50
+     ],
+     "text": "hearts flags",
+     "text_scale": 6,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "value",
+     "rect": [
+      450,
+      536,
+      150,
+      50
+     ],
+     "bind": "totk.hearts.valid",
+     "text_scale": 6,
+     "color": "#FF7FE88B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      60,
+      602,
+      400,
+      50
+     ],
+     "text": "position",
+     "text_scale": 6,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "value",
+     "rect": [
+      450,
+      602,
+      150,
+      50
+     ],
+     "bind": "totk.pos.valid",
+     "text_scale": 6,
+     "color": "#FF7FE88B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      660,
+      140,
+      300,
+      50
+     ],
+     "text": "rupees",
+     "text_scale": 6,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "label",
+     "rect": [
+      960,
+      140,
+      240,
+      50
+     ],
+     "bind_text": "totk.rupees.text",
+     "text_scale": 6,
+     "color": "#FF7FE88B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      660,
+      206,
+      300,
+      50
+     ],
+     "text": "stamina wheels",
+     "text_scale": 6,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "label",
+     "rect": [
+      960,
+      206,
+      240,
+      50
+     ],
+     "bind_text": "totk.stamina.text",
+     "text_scale": 6,
+     "color": "#FF7FE88B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      660,
+      272,
+      300,
+      50
+     ],
+     "text": "batteries",
+     "text_scale": 6,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "label",
+     "rect": [
+      960,
+      272,
+      240,
+      50
+     ],
+     "bind_text": "totk.energy.text",
+     "text_scale": 6,
+     "color": "#FF7FE88B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      660,
+      338,
+      300,
+      50
+     ],
+     "text": "hearts",
+     "text_scale": 6,
+     "color": "#FFF2EBD3"
+    },
+    {
+     "type": "label",
+     "rect": [
+      960,
+      338,
+      240,
+      50
+     ],
+     "bind_text": "totk.hearts.text",
+     "text_scale": 6,
+     "color": "#FF7FE88B"
+    },
+    {
+     "type": "label",
+     "rect": [
+      60,
+      720,
+      1120,
+      240
+     ],
+     "text": "1 = yes, 0 = no. Read-only companion for TotK 1.4.3. Pictures, font and item text come from the art pack you build from your own game with tools/totk/make_art.py (read from the user: folder, art/). Offsets and flag names: TotK Native (MIT, see NOTICE-TotKNative.txt).",
+     "text_scale": 5,
+     "color": "#FF8C9A9E",
+     "wrap_width": 1120,
+     "max_lines": 6
+    },
+    {
+     "type": "button",
+     "rect": [
+      30,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_status",
+     "pill": true,
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      170,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.status",
+     "text_scale": 6,
+     "color": "#FF8C9A9E",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      330,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_map",
+     "pill": true,
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      470,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.map",
+     "text_scale": 6,
+     "color": "#FF8C9A9E",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      630,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_inv",
+     "pill": true,
+     "bg": "#FF182226",
+     "color": "#FF3D4F55",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      770,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.items",
+     "text_scale": 6,
+     "color": "#FF8C9A9E",
+     "align": "center"
+    },
+    {
+     "type": "button",
+     "rect": [
+      930,
+      1000,
+      280,
+      66
+     ],
+     "on_tap": "to_info",
+     "pill": true,
+     "bg": "#FF2F4A44",
+     "color": "#FFD9B96B",
+     "text": ""
+    },
+    {
+     "type": "label",
+     "rect": [
+      1070,
+      1015,
+      0,
+      40
+     ],
+     "bind_text": "ui.info",
+     "text_scale": 6,
+     "color": "#FFF2EBD3",
+     "align": "center"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      0,
+      0,
+      1240,
+      1080
+     ],
+     "bg": "#F00B1114",
+     "need_bind": "!module_ready",
+     "input_block": true
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      430,
+      0,
+      80
+     ],
+     "text": "Requires game version 1.4.3",
+     "text_scale": 10,
+     "color": "#FFD9B96B",
+     "align": "center",
+     "need_bind": "!module_ready"
+    },
+    {
+     "type": "label",
+     "rect": [
+      620,
+      540,
+      0,
+      50
+     ],
+     "text": "This game version is not supported by the companion.",
+     "text_scale": 5,
+     "color": "#FFF2EBD3",
+     "align": "center",
+     "need_bind": "!module_ready"
+    }
+   ]
+  }
+ ],
+ "actions": {
+  "to_status": {
+   "kind": "page",
+   "page": "status",
+   "transition": "fade",
+   "duration_ms": 120
+  },
+  "to_map": {
+   "kind": "page",
+   "page": "map",
+   "transition": "fade",
+   "duration_ms": 120
+  },
+  "to_inv": {
+   "kind": "page",
+   "page": "inv",
+   "transition": "fade",
+   "duration_ms": 120
+  },
+  "to_info": {
+   "kind": "page",
+   "page": "info",
+   "transition": "fade",
+   "duration_ms": 120
+  },
+  "tab_0": {
+   "kind": "flag",
+   "flag": "inv_tab",
+   "value": 0
+  },
+  "tab_1": {
+   "kind": "flag",
+   "flag": "inv_tab",
+   "value": 1
+  },
+  "tab_2": {
+   "kind": "flag",
+   "flag": "inv_tab",
+   "value": 2
+  },
+  "tab_3": {
+   "kind": "flag",
+   "flag": "inv_tab",
+   "value": 3
+  },
+  "tab_4": {
+   "kind": "flag",
+   "flag": "inv_tab",
+   "value": 4
+  },
+  "tab_5": {
+   "kind": "flag",
+   "flag": "inv_tab",
+   "value": 5
+  },
+  "tab_6": {
+   "kind": "flag",
+   "flag": "inv_tab",
+   "value": 6
+  },
+  "tab_7": {
+   "kind": "flag",
+   "flag": "inv_tab",
+   "value": 7
+  },
+  "sel_0": {
+   "kind": "flag",
+   "flag": "inv_sel",
+   "value": 0
+  },
+  "sel_1": {
+   "kind": "flag",
+   "flag": "inv_sel",
+   "value": 1
+  },
+  "sel_2": {
+   "kind": "flag",
+   "flag": "inv_sel",
+   "value": 2
+  },
+  "sel_3": {
+   "kind": "flag",
+   "flag": "inv_sel",
+   "value": 3
+  },
+  "sel_4": {
+   "kind": "flag",
+   "flag": "inv_sel",
+   "value": 4
+  },
+  "sel_5": {
+   "kind": "flag",
+   "flag": "inv_sel",
+   "value": 5
+  },
+  "sel_6": {
+   "kind": "flag",
+   "flag": "inv_sel",
+   "value": 6
+  },
+  "sel_7": {
+   "kind": "flag",
+   "flag": "inv_sel",
+   "value": 7
+  },
+  "sel_8": {
+   "kind": "flag",
+   "flag": "inv_sel",
+   "value": 8
+  },
+  "sel_9": {
+   "kind": "flag",
+   "flag": "inv_sel",
+   "value": 9
+  },
+  "sel_10": {
+   "kind": "flag",
+   "flag": "inv_sel",
+   "value": 10
+  },
+  "sel_11": {
+   "kind": "flag",
+   "flag": "inv_sel",
+   "value": 11
+  },
+  "page_next": {
+   "kind": "flag",
+   "flag": "inv_page",
+   "cycle": 60
+  },
+  "map_auto": {
+   "kind": "flag",
+   "flag": "map_layer",
+   "value": 0
+  },
+  "map_sky": {
+   "kind": "flag",
+   "flag": "map_layer",
+   "value": 1
+  },
+  "map_ground": {
+   "kind": "flag",
+   "flag": "map_layer",
+   "value": 2
+  },
+  "map_depths": {
+   "kind": "flag",
+   "flag": "map_layer",
+   "value": 3
+  },
+  "map_recenter": {
+   "kind": "view_reset",
+   "view": "totk_map"
+  }
+ },
+ "map": {
+  "areas": {
+   "Ground": {
+    "image": "user:art/map/ground.png",
+    "min": [
+     -6000,
+     -5000
+    ],
+    "max": [
+     6000,
+     5000
+    ],
+    "clamp_view": true
+   },
+   "Sky": {
+    "image": "user:art/map/sky.png",
+    "min": [
+     -6000,
+     -5000
+    ],
+    "max": [
+     6000,
+     5000
+    ],
+    "clamp_view": true
+   },
+   "UnderGround": {
+    "image": "user:art/map/underground.png",
+    "min": [
+     -6000,
+     -5000
+    ],
+    "max": [
+     6000,
+     5000
+    ],
+    "clamp_view": true
+   }
+  }
+ },
+ "haptics": true
+}
