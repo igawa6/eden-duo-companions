@@ -55,6 +55,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 35 | [Pokémon Legends: Z-A](#pokemon-legends-za) | `0100F43008C44000` | 2.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-legends-z-a-1.0.0) | ⭐<br><a href="https://ko-fi.com/sickops"><img src="https://img.shields.io/badge/Sickops-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Support Sickops on Ko-fi"></a> |
 | 36 | [FINAL FANTASY RESONANCE](#final-fantasy-resonance) | `0100606026F12000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/final-fantasy-resonance-1.0.1) | ⭐<br><a href="https://github.com/danielcamilo1"><img src="https://img.shields.io/badge/danielcamilo1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="danielcamilo1"></a> |
 | 37 | [The Legend of Zelda: Tears of the Kingdom](#the-legend-of-zelda-tears-of-the-kingdom) | `0100F2C0115B6000` | 1.4.3 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/tears-of-the-kingdom-1.0.0) | ⭐<br><a href="https://github.com/aldotms89"><img src="https://img.shields.io/badge/aldotms89-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="aldotms89"></a> |
+| 38 | [Digimon Story Time Stranger](#digimon-story-time-stranger) | `010062E01FE0C000` | 1.2.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/digimon-story-time-stranger-1.0.0) | ⭐<br><a href="https://github.com/TorchicIsla"><img src="https://img.shields.io/badge/TorchicIsla-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="TorchicIsla"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -1207,6 +1208,38 @@ A read-only second screen in the game's own look. It reads the running game and 
 Tested on Peanuts Native on an AYN Thor; not yet verified on Eden Duo. Parts of the reader are ported from [TotK Native](https://github.com/AurelioB/totk-android) (MIT, see `packages/TearsOfTheKingdom/dualscreen/NOTICE-TotKNative.txt`).
 
 Contributed by [aldotms89](https://github.com/aldotms89). Code: GPL-3.0-or-later, with the MIT-licensed parts noted above.
+
+</details>
+
+---
+
+<a id="digimon-story-time-stranger"></a>
+
+## Digimon Story Time Stranger
+
+⭐ <a href="https://github.com/TorchicIsla"><img src="https://img.shields.io/badge/TorchicIsla-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="TorchicIsla"></a>
+
+<details>
+<summary>Screenshots and details</summary>
+
+`010062E01FE0C000` · game version 1.2.2 (build `135C83CDEA06AEC2`) · companion 1.0.0 (Time Stranger Field Guide) · runtime 19
+
+| Now | Wild Digimon | Chests |
+|:---:|:---:|:---:|
+| <img src="screenshots/digimon-story-time-stranger/now.png" width="300" alt="Digimon Story Time Stranger: Now page with the live area and party"> | <img src="screenshots/digimon-story-time-stranger/area.png" width="300" alt="Digimon Story Time Stranger: wild Digimon in an area"> | <img src="screenshots/digimon-story-time-stranger/chests.png" width="300" alt="Digimon Story Time Stranger: the chests in an area"> |
+
+A field guide on the second screen. It reads the running game and never changes it.
+
+- **Now.** A location bar with the area you are in. Tap it to open that area's guide. The page also shows your party (three battle and three reserve Digimon, with live levels), the current mission and tips for this part of the story.
+- **Quests.** All 42 main missions, with spoilers hidden until you show them. Each mission has the game's own objective list and boss cards: weaknesses, picks and tips. The side quests are listed under the mission they open in, with when they open, the fight, the reward and a done box.
+- **Digimon dex.** Every Digimon by rank, by first letter or by type. Tick a Digimon to record it. Hold a row to open its summary: portrait, type matchups, how to get it, the areas it is found wild in, and what it digivolves into.
+- **Type chart, tips, items and area guide.** Every item has its description, price and the chests it is in. Every area lists its chests and its wild Digimon. Tap a wild Digimon to open its dex page.
+- **From your game files.** The package ships no game pictures, text or data. Portraits, icons, the menu font, names and descriptions are read from your own game at run time, and so are prices, chests, wild Digimon and rewards.
+- **Limits.** English text only. Game version 1.2.2 only; on any other version every page says "Needs game version 1.2.2". Missions done and Digimon recorded are ticked by hand (the game's own records are not read). Tested on Eden Duo on an AYN Thor.
+
+Requires Eden Duo 1.2.0 or newer.
+
+Contributed by [TorchicIsla](https://github.com/TorchicIsla). Code: GPL-3.0-or-later. [Build and test](tools/digimon-time-stranger/README.md)
 
 </details>
 

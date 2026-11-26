@@ -1636,3 +1636,16 @@ dsmod_add_module(dsmod-totk EXCLUDE_FROM_ALL
 if(BUILD_TESTING AND NOT ANDROID)
     dsmod_add_test(dsmod-totk KEEP_ASSERTS SOURCES 0100F2C0115B6000_test.cpp 0100F2C0115B6000.cpp)
 endif()
+
+# Digimon Story Time Stranger 1.2.2 (build 135C83CDEA06AEC2): the Time Stranger Field Guide. Game pictures,
+# the game's menu font, game text and the guide's game data (prices, item descriptions, chests, wild Digimon,
+# side-quest rewards) are read at runtime from the player's own app_0 / app_text01 archives; the package ships
+# identifiers only (tools/digimon-time-stranger). Test: synthetic tables, no game files needed. The same test
+# program is the harness tools/digimon-time-stranger/check_gamedata.py runs against your own game files.
+dsmod_add_module(dsmod-dsts EXCLUDE_FROM_ALL
+    TITLE 010062E01FE0C000
+    SOURCES 010062E01FE0C000.cpp 010062E01FE0C000_font.inc 010062E01FE0C000_data.inc
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions)
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-dsts KEEP_ASSERTS SOURCES 010062E01FE0C000_test.cpp 010062E01FE0C000.cpp)
+endif()

@@ -15,6 +15,7 @@
 #   01008CF01BAAC000-EchoesOfWisdom-<ver>.dsmod.zip
 #   0100606026F12000-FinalFantasyResonance-<ver>.dsmod.zip (opt-in GAMES=ffr)
 #   0100F2C0115B6000-TearsOfTheKingdom-<ver>.dsmod.zip (opt-in GAMES=totk)
+#   010062E01FE0C000-TimeStrangerFieldGuide-<ver>.dsmod.zip (opt-in GAMES=dsts)
 #
 # usage: tools/build_release.sh [out dir]            (default: dist)
 #
@@ -40,10 +41,11 @@
 #   ECHOES_LINUX_SO / ECHOES_ANDROID_SO The Legend of Zelda: Echoes of Wisdom (dsmod-echoes, opt-in GAMES=echoes)
 #   FFR_LINUX_SO / FFR_ANDROID_SO       FINAL FANTASY RESONANCE (dsmod-ffr, opt-in GAMES=ffr)
 #   TOTK_LINUX_SO / TOTK_ANDROID_SO     The Legend of Zelda: Tears of the Kingdom (dsmod-totk, opt-in GAMES=totk)
+#   DSTS_LINUX_SO / DSTS_ANDROID_SO     Digimon Story Time Stranger (dsmod-dsts, opt-in GAMES=dsts)
 # Versions default to each package's current release; override with P5R_VERSION, DREAD_VERSION,
 # LA_VERSION, MK8D_VERSION, WONDER_VERSION, LP_VERSION, LP_PEARL_VERSION, CTR_VERSION, DQ3_VERSION,
 # CE_VERSION, P3P_VERSION, ECHOES_VERSION; OT0_VERSION defaults to 1.0.0, COTL_VERSION to 1.1.0
-# FFR_VERSION to 1.0.1 and TOTK_VERSION to 1.0.0.
+# FFR_VERSION to 1.0.1, TOTK_VERSION to 1.0.0 and DSTS_VERSION to 1.0.0.
 # GAMES selects which archives to build (default: "p5r dread la mk8d wonder acnh fe3h isaac
 # lp lp-pearl ctr dq3 ce p3p"); only the selected
 # games' modules are required.
@@ -107,6 +109,9 @@ if want ffr; then
 fi
 if want totk; then
   : "${TOTK_LINUX_SO:?set TOTK_LINUX_SO}" "${TOTK_ANDROID_SO:?set TOTK_ANDROID_SO}"
+fi
+if want dsts; then
+  : "${DSTS_LINUX_SO:?set DSTS_LINUX_SO}" "${DSTS_ANDROID_SO:?set DSTS_ANDROID_SO}"
 fi
 PY=${PYTHON:-python3}
 export PYTHONDONTWRITEBYTECODE=1
@@ -246,5 +251,12 @@ if want totk; then
   pkg TearsOfTheKingdom TearsOfTheKingdom "${TOTK_VERSION:-1.0.0}" --min-runtime 22 \
     --module "linux-x86_64=$TOTK_LINUX_SO" --module "android-arm64-v8a=$TOTK_ANDROID_SO" \
     --build-id 277178B7DBA1B6D4
+fi
+if want dsts; then
+  # Update 1.2.2 (main build 135C83CDEA06AEC2); other builds are refused and the pages say so.
+  # min_runtime 19: the manifest is over 1 MiB.
+  pkg TimeStrangerFieldGuide TimeStrangerFieldGuide "${DSTS_VERSION:-1.0.0}" --min-runtime 19 \
+    --module "linux-x86_64=$DSTS_LINUX_SO" --module "android-arm64-v8a=$DSTS_ANDROID_SO" \
+    --build-id 135C83CDEA06AEC2
 fi
 (cd "$OUT" && sha256sum ./*.dsmod.zip)

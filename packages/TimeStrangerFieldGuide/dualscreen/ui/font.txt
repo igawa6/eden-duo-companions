@@ -1,0 +1,1 @@
+Digimon guide: the game font comes from the player's own game files (module decode_font).
