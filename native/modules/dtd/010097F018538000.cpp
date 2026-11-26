@@ -1974,7 +1974,8 @@ bool IconIndexReady() { return g_ix_tick.loaded || LiveTickLoaded(); }
 // The module reads the picture's blocks out of the bundle (UnityFS: big-endian header, LZ4 blocks),
 // undoes the Switch block-linear layout (gobs > 0), has the host decode the ASTC blocks, then crops
 // and flips like UnityPy. Anything unexpected -> false, and the exported pictures are used instead.
-struct LiveIndex { char data[256 * 1024]; size_t n; uint32_t tried; bool loaded; };
+// 1.0.1: 512 KB -- the index now carries the base-game lines (Eden Duo) and the running game's lines (Peanut)
+struct LiveIndex { char data[512 * 1024]; size_t n; uint32_t tried; bool loaded; };
 LiveIndex g_live_tick, g_live_worker;
 bool LiveTickLoaded() { return g_live_tick.loaded; }
 bool LiveLoad(const EdenDsmodHostApi* h, LiveIndex& ix) {
@@ -2000,21 +2001,28 @@ bool NameIs(const char* p, const char* e, const char* want, const char* suffix) 
     return p + k + j == e;
 }
 // The "S" line for want (exact, then with "_thumbnail"); returns a pointer just past the name.
-const char* LiveFind(const LiveIndex& ix, const char* want, char* name, int cap) {
+// 1.0.1: `skip` = how many matching lines to pass over (the same name can be listed twice: first where the
+// base game has it, read through "base:" in Eden Duo, then where the running game has it, for hosts
+// without "base:" such as Peanut). Only the lines of the first pass that matches at all count.
+const char* LiveFind(const LiveIndex& ix, const char* want, char* name, int cap, int skip = 0) {
     for (int pass = 0; pass < 2; ++pass) {
         const char* suffix = pass ? "_thumbnail" : "";
         const char* p = ix.data;
+        int seen = 0;
         while (*p) {
             if (p[0] == 'S' && p[1] == ' ') {
                 const char* s = p + 2; const char* e = s; while (*e && *e != ' ' && *e != '\n') ++e;
                 if (NameIs(s, e, want, suffix) && e - s < cap) {
-                    if (name) { memcpy(name, s, static_cast<size_t>(e - s)); name[e - s] = 0; }
-                    return e;
+                    if (seen++ == skip) {
+                        if (name) { memcpy(name, s, static_cast<size_t>(e - s)); name[e - s] = 0; }
+                        return e;
+                    }
                 }
             }
             while (*p && *p != '\n') ++p;
             if (*p) ++p;
         }
+        if (seen) return nullptr;
     }
     return nullptr;
 }
@@ -2078,25 +2086,78 @@ bool NewArchiveFlags(const char* v) {           // Unity changed the meaning of 
     if (a[0] == 2022) return a[1] > 1 || (a[1] == 1 && a[2] >= 1);
     return true;
 }
-int64_t g_live_size[2] = {-1, -1};             // what the two sources said about the last bundle's size
+int64_t g_live_size[3] = {-1, -1, -1};         // what the sources said about the last bundle's size (1.0.1: bare, base:, romfs:)
+// 1.0.1 for Peanut: there the module's pictures read once and then failed (the title logo's second piece:
+// "LOGO FAILED 210", the size query answering 0 for both "romfs:" and "base:" paths, or the header read short),
+// while the Star Ocean companion, which reads bare romfs paths, reads its pictures there. So: the bare path first
+// (the running game's romfs, as "romfs:" in Eden Duo), then "base:", then "romfs:"; each bundle's chosen path
+// and header kept once read, so a reopen asks the host only for the info and blocks; a size query answering 0
+// lets the header decide (its total size against the index's); a failed read tried once more.
+struct BundleSeen { bool used; char rel[200]; char path[200]; uint8_t hd[512]; size_t got; };
+constexpr int kSeen = 48;
+BundleSeen g_seen[kSeen];
+int g_seen_next;
+uint32_t g_rd_sz0, g_rd_retry, g_rd_fail, g_rd_kept;   // diag: size queries answering 0, second tries, failed reads, reopens from a kept header
+size_t ReadRomfs(const EdenDsmodHostApi* h, const char* path, uint64_t off, void* out, size_t n) {
+    size_t got = h->read_romfs(h->userdata, path, off, out, n);
+    if (got != n) { ++g_rd_retry; got = h->read_romfs(h->userdata, path, off, out, n); if (got != n) ++g_rd_fail; }
+    return got;
+}
+uint64_t HeaderTotal(const uint8_t* hd, size_t got) {   // a UnityFS header's total size (0: not one)
+    if (got < 64) return 0;
+    const char sig[] = "UnityFS";
+    for (int k = 0; k < 8; ++k) if (hd[k] != static_cast<uint8_t>(sig[k])) return 0;
+    size_t i = 12;
+    while (i < got && hd[i]) ++i;
+    ++i;
+    while (i < got && hd[i]) ++i;
+    ++i;
+    return i + 8 <= got ? Be64(hd + i) : 0;
+}
+constexpr int kMiss = 128;                      // 1.0.1: bundles no source had (their pictures have other lines)
+char g_miss[kMiss][200];
+uint32_t g_miss_n[kMiss];
+int g_miss_next;
 bool OpenBundle(const EdenDsmodHostApi* h, const char* rel, uint64_t fsize) {
-    // the game as it runs (update applied) first, then the base game the index was made from
-    static const char* const kSrc[2] = {"romfs:", "base:"};
-    for (int k = 0; k < 2; ++k) {
+    static const char* const kSrc[3] = {"", "base:", "romfs:"};
+    for (int k = 0; k < 3; ++k) {
         Buf c; c.add(kSrc[k]).add(rel);
         if (g_bb.ok && eq(g_bb.path, c.s)) return true;
     }
     g_bb.ok = false; ++g_bb_gen;
+    int miss = -1;                                                // 1.0.1: not found before -- asked again only now and then
+    for (int k = 0; k < kMiss && miss < 0; ++k) if (g_miss[k][0] && eq(g_miss[k], rel)) miss = k;
+    if (miss >= 0 && (++g_miss_n[miss] & 63)) { g_live_err = 10; return false; }
     const char* path = nullptr;
-    for (int k = 0; k < 2 && !path; ++k) {
+    uint8_t hd[512];
+    size_t got = 0;
+    bool have_hd = false;
+    for (auto& e : g_seen) if (e.used && eq(e.rel, rel)) {       // opened before: no size query, no header read
+        DcCopy(g_bb.path, sizeof g_bb.path, e.path); path = g_bb.path;
+        memcpy(hd, e.hd, sizeof hd); got = e.got; have_hd = true; ++g_rd_kept;
+        break;
+    }
+    for (int k = 0; k < 3 && !path; ++k) {
         Buf c; c.add(kSrc[k]).add(rel);
-        const size_t sz = h->read_romfs(h->userdata, c.s, 0, nullptr, 0);   // no buffer: the file's size
+        size_t sz = h->read_romfs(h->userdata, c.s, 0, nullptr, 0);   // no buffer: the file's size
+        if (!sz) sz = h->read_romfs(h->userdata, c.s, 0, nullptr, 0);
         g_live_size[k] = static_cast<int64_t>(sz);
         if (sz == fsize) { DcCopy(g_bb.path, sizeof g_bb.path, c.s); path = g_bb.path; }
+        else if (!sz) {                                           // the header decides
+            ++g_rd_sz0;
+            const size_t n = ReadRomfs(h, c.s, 0, hd, sizeof hd);
+            if (HeaderTotal(hd, n) == fsize) { DcCopy(g_bb.path, sizeof g_bb.path, c.s); path = g_bb.path; got = n; have_hd = true; }
+        }
     }
-    if (!path) { g_live_err = (g_live_size[0] > 0 || g_live_size[1] > 0) ? 13 : 10; return false; }
-    uint8_t hd[512];
-    size_t got = h->read_romfs(h->userdata, path, 0, hd, sizeof hd);
+    if (!path) {
+        g_live_err = (g_live_size[0] > 0 || g_live_size[1] > 0 || g_live_size[2] > 0) ? 13 : 10;
+        // 1.0.1: not on this host at all (the base game's bundles where there is no "base:"): not asked again;
+        // the index lists the running game's copy of each picture after it
+        if (g_live_err == 10 && miss < 0) { DcCopy(g_miss[g_miss_next], sizeof g_miss[0], rel); g_miss_n[g_miss_next] = 0; g_miss_next = (g_miss_next + 1) % kMiss; }
+        return false;
+    }
+    if (miss >= 0) g_miss[miss][0] = 0;                          // there after all
+    if (!have_hd) got = ReadRomfs(h, path, 0, hd, sizeof hd);
     if (got < 64) { g_live_err = 10; return false; }
     const char sig[] = "UnityFS";
     for (int k = 0; k < 8; ++k) if (hd[k] != static_cast<uint8_t>(sig[k])) { g_live_err = 11; return false; }
@@ -2116,7 +2177,7 @@ bool OpenBundle(const EdenDsmodHostApi* h, const char* rel, uint64_t fsize) {
     const uint64_t start = i;
     const uint64_t at = (flags & 0x80) ? total - csize : start;
     if (csize > kMaxBlock || usize > kMaxInfo || usize < 24) { g_live_err = 15; return false; }
-    if (h->read_romfs(h->userdata, path, at, g_raw, csize) != csize) { g_live_err = 16; return false; }
+    if (ReadRomfs(h, path, at, g_raw, csize) != csize) { g_live_err = 16; return false; }
     const uint32_t comp = flags & 0x3F;
     if (comp == 0) { if (csize != usize) { g_live_err = 17; return false; } memcpy(g_info, g_raw, csize); }
     else if (comp == 2 || comp == 3) { if (!Lz4(g_raw, csize, g_info, usize)) { g_live_err = 17; return false; } }
@@ -2134,6 +2195,13 @@ bool OpenBundle(const EdenDsmodHostApi* h, const char* rel, uint64_t fsize) {
         g_bb.ustart[k] = u; g_bb.fstart[k] = f; u += g_bb.us[k]; f += g_bb.cs[k];
     }
     g_bb.n = nb; g_bb.ok = true;
+    {                                                             // 1.0.1 keep its path and header
+        BundleSeen* e = nullptr;
+        for (auto& x : g_seen) if (x.used && eq(x.rel, rel)) e = &x;
+        if (!e) { e = &g_seen[g_seen_next]; g_seen_next = (g_seen_next + 1) % kSeen; }
+        e->used = true; DcCopy(e->rel, sizeof e->rel, rel); DcCopy(e->path, sizeof e->path, g_bb.path);
+        memcpy(e->hd, hd, sizeof hd); e->got = got;
+    }
     return true;
 }
 // n bytes at offset o of the open bundle's (uncompressed) data stream (may cross a block edge).
@@ -2148,7 +2216,7 @@ bool ReadStream(const EdenDsmodHostApi* h, uint64_t o, uint8_t* out, uint32_t n)
             static int flip; s = &g_slot[flip ^= 1];
             s->used = false;
             const uint32_t cs = g_bb.cs[lo], us = g_bb.us[lo], c = g_bb.fl[lo] & 0x3F;
-            if (h->read_romfs(h->userdata, g_bb.path, g_bb.fstart[lo], g_raw, cs) != cs) { g_live_err = 22; return false; }
+            if (ReadRomfs(h, g_bb.path, g_bb.fstart[lo], g_raw, cs) != cs) { g_live_err = 22; return false; }
             if (c == 0) { if (cs != us) { g_live_err = 23; return false; } memcpy(s->b, g_raw, cs); }
             else if (c == 2 || c == 3) { if (!Lz4(g_raw, cs, s->b, us)) { g_live_err = 23; return false; } }
             else { g_live_err = 24; return false; }
@@ -2178,10 +2246,10 @@ uint8_t g_live_px[kLiveMax * kLiveMax * 4];
 // 0.37.49: `sub` = {x, y, w, h} decodes only that piece of the picture (top-down, unrotated pictures
 // only), so one bigger than kLiveMax (the title logo) can be read piece by piece; `full` gets the
 // whole picture's size, and sub w = 0 only asks for it.
-bool LiveDecode(const EdenDsmodHostApi* h, const char* want, uint32_t* ow, uint32_t* oh,
-                const uint32_t* sub = nullptr, uint32_t* full = nullptr) {
+bool LiveDecodeAt(const EdenDsmodHostApi* h, const char* want, int skip, uint32_t* ow, uint32_t* oh,
+                  const uint32_t* sub, uint32_t* full) {
     if (!LiveLoad(h, g_live_worker)) { g_live_err = 1; return false; }
-    const char* p = LiveFind(g_live_worker, want, nullptr, 128);
+    const char* p = LiveFind(g_live_worker, want, nullptr, 128, skip);
     if (!p) { g_live_err = 2; return false; }
     const uint64_t t = ParseU(p);
     uint64_t x = ParseU(p), y = ParseU(p), w = ParseU(p), hh = ParseU(p);
@@ -2244,6 +2312,20 @@ bool LiveDecode(const EdenDsmodHostApi* h, const char* want, uint32_t* ow, uint3
     *ow = fw; *oh = fh;
     return true;
 }
+// 1.0.1: the first line for the name (the base game's bundle, as before), then the next ones (the running
+// game's bundles) when it cannot be read -- the host has no "base:" (Peanut) or that bundle is not there.
+uint32_t g_live_alt;                            // diag: pictures drawn from a later line
+bool LiveDecode(const EdenDsmodHostApi* h, const char* want, uint32_t* ow, uint32_t* oh,
+                const uint32_t* sub = nullptr, uint32_t* full = nullptr) {
+    int first = 0;
+    for (int skip = 0; skip < 4; ++skip) {
+        if (LiveDecodeAt(h, want, skip, ow, oh, sub, full)) { if (skip) ++g_live_alt; return true; }
+        if (g_live_err == 2 || g_live_err == 1) { if (skip) g_live_err = first; return false; }   // no more lines
+        if (!skip) first = g_live_err;
+    }
+    g_live_err = first;
+    return false;
+}
 // ---------------------------------------------------------------- the game's own font (0.24.0)
 // pictures.idx says where the game's TextMeshPro font sits (build_picture_index.py; positions only):
 //   F <name> <texture> <kind> <glyph table> <glyphs> <stride> <character table> <characters> <stride> <sdf> <padding>
@@ -2283,40 +2365,55 @@ bool FontLoadInto(const EdenDsmodHostApi* h, FontState& f, const char* want, boo
     if (__atomic_load_n(&f.ready, __ATOMIC_ACQUIRE)) return true;
     ++f.tries;
     if (!LiveLoad(h, g_live_worker)) { f.err = 1; return false; }
-    const char* p = g_live_worker.data; const char* q = nullptr;
-    while (*p && !q) {
-        if (p[0] == 'F' && p[1] == ' ') {
-            const char* n = p + 2;
-            while (*n == ' ') ++n;
-            int k = 0;
-            if (want) while (want[k] && n[k] == want[k]) ++k;
-            if (!want || !want[k]) q = p + 2;
+    // 1.0.1: the first F line for `want` (the base game's font, as before); when its bundle cannot be opened
+    // (no "base:" on this host), the next F line of the same font name (the running game's copy)
+    char fname[64] = {};
+    uint64_t tex = 0, kind = 0, go = 0, gn = 0, gs = 0, co = 0, cn = 0, cs = 0, sdf = 0, pad = 0;
+    for (int alt = 0;; ++alt) {
+        const char* match = alt ? fname : want;
+        const char* p = g_live_worker.data; const char* q = nullptr;
+        int seen = 0;
+        while (*p && !q) {
+            if (p[0] == 'F' && p[1] == ' ') {
+                const char* n = p + 2;
+                while (*n == ' ') ++n;
+                int k = 0;
+                if (match) while (match[k] && n[k] == match[k]) ++k;
+                if (alt && n[k] != ' ') k = -1;                  // alternatives: exactly the same name
+                if (k >= 0 && (!match || !match[k]) && seen++ == alt) q = p + 2;
+            }
+            while (*p && *p != '\n') ++p;
+            if (*p) ++p;
         }
-        while (*p && *p != '\n') ++p;
-        if (*p) ++p;
+        if (!q) { f.err = alt ? 6 : 2; return false; }           // no font line (2) / none of them readable (6)
+        while (*q == ' ') ++q;
+        {
+            int k = 0;
+            while (*q && *q != ' ' && *q != '\n') { if (k < 63) fname[k++] = *q; ++q; }   // the font's name
+            fname[k] = 0;
+        }
+        tex = ParseU(q); kind = ParseU(q); go = ParseU(q); gn = ParseU(q); gs = ParseU(q);
+        co = ParseU(q); cn = ParseU(q); cs = ParseU(q); sdf = ParseU(q); pad = ParseU(q);
+        const char* t = LiveLine(g_live_worker, 'T', tex);
+        if (!t) { f.err = 3; return false; }
+        const uint64_t b = ParseU(t);
+        f.toff = ParseU(t); f.tsize = ParseU(t);
+        f.tw = static_cast<uint32_t>(ParseU(t)); f.th = static_cast<uint32_t>(ParseU(t));
+        f.fmt = static_cast<uint32_t>(ParseU(t)); f.gobs = static_cast<uint32_t>(ParseU(t));
+        f.sdf = static_cast<int>(sdf); f.pad = static_cast<int>(pad);
+        if (f.fmt != 1 && f.fmt != 63 && f.fmt != 4) { f.err = 4; return false; }
+        if ((kind != 1 && kind != 2) || !gn || gs < (kind == 1 ? 40u : 32u) || (kind == 1 && (!cn || cs < 12))) { f.err = 5; return false; }
+        const char* r = LiveLine(g_live_worker, 'B', b);
+        if (!r) { f.err = 3; return false; }
+        while (*r == ' ') ++r;
+        Buf path;
+        while (*r && *r != ' ' && *r != '\n' && *r != '\r') path.addc(*r++);
+        f.bsize = ParseU(r);
+        DcCopy(f.bundle, sizeof f.bundle, path.s);
+        if (OpenBundle(h, f.bundle, f.bsize)) break;
+        f.err = 6;
+        if (alt >= 3) return false;
     }
-    if (!q) { f.err = 2; return false; }                       // this index has no font line
-    while (*q == ' ') ++q;
-    while (*q && *q != ' ' && *q != '\n') ++q;                 // the font's name
-    const uint64_t tex = ParseU(q), kind = ParseU(q), go = ParseU(q), gn = ParseU(q), gs = ParseU(q);
-    const uint64_t co = ParseU(q), cn = ParseU(q), cs = ParseU(q), sdf = ParseU(q), pad = ParseU(q);
-    const char* t = LiveLine(g_live_worker, 'T', tex);
-    if (!t) { f.err = 3; return false; }
-    const uint64_t b = ParseU(t);
-    f.toff = ParseU(t); f.tsize = ParseU(t);
-    f.tw = static_cast<uint32_t>(ParseU(t)); f.th = static_cast<uint32_t>(ParseU(t));
-    f.fmt = static_cast<uint32_t>(ParseU(t)); f.gobs = static_cast<uint32_t>(ParseU(t));
-    f.sdf = static_cast<int>(sdf); f.pad = static_cast<int>(pad);
-    if (f.fmt != 1 && f.fmt != 63 && f.fmt != 4) { f.err = 4; return false; }
-    if ((kind != 1 && kind != 2) || !gn || gs < (kind == 1 ? 40u : 32u) || (kind == 1 && (!cn || cs < 12))) { f.err = 5; return false; }
-    const char* r = LiveLine(g_live_worker, 'B', b);
-    if (!r) { f.err = 3; return false; }
-    while (*r == ' ') ++r;
-    Buf path;
-    while (*r && *r != ' ' && *r != '\n' && *r != '\r') path.addc(*r++);
-    f.bsize = ParseU(r);
-    DcCopy(f.bundle, sizeof f.bundle, path.s);
-    if (!OpenBundle(h, f.bundle, f.bsize)) { f.err = 6; return false; }
     for (auto& s : f.src) s.has = false;
     uint8_t e[40];
     if (kind == 1) {
@@ -2395,7 +2492,11 @@ bool FontLoad(const EdenDsmodHostApi* h) {
 }
 // One glyph's coverage (0..255), top row first, margin included, read from the game's atlas.
 uint8_t g_fsrc[kFontSrcMax * kFontSrcMax];
+uint32_t g_fn_open_fail, g_fn_data_w, g_fn_data_f, g_fn_atlas_ok, g_fn_atlas_fail, g_fn_dec_ok, g_fn_dec_no;   // 1.0.1 diag
 bool FontGlyphPixels(const EdenDsmodHostApi* h, const FontState& f, const FontSrc& s, uint32_t sw, uint32_t sh) {
+    // 1.0.1: the font's own bundle (pictures may have opened another one since the font was read; the
+    // atlas is drawn in a later call than the metrics)
+    if (!OpenBundle(h, f.bundle, f.bsize)) { ++g_fn_open_fail; return false; }
     const uint32_t bpp = f.fmt == 4 ? 4 : 1, bw = 16 / bpp;
     const uint32_t bxn = f.gobs ? (f.tw + bw * 4 - 1) / (bw * 4) * 4 : (f.tw + bw - 1) / bw;
     const int32_t m = static_cast<int32_t>(kFontMargin);
@@ -2483,7 +2584,9 @@ bool BuildMix(const EdenDsmodHostApi* h, int want) {
     bool hud = false;
     if (want == 1) {
         hud = FontLoadInto(h, g_hud, kHudFont, true, g_font.line);
-        if (!hud && g_hud.tries < 3 && g_hud.err != 2) return false;  // not readable yet: ask again
+        // not readable yet: ask again (1.0.1: not when no line of it can be opened on this host -- 6: Peanut has
+        // no "base:" and the running game has no HUD font the index could find -- the text font goes on alone)
+        if (!hud && g_hud.tries < 3 && g_hud.err != 2 && g_hud.err != 6) return false;
     }
     uint32_t x = 1, y = 1, rowh = 0;
     m.hud_n = 0;
@@ -2505,16 +2608,17 @@ bool BuildMix(const EdenDsmodHostApi* h, int want) {
 }
 bool FontAtlas(const EdenDsmodHostApi* h, EdenDsmodImageSink sink, void* receiver) {
     const int want = g_data_want;
-    if (!BuildMix(h, want)) return false;
+    if (!BuildMix(h, want)) { ++g_fn_atlas_fail; return false; }
     const FontMix& m = g_mix[want];
     const uint32_t W = kFontAtlasW, Hh = m.atlas_h;
     uint8_t* px = g_fatlas[want];
     if (!g_fatlas_done[want]) {
         for (size_t k = 0; k < size_t{W} * Hh; ++k) { px[k * 4] = px[k * 4 + 1] = px[k * 4 + 2] = 255; px[k * 4 + 3] = 0; }
         for (uint32_t c = 0; c < kFontN; ++c)
-            if (!FontRenderGlyph(h, m.from[c] ? g_hud : g_font, c, px, W, Hh, m.out[c].x, m.out[c].y)) return false;
+            if (!FontRenderGlyph(h, m.from[c] ? g_hud : g_font, c, px, W, Hh, m.out[c].x, m.out[c].y)) { ++g_fn_atlas_fail; return false; }
         g_fatlas_done[want] = true;
     }
+    ++g_fn_atlas_ok;
     sink(receiver, W, Hh, px, size_t{W} * Hh * 4);
     return true;
 }
@@ -2691,12 +2795,46 @@ bool NpcPicture(const EdenDsmodHostApi* h, const char* pic, const char* key, cha
 // Picture diagnostics (once a second): is the user: folder there, and can the first row's
 // picture be read? Shown on CARGO so a missing or misplaced icons folder is obvious.
 char g_icon_diag[240] = "pictures: not checked yet";
+// 1.0.1 (probe, for Peanut): straight file reads from the tick, once a second -- the first indexed bundle and the
+// game's IL2CPP metadata, each as a bare path, "base:" and "romfs:": the size query and a 16-byte read at 0
+char g_fp_diag[256] = "file probe: not run yet";
+void FileProbe(const EdenDsmodHostApi* h) {
+    Buf b;
+    if (!h->read_romfs) { b.add("no read_romfs"); memcpy(g_fp_diag, b.s, static_cast<size_t>(b.n) + 1); return; }
+    Buf rel;
+    if (LiveLoad(h, g_live_tick)) {
+        const char* r = LiveLine(g_live_tick, 'B', 0);
+        if (r) { while (*r == ' ') ++r; while (*r && *r != ' ' && *r != '\n' && *r != '\r') rel.addc(*r++); }
+    }
+    static const char* const kSrc[3] = {"", "base:", "romfs:"};
+    static const char* const kName[3] = {"bare", "base", "romfs"};
+    const char* files[2] = {rel.n ? rel.s : nullptr, "Data/Managed/Metadata/global-metadata.dat"};
+    static const char* const kFile[2] = {"bundle0", "metadata"};
+    for (int f = 0; f < 2; ++f) {
+        b.add(kFile[f]).add(":");
+        if (!files[f]) { b.add(" no index  "); continue; }
+        for (int k = 0; k < 3; ++k) {
+            Buf c; c.add(kSrc[k]).add(files[f]);
+            uint8_t t[16];
+            const size_t sz = h->read_romfs(h->userdata, c.s, 0, nullptr, 0);
+            const size_t got = h->read_romfs(h->userdata, c.s, 0, t, sizeof t);
+            b.addc(' ').add(kName[k]).addc(' ').num(static_cast<int64_t>(sz)).addc('/').num(static_cast<int64_t>(got));
+            if (got >= 7 && f == 0) b.add(t[0] == 'U' && t[5] == 'y' ? "U" : "?");
+        }
+        b.add("  ");
+    }
+    if (rel.n) { b.add("| ").add(rel.s + (rel.n > 30 ? rel.n - 30 : 0)); }
+    const int n2 = b.n < 255 ? b.n : 255;
+    memcpy(g_fp_diag, b.s, static_cast<size_t>(n2)); g_fp_diag[n2] = 0;
+}
 void IconDiag(const Instance&, const EdenDsmodHostApi* h) {
     // which source the pictures come from: the game files (pictures.idx) or exported ones
     Buf b;
     b.add("pictures: game files ").add(LiveLoad(h, g_live_tick) ? "indexed" : "no index");
     b.add(", drawn ").num(g_live_drawn).add(", not drawn ").num(g_live_failed);
-    if (g_live_failed) b.add(" (code ").num(g_live_err).add(", sizes ").num(g_live_size[0]).add(" / ").num(g_live_size[1]).add(")");
+    if (g_live_failed) b.add(" (code ").num(g_live_err).add(", sizes ").num(g_live_size[0]).add(" / ").num(g_live_size[1]).add(" / ").num(g_live_size[2]).add(")");
+    b.add(" | reads size0 ").num(g_rd_sz0).add(" retry ").num(g_rd_retry).add(" failed ").num(g_rd_fail).add(" kept ").num(g_rd_kept);   // 1.0.1
+    b.add(" | alt ").num(g_live_alt);
     uint8_t t[4];
     const bool exp = h->read_romfs && (h->read_romfs(h->userdata, "file:icons/_index.txt", 0, t, sizeof t) == sizeof t ||
                                        h->read_romfs(h->userdata, "user:icons/_index.txt", 0, t, sizeof t) == sizeof t);
@@ -3354,7 +3492,7 @@ uint8_t MpKindOf(const char* cn) {
 }
 template <int N> bool MpIn(const uint64_t (&a)[N], int n, uint64_t v) { for (int i = 0; i < n && i < N; ++i) if (a[i] == v) return true; return false; }
 template <int N> void MpRing(uint64_t (&a)[N], int* n, uint64_t v) { a[*n % N] = v; ++*n; }
-// Both fields are documented in ROADMAP round 32: SpawnerChestItem.ChestItem and
+// Both fields are documented in the module notes: SpawnerChestItem.ChestItem and
 // SpawnerPickupItem.PickupItem at +0x68. A reference alone is not an ownership proof.
 bool MpSpawnerOwns(const Guest& g, uint64_t sp, uint64_t obj, bool pickup) {
     if (!sp || !obj || g.ptr(sp + 0x68) != obj || !g.ptr(sp + 0x10)) return false;
@@ -7481,7 +7619,7 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
     PublishMapProbeText(host);
     PublishMap(in, g, host);
     PublishPage(host);          // 0.35.4: before the marker work, so the views never lose their switch
-    if (kMarkerProbe) {   // map markers probe (0.34.x; off since 0.35.0 -- see ROADMAP)
+    if (kMarkerProbe) {   // map markers probe (0.34.x; off since 0.35.0)
         const uint64_t ti = g.ptr(in.main_base + kInGameManagerTypeInfo);
         const uint64_t single = ti ? g.ptr(ti + kParent) : 0;
         const uint64_t st = single ? g.ptr(single + kStatics) : 0;
@@ -7500,9 +7638,25 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
         PodAmmoPublish(host);
     }
     if (g_ticks % 60 == 5) IconDiag(in, host);
+    // get_text is the last field of the host table and was added in a later revision: an older host's
+    // table ends before it, so it is only read when the table is long enough (else the probe stays off).
+    if (g_ticks % 60 == 35 && host->struct_size >= offsetof(EdenDsmodHostApi, get_text) + sizeof(host->get_text) && host->get_text) {   // 1.0.1 (probe): only while DIAGNOSTICS is shown
+        const char* pg = host->get_text(host->userdata, "__page");
+        if (pg && eq(pg, "diag")) FileProbe(host);
+    }
+    host->publish_text(host->userdata, "fp.diag", g_fp_diag);
     if (g_ticks % 30 == 11) ScanMissionIcons(in, g);
     PublishMissionIcons(host);
     host->publish_text(host->userdata, "icon.diag", g_icon_diag);
+    {                                                         // 1.0.1: the font's way to the screen
+        Buf fb;
+        fb.add("text ").add(g_font.ready ? "read" : "not read").add(" (code ").num(g_font.err).add(", ").add(g_font.bundle[0] ? g_font.bundle + (starts(g_font.bundle, "Data/StreamingAssets/aa/Switch/") ? 31 : 0) : "-").add(")");
+        fb.add(" | hud ").add(g_hud.ready ? "read" : "not read").add(" (code ").num(g_hud.err).add(")");
+        fb.add(" | metrics given ").num(g_fn_data_f).add(" waits ").num(g_fn_data_w);
+        fb.add(" | decoded ").num(g_fn_dec_ok).add(" declined ").num(g_fn_dec_no);
+        fb.add(" | atlas ").num(g_fn_atlas_ok).add(" failed ").num(g_fn_atlas_fail).add(" open ").num(g_fn_open_fail);
+        host->publish_text(host->userdata, "fn.diag", fb.s);
+    }
     host->publish_i64(u, "o2.stage", g_o2.stage);
     host->publish_text(u, "o2.keys", g_o2keys);
     host->publish_i64(u, "o2.idx", g_o2.idx);
@@ -8614,6 +8768,7 @@ EdenDsmodBool LoadData(void*, const EdenDsmodHostApi* host, const char* key, voi
     if (!BuildMix(host, want)) {
         uint8_t w[8] = {'D', 'T', 'D', 'W'};
         const uint32_t e = static_cast<uint32_t>(g_font.err ? g_font.err : 20 + g_hud.err); memcpy(w + 4, &e, 4);
+        ++g_fn_data_w;
         sink(receiver, w, sizeof w);
         return EDEN_DSMOD_TRUE;
     }
@@ -8622,13 +8777,15 @@ EdenDsmodBool LoadData(void*, const EdenDsmodHostApi* host, const char* key, voi
     memcpy(g_fdata + 4, hdr, sizeof hdr);
     memcpy(g_fdata + 16, g_mix[want].out, sizeof g_mix[want].out);
     g_data_want = want;                               // the atlas that follows is drawn for this look
+    ++g_fn_data_f;
     sink(receiver, g_fdata, sizeof g_fdata);
     return EDEN_DSMOD_TRUE;
 }
 EdenDsmodBool DecodeFont(void*, const uint8_t* bytes, size_t size, void* receiver, EdenDsmodFontSink sink) {
-    if (!bytes || !sink || size != sizeof g_fdata || bytes[0] != 'D' || bytes[1] != 'T' || bytes[2] != 'D' || bytes[3] != 'F') return EDEN_DSMOD_FALSE;
+    if (!bytes || !sink || size != sizeof g_fdata || bytes[0] != 'D' || bytes[1] != 'T' || bytes[2] != 'D' || bytes[3] != 'F') { ++g_fn_dec_no; return EDEN_DSMOD_FALSE; }
     uint32_t hdr[3]; memcpy(hdr, bytes + 4, sizeof hdr);
-    if (!hdr[0] || hdr[2] != kFontN) return EDEN_DSMOD_FALSE;
+    if (!hdr[0] || hdr[2] != kFontN) { ++g_fn_dec_no; return EDEN_DSMOD_FALSE; }
+    ++g_fn_dec_ok;
     static EdenDsmodFontGlyph glyphs[kFontN];
     memcpy(glyphs, bytes + 16, sizeof glyphs);
     sink(receiver, hdr[0], hdr[1], glyphs, hdr[2]);

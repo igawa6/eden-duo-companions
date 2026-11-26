@@ -17,7 +17,7 @@ printf '{ global: eden_dsmod_get_module; eden_dsmod_get_extensions; eden_dsmod_g
 
 FLAGS=(-std=c++17 -O2 -fPIC -shared -nostdlib -ffreestanding -fno-exceptions -fno-rtti
        -fno-threadsafe-statics -fno-stack-protector -fvisibility=hidden -fno-builtin
-       -Wall -Wextra -Werror -I "$EDEN/src"
+       -Wall -Wextra -Werror -Wno-error=unused-but-set-global -I "$EDEN/src"
        -fuse-ld=lld -Wl,--no-undefined -Wl,--version-script="$OUT/exports.map"
        -Wl,--hash-style=both -Wl,-z,max-page-size=16384 -Wl,--build-id=sha1
        -Wl,-soname,010097F018538000.so)

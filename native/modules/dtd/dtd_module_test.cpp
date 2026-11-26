@@ -7,6 +7,7 @@
 #include <dlfcn.h>
 #include <cstdio>
 #include <cstring>
+#include <cstdlib>
 #include <map>
 #include <string>
 #include <vector>
@@ -125,6 +126,18 @@ static void make_bundle() {
              "T 1 0 " + std::to_string(g_font_t) + " 4096 64 64 1 2\n"
              "F Test_Font 1 1 " + std::to_string(g_font_g) + " 4 48 " + std::to_string(g_font_c) + " 4 16 0 0\n"
              "F Snowstorm_SDF 1 1 " + std::to_string(g_font_g) + " 4 48 " + std::to_string(g_font_c) + " 1 16 0 0\n";   // the HUD font: only H
+    // 1.0.1 DTD_TEST_ALT=1: every name is listed first in a bundle no source has (the base game's lines on a host
+    // without "base:", as on Peanut); the module must fall back to the next line of the same name
+    if (std::getenv("DTD_TEST_ALT"))
+        g_pidx = "DTDP 1\nB 7 Data/missing.bundle 999999\nT 7 7 300 4096 64 64 48 2\nT 8 7 300 4096 64 64 1 2\n"
+                 "S Pic_A 7 10 6 20 12 0\nS Pic_B_Thumbnail 7 33 40 7 9 4\n"
+                 "F Test_Font 8 1 0 4 48 0 4 16 0 0\nF Snowstorm_SDF 8 1 0 4 48 0 1 16 0 0\n" + g_pidx.substr(7);
+    // 1.0.1 DTD_TEST_NOHUD=1 (with DTD_TEST_ALT): the HUD font is only in the missing bundle (as on Peanut):
+    // the text font must be handed out on the first ask, not after the HUD font's retries
+    if (std::getenv("DTD_TEST_NOHUD")) {
+        const size_t at = g_pidx.rfind("F Snowstorm_SDF 1 ");
+        if (at != std::string::npos) g_pidx.erase(at, g_pidx.find('\n', at) + 1 - at);
+    }
 }
 static std::map<std::string, std::string> out;
 static uint64_t main_base = 0;
@@ -661,6 +674,11 @@ int main(int argc, char** argv) {
                 if (std::strcmp(path, "file:pictures.idx") == 0) { src = reinterpret_cast<const uint8_t*>(g_pidx.data()); len = g_pidx.size(); }
                 // only the base game has it (as when the running game's romfs does not answer)
                 else if (std::strcmp(path, "base:Data/test.bundle") == 0) { src = g_bundle.data(); len = g_bundle.size(); }
+                // 1.0.1 DTD_TEST_FLAKY=1: a game file's size query answers once (as Peanut was seen to); =2: never
+                if (src && !dst && path[0] != 'f' && std::getenv("DTD_TEST_FLAKY")) {
+                    static int asked;
+                    if (std::getenv("DTD_TEST_FLAKY")[0] == '2' || asked++) return 0;
+                }
                 if (src && !dst) return len;                     // size query
                 if (!src || off >= len) return 0;
                 size_t m = std::min(n, static_cast<size_t>(len - off)); std::memcpy(dst, src + off, m); return m;
@@ -740,7 +758,7 @@ int main(int argc, char** argv) {
                                            [](void* r, const uint8_t* b, size_t n) { static_cast<std::vector<uint8_t>*>(r)->assign(b, b + n); }) &&
                       blob.size() > 16 && blob[3] == 'F';
                 for (int i = 0; i < 61; ++i) { out.clear(); m->sample(inst, &h); }
-                okh = okh && out["ui.page"] == "0" && out["icon.diag"].find("DIVE font game HUD (1 of 224") != std::string::npos;
+                okh = okh && out["ui.page"] == "0" && out["icon.diag"].find(std::getenv("DTD_TEST_NOHUD") ? "DIVE font text font (HUD font not read" : "DIVE font game HUD (1 of 224") != std::string::npos;   // 1.0.1: without the HUD font the text font goes on alone
                 const std::string d0 = out["icon.diag"];
                 x->on_action(inst, "nav", 3); out.clear(); m->sample(inst, &h);
                 okh = okh && out["ui.page"] == "3" && std::atol(out["__font_epoch"].c_str()) == e0;

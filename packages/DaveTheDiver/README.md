@@ -1,13 +1,14 @@
 # Dave the Diver — dual-screen companion
 
 Game: **DAVE THE DIVER** (Switch, title ID `010097F018538000`), update **v1.0.6.1267**
-(build `F74B633E480E4E16`). Tested on Eden Duo 1.1.0 (runtime 18) on an AYN Thor (Android, NCE).
+(build `F74B633E480E4E16`). Tested on Eden Duo 1.1.0 (runtime 18) on an AYN Thor (Android, NCE), and since
+1.0.1 on Peanut (no `base:` source).
 `min_runtime` 17.
 
 **Use NCE, not JIT.** A tester's game crashed on the first dive of a new save with Eden's CPU set to JIT;
-it runs with NCE (the setting it was developed and tested on). somestimes game won't boot with JIT enabled
+it runs with NCE (the setting it was developed and tested on).
 
-The package ships with **no game assets**. Every picture and the game font are read at run time from the
+The package ships **no game assets**. Every picture and the game font are read at run time from the
 player's own game files; `dualscreen/pictures.idx` holds only picture names and positions in those
 files.
 
@@ -16,18 +17,18 @@ files.
 **DIVE**
 - **Map:** the level as the game bounds it, with Dave's position and depth marks. Markers for chests
   (weapon chests in red), O₂, ammo, escape pods, mission items and pinned-recipe fish. A filter
-  picks which markers show on the map or remove all of them.
+  picks which markers show.
 - **Sea People Village:** the game's own village map, with the buildings and Dave's pin read live, and
   your Bei and Credit.
-- **Gauges:** O₂, depth and depth limit, cargo weight read from your games live data.
-- **Loadout:** B Melee weapon, Y items, A weapon (harpoon tip or gun), with gun ammo, item counts and levels,
-  read live during the dive. Tapping Y or A swaps the item or weapon, the same as pressing L or R in game.
+- **Gauges:** O₂, depth and depth limit, cargo weight.
+- **Loadout:** B knife, Y item, A weapon (harpoon tip or gun), with gun ammo, item counts and levels,
+  read live during the dive. Tapping Y or A swaps the item or weapon, the same as pressing L or R.
 - **Hunt list:** the ingredients of pinned recipes and EcoWatcher goals.
 - **Popups:** the catch plate (the game's own plate design) and MISSION COMPLETE / DONE!.
 - **CARGO:** every catch, the same list as the game's Acquired list (drone-lifted catches left out),
-  sortable, with discard function.
+  sortable, with discard.
 - **MISSIONS:** the 3 missions the top screen tracks, with their tasks, then the other active missions as the game's
-  All Missions list shows them; PIN puts a mission's items on the map (only works for pickup items).
+  All Missions list shows them; PIN puts a mission's items on the map.
 - **HUD tab (optional):** hides the top screen's O₂ / depth panel, weapon slots, mission list and
   catch / pickup popups while diving, and the Bei and Credit panels in the Sea People Village. No game files are changed; switching it off restores them.
   It starts off each time the game launches.
@@ -58,7 +59,8 @@ Requirements: `clang`, `lld`, `llvm-objcopy` / `llvm-nm`, Python 3, and an Eden 
 (only `src/core/mods/dsmod_module_abi.h` is read).
 
 ```
-tools/dtd/make_package.sh /path/to/eden-duo        # -> dist/010097F018538000-DaveTheDiver-1.0.0.dsmod.zip
+tools/dtd/make_package.sh /path/to/eden-duo        # -> dist/010097F018538000-DaveTheDiver-<version>.dsmod.zip
+tools/dtd/make_package.sh /path/to/eden-duo --diag # the same with the DIAGNOSTICS page (-diag.dsmod.zip)
 ```
 
 This regenerates the pages, builds the module for `android-arm64-v8a` and `linux-x86_64`, and packs
@@ -76,6 +78,7 @@ Tests (synthetic guest memory, no game files needed):
 ```
 clang++ -std=c++17 -I /path/to/eden-duo/src native/modules/dtd/dtd_module_test.cpp -ldl -o dtd_test
 ./dtd_test build-dtd/linux-x86_64/010097F018538000.so                 # prints PASS
+DTD_TEST_FLAKY=2 ./dtd_test build-dtd/linux-x86_64/010097F018538000.so  # a host whose size queries answer 0: PASS
 clang++ -std=c++17 -O1 -fno-builtin -I /path/to/eden-duo/src -I native/modules/dtd \
   native/modules/dtd/dtd_marker_test.cpp -o dtd_marker_test
 ./dtd_marker_test                                                       # 33 checks, 0 failures
@@ -84,6 +87,18 @@ clang++ -std=c++17 -O1 -fno-builtin -I /path/to/eden-duo/src -I native/modules/d
 `pictures.idx` is made from a game dump with `tools/dtd/build_picture_index.py` (names and positions
 only); `tools/dtd/merge_pictures.py` adds pictures at the end without changing existing lines.
 
+Since 1.0.1 the index lists each picture twice where it can: first the base game's copy (read through
+`base:`, unchanged from 1.0.0), then the updated game's own copy, made by `build_picture_index.py` from the
+merged base + update romfs and appended by `tools/dtd/combine_index.py`. The module uses the first line it can
+open, so hosts without a `base:` source (Peanut) read the running game's files, including the 210 Youth and
+Snowstorm fonts. `combine_index.py` also reads Unity 6 textures marked block height 0 whose data has the
+1-GOB size as 1 GOB (read plain they come out block-scrambled).
+
+```
+tools/dtd/combine_index.py <shipped pictures.idx> <running-game pictures.idx> <out>
+DTD_TEST_ALT=1 ./dtd_test build-dtd/linux-x86_64/010097F018538000.so   # every first line missing: PASS
+```
+
 ## Credits
 
-The dive-map idea came from DaveDiverExpansion 2.0 nexusmod by yslailo (MIT).
+The dive-map idea came from DaveDiverExpansion 2.0 by yslailo (MIT).

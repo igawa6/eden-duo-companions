@@ -152,14 +152,14 @@ def stepper(x, y, bind, dec, inc, gate):
 # The DEBUG button on DIVE (raw values, discard test, diagnostics). The pages are still built;
 # set this to True and rebuild to bring the button back (it then sits over the watch).
 SHOW_DEBUG = False
-SHOW_DIAG = False      # beta (0.38.0): the DIAGNOSTICS page and the map's DIAG button are off; True again for probe rounds
+SHOW_DIAG = "--diag" in __import__("sys").argv   # 1.0.1: the diag build (make_package.sh --diag) has the DIAGNOSTICS page and the map's DIAG button
 WCHEST = "#FFFF5A4A"   # weapon chests: the chest picture tinted red
 MARKERS = 160          # chest markers on the map (the module's kMpKeep)
 MISSION_MARKS = 16   # loose mission items (module kMm)
 AMMO_MARKS, POD_MARKS = 24, 24   # 0.37.22 (module kAm, kPd)
 FISH_MARKS = 32      # fish (module kFm): live fish, then spawn spots
 BUILD16 = "F74B633E480E4E16"
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 BEI_ICON = "Bei32"    # 0.38.54: the green Bei coin (index run)
 # 0.37.36: the escape pod picture (Pod_ex is the pod hanging on its cables; rows 244..400 of 400 are the pod)
 POD_SRC = [0.0, 0.61, 1.0, 1.0]
@@ -1460,11 +1460,10 @@ yy = 110
 # 0.37.65: round 42 -- the phone's open app (Mail probe) replaces the map probe lines (the map work is done)
 # 0.38.1: the ammo lines back on top (the false ammo marks); the apps' lines off (the apps are done)
 # 0.38.11 (tester build): the map's marks -- boxes (chests, O2, weapons), pods, ammo / pickups, the filters
-for title, key in [("other missions", "om.diag"), ("cargo lift", "cg.lift"), ("hide hud", "hh.diag"), ("live loadout", "lv.diag"), ("items probe", "lv.diag2"), ("loadout", "lo.diag"), ("boxes", "mk.p11"), ("pods", "mk.p13"), ("ammo / pickups", "mk.p14"), ("village map", "vm.diag"),
-                   ("pictures", "icon.diag")]:
+for title, key in [("file probe", "fp.diag"), ("pictures", "icon.diag"), ("font", "fn.diag"), ("other missions", "om.diag"), ("cargo lift", "cg.lift"), ("hide hud", "hh.diag"), ("live loadout", "lv.diag"), ("items probe", "lv.diag2"), ("loadout", "lo.diag"), ("boxes", "mk.p11"), ("pods", "mk.p13"), ("ammo / pickups", "mk.p14"), ("village map", "vm.diag")]:   # 1.0.2: the file probe and pictures first (they were cut off at the bottom)
     dg += [label(40, yy, title, DIM, 2),
-           value([360, yy, 0, 0], key, TXT, 2) if key == "game.mode" else tlabel(360, yy, key, TXT, 2, wrap_width=840, max_lines=6 if key in ("vm.diag", "lo.diag", "lv.diag", "hh.diag", "cg.lift", "om.diag") else 7 if key in ("mk.p11", "mk.p13", "mk.p14", "mk.podd") else 4 if key in ("mk.p3", "mk.p11", "mk.p12", "mk.p14", "ing.diag", "eco.diag", "eco.mkdiag", "eco.pkdiag", "shop.trkdiag", "idv.diag", "fm.diag", "fm.diag2", "fm.diag3") else 2)]
-    yy += 180 if key in ("vm.diag", "lo.diag", "lv.diag", "hh.diag", "cg.lift", "om.diag") else 200 if key in ("mk.p11", "mk.p13", "mk.p14", "mk.podd") else 130 if key in ("mk.p3", "mk.p11", "mk.p12", "mk.p14", "ing.diag", "eco.diag", "eco.mkdiag", "eco.pkdiag", "shop.trkdiag", "idv.diag", "fm.diag", "fm.diag2", "fm.diag3") else 72 if key.startswith("mk.") else 49
+           value([360, yy, 0, 0], key, TXT, 2) if key == "game.mode" else tlabel(360, yy, key, TXT, 2, wrap_width=840, max_lines=4 if key in ("fp.diag", "icon.diag") else 6 if key in ("vm.diag", "lo.diag", "lv.diag", "hh.diag", "cg.lift", "om.diag") else 7 if key in ("mk.p11", "mk.p13", "mk.p14", "mk.podd") else 4 if key in ("mk.p3", "mk.p11", "mk.p12", "mk.p14", "ing.diag", "eco.diag", "eco.mkdiag", "eco.pkdiag", "shop.trkdiag", "idv.diag", "fm.diag", "fm.diag2", "fm.diag3") else 2)]
+    yy += 110 if key in ("fp.diag", "icon.diag") else 180 if key in ("vm.diag", "lo.diag", "lv.diag", "hh.diag", "cg.lift", "om.diag") else 200 if key in ("mk.p11", "mk.p13", "mk.p14", "mk.podd") else 130 if key in ("mk.p3", "mk.p11", "mk.p12", "mk.p14", "ing.diag", "eco.diag", "eco.mkdiag", "eco.pkdiag", "shop.trkdiag", "idv.diag", "fm.diag", "fm.diag2", "fm.diag3") else 72 if key.startswith("mk.") else 49
 
 # ---- 0.37.62: PHONE -- the phone's apps. APPS (the app icons) and the CALCULATOR, laid out like the game's
 # (its own key pictures: UI_Calculator_Icon_*, read from the player's game files). The arithmetic is the
