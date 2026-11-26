@@ -1,0 +1,76 @@
+name: P3P 1.1.0 local package dry-run (temporary)
+
+on:
+  push:
+    branches:
+      - p3p-thor-ui-source-port
+    paths:
+      - '.github/workflows/p3p-package-dryrun.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout complete source package
+        uses: actions/checkout@v4
+      - name: Obtain source-compiled Linux module from pinned CI run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/p3p-linux /tmp/p3p-android
+          gh run download 45107519752 -R speerit1/eden-duo-companions \
+            -n p3p-linux-x86_64-source-module -D /tmp/p3p-linux
+          test -s /tmp/p3p-linux/0100DCD01525A000.so
+      - name: Obtain source-compiled Android ARM64 module from pinned CI run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 45107522134 -R speerit1/eden-duo-companions \
+            -n p3p-android-arm64-source-module -D /tmp/p3p-android
+          test -s /tmp/p3p-android/0100DCD01525A000.so
+      - name: Strip binaries and validate native ELF formats
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq llvm-18
+          llvm-strip-18 --strip-all /tmp/p3p-linux/0100DCD01525A000.so
+          llvm-strip-18 --strip-all /tmp/p3p-android/0100DCD01525A000.so
+          readelf -h /tmp/p3p-linux/0100DCD01525A000.so | grep 'X86-64'
+          readelf -h /tmp/p3p-android/0100DCD01525A000.so | grep 'AArch64'
+      - name: Recreate source package as a complete private QA build
+        run: |
+          python tools/p3p/gen_manifest.py
+          python tools/build_dualscreen_package.py \
+            --package packages/Persona3Portable --output /tmp/p3p-package \
+            --version 1.1.0 --min-runtime 19 \
+            --build-id 663052C2C7E8C357BA6EAD36641EE2792397EB1F000000000000000000000000 \
+            --module linux-x86_64=/tmp/p3p-linux/0100DCD01525A000.so \
+            --module android-arm64-v8a=/tmp/p3p-android/0100DCD01525A000.so
+      - name: Audit archive metadata, asset inventory and ZIP contents
+        run: |
+          python - <<'PY'
+          import json,zipfile,hashlib
+          from pathlib import Path
+          target=Path('/tmp/p3p-package/0100DCD01525A000.dsmod.zip')
+          assert target.is_file(),target
+          with zipfile.ZipFile(target) as z:
+              assert z.testzip() is None
+              names=z.namelist()
+              pngs=[n for n in names if n.startswith('dualscreen/img/') and n.endswith('.png')]
+              assert len(pngs)==62,(len(pngs),pngs)
+              assert len(names)==67,(len(names),names)
+              m=json.loads(z.read('dualscreen/manifest.json'))
+              p=json.loads(z.read('package.json'))
+              assert (len(m['pages']),len(m['actions']),len(m['module_outputs']))==(12,61,2798)
+              assert p['version']=='1.1.0' and p['module']==m['module']
+              assert set(p['module']['libraries'])=={'linux-x86_64','android-arm64-v8a'}
+              for platform,item in p['module']['libraries'].items():
+                  assert hashlib.sha256(z.read('dualscreen/'+item['path'])).hexdigest()==item['sha256']
+              print('PASS: 67-entry, two-native-module 1.1.0 package validates; 62 procedural assets')
+              print('Local QA package SHA-256:',hashlib.sha256(target.read_bytes()).hexdigest())
+          PY
