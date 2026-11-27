@@ -1,0 +1,4341 @@
+{
+  "format": 1,
+  "title_id": "0100453019AA8000",
+  "name": "Xenoblade Chronicles X: Definitive Edition companion",
+  "version": "1.0.0",
+  "min_runtime": 25,
+  "load_plan": "guest/2A720C7CE5C84905C1C6847211F670FBB31842B6000000000000000000000000/load-plan.json",
+  "load_plan_module": "main",
+  "canvas_w": 1240,
+  "canvas_h": 1080,
+  "background": "#FF0E1321",
+  "nav": false,
+  "requires_module": true,
+  "module": {
+    "abi": 1,
+    "build_ids": [
+      "2A720C7CE5C84905C1C6847211F670FBB31842B6000000000000000000000000"
+    ]
+  },
+  "haptics": {
+    "enabled": true,
+    "respect_system": true,
+    "tap": "light",
+    "select": "light",
+    "write": "confirm",
+    "hold": "heavy",
+    "refused": "reject"
+  },
+  "derived": [
+    {
+      "name": "xcx.party_page",
+      "expr": "xcx.page == 1 && xcx.data"
+    },
+    {
+      "name": "xcx.map_page",
+      "expr": "xcx.page == 0 && xcx.data"
+    },
+    {
+      "name": "xcx.map_with_skell",
+      "expr": "xcx.page == 0 && xcx.data && xcx.has_skell"
+    },
+    {
+      "name": "xcx.map_without_skell",
+      "expr": "xcx.page == 0 && xcx.data && !xcx.has_skell"
+    },
+    {
+      "name": "xcx.settings_page",
+      "expr": "xcx.page == 3"
+    },
+    {
+      "name": "xcx.map_skell_button",
+      "expr": "xcx.page == 0 && xcx.data && xcx.has_skell && xcx.helper"
+    },
+    {
+      "name": "xcx.set_button",
+      "expr": "xcx.page == 1 && xcx.data && xcx.helper"
+    },
+    {
+      "name": "xcx.skell_page_button",
+      "expr": "xcx.page == 2 && xcx.data && xcx.has_skell && xcx.helper"
+    },
+    {
+      "name": "xcx.battle_page",
+      "expr": "xcx.page == 4 && xcx.data"
+    },
+    {
+      "name": "xcx.battle_set_button",
+      "expr": "xcx.page == 4 && xcx.data && xcx.helper"
+    },
+    {
+      "name": "xcx.battle_skell_button",
+      "expr": "xcx.page == 4 && xcx.data && xcx.has_skell && xcx.helper"
+    },
+    {
+      "name": "xcx.battle_cmd_button",
+      "expr": "xcx.page == 4 && xcx.data && xcx.battle_cmd_ok"
+    },
+    {
+      "name": "xcx.map_rail_s0",
+      "expr": "xcx.page == 0 && xcx.data && xcx.has_skell && xcx.rail_tap0"
+    },
+    {
+      "name": "xcx.map_rail_n0",
+      "expr": "xcx.page == 0 && xcx.data && !xcx.has_skell && xcx.rail_tap0"
+    },
+    {
+      "name": "xcx.map_rail_s1",
+      "expr": "xcx.page == 0 && xcx.data && xcx.has_skell && xcx.rail_tap1"
+    },
+    {
+      "name": "xcx.map_rail_n1",
+      "expr": "xcx.page == 0 && xcx.data && !xcx.has_skell && xcx.rail_tap1"
+    },
+    {
+      "name": "xcx.map_rail_s2",
+      "expr": "xcx.page == 0 && xcx.data && xcx.has_skell && xcx.rail_tap2"
+    },
+    {
+      "name": "xcx.map_rail_n2",
+      "expr": "xcx.page == 0 && xcx.data && !xcx.has_skell && xcx.rail_tap2"
+    },
+    {
+      "name": "xcx.map_rail_s3",
+      "expr": "xcx.page == 0 && xcx.data && xcx.has_skell && xcx.rail_tap3"
+    },
+    {
+      "name": "xcx.map_rail_n3",
+      "expr": "xcx.page == 0 && xcx.data && !xcx.has_skell && xcx.rail_tap3"
+    },
+    {
+      "name": "xcx.rail_pf_s0",
+      "expr": "xcx.page == 0 && xcx.has_skell && xcx.rail_press == 0 && !xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pr_s0",
+      "expr": "xcx.page == 0 && xcx.has_skell && xcx.rail_press == 0 && xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pf_s1",
+      "expr": "xcx.page == 0 && xcx.has_skell && xcx.rail_press == 1 && !xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pr_s1",
+      "expr": "xcx.page == 0 && xcx.has_skell && xcx.rail_press == 1 && xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pf_s2",
+      "expr": "xcx.page == 0 && xcx.has_skell && xcx.rail_press == 2 && !xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pr_s2",
+      "expr": "xcx.page == 0 && xcx.has_skell && xcx.rail_press == 2 && xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pf_s3",
+      "expr": "xcx.page == 0 && xcx.has_skell && xcx.rail_press == 3 && !xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pr_s3",
+      "expr": "xcx.page == 0 && xcx.has_skell && xcx.rail_press == 3 && xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pf_n0",
+      "expr": "xcx.page == 0 && !xcx.has_skell && xcx.rail_press == 0 && !xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pr_n0",
+      "expr": "xcx.page == 0 && !xcx.has_skell && xcx.rail_press == 0 && xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pf_n1",
+      "expr": "xcx.page == 0 && !xcx.has_skell && xcx.rail_press == 1 && !xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pr_n1",
+      "expr": "xcx.page == 0 && !xcx.has_skell && xcx.rail_press == 1 && xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pf_n2",
+      "expr": "xcx.page == 0 && !xcx.has_skell && xcx.rail_press == 2 && !xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pr_n2",
+      "expr": "xcx.page == 0 && !xcx.has_skell && xcx.rail_press == 2 && xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pf_n3",
+      "expr": "xcx.page == 0 && !xcx.has_skell && xcx.rail_press == 3 && !xcx.motion_reduced"
+    },
+    {
+      "name": "xcx.rail_pr_n3",
+      "expr": "xcx.page == 0 && !xcx.has_skell && xcx.rail_press == 3 && xcx.motion_reduced"
+    }
+  ],
+  "actions": {
+    "page_0": {
+      "kind": "module",
+      "action": "page",
+      "argument": 0,
+      "haptic": "light"
+    },
+    "page_1": {
+      "kind": "module",
+      "action": "page",
+      "argument": 1,
+      "haptic": "light"
+    },
+    "page_2": {
+      "kind": "module",
+      "action": "page",
+      "argument": 2,
+      "haptic": "light"
+    },
+    "page_3": {
+      "kind": "module",
+      "action": "page",
+      "argument": 3,
+      "haptic": "light"
+    },
+    "party_0": {
+      "kind": "module",
+      "action": "pick",
+      "argument": 0,
+      "haptic": "light"
+    },
+    "party_1": {
+      "kind": "module",
+      "action": "pick",
+      "argument": 1,
+      "haptic": "light"
+    },
+    "party_2": {
+      "kind": "module",
+      "action": "pick",
+      "argument": 2,
+      "haptic": "light"
+    },
+    "party_3": {
+      "kind": "module",
+      "action": "pick",
+      "argument": 3,
+      "haptic": "light"
+    },
+    "return_hold": {
+      "kind": "module",
+      "action": "return_hold",
+      "argument": 0
+    },
+    "switch_set": {
+      "kind": "module",
+      "action": "switch_set",
+      "argument": 0,
+      "haptic": "confirm"
+    },
+    "skell_button": {
+      "kind": "module",
+      "action": "skell_button",
+      "argument": 0,
+      "haptic": "confirm"
+    },
+    "settings_motion": {
+      "kind": "flag",
+      "flag": "motion.reduced",
+      "cycle": 2,
+      "haptic": "click"
+    },
+    "map_tab_over": {
+      "kind": "flag",
+      "flag": "xcx.map_mode",
+      "value": 0,
+      "haptic": "light"
+    },
+    "map_tab_area": {
+      "kind": "flag",
+      "flag": "xcx.map_mode",
+      "value": 1,
+      "haptic": "light"
+    },
+    "find_self_over": {
+      "kind": "view_reset",
+      "view": "xcx-map-over",
+      "haptic": "light"
+    },
+    "find_self_world": {
+      "kind": "view_reset",
+      "view": "xcx-map-world",
+      "haptic": "light"
+    },
+    "find_self_nla": {
+      "kind": "view_reset",
+      "view": "xcx-map-nla",
+      "haptic": "light"
+    },
+    "find_self_barracks": {
+      "kind": "view_reset",
+      "view": "xcx-map-barracks",
+      "haptic": "light"
+    },
+    "find_self_home": {
+      "kind": "view_reset",
+      "view": "xcx-map-home",
+      "haptic": "light"
+    },
+    "page_4": {
+      "kind": "module",
+      "action": "page",
+      "argument": 4,
+      "haptic": "light"
+    },
+    "bpick_0": {
+      "kind": "module",
+      "action": "bpick",
+      "argument": 0,
+      "haptic": "light"
+    },
+    "bpick_1": {
+      "kind": "module",
+      "action": "bpick",
+      "argument": 1,
+      "haptic": "light"
+    },
+    "bpick_2": {
+      "kind": "module",
+      "action": "bpick",
+      "argument": 2,
+      "haptic": "light"
+    },
+    "bpick_3": {
+      "kind": "module",
+      "action": "bpick",
+      "argument": 3,
+      "haptic": "light"
+    },
+    "battle_commands": {
+      "kind": "button",
+      "button": "Plus",
+      "frames": 6,
+      "enabled_bind": "xcx.battle_cmd_ok",
+      "haptic": "light"
+    },
+    "settings_hud_map": {
+      "kind": "flag",
+      "flag": "xcx.hud_hide_map",
+      "cycle": 2,
+      "haptic": "click"
+    },
+    "settings_hud_fuel": {
+      "kind": "flag",
+      "flag": "xcx.hud_hide_fuel",
+      "cycle": 2,
+      "haptic": "click"
+    },
+    "rail_0": {
+      "kind": "module",
+      "action": "rail_switch",
+      "argument": 0,
+      "haptic": "confirm"
+    },
+    "rail_1": {
+      "kind": "module",
+      "action": "rail_switch",
+      "argument": 1,
+      "haptic": "confirm"
+    },
+    "rail_2": {
+      "kind": "module",
+      "action": "rail_switch",
+      "argument": 2,
+      "haptic": "confirm"
+    },
+    "rail_3": {
+      "kind": "module",
+      "action": "rail_switch",
+      "argument": 3,
+      "haptic": "confirm"
+    },
+    "ptab_0": {
+      "kind": "module",
+      "action": "ptab",
+      "argument": 0,
+      "haptic": "light"
+    },
+    "ptab_1": {
+      "kind": "module",
+      "action": "ptab",
+      "argument": 1,
+      "haptic": "light"
+    }
+  },
+  "pages": [
+    {
+      "id": "map",
+      "name": "Map",
+      "widgets": [
+        {
+          "type": "map",
+          "rect": [
+            0,
+            0,
+            860,
+            960
+          ],
+          "bg": "#FF0E1321",
+          "area_label": false,
+          "id": "xcx-map-over",
+          "area": "xcx_over",
+          "follow_window": 15000,
+          "pan_zoom": true,
+          "min_zoom": 0.5,
+          "max_zoom": 6.0,
+          "marker_x_bind": "xcx.pl_x",
+          "marker_y_bind": "xcx.pl_y",
+          "marker_src": "module:xcx:map/arrow/0/0/0",
+          "marker_size": [
+            72,
+            72
+          ],
+          "marker_rotate_bind": "xcx.player_yaw_deg",
+          "overlays": [
+            {
+              "src_bind": "xcx.ml.0",
+              "x0": -15000.0,
+              "y0": -0.0,
+              "x1": 0.0,
+              "y1": 13750.0,
+              "show_bind": "xcx.mls.0",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.ml.1",
+              "x0": 0.0,
+              "y0": -0.0,
+              "x1": 15000.0,
+              "y1": 13750.0,
+              "show_bind": "xcx.mls.1",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.ml.2",
+              "x0": -15000.0,
+              "y0": -13750.0,
+              "x1": 0.0,
+              "y1": -0.0,
+              "show_bind": "xcx.mls.2",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.ml.3",
+              "x0": 0.0,
+              "y0": -13750.0,
+              "x1": 15000.0,
+              "y1": -0.0,
+              "show_bind": "xcx.mls.3",
+              "opacity": 1
+            }
+          ],
+          "need_bind": "xcx.mw.over"
+        },
+        {
+          "type": "map",
+          "rect": [
+            0,
+            0,
+            860,
+            960
+          ],
+          "bg": "#FF0E1321",
+          "area_label": false,
+          "id": "xcx-map-home",
+          "area": "xcx_over",
+          "follow_window": 30000,
+          "pan_zoom": true,
+          "min_zoom": 0.5,
+          "max_zoom": 6.0,
+          "overlays": [
+            {
+              "src_bind": "xcx.ml.0",
+              "x0": -15000.0,
+              "y0": -0.0,
+              "x1": 0.0,
+              "y1": 13750.0,
+              "show_bind": "xcx.mls.0",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.ml.1",
+              "x0": 0.0,
+              "y0": -0.0,
+              "x1": 15000.0,
+              "y1": 13750.0,
+              "show_bind": "xcx.mls.1",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.ml.2",
+              "x0": -15000.0,
+              "y0": -13750.0,
+              "x1": 0.0,
+              "y1": -0.0,
+              "show_bind": "xcx.mls.2",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.ml.3",
+              "x0": 0.0,
+              "y0": -13750.0,
+              "x1": 15000.0,
+              "y1": -0.0,
+              "show_bind": "xcx.mls.3",
+              "opacity": 1
+            }
+          ],
+          "need_bind": "xcx.mw.home"
+        },
+        {
+          "type": "map",
+          "rect": [
+            0,
+            0,
+            860,
+            960
+          ],
+          "bg": "#FF0E1321",
+          "area_label": false,
+          "id": "xcx-map-world",
+          "area": "xcx_area",
+          "follow_window": 2400,
+          "pan_zoom": true,
+          "min_zoom": 0.35,
+          "max_zoom": 3.0,
+          "marker_x_bind": "xcx.pl_x",
+          "marker_y_bind": "xcx.pl_y",
+          "marker_src": "module:xcx:map/arrow/0/0/0",
+          "marker_size": [
+            72,
+            72
+          ],
+          "marker_rotate_bind": "xcx.player_yaw_deg",
+          "overlays": [
+            {
+              "src_bind": "xcx.ml.0",
+              "x0": -15000.0,
+              "y0": -0.0,
+              "x1": 0.0,
+              "y1": 13750.0,
+              "show_bind": "xcx.mls.0",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.ml.1",
+              "x0": 0.0,
+              "y0": -0.0,
+              "x1": 15000.0,
+              "y1": 13750.0,
+              "show_bind": "xcx.mls.1",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.ml.2",
+              "x0": -15000.0,
+              "y0": -13750.0,
+              "x1": 0.0,
+              "y1": -0.0,
+              "show_bind": "xcx.mls.2",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.ml.3",
+              "x0": 0.0,
+              "y0": -13750.0,
+              "x1": 15000.0,
+              "y1": -0.0,
+              "show_bind": "xcx.mls.3",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.0",
+              "x0": -15000.0,
+              "y0": 8750.0,
+              "x1": -10000.0,
+              "y1": 13750.0,
+              "show_bind": "xcx.mhs.0",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.1",
+              "x0": -10000.0,
+              "y0": 8750.0,
+              "x1": -5000.0,
+              "y1": 13750.0,
+              "show_bind": "xcx.mhs.1",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.2",
+              "x0": -5000.0,
+              "y0": 8750.0,
+              "x1": 0.0,
+              "y1": 13750.0,
+              "show_bind": "xcx.mhs.2",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.3",
+              "x0": 0.0,
+              "y0": 8750.0,
+              "x1": 5000.0,
+              "y1": 13750.0,
+              "show_bind": "xcx.mhs.3",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.4",
+              "x0": 5000.0,
+              "y0": 8750.0,
+              "x1": 10000.0,
+              "y1": 13750.0,
+              "show_bind": "xcx.mhs.4",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.5",
+              "x0": 10000.0,
+              "y0": 8750.0,
+              "x1": 15000.0,
+              "y1": 13750.0,
+              "show_bind": "xcx.mhs.5",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.6",
+              "x0": -15000.0,
+              "y0": 3750.0,
+              "x1": -10000.0,
+              "y1": 8750.0,
+              "show_bind": "xcx.mhs.6",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.7",
+              "x0": -10000.0,
+              "y0": 3750.0,
+              "x1": -5000.0,
+              "y1": 8750.0,
+              "show_bind": "xcx.mhs.7",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.8",
+              "x0": -5000.0,
+              "y0": 3750.0,
+              "x1": 0.0,
+              "y1": 8750.0,
+              "show_bind": "xcx.mhs.8",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.9",
+              "x0": 0.0,
+              "y0": 3750.0,
+              "x1": 5000.0,
+              "y1": 8750.0,
+              "show_bind": "xcx.mhs.9",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.10",
+              "x0": 5000.0,
+              "y0": 3750.0,
+              "x1": 10000.0,
+              "y1": 8750.0,
+              "show_bind": "xcx.mhs.10",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.11",
+              "x0": 10000.0,
+              "y0": 3750.0,
+              "x1": 15000.0,
+              "y1": 8750.0,
+              "show_bind": "xcx.mhs.11",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.12",
+              "x0": -15000.0,
+              "y0": -1250.0,
+              "x1": -10000.0,
+              "y1": 3750.0,
+              "show_bind": "xcx.mhs.12",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.13",
+              "x0": -10000.0,
+              "y0": -1250.0,
+              "x1": -5000.0,
+              "y1": 3750.0,
+              "show_bind": "xcx.mhs.13",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.14",
+              "x0": -5000.0,
+              "y0": -1250.0,
+              "x1": 0.0,
+              "y1": 3750.0,
+              "show_bind": "xcx.mhs.14",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.15",
+              "x0": 0.0,
+              "y0": -1250.0,
+              "x1": 5000.0,
+              "y1": 3750.0,
+              "show_bind": "xcx.mhs.15",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.16",
+              "x0": 5000.0,
+              "y0": -1250.0,
+              "x1": 10000.0,
+              "y1": 3750.0,
+              "show_bind": "xcx.mhs.16",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.17",
+              "x0": 10000.0,
+              "y0": -1250.0,
+              "x1": 15000.0,
+              "y1": 3750.0,
+              "show_bind": "xcx.mhs.17",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.18",
+              "x0": -15000.0,
+              "y0": -6250.0,
+              "x1": -10000.0,
+              "y1": -1250.0,
+              "show_bind": "xcx.mhs.18",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.19",
+              "x0": -10000.0,
+              "y0": -6250.0,
+              "x1": -5000.0,
+              "y1": -1250.0,
+              "show_bind": "xcx.mhs.19",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.20",
+              "x0": -5000.0,
+              "y0": -6250.0,
+              "x1": 0.0,
+              "y1": -1250.0,
+              "show_bind": "xcx.mhs.20",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.21",
+              "x0": 0.0,
+              "y0": -6250.0,
+              "x1": 5000.0,
+              "y1": -1250.0,
+              "show_bind": "xcx.mhs.21",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.22",
+              "x0": 5000.0,
+              "y0": -6250.0,
+              "x1": 10000.0,
+              "y1": -1250.0,
+              "show_bind": "xcx.mhs.22",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.23",
+              "x0": 10000.0,
+              "y0": -6250.0,
+              "x1": 15000.0,
+              "y1": -1250.0,
+              "show_bind": "xcx.mhs.23",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.24",
+              "x0": -15000.0,
+              "y0": -11250.0,
+              "x1": -10000.0,
+              "y1": -6250.0,
+              "show_bind": "xcx.mhs.24",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.25",
+              "x0": -10000.0,
+              "y0": -11250.0,
+              "x1": -5000.0,
+              "y1": -6250.0,
+              "show_bind": "xcx.mhs.25",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.26",
+              "x0": -5000.0,
+              "y0": -11250.0,
+              "x1": 0.0,
+              "y1": -6250.0,
+              "show_bind": "xcx.mhs.26",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.27",
+              "x0": 0.0,
+              "y0": -11250.0,
+              "x1": 5000.0,
+              "y1": -6250.0,
+              "show_bind": "xcx.mhs.27",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.28",
+              "x0": 5000.0,
+              "y0": -11250.0,
+              "x1": 10000.0,
+              "y1": -6250.0,
+              "show_bind": "xcx.mhs.28",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.29",
+              "x0": 10000.0,
+              "y0": -11250.0,
+              "x1": 15000.0,
+              "y1": -6250.0,
+              "show_bind": "xcx.mhs.29",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.30",
+              "x0": -15000.0,
+              "y0": -13750.0,
+              "x1": -10000.0,
+              "y1": -11250.0,
+              "show_bind": "xcx.mhs.30",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.31",
+              "x0": -10000.0,
+              "y0": -13750.0,
+              "x1": -5000.0,
+              "y1": -11250.0,
+              "show_bind": "xcx.mhs.31",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.32",
+              "x0": -5000.0,
+              "y0": -13750.0,
+              "x1": 0.0,
+              "y1": -11250.0,
+              "show_bind": "xcx.mhs.32",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.33",
+              "x0": 0.0,
+              "y0": -13750.0,
+              "x1": 5000.0,
+              "y1": -11250.0,
+              "show_bind": "xcx.mhs.33",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.34",
+              "x0": 5000.0,
+              "y0": -13750.0,
+              "x1": 10000.0,
+              "y1": -11250.0,
+              "show_bind": "xcx.mhs.34",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mh.35",
+              "x0": 10000.0,
+              "y0": -13750.0,
+              "x1": 15000.0,
+              "y1": -11250.0,
+              "show_bind": "xcx.mhs.35",
+              "opacity": 1
+            }
+          ],
+          "need_bind": "xcx.mw.world"
+        },
+        {
+          "type": "map",
+          "rect": [
+            0,
+            0,
+            860,
+            960
+          ],
+          "bg": "#FF0E1321",
+          "area_label": false,
+          "id": "xcx-map-nla",
+          "area": "xcx_nla",
+          "follow_window": 520,
+          "pan_zoom": true,
+          "min_zoom": 0.5,
+          "max_zoom": 4.0,
+          "marker_x_bind": "xcx.pl_x",
+          "marker_y_bind": "xcx.pl_y",
+          "marker_src": "module:xcx:map/arrow/0/0/0",
+          "marker_size": [
+            72,
+            72
+          ],
+          "marker_rotate_bind": "xcx.player_yaw_deg",
+          "overlays": [
+            {
+              "src_bind": "xcx.mn.0",
+              "x0": -3480.0,
+              "y0": -6890.0,
+              "x1": -2780.0,
+              "y1": -6190.0,
+              "show_bind": "xcx.mns.0",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.1",
+              "x0": -2780.0,
+              "y0": -6890.0,
+              "x1": -2080.0,
+              "y1": -6190.0,
+              "show_bind": "xcx.mns.1",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.2",
+              "x0": -2080.0,
+              "y0": -6890.0,
+              "x1": -1380.0,
+              "y1": -6190.0,
+              "show_bind": "xcx.mns.2",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.3",
+              "x0": -1380.0,
+              "y0": -6890.0,
+              "x1": -680.0,
+              "y1": -6190.0,
+              "show_bind": "xcx.mns.3",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.4",
+              "x0": -3480.0,
+              "y0": -7590.0,
+              "x1": -2780.0,
+              "y1": -6890.0,
+              "show_bind": "xcx.mns.4",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.5",
+              "x0": -2780.0,
+              "y0": -7590.0,
+              "x1": -2080.0,
+              "y1": -6890.0,
+              "show_bind": "xcx.mns.5",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.6",
+              "x0": -2080.0,
+              "y0": -7590.0,
+              "x1": -1380.0,
+              "y1": -6890.0,
+              "show_bind": "xcx.mns.6",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.7",
+              "x0": -1380.0,
+              "y0": -7590.0,
+              "x1": -680.0,
+              "y1": -6890.0,
+              "show_bind": "xcx.mns.7",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.8",
+              "x0": -3480.0,
+              "y0": -8290.0,
+              "x1": -2780.0,
+              "y1": -7590.0,
+              "show_bind": "xcx.mns.8",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.9",
+              "x0": -2780.0,
+              "y0": -8290.0,
+              "x1": -2080.0,
+              "y1": -7590.0,
+              "show_bind": "xcx.mns.9",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.10",
+              "x0": -2080.0,
+              "y0": -8290.0,
+              "x1": -1380.0,
+              "y1": -7590.0,
+              "show_bind": "xcx.mns.10",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.11",
+              "x0": -1380.0,
+              "y0": -8290.0,
+              "x1": -680.0,
+              "y1": -7590.0,
+              "show_bind": "xcx.mns.11",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.12",
+              "x0": -3480.0,
+              "y0": -8990.0,
+              "x1": -2780.0,
+              "y1": -8290.0,
+              "show_bind": "xcx.mns.12",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.13",
+              "x0": -2780.0,
+              "y0": -8990.0,
+              "x1": -2080.0,
+              "y1": -8290.0,
+              "show_bind": "xcx.mns.13",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.14",
+              "x0": -2080.0,
+              "y0": -8990.0,
+              "x1": -1380.0,
+              "y1": -8290.0,
+              "show_bind": "xcx.mns.14",
+              "opacity": 1
+            },
+            {
+              "src_bind": "xcx.mn.15",
+              "x0": -1380.0,
+              "y0": -8990.0,
+              "x1": -680.0,
+              "y1": -8290.0,
+              "show_bind": "xcx.mns.15",
+              "opacity": 1
+            }
+          ],
+          "need_bind": "xcx.mw.nla"
+        },
+        {
+          "type": "map",
+          "rect": [
+            0,
+            0,
+            860,
+            960
+          ],
+          "bg": "#FF0E1321",
+          "area_label": false,
+          "id": "xcx-map-barracks",
+          "area": "xcx_barracks",
+          "pan_zoom": true,
+          "min_zoom": 1.0,
+          "max_zoom": 6.0,
+          "marker_x_bind": "xcx.pl_x",
+          "marker_y_bind": "xcx.pl_y",
+          "marker_src": "module:xcx:map/arrow/0/0/0",
+          "marker_size": [
+            72,
+            72
+          ],
+          "marker_rotate_bind": "xcx.player_yaw_deg",
+          "need_bind": "xcx.mw.barracks"
+        },
+        {
+          "id": "xcx-page",
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src_bind": "xcx.frame",
+          "tint": "#FFFFFFFF"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            34,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fs0-0",
+          "anim": {
+            "bind": "xcx.rail_pf_s0",
+            "group": "xcx.rail_pf_s0",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            34,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rs0-0",
+          "need_bind": "xcx.rail_pr_s0"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            18,
+            304,
+            108
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fs0-1",
+          "anim": {
+            "bind": "xcx.rail_pf_s0",
+            "group": "xcx.rail_pf_s0",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            18,
+            304,
+            108
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rs0-1",
+          "need_bind": "xcx.rail_pr_s0"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            18,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fs0-2",
+          "anim": {
+            "bind": "xcx.rail_pf_s0",
+            "group": "xcx.rail_pf_s0",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            18,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rs0-2",
+          "need_bind": "xcx.rail_pr_s0"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            156,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fs1-0",
+          "anim": {
+            "bind": "xcx.rail_pf_s1",
+            "group": "xcx.rail_pf_s1",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            156,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rs1-0",
+          "need_bind": "xcx.rail_pr_s1"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            140,
+            304,
+            108
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fs1-1",
+          "anim": {
+            "bind": "xcx.rail_pf_s1",
+            "group": "xcx.rail_pf_s1",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            140,
+            304,
+            108
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rs1-1",
+          "need_bind": "xcx.rail_pr_s1"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            140,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fs1-2",
+          "anim": {
+            "bind": "xcx.rail_pf_s1",
+            "group": "xcx.rail_pf_s1",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            140,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rs1-2",
+          "need_bind": "xcx.rail_pr_s1"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            278,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fs2-0",
+          "anim": {
+            "bind": "xcx.rail_pf_s2",
+            "group": "xcx.rail_pf_s2",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            278,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rs2-0",
+          "need_bind": "xcx.rail_pr_s2"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            262,
+            304,
+            108
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fs2-1",
+          "anim": {
+            "bind": "xcx.rail_pf_s2",
+            "group": "xcx.rail_pf_s2",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            262,
+            304,
+            108
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rs2-1",
+          "need_bind": "xcx.rail_pr_s2"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            262,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fs2-2",
+          "anim": {
+            "bind": "xcx.rail_pf_s2",
+            "group": "xcx.rail_pf_s2",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            262,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rs2-2",
+          "need_bind": "xcx.rail_pr_s2"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            400,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fs3-0",
+          "anim": {
+            "bind": "xcx.rail_pf_s3",
+            "group": "xcx.rail_pf_s3",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            400,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rs3-0",
+          "need_bind": "xcx.rail_pr_s3"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            384,
+            304,
+            108
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fs3-1",
+          "anim": {
+            "bind": "xcx.rail_pf_s3",
+            "group": "xcx.rail_pf_s3",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            384,
+            304,
+            108
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rs3-1",
+          "need_bind": "xcx.rail_pr_s3"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            384,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fs3-2",
+          "anim": {
+            "bind": "xcx.rail_pf_s3",
+            "group": "xcx.rail_pf_s3",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            384,
+            16,
+            92
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rs3-2",
+          "need_bind": "xcx.rail_pr_s3"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            34,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fn0-0",
+          "anim": {
+            "bind": "xcx.rail_pf_n0",
+            "group": "xcx.rail_pf_n0",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            34,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rn0-0",
+          "need_bind": "xcx.rail_pr_n0"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            18,
+            304,
+            196
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fn0-1",
+          "anim": {
+            "bind": "xcx.rail_pf_n0",
+            "group": "xcx.rail_pf_n0",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            18,
+            304,
+            196
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rn0-1",
+          "need_bind": "xcx.rail_pr_n0"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            18,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fn0-2",
+          "anim": {
+            "bind": "xcx.rail_pf_n0",
+            "group": "xcx.rail_pf_n0",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            18,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rn0-2",
+          "need_bind": "xcx.rail_pr_n0"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            266,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fn1-0",
+          "anim": {
+            "bind": "xcx.rail_pf_n1",
+            "group": "xcx.rail_pf_n1",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            266,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rn1-0",
+          "need_bind": "xcx.rail_pr_n1"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            250,
+            304,
+            196
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fn1-1",
+          "anim": {
+            "bind": "xcx.rail_pf_n1",
+            "group": "xcx.rail_pf_n1",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            250,
+            304,
+            196
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rn1-1",
+          "need_bind": "xcx.rail_pr_n1"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            250,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fn1-2",
+          "anim": {
+            "bind": "xcx.rail_pf_n1",
+            "group": "xcx.rail_pf_n1",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            250,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rn1-2",
+          "need_bind": "xcx.rail_pr_n1"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            498,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fn2-0",
+          "anim": {
+            "bind": "xcx.rail_pf_n2",
+            "group": "xcx.rail_pf_n2",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            498,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rn2-0",
+          "need_bind": "xcx.rail_pr_n2"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            482,
+            304,
+            196
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fn2-1",
+          "anim": {
+            "bind": "xcx.rail_pf_n2",
+            "group": "xcx.rail_pf_n2",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            482,
+            304,
+            196
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rn2-1",
+          "need_bind": "xcx.rail_pr_n2"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            482,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fn2-2",
+          "anim": {
+            "bind": "xcx.rail_pf_n2",
+            "group": "xcx.rail_pf_n2",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            482,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rn2-2",
+          "need_bind": "xcx.rail_pr_n2"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            730,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fn3-0",
+          "anim": {
+            "bind": "xcx.rail_pf_n3",
+            "group": "xcx.rail_pf_n3",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            886,
+            730,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rn3-0",
+          "need_bind": "xcx.rail_pr_n3"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            714,
+            304,
+            196
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fn3-1",
+          "anim": {
+            "bind": "xcx.rail_pf_n3",
+            "group": "xcx.rail_pf_n3",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            902,
+            714,
+            304,
+            196
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rn3-1",
+          "need_bind": "xcx.rail_pr_n3"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            714,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-fn3-2",
+          "anim": {
+            "bind": "xcx.rail_pf_n3",
+            "group": "xcx.rail_pf_n3",
+            "from": "fade",
+            "ms": 70,
+            "easing": "ease_out"
+          }
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1206,
+            714,
+            16,
+            180
+          ],
+          "bg": "#33FFFFFF",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-rail-press-rn3-2",
+          "need_bind": "xcx.rail_pr_n3"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_0",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            277,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_1",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            538,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_2",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            799,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_4",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1060,
+            964,
+            164,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_3",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_0",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            364,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_1",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            712,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_4",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1060,
+            964,
+            164,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_3",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            884,
+            16,
+            340,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "rail_0",
+          "need_bind": "xcx.map_rail_s0"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            884,
+            16,
+            340,
+            200
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "rail_0",
+          "need_bind": "xcx.map_rail_n0"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            884,
+            138,
+            340,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "rail_1",
+          "need_bind": "xcx.map_rail_s1"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            884,
+            248,
+            340,
+            200
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "rail_1",
+          "need_bind": "xcx.map_rail_n1"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            884,
+            260,
+            340,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "rail_2",
+          "need_bind": "xcx.map_rail_s2"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            884,
+            480,
+            340,
+            200
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "rail_2",
+          "need_bind": "xcx.map_rail_n2"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            884,
+            382,
+            340,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "rail_3",
+          "need_bind": "xcx.map_rail_s3"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            884,
+            712,
+            340,
+            200
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "rail_3",
+          "need_bind": "xcx.map_rail_n3"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            900,
+            820,
+            308,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "skell_button",
+          "on_hold": "return_hold",
+          "hold_ms": 600,
+          "need_bind": "xcx.map_skell_button"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            72,
+            196,
+            88
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "map_tab_over",
+          "need_bind": "xcx.map_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            220,
+            72,
+            196,
+            88
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "map_tab_area",
+          "need_bind": "xcx.map_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            716,
+            824,
+            136,
+            120
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "find_self_over",
+          "need_bind": "xcx.mw.over"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            716,
+            824,
+            136,
+            120
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "find_self_home",
+          "need_bind": "xcx.mw.home"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            716,
+            824,
+            136,
+            120
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "find_self_world",
+          "need_bind": "xcx.mw.world"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            716,
+            824,
+            136,
+            120
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "find_self_nla",
+          "need_bind": "xcx.mw.nla"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            716,
+            824,
+            136,
+            120
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "find_self_barracks",
+          "need_bind": "xcx.mw.barracks"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "bg": "#FF0E1321",
+          "color": "#00000000",
+          "frame": 0,
+          "input_block": true,
+          "id": "xcx-refuse-00",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            560,
+            120,
+            120,
+            120
+          ],
+          "bg": "#00000000",
+          "color": "#FFF88898",
+          "frame": 3,
+          "id": "xcx-refuse-01",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            610,
+            142,
+            20,
+            52
+          ],
+          "bg": "#FFF88898",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-refuse-02",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            610,
+            204,
+            20,
+            16
+          ],
+          "bg": "#FFF88898",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-refuse-03",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            320,
+            0,
+            0
+          ],
+          "text": "Companion not available",
+          "text_scale": 7,
+          "color": "#FFF8F8F8",
+          "align": "center",
+          "id": "xcx-refuse-04",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            80,
+            460,
+            520,
+            280
+          ],
+          "bg": "#FF141B2C",
+          "color": "#FFF88898",
+          "frame": 2,
+          "id": "xcx-refuse-05",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            108,
+            486,
+            0,
+            0
+          ],
+          "text": "Detected",
+          "text_scale": 4,
+          "color": "#FFF88898",
+          "align": "left",
+          "id": "xcx-refuse-06",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            108,
+            546,
+            0,
+            0
+          ],
+          "text": "",
+          "bind_text": "module_error_message",
+          "text_scale": 4,
+          "color": "#FFF8F8F8",
+          "align": "left",
+          "wrap_width": 464,
+          "max_lines": 4,
+          "id": "xcx-refuse-07",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            640,
+            460,
+            520,
+            280
+          ],
+          "bg": "#FF141B2C",
+          "color": "#FF78F8F8",
+          "frame": 2,
+          "id": "xcx-refuse-08",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            668,
+            486,
+            0,
+            0
+          ],
+          "text": "Supported",
+          "text_scale": 4,
+          "color": "#FF78F8F8",
+          "align": "left",
+          "id": "xcx-refuse-09",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            668,
+            566,
+            0,
+            0
+          ],
+          "text": "Ver. 1.0.2",
+          "text_scale": 7,
+          "color": "#FFF8F8F8",
+          "align": "left",
+          "id": "xcx-refuse-10",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            800,
+            0,
+            0
+          ],
+          "text": "Use game version 1.0.2 to use the companion.",
+          "text_scale": 5,
+          "color": "#FFF8F8F8",
+          "align": "center",
+          "id": "xcx-refuse-11",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            870,
+            0,
+            0
+          ],
+          "text": "The game keeps running on the main screen.",
+          "text_scale": 4,
+          "color": "#FFC8D0DA",
+          "align": "center",
+          "id": "xcx-refuse-12",
+          "need_bind": "module_error"
+        }
+      ]
+    },
+    {
+      "id": "party",
+      "name": "Party",
+      "widgets": [
+        {
+          "id": "xcx-page",
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src_bind": "xcx.frame",
+          "tint": "#FFFFFFFF"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_0",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            277,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_1",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            538,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_2",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            799,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_4",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1060,
+            964,
+            164,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_3",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_0",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            364,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_1",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            712,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_4",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1060,
+            964,
+            164,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_3",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            24,
+            24,
+            420,
+            168
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "party_0",
+          "need_bind": "xcx.party_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            24,
+            204,
+            420,
+            168
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "party_1",
+          "need_bind": "xcx.party_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            24,
+            384,
+            420,
+            168
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "party_2",
+          "need_bind": "xcx.party_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            24,
+            564,
+            420,
+            168
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "party_3",
+          "need_bind": "xcx.party_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            24,
+            756,
+            420,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "switch_set",
+          "need_bind": "xcx.set_button"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            480,
+            24,
+            362,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "ptab_0",
+          "need_bind": "xcx.party_page",
+          "id": "xcx-profile-tab0"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            842,
+            24,
+            362,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "ptab_1",
+          "need_bind": "xcx.party_page",
+          "id": "xcx-profile-tab1"
+        },
+        {
+          "type": "image",
+          "rect": [
+            468,
+            148,
+            748,
+            1716
+          ],
+          "src_bind": "xcx.gear",
+          "need_bind": "xcx.gear_tab",
+          "repeat": 1,
+          "scroll": "xcx-gear",
+          "id": "xcx-profile-gear"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "bg": "#FF0E1321",
+          "color": "#00000000",
+          "frame": 0,
+          "input_block": true,
+          "id": "xcx-refuse-00",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            560,
+            120,
+            120,
+            120
+          ],
+          "bg": "#00000000",
+          "color": "#FFF88898",
+          "frame": 3,
+          "id": "xcx-refuse-01",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            610,
+            142,
+            20,
+            52
+          ],
+          "bg": "#FFF88898",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-refuse-02",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            610,
+            204,
+            20,
+            16
+          ],
+          "bg": "#FFF88898",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-refuse-03",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            320,
+            0,
+            0
+          ],
+          "text": "Companion not available",
+          "text_scale": 7,
+          "color": "#FFF8F8F8",
+          "align": "center",
+          "id": "xcx-refuse-04",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            80,
+            460,
+            520,
+            280
+          ],
+          "bg": "#FF141B2C",
+          "color": "#FFF88898",
+          "frame": 2,
+          "id": "xcx-refuse-05",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            108,
+            486,
+            0,
+            0
+          ],
+          "text": "Detected",
+          "text_scale": 4,
+          "color": "#FFF88898",
+          "align": "left",
+          "id": "xcx-refuse-06",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            108,
+            546,
+            0,
+            0
+          ],
+          "text": "",
+          "bind_text": "module_error_message",
+          "text_scale": 4,
+          "color": "#FFF8F8F8",
+          "align": "left",
+          "wrap_width": 464,
+          "max_lines": 4,
+          "id": "xcx-refuse-07",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            640,
+            460,
+            520,
+            280
+          ],
+          "bg": "#FF141B2C",
+          "color": "#FF78F8F8",
+          "frame": 2,
+          "id": "xcx-refuse-08",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            668,
+            486,
+            0,
+            0
+          ],
+          "text": "Supported",
+          "text_scale": 4,
+          "color": "#FF78F8F8",
+          "align": "left",
+          "id": "xcx-refuse-09",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            668,
+            566,
+            0,
+            0
+          ],
+          "text": "Ver. 1.0.2",
+          "text_scale": 7,
+          "color": "#FFF8F8F8",
+          "align": "left",
+          "id": "xcx-refuse-10",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            800,
+            0,
+            0
+          ],
+          "text": "Use game version 1.0.2 to use the companion.",
+          "text_scale": 5,
+          "color": "#FFF8F8F8",
+          "align": "center",
+          "id": "xcx-refuse-11",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            870,
+            0,
+            0
+          ],
+          "text": "The game keeps running on the main screen.",
+          "text_scale": 4,
+          "color": "#FFC8D0DA",
+          "align": "center",
+          "id": "xcx-refuse-12",
+          "need_bind": "module_error"
+        }
+      ],
+      "scrolls": [
+        {
+          "id": "xcx-gear",
+          "rect": [
+            468,
+            148,
+            748,
+            708
+          ],
+          "content_h_bind": "xcx.gear_h",
+          "show_bind": "xcx.gear_tab",
+          "reset_bind": "xcx.gear_member",
+          "bar": "#FF78F8F8",
+          "bar_track": "#33FFFFFF",
+          "bar_w": 6
+        }
+      ]
+    },
+    {
+      "id": "skell",
+      "name": "Skell",
+      "widgets": [
+        {
+          "id": "xcx-page",
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src_bind": "xcx.frame",
+          "tint": "#FFFFFFFF"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_0",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            277,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_1",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            538,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_2",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            799,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_4",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1060,
+            964,
+            164,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_3",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_0",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            364,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_1",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            712,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_4",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1060,
+            964,
+            164,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_3",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            900,
+            820,
+            308,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "skell_button",
+          "on_hold": "return_hold",
+          "hold_ms": 600,
+          "need_bind": "xcx.skell_page_button"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "bg": "#FF0E1321",
+          "color": "#00000000",
+          "frame": 0,
+          "input_block": true,
+          "id": "xcx-refuse-00",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            560,
+            120,
+            120,
+            120
+          ],
+          "bg": "#00000000",
+          "color": "#FFF88898",
+          "frame": 3,
+          "id": "xcx-refuse-01",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            610,
+            142,
+            20,
+            52
+          ],
+          "bg": "#FFF88898",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-refuse-02",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            610,
+            204,
+            20,
+            16
+          ],
+          "bg": "#FFF88898",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-refuse-03",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            320,
+            0,
+            0
+          ],
+          "text": "Companion not available",
+          "text_scale": 7,
+          "color": "#FFF8F8F8",
+          "align": "center",
+          "id": "xcx-refuse-04",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            80,
+            460,
+            520,
+            280
+          ],
+          "bg": "#FF141B2C",
+          "color": "#FFF88898",
+          "frame": 2,
+          "id": "xcx-refuse-05",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            108,
+            486,
+            0,
+            0
+          ],
+          "text": "Detected",
+          "text_scale": 4,
+          "color": "#FFF88898",
+          "align": "left",
+          "id": "xcx-refuse-06",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            108,
+            546,
+            0,
+            0
+          ],
+          "text": "",
+          "bind_text": "module_error_message",
+          "text_scale": 4,
+          "color": "#FFF8F8F8",
+          "align": "left",
+          "wrap_width": 464,
+          "max_lines": 4,
+          "id": "xcx-refuse-07",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            640,
+            460,
+            520,
+            280
+          ],
+          "bg": "#FF141B2C",
+          "color": "#FF78F8F8",
+          "frame": 2,
+          "id": "xcx-refuse-08",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            668,
+            486,
+            0,
+            0
+          ],
+          "text": "Supported",
+          "text_scale": 4,
+          "color": "#FF78F8F8",
+          "align": "left",
+          "id": "xcx-refuse-09",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            668,
+            566,
+            0,
+            0
+          ],
+          "text": "Ver. 1.0.2",
+          "text_scale": 7,
+          "color": "#FFF8F8F8",
+          "align": "left",
+          "id": "xcx-refuse-10",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            800,
+            0,
+            0
+          ],
+          "text": "Use game version 1.0.2 to use the companion.",
+          "text_scale": 5,
+          "color": "#FFF8F8F8",
+          "align": "center",
+          "id": "xcx-refuse-11",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            870,
+            0,
+            0
+          ],
+          "text": "The game keeps running on the main screen.",
+          "text_scale": 4,
+          "color": "#FFC8D0DA",
+          "align": "center",
+          "id": "xcx-refuse-12",
+          "need_bind": "module_error"
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "widgets": [
+        {
+          "id": "xcx-page",
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src_bind": "xcx.frame",
+          "tint": "#FFFFFFFF"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_0",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            277,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_1",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            538,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_2",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            799,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_4",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1060,
+            964,
+            164,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_3",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_0",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            364,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_1",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            712,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_4",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1060,
+            964,
+            164,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_3",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            40,
+            536,
+            1160,
+            88
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "settings_motion",
+          "need_bind": "xcx.settings_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            40,
+            116,
+            1160,
+            88
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "settings_hud_map",
+          "need_bind": "xcx.settings_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            40,
+            228,
+            1160,
+            88
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "settings_hud_fuel",
+          "need_bind": "xcx.settings_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "bg": "#FF0E1321",
+          "color": "#00000000",
+          "frame": 0,
+          "input_block": true,
+          "id": "xcx-refuse-00",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            560,
+            120,
+            120,
+            120
+          ],
+          "bg": "#00000000",
+          "color": "#FFF88898",
+          "frame": 3,
+          "id": "xcx-refuse-01",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            610,
+            142,
+            20,
+            52
+          ],
+          "bg": "#FFF88898",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-refuse-02",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            610,
+            204,
+            20,
+            16
+          ],
+          "bg": "#FFF88898",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-refuse-03",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            320,
+            0,
+            0
+          ],
+          "text": "Companion not available",
+          "text_scale": 7,
+          "color": "#FFF8F8F8",
+          "align": "center",
+          "id": "xcx-refuse-04",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            80,
+            460,
+            520,
+            280
+          ],
+          "bg": "#FF141B2C",
+          "color": "#FFF88898",
+          "frame": 2,
+          "id": "xcx-refuse-05",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            108,
+            486,
+            0,
+            0
+          ],
+          "text": "Detected",
+          "text_scale": 4,
+          "color": "#FFF88898",
+          "align": "left",
+          "id": "xcx-refuse-06",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            108,
+            546,
+            0,
+            0
+          ],
+          "text": "",
+          "bind_text": "module_error_message",
+          "text_scale": 4,
+          "color": "#FFF8F8F8",
+          "align": "left",
+          "wrap_width": 464,
+          "max_lines": 4,
+          "id": "xcx-refuse-07",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            640,
+            460,
+            520,
+            280
+          ],
+          "bg": "#FF141B2C",
+          "color": "#FF78F8F8",
+          "frame": 2,
+          "id": "xcx-refuse-08",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            668,
+            486,
+            0,
+            0
+          ],
+          "text": "Supported",
+          "text_scale": 4,
+          "color": "#FF78F8F8",
+          "align": "left",
+          "id": "xcx-refuse-09",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            668,
+            566,
+            0,
+            0
+          ],
+          "text": "Ver. 1.0.2",
+          "text_scale": 7,
+          "color": "#FFF8F8F8",
+          "align": "left",
+          "id": "xcx-refuse-10",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            800,
+            0,
+            0
+          ],
+          "text": "Use game version 1.0.2 to use the companion.",
+          "text_scale": 5,
+          "color": "#FFF8F8F8",
+          "align": "center",
+          "id": "xcx-refuse-11",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            870,
+            0,
+            0
+          ],
+          "text": "The game keeps running on the main screen.",
+          "text_scale": 4,
+          "color": "#FFC8D0DA",
+          "align": "center",
+          "id": "xcx-refuse-12",
+          "need_bind": "module_error"
+        }
+      ]
+    },
+    {
+      "id": "battle",
+      "name": "Battle",
+      "widgets": [
+        {
+          "id": "xcx-page",
+          "type": "image",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "src_bind": "xcx.frame",
+          "tint": "#FFFFFFFF"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_0",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            277,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_1",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            538,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_2",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            799,
+            964,
+            249,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_4",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1060,
+            964,
+            164,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_3",
+          "need_bind": "xcx.has_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_0",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            364,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_1",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            712,
+            964,
+            336,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_4",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            1060,
+            964,
+            164,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "page_3",
+          "need_bind": "xcx.no_skell"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            16,
+            596,
+            216
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "bpick_0",
+          "need_bind": "xcx.battle_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            628,
+            16,
+            596,
+            216
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "bpick_1",
+          "need_bind": "xcx.battle_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            16,
+            252,
+            596,
+            216
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "bpick_2",
+          "need_bind": "xcx.battle_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            628,
+            252,
+            596,
+            216
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "bpick_3",
+          "need_bind": "xcx.battle_page"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            452,
+            696,
+            432,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "battle_commands",
+          "need_bind": "xcx.battle_cmd_button"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            24,
+            820,
+            420,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "switch_set",
+          "need_bind": "xcx.battle_set_button"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            900,
+            820,
+            308,
+            112
+          ],
+          "bg": "#00000000",
+          "color": "#00000000",
+          "frame": 0,
+          "on_tap": "skell_button",
+          "on_hold": "return_hold",
+          "hold_ms": 600,
+          "need_bind": "xcx.battle_skell_button"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            0,
+            0,
+            1240,
+            1080
+          ],
+          "bg": "#FF0E1321",
+          "color": "#00000000",
+          "frame": 0,
+          "input_block": true,
+          "id": "xcx-refuse-00",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            560,
+            120,
+            120,
+            120
+          ],
+          "bg": "#00000000",
+          "color": "#FFF88898",
+          "frame": 3,
+          "id": "xcx-refuse-01",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            610,
+            142,
+            20,
+            52
+          ],
+          "bg": "#FFF88898",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-refuse-02",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            610,
+            204,
+            20,
+            16
+          ],
+          "bg": "#FFF88898",
+          "color": "#00000000",
+          "frame": 0,
+          "id": "xcx-refuse-03",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            320,
+            0,
+            0
+          ],
+          "text": "Companion not available",
+          "text_scale": 7,
+          "color": "#FFF8F8F8",
+          "align": "center",
+          "id": "xcx-refuse-04",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            80,
+            460,
+            520,
+            280
+          ],
+          "bg": "#FF141B2C",
+          "color": "#FFF88898",
+          "frame": 2,
+          "id": "xcx-refuse-05",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            108,
+            486,
+            0,
+            0
+          ],
+          "text": "Detected",
+          "text_scale": 4,
+          "color": "#FFF88898",
+          "align": "left",
+          "id": "xcx-refuse-06",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            108,
+            546,
+            0,
+            0
+          ],
+          "text": "",
+          "bind_text": "module_error_message",
+          "text_scale": 4,
+          "color": "#FFF8F8F8",
+          "align": "left",
+          "wrap_width": 464,
+          "max_lines": 4,
+          "id": "xcx-refuse-07",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "rect",
+          "rect": [
+            640,
+            460,
+            520,
+            280
+          ],
+          "bg": "#FF141B2C",
+          "color": "#FF78F8F8",
+          "frame": 2,
+          "id": "xcx-refuse-08",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            668,
+            486,
+            0,
+            0
+          ],
+          "text": "Supported",
+          "text_scale": 4,
+          "color": "#FF78F8F8",
+          "align": "left",
+          "id": "xcx-refuse-09",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            668,
+            566,
+            0,
+            0
+          ],
+          "text": "Ver. 1.0.2",
+          "text_scale": 7,
+          "color": "#FFF8F8F8",
+          "align": "left",
+          "id": "xcx-refuse-10",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            800,
+            0,
+            0
+          ],
+          "text": "Use game version 1.0.2 to use the companion.",
+          "text_scale": 5,
+          "color": "#FFF8F8F8",
+          "align": "center",
+          "id": "xcx-refuse-11",
+          "need_bind": "module_error"
+        },
+        {
+          "type": "label",
+          "rect": [
+            620,
+            870,
+            0,
+            0
+          ],
+          "text": "The game keeps running on the main screen.",
+          "text_scale": 4,
+          "color": "#FFC8D0DA",
+          "align": "center",
+          "id": "xcx-refuse-12",
+          "need_bind": "module_error"
+        }
+      ]
+    }
+  ],
+  "anim_hz": 60,
+  "flags": {
+    "motion.reduced": 0,
+    "xcx.map_mode": 0,
+    "xcx.hud_hide_map": 1,
+    "xcx.hud_hide_fuel": 1
+  },
+  "persist_flags": [
+    "motion.reduced",
+    "xcx.map_mode",
+    "xcx.hud_hide_map",
+    "xcx.hud_hide_fuel"
+  ],
+  "page_binds": [
+    {
+      "point": "xcx.pg_fade",
+      "equals": 0,
+      "when_equal": {
+        "page": "map",
+        "transition": "fade",
+        "duration_ms": 180,
+        "easing": "ease_out"
+      }
+    },
+    {
+      "point": "xcx.pg_fade",
+      "equals": 1,
+      "when_equal": {
+        "page": "party",
+        "transition": "fade",
+        "duration_ms": 180,
+        "easing": "ease_out"
+      }
+    },
+    {
+      "point": "xcx.pg_fade",
+      "equals": 2,
+      "when_equal": {
+        "page": "skell",
+        "transition": "fade",
+        "duration_ms": 180,
+        "easing": "ease_out"
+      }
+    },
+    {
+      "point": "xcx.pg_fade",
+      "equals": 3,
+      "when_equal": {
+        "page": "settings",
+        "transition": "fade",
+        "duration_ms": 180,
+        "easing": "ease_out"
+      }
+    },
+    {
+      "point": "xcx.pg_fade",
+      "equals": 4,
+      "when_equal": {
+        "page": "battle",
+        "transition": "fade",
+        "duration_ms": 180,
+        "easing": "ease_out"
+      }
+    },
+    {
+      "point": "xcx.pg_cut",
+      "equals": 0,
+      "when_equal": {
+        "page": "map",
+        "transition": "none",
+        "duration_ms": 0
+      }
+    },
+    {
+      "point": "xcx.pg_cut",
+      "equals": 1,
+      "when_equal": {
+        "page": "party",
+        "transition": "none",
+        "duration_ms": 0
+      }
+    },
+    {
+      "point": "xcx.pg_cut",
+      "equals": 2,
+      "when_equal": {
+        "page": "skell",
+        "transition": "none",
+        "duration_ms": 0
+      }
+    },
+    {
+      "point": "xcx.pg_cut",
+      "equals": 3,
+      "when_equal": {
+        "page": "settings",
+        "transition": "none",
+        "duration_ms": 0
+      }
+    },
+    {
+      "point": "xcx.pg_cut",
+      "equals": 4,
+      "when_equal": {
+        "page": "battle",
+        "transition": "none",
+        "duration_ms": 0
+      }
+    },
+    {
+      "point": "xcx.pg_auto",
+      "equals": 0,
+      "when_equal": {
+        "page": "map",
+        "transition": "fade",
+        "duration_ms": 250,
+        "easing": "ease_out"
+      }
+    },
+    {
+      "point": "xcx.pg_auto",
+      "equals": 1,
+      "when_equal": {
+        "page": "party",
+        "transition": "fade",
+        "duration_ms": 250,
+        "easing": "ease_out"
+      }
+    },
+    {
+      "point": "xcx.pg_auto",
+      "equals": 2,
+      "when_equal": {
+        "page": "skell",
+        "transition": "fade",
+        "duration_ms": 250,
+        "easing": "ease_out"
+      }
+    },
+    {
+      "point": "xcx.pg_auto",
+      "equals": 3,
+      "when_equal": {
+        "page": "settings",
+        "transition": "fade",
+        "duration_ms": 250,
+        "easing": "ease_out"
+      }
+    },
+    {
+      "point": "xcx.pg_auto",
+      "equals": 4,
+      "when_equal": {
+        "page": "battle",
+        "transition": "fade",
+        "duration_ms": 250,
+        "easing": "ease_out"
+      }
+    }
+  ],
+  "map": {
+    "areas": {
+      "xcx_over": {
+        "image": "module:xcx:map/blank/0/0/0",
+        "min": [
+          -15000.0,
+          -13750.0
+        ],
+        "max": [
+          15000.0,
+          13750.0
+        ],
+        "no_pin": false,
+        "dynamic_markers": [
+          {
+            "group": "skell",
+            "count": 1,
+            "x": "xcx.sk_x{i}",
+            "y": "xcx.sk_y{i}",
+            "kind": "xcx.sk_kind{i}",
+            "hide_when_kind": 0,
+            "icon_src_bind": "xcx.msk",
+            "size": 32
+          }
+        ]
+      },
+      "xcx_area": {
+        "image": "module:xcx:map/blank/0/0/0",
+        "min": [
+          -15000.0,
+          -13750.0
+        ],
+        "max": [
+          15000.0,
+          13750.0
+        ],
+        "no_pin": false,
+        "dynamic_markers": [
+          {
+            "group": "skell",
+            "count": 1,
+            "x": "xcx.sk_x{i}",
+            "y": "xcx.sk_y{i}",
+            "kind": "xcx.sk_kind{i}",
+            "hide_when_kind": 0,
+            "icon_src_bind": "xcx.msk",
+            "size": 32
+          }
+        ]
+      },
+      "xcx_nla": {
+        "image": "module:xcx:map/blank/0/0/0",
+        "min": [
+          -3480.0,
+          -8990.0
+        ],
+        "max": [
+          -680.0,
+          -6190.0
+        ],
+        "no_pin": false,
+        "dynamic_markers": [
+          {
+            "group": "skell",
+            "count": 1,
+            "x": "xcx.sk_x{i}",
+            "y": "xcx.sk_y{i}",
+            "kind": "xcx.sk_kind{i}",
+            "hide_when_kind": 0,
+            "icon_src_bind": "xcx.msk",
+            "size": 32
+          }
+        ]
+      },
+      "xcx_barracks": {
+        "image": "module:xcx:map/b/0/0/0",
+        "min": [
+          0,
+          0
+        ],
+        "max": [
+          1960,
+          1280
+        ],
+        "no_pin": false
+      }
+    }
+  }
+}

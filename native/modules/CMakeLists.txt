@@ -1703,3 +1703,142 @@ if(BUILD_TESTING AND NOT ANDROID)
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-legends-arceus/helper_plan_test.py" --nso)
     set_tests_properties(dsmod-pokemon-legends-arceus-plan-private PROPERTIES SKIP_RETURN_CODE 77)
 endif()
+
+# Xenoblade Chronicles X: Definitive Edition 1.0.2: party, Skell, map and battle pages, HUD hide, character switch and Board/Exit Skell.
+# Runtime assets come only from the player's arh2/xbc1/LAHD/LAFT archive.
+dsmod_add_module(dsmod-xcx EXCLUDE_FROM_ALL
+    TITLE 0100453019AA8000
+    SOURCES 0100453019AA8000.cpp xcx_reader.cpp xcx_profile.cpp xcx_assets.cpp xcx_view.cpp xcx_view_battle.cpp xcx_view_map.cpp xcx_avatar.cpp xcx_map.cpp xcx_maptiles.cpp xcx_mapbuilder.cpp xcx_segments.cpp
+        xcx_model.cpp xcx_weapons.cpp xcx_still.cpp xcx_still_cache.cpp
+        dread_mapgen_util.cpp ${WONDER_ZSTD_SOURCES}
+        "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_write_extensions
+    INCLUDE_DIRECTORIES "${WONDER_ZSTD_LIB}" "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+# The Settings page's "Companion Ver." is the package's own version (manifest.json "version").
+set(XCX_MANIFEST "${CMAKE_CURRENT_LIST_DIR}/../../packages/XenobladeChroniclesXDefinitiveEdition/dualscreen/manifest.json")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${XCX_MANIFEST}")
+file(READ "${XCX_MANIFEST}" XCX_MANIFEST_TEXT)
+string(JSON XCX_COMPANION_VERSION GET "${XCX_MANIFEST_TEXT}" version)
+target_compile_definitions(dsmod-xcx PRIVATE XCX_COMPANION_VERSION="${XCX_COMPANION_VERSION}")
+# The offline preview's environment switches (XCX_BATTLE_FLAG, XCX_STILL, ...) exist only in the test tree.
+if(BUILD_TESTING)
+    target_compile_definitions(dsmod-xcx PRIVATE XCX_TEST_SWITCHES=1)
+endif()
+if(NOT ANDROID)
+    add_executable(xcx-preview EXCLUDE_FROM_ALL ../../tools/xcx/preview.cpp xcx_reader.cpp xcx_profile.cpp)
+    target_compile_features(xcx-preview PRIVATE cxx_std_20)
+    target_include_directories(xcx-preview PRIVATE "${CMAKE_CURRENT_LIST_DIR}" "${EDEN_SOURCE_ROOT}/src" "${EDEN_NLOHMANN_JSON_INCLUDE_DIR}")
+    target_link_libraries(xcx-preview PRIVATE ${CMAKE_DL_LIBS})
+endif()
+# Map page: which picture belongs to the player's area and the world -> map01 transform. The world
+# map shows the continents the save has activity on and draws the others dark; XCX_MAP_FULL_ART=ON
+# shows every continent.
+option(XCX_MAP_FULL_ART "XCX: show all of the Mira world map (spoils unvisited continents)" OFF)
+if(XCX_MAP_FULL_ART)
+    target_compile_definitions(dsmod-xcx PRIVATE XCX_MAP_FULL_ART=1)
+endif()
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-xcx-map KEEP_ASSERTS SOURCES xcx_map_test.cpp xcx_map.cpp)
+    dsmod_add_test(dsmod-xcx-maptiles KEEP_ASSERTS SOURCES xcx_maptiles_test.cpp xcx_maptiles.cpp xcx_map.cpp xcx_reader.cpp xcx_profile.cpp)
+    # Segments: synthetic checks always; with XCX_COMMON_BDAT (+ XCX_FLAGS_FRESH / XCX_FLAGS_PROGRESS)
+    # the real lattices and flag areas are read too (header of xcx_segments_test.cpp).
+    dsmod_add_test(dsmod-xcx-segments KEEP_ASSERTS
+        SOURCES xcx_segments_test.cpp xcx_segments.cpp xcx_map.cpp)
+endif()
+
+# Board / Exit Skell guest helper: module-side mailbox client and Skell button controller against a
+# fake mailbox, a fake guest and a fake clock; and the shipped format-2 plan against the assembly
+# (tools/xcx/verify_helper_plan.py; with XCX_MAIN_IMG + XCX_NSO it also checks every byte and
+# relocation target against the player's main image).
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-xcx-helper KEEP_ASSERTS SOURCES xcx_helper_mailbox_test.cpp)
+    dsmod_add_test(dsmod-xcx-face KEEP_ASSERTS SOURCES xcx_face_test.cpp)
+    find_package(Python3 COMPONENTS Interpreter)
+    if(Python3_Interpreter_FOUND)
+        add_test(NAME dsmod-xcx-helper-plan
+            COMMAND "${Python3_EXECUTABLE}" -I "${CMAKE_CURRENT_LIST_DIR}/../../tools/xcx/verify_helper_plan.py"
+                    --plan-only)
+        set_tests_properties(dsmod-xcx-helper-plan PROPERTIES SKIP_RETURN_CODE 77)
+        # The relocated machine code run in Unicorn against fake game memory (every protocol path,
+        # register/stack contract of the reproduced entry instruction). Skipped without unicorn.
+        add_test(NAME dsmod-xcx-helper-emulation
+            COMMAND "${Python3_EXECUTABLE}" -I "${CMAKE_CURRENT_LIST_DIR}/../../tools/xcx/emulate_helper.py")
+        set_tests_properties(dsmod-xcx-helper-emulation PROPERTIES SKIP_RETURN_CODE 77)
+    endif()
+endif()
+
+# Motion and haptics pass: the pure motion helpers (HP roll, picture fade, page-bind points) on a
+# fake clock, and the manifest's motion/haptics contract (pages, page_binds, flags, limits).
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-xcx-motion KEEP_ASSERTS SOURCES xcx_motion_test.cpp)
+    # Battle page content rules (live vs pending, chip, cards) on synthetic snapshots.
+    dsmod_add_test(dsmod-xcx-battle KEEP_ASSERTS SOURCES xcx_battle_test.cpp)
+    # Non-gameplay states (title / loading / live) and their 300 ms hold.
+    dsmod_add_test(dsmod-xcx-lifecycle KEEP_ASSERTS SOURCES xcx_lifecycle_test.cpp)
+    # Top-HUD hide on a fake game: the player's saved Mini-map value survives observer changes, read
+    # failures and teardown while a commit is in flight.
+    dsmod_add_test(dsmod-xcx-hud KEEP_ASSERTS SOURCES xcx_hud_test.cpp)
+    # Party profile (PARTY-PROFILE-1): record/stat decoders always; with XCX_COMMON_BDAT +
+    # XCX_COMMON_MS_BDAT the names resolve from the player's files, with XCX_SAVE_PAYLOAD (a decoded
+    # gamedata payload) the fixture members' records decode to the native Status lists.
+    dsmod_add_test(dsmod-xcx-profile KEEP_ASSERTS SOURCES xcx_profile_test.cpp xcx_profile.cpp)
+    find_package(Python3 COMPONENTS Interpreter)
+    if(Python3_Interpreter_FOUND)
+        add_test(NAME dsmod-xcx-manifest-motion
+            COMMAND "${Python3_EXECUTABLE}" -I "${CMAKE_CURRENT_LIST_DIR}/../../tools/xcx/test_manifest_motion.py")
+        add_test(NAME dsmod-xcx-manifest-map
+            COMMAND "${Python3_EXECUTABLE}" -I "${CMAKE_CURRENT_LIST_DIR}/../../tools/xcx/test_manifest_map.py")
+        # Battle tab: 5-slot tab bar on every page, the Battle page's rects, Battle Commands = +.
+        add_test(NAME dsmod-xcx-manifest-battle
+            COMMAND "${Python3_EXECUTABLE}" -I "${CMAKE_CURRENT_LIST_DIR}/../../tools/xcx/test_manifest_battle.py")
+        # Non-gameplay states: wrong-build refusal on every page, Title/Loading tab gating, Settings rows.
+        add_test(NAME dsmod-xcx-manifest-profile
+            COMMAND "${Python3_EXECUTABLE}" -I "${CMAKE_CURRENT_LIST_DIR}/../../tools/xcx/test_manifest_profile.py")
+        add_test(NAME dsmod-xcx-manifest-states
+            COMMAND "${Python3_EXECUTABLE}" -I "${CMAKE_CURRENT_LIST_DIR}/../../tools/xcx/test_manifest_states.py")
+    endif()
+endif()
+
+# Skell still: synthetic checks always; with XCX_ROMFS (the player's merged RomFS) the real
+# fixture frames render, are measured against stored metrics, and the cache/cancel/refusal
+# paths run on real data. See the header of xcx_still_test.cpp for the optional inputs.
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-xcx-still KEEP_ASSERTS
+        SOURCES xcx_still_test.cpp xcx_still_cache.cpp xcx_still.cpp xcx_model.cpp xcx_weapons.cpp xcx_assets.cpp
+            dread_mapgen_util.cpp ${WONDER_ZSTD_SOURCES}
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${WONDER_ZSTD_LIB}" "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    find_package(Threads)
+    if(Threads_FOUND)
+        target_link_libraries(dsmod-xcx-still-test PRIVATE Threads::Threads)
+    endif()
+endif()
+
+# Avatar name and portrait: synthetic checks always; with XCX_ROMFS the BDAT hair/palette lookups
+# and the Zanemato / Terra portraits run on the player's archive.
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-xcx-avatar KEEP_ASSERTS
+        SOURCES xcx_avatar_test.cpp xcx_avatar.cpp xcx_reader.cpp xcx_profile.cpp xcx_assets.cpp
+            dread_mapgen_util.cpp ${WONDER_ZSTD_SOURCES}
+            "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
+        INCLUDE_DIRECTORIES "${WONDER_ZSTD_LIB}" "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+endif()
+
+# The model/still decoders as a library for the offline tools (xcx-model-probe, xcx-still-tool).
+# The same sources are linked into dsmod-xcx, which renders the Skell still at run time from the
+# player's own archive; nothing decoded is ever packaged.
+add_library(xcx-model-data STATIC EXCLUDE_FROM_ALL xcx_model.cpp xcx_weapons.cpp xcx_still.cpp xcx_assets.cpp
+    dread_mapgen_util.cpp ${WONDER_ZSTD_SOURCES}
+    "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp")
+target_compile_features(xcx-model-data PRIVATE cxx_std_20)
+target_include_directories(xcx-model-data PUBLIC "${CMAKE_CURRENT_LIST_DIR}" "${EDEN_SOURCE_ROOT}/src"
+    PRIVATE "${WONDER_ZSTD_LIB}" "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+if(NOT ANDROID)
+    add_executable(xcx-model-probe EXCLUDE_FROM_ALL ../../tools/xcx/model_probe.cpp)
+    target_compile_features(xcx-model-probe PRIVATE cxx_std_20)
+    target_include_directories(xcx-model-probe PRIVATE "${EDEN_NLOHMANN_JSON_INCLUDE_DIR}")
+    target_link_libraries(xcx-model-probe PRIVATE xcx-model-data)
+    add_executable(xcx-still-tool EXCLUDE_FROM_ALL ../../tools/xcx/still_tool.cpp)
+    target_compile_features(xcx-still-tool PRIVATE cxx_std_20)
+    target_link_libraries(xcx-still-tool PRIVATE xcx-model-data)
+endif()
