@@ -74,6 +74,7 @@ struct Landmark {
     int type = -1;            // MAP_DATA.MapType (eMapType: 0 town, 1 dungeon, 2 field, 3 underworld, 4 shrine)
     int landing = -1;         // StaticFieldObjectData.LandingPointId (known once the world map's own table is filled)
     std::string name;
+    std::string name_ns, name_src;  // a name the game has not looked up yet: its string table and Japanese source text
     std::vector<int> ids;     // every map id that is this place (its landmark row's variants and their group): the game's list may
                               // name it by another (Kol's neighbour: 2010 here, 2011 in the list)
     // The game's own rules (DA_WldMapParameter): no fast travel to a place not yet visited. Its map-type rule is about where the
@@ -266,6 +267,7 @@ private:
     void ReadLandmarks(MapState& m);
     struct MapRow {
         std::string name;
+        std::string name_ns, name_src;  // the name's string table and source text, while the game has not looked it up
         int type = -1, group = -1, same = -1;
         bool found = false;
         uint64_t name_ms = 0;  // when the name was last looked up (the game resolves some texts late)

@@ -398,6 +398,14 @@
       "size_world": 181
      },
      {
+      "group": "lmn",
+      "count": 64,
+      "x": "ffr.map.lmn{i}.x",
+      "y": "ffr.map.lmn{i}.y",
+      "icon_src_bind": "ffr.map.lmn{i}.src",
+      "size": 320
+     },
+     {
       "group": "lm",
       "count": 64,
       "x": "ffr.map.lm{i}.x",

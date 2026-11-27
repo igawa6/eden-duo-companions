@@ -9,7 +9,7 @@ Requires runtime 25 (Eden Duo 1.4.0 or later). Tested on Peanuts Native on an AY
   Drag or pinch to look around; Home brings the map back to you at the zoom on screen and follows you again. Shops, the inn and save points
   are marked with the game's own icons. The story objective is marked in gold and side quests in progress in blue, and an arrow
   at the edge of the map points to each objective that is out of view.
-- **Fast travel.** On the world map, the places you know are marked; tap one for its card, then Fast Travel. The game's own
+- **Fast travel.** On the world map, the places you know are marked with their names; tap one for its card, then Fast Travel. The game's own
   travel runs, with its own rules: no travel out of a dungeon, during a story event or to a place you have not visited yet, and
   the card says why when the game refuses. In a town or dungeon, a World switch shows the world map, and Back returns to where you are.
 - **Party.** Your party and the members who have joined, with the game's character art, HP and MP, and the equipped weapon, armor

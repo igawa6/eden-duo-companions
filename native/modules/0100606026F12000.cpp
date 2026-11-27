@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <cmath>
 #include <cstdio>
@@ -186,11 +187,12 @@ struct Travel {
 struct Assets {
     std::mutex mu;
     bool tried = false, ok = false;
+    std::atomic<bool> ready{false};  // loaded: loc and text_keys are read without the lock from here on (they no longer change)
     std::string why;
     ffr::IoStore io;
     ffr::Pak pak;
     std::unordered_map<std::string, std::string> loc;
-    std::unordered_map<std::string, std::string> quest_keys;  // "<namespace>\x1f<Japanese text>" -> key, for the quest tables (ja locres)
+    std::unordered_map<std::string, std::string> text_keys;  // "<namespace>\x1f<Japanese text>" -> key (ja locres)
     ffr::Font regular, bold, title;
     std::map<std::string, std::unique_ptr<ffr::Image>> images;  // nullptr value = failed
     EdenDsmodHostApi host{};                                    // the worker's host copy for romfs reads
@@ -207,14 +209,13 @@ struct Assets {
         if (!pak.Open(rd, "romfs:/FFRS/Content/Paks/FFRS-Switch.pak", err)) { why = "pak: " + err; return false; }
         std::vector<uint8_t> b, t;
         if (pak.Read("FFRS/Content/Localization/Game/en/Game.locres", b)) ffr::ParseLocres(b, loc);
-        // A quest name the game has not looked up yet comes as its Japanese source text (Reader::StringTableSource): the
-        // game's ja locres gives its key, and en its English
+        // A text the game has not looked up yet (a quest's name, a place's) comes as its Japanese source text
+        // (Reader::StringTableSource): the game's ja locres gives its key, and en its English
         std::unordered_map<std::string, std::string> ja;
         if (pak.Read("FFRS/Content/Localization/Game/ja/Game.locres", b) && ffr::ParseLocres(b, ja))
             for (auto& [k, text] : ja) {
                 const size_t sep = k.find('\x1f');
-                if (sep != std::string::npos && k.find("Quest") < sep)  // (the quest tables only: ST_EventQuestTitle ...)
-                    quest_keys.emplace(k.substr(0, sep + 1) + text, k.substr(sep + 1));
+                if (sep != std::string::npos) text_keys.emplace(k.substr(0, sep + 1) + text, k.substr(sep + 1));
             }
         auto font = [&](const char* f, ffr::Font& out) {
             if (pak.Read(std::string("FFRS/Content/UI/Font/FontFace/SE/") + f, b) && ffr::UnwrapFontFace(b, t)) out.Load(t);
@@ -224,7 +225,16 @@ struct Assets {
         font("SE-GARRITHR.ufont", title);
         ok = regular.ok() && bold.ok() && title.ok();
         if (!ok) why = "fonts";
+        ready = ok;
         return ok;
+    }
+    // The English of a text by its string table and Japanese source text ("" while not loaded or not found)
+    std::string English(const std::string& ns, const std::string& src) const {
+        if (!ready || src.empty()) return {};
+        const auto k = text_keys.find(ns + '\x1f' + src);
+        if (k == text_keys.end()) return {};
+        const auto t = loc.find(ns + '\x1f' + k->second);
+        return t == loc.end() ? std::string() : t->second;
     }
     const ffr::Image* Image(const std::string& path) {
         auto it = images.find(path);
@@ -304,7 +314,7 @@ struct Instance {
     ffr::WorldMenu wm;
     ffr::UiState ui;              // who has the game's controls (read while a card shows or a travel runs)
     uint64_t ui_ms = 0;
-    std::vector<std::array<std::string, 3>> icon_keys, goal_keys, arrow_keys, mark_keys, island_keys[kIslandClasses];
+    std::vector<std::array<std::string, 3>> icon_keys, goal_keys, arrow_keys, mark_keys, name_keys, island_keys[kIslandClasses];
     double zoom[2] = {1.0, 1.0};  // the following zoom: town, world
     double view_zoom[2] = {1.0, 1.0};  // the host's own view zoom on top (a pinch), as last read
     int reset = -1;               // Home: the map view the host is to send home on this sample (enforce), -1 none
@@ -404,6 +414,12 @@ void StepDrive(Instance* in) {
         finish(kBtnB);
         break;
     }
+}
+
+// A place's name: the game's own text, else (a place the player is not in, whose name the game has not looked up) its
+// English from the game's localization files
+std::string PlaceName(const Instance* in, const ffr::Landmark& l) {
+    return !l.name.empty() ? l.name : in->assets.English(l.name_ns, l.name_src);
 }
 
 // One step of a fast travel (state_mu held); every tick while one runs, after the battle drive (never both: no travel in a battle).
@@ -929,6 +945,16 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
                 const char ic = l && l->type == 1 ? 'c' : l && l->type == 4 ? 's' : 't';  // the game's icon: cave, shrine, town
                 marks[i].src = std::string(kKeys) + "lm:" + st + (id == in->card ? "1" : "0") + ic;
             }
+            // each place's name in a tag under its pin, coloured like the pin (an unnamed place gets none)
+            std::vector<MapFrame::Pin> names = f.marks;
+            for (size_t i = 0; i < names.size(); ++i) {
+                const ffr::Landmark* l = nullptr;
+                for (auto& x : ms.landmarks) if (x.map_id == f.mark_ids[i]) l = &x;
+                const char st = marks[i].src.size() > std::strlen(kKeys) + 3 ? marks[i].src[std::strlen(kKeys) + 3] : 'd';
+                const std::string nm = l ? PlaceName(in, *l) : std::string();
+                names[i].src = nm.empty() ? std::string() : std::string(kKeys) + "lmn:" + st + ":" + nm;
+            }
+            pins(names, in->name_keys, "lmn", kMaxMarks);
             pins(marks, in->mark_keys, "lm", kMaxMarks);
         }
         for (int c = 0; c < kIslandClasses; ++c) {
@@ -978,7 +1004,7 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
         if (card) {
             const char* kind = cl->type == 0 ? "Town" : cl->type == 1 ? "Dungeon" : cl->type == 4 ? "Shrine" : cl->type == 2 ? "Field" : "Place";
             const char why = in->travel.Busy() ? in->travel.refused : in->travel_refused;
-            host->publish_text(host->userdata, "ffr.map.card_src", (std::string(kKeys) + "card:" + st + (st == 'R' ? std::string(1, why ? why : '?') : "") + ":" + kind + ":" + cl->name).c_str());
+            host->publish_text(host->userdata, "ffr.map.card_src", (std::string(kKeys) + "card:" + st + (st == 'R' ? std::string(1, why ? why : '?') : "") + ":" + kind + ":" + PlaceName(in, *cl)).c_str());
         }
     }
     host->publish_text(host->userdata, "ffr.page", in->page_key.c_str());
@@ -1320,6 +1346,20 @@ bool MapPicture(Instance* in, const std::string& k, void* receiver, EdenDsmodIma
         else c.Disc(56, 56, 14, ring);
         return send(c);
     }
+    if (k.rfind("lmn:", 0) == 0 && k.size() > 6) {  // lmn:<h | t | d>:<name>: a place's name tag, under its pin (centred)
+        const char st = k[4];
+        const std::string name = k.substr(6);
+        const int n = 320;  // square (the host's markers are); the pin (60 px) sits at the centre, the tag just below it
+        ffr::Canvas c(n, n);
+        const ffr::Font& f = in->assets.bold;
+        const float px = 22, tw = std::min(float(n - 28), f.Measure(name, px));
+        const float w = tw + 24, h = 32, x = (n - w) / 2, y = n / 2 + 34;
+        const ffr::Rgba ink = st == 'h' ? kGold : st == 't' ? kInk : kDim;
+        pill(c, x - 2, y - 2, w + 4, h + 4, ffr::C(0x90000000));
+        pill(c, x, y, w, h, ffr::C(0xE0101E28));
+        c.Text(f, name, n / 2.f, y + 23, px, ink, ffr::Align::Center, float(n - 28));
+        return send(c);
+    }
     if (k.rfind("scope:", 0) == 0) {  // scope:<1 world shown | 0 the place>:<place name>: World > Village of Kol
         const bool world = field(k, 1).rfind("1", 0) == 0;
         const std::string place = field(k, 2);
@@ -1430,10 +1470,7 @@ EdenDsmodBool LoadImage(void* p, const EdenDsmodHostApi* host, const char* key, 
         }
         for (auto& q : s.quests)  // names the game has not looked up yet: through its own localization files
             if (q.name.empty() && !q.name_src.empty()) {
-                const auto k = in->assets.quest_keys.find(q.name_ns + '\x1f' + q.name_src);
-                if (k == in->assets.quest_keys.end()) continue;
-                const auto t = in->assets.loc.find(q.name_ns + '\x1f' + k->second);
-                if (t != in->assets.loc.end()) q.name = t->second;
+                q.name = in->assets.English(q.name_ns, q.name_src);
             }
         ffr::Canvas c(ffr::kW, ffr::kH);
         if (!art) {

@@ -139,13 +139,16 @@ def main():
             "icon_src_bind": "ffr.map.goal{i}.src", "size": 72}
     marks = {"group": "lm", "count": MAX_MARKS, "x": "ffr.map.lm{i}.x", "y": "ffr.map.lm{i}.y",
              "icon_src_bind": "ffr.map.lm{i}.src", "size": 60}
+    # each place's name, in a tag under its pin (a square picture centred on the pin; drawn before the pins, never tapped)
+    names = {"group": "lmn", "count": MAX_MARKS, "x": "ffr.map.lmn{i}.x", "y": "ffr.map.lmn{i}.y",
+             "icon_src_bind": "ffr.map.lmn{i}.src", "size": 320}
     arrow = {"group": "arrow", "count": MAX_GOALS, "x": "ffr.map.arrow{i}.x", "y": "ffr.map.arrow{i}.y",
              "icon_src_bind": "ffr.map.arrow{i}.src", "size": 76}
     map_cfg = {"style": {"background": "#FF0A131B"}, "areas": {
         "ffr_town": {"min": [-TOWN_PAD, 0], "max": [TOWN_N + TOWN_PAD, TOWN_N], "image": "module:ffr:blank",
                      "dynamic_markers": [icons, goal, arrow]},
         "ffr_world": {"min": [0, 0], "max": [WORLD_N, WORLD_N], "image": "module:ffr:blank",
-                      "dynamic_markers": islands + [marks, goal, arrow]},
+                      "dynamic_markers": islands + [names, marks, goal, arrow]},
     }}
     # No module instance (another game build, a missing or failed library): a notice over the whole page, since the host
     # publishes module_ready / module_error and the module's own picture never arrives

@@ -551,6 +551,13 @@ void Reader::ReadLandmarks(MapState& m) {
         const MapRow& r = MapInfo(id);
         l.type = r.type, l.name = r.name;
         for (size_t j = 0; l.name.empty() && j < l.ids.size(); ++j) l.name = MapInfo(l.ids[j]).name;  // (a variant row may lack it)
+        if (l.name.empty()) {
+            l.name_ns = r.name_ns, l.name_src = r.name_src;
+            for (size_t j = 0; l.name_src.empty() && j < l.ids.size(); ++j) {
+                const MapRow& v = MapInfo(l.ids[j]);
+                l.name_ns = v.name_ns, l.name_src = v.name_src;
+            }
+        }
         m.landmarks.push_back(std::move(l));
     };
     // The world map's own table (CPP_UI_WldMapSubsystem.FldObjDataMap: the known places), filled once its menu has opened:
@@ -1430,6 +1437,8 @@ const Reader::MapRow& Reader::MapInfo(int id) {
     if (r.found && r.name.empty() && NowMs() - r.name_ms > 3000) {  // the name: looked up again until the game has it
         r.name_ms = NowMs();
         r.name = FTextString(r.row + 0x20);  // MAP_DATA.Name
+        // (a place the player is not in: the game has not looked its name up, so its string table entry, for the locres)
+        if (r.name.empty() && r.name_src.empty()) StringTableSource(r.row + 0x20, r.name_ns, r.name_src);
     }
     return r;
 }
