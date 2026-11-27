@@ -485,20 +485,20 @@ Image Nine(const Image& src, int b, double wd, double hd, double rd) {
     const int r =
         static_cast<int>(std::min({rd, static_cast<double>(w / 2), static_cast<double>(h / 2)}));
     Image out{std::max(1, w), std::max(1, h)};
-    const int S = src.w;
+    const int SW = src.w, SH = src.h; // non-square sources (the CmnDialog window is 586x325)
     const auto put = [&](int sx0, int sy0, int sx1, int sy1, int dx0, int dy0, int dx1, int dy1) {
         const Image part = Crop(src, sx0, sy0, sx1, sy1);
         Put(out, Resize(part, std::max(1, dx1 - dx0), std::max(1, dy1 - dy0)), dx0, dy0);
     };
     put(0, 0, b, b, 0, 0, r, r);
-    put(S - b, 0, S, b, w - r, 0, w, r);
-    put(0, S - b, b, S, 0, h - r, r, h);
-    put(S - b, S - b, S, S, w - r, h - r, w, h);
-    put(b, 0, S - b, b, r, 0, w - r, r);
-    put(b, S - b, S - b, S, r, h - r, w - r, h);
-    put(0, b, b, S - b, 0, r, r, h - r);
-    put(S - b, b, S, S - b, w - r, r, w, h - r);
-    put(b, b, S - b, S - b, r, r, w - r, h - r);
+    put(SW - b, 0, SW, b, w - r, 0, w, r);
+    put(0, SH - b, b, SH, 0, h - r, r, h);
+    put(SW - b, SH - b, SW, SH, w - r, h - r, w, h);
+    put(b, 0, SW - b, b, r, 0, w - r, r);
+    put(b, SH - b, SW - b, SH, r, h - r, w - r, h);
+    put(0, b, b, SH - b, 0, r, r, h - r);
+    put(SW - b, b, SW, SH - b, w - r, r, w, h - r);
+    put(b, b, SW - b, SH - b, r, r, w - r, h - r);
     return out;
 }
 

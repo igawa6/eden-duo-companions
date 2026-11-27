@@ -662,8 +662,22 @@ void Publisher::Publish(const EdenDsmodHostApi& host, const live::LiveSnapshot& 
     // Save data exists during the title attract scene. The current stage is read from the
     // game's SafeString, not inferred from save availability or the position of a title actor.
     const bool data_ready = s.save_ok && s.personal_ok;
-    const bool ready = data_ready && !s.stage_name.empty() &&
-                       s.stage_name != "Title" && !s.loading;
+    const bool raw_ready = data_ready && !s.stage_name.empty() &&
+                           s.stage_name != "Title" && !s.loading;
+    if (raw_ready == ready_shown) {
+        ready_edge_ms = 0;
+    } else {
+        const uint64_t now = live::NowMs();
+        if (!ready_edge_ms)
+            ready_edge_ms = now;
+        // the title goes straight through (ui.pg takes scene.title first anyway)
+        if (s.stage_name == "Title" ||
+            now - ready_edge_ms >= (raw_ready ? ReadyUpMs : ReadyDownMs)) {
+            ready_shown = raw_ready;
+            ready_edge_ms = 0;
+        }
+    }
+    const bool ready = ready_shown;
     // r9 pop: the picture prewarm window (Prewarming, acnh_publish.h)
     bool warm = false;
     if (Prewarming()) {
@@ -682,7 +696,7 @@ void Publisher::Publish(const EdenDsmodHostApi& host, const live::LiveSnapshot& 
         }
     }
     Out status;
-    phone_available = ready && PlayerFlag(s, "PlayerMainUImenuEnable") > 0;
+    phone_available = raw_ready && PlayerFlag(s, "PlayerMainUImenuEnable") > 0;
     status.I("phone.available", phone_available);
     status.I("phone.locked", !phone_available);
     status.I("acnh.ready", ready ? 1 : 0);
@@ -885,8 +899,8 @@ bool Publisher::Action(const char* action, int64_t a) {
         diy_sel = std::max(v, 0);
         return true;
     }
-    if (n == "phone_pg") { // the pager: 0 / 1, the slide window starts now
-        const int pg = std::clamp(v, 0, 1);
+    if (n == "phone_pg") { // the pager: 0 companion apps / 1-2 game apps, the slide window starts now
+        const int pg = std::clamp(v, 0, 2);
         if (pg != phone_pg) {
             phone_pg = pg;
             phone_pg_ms = live::NowMs();

@@ -42,6 +42,9 @@ void Publisher::BuildToday(const live::LiveSnapshot& s) {
     key = Mix(key, (uint64_t(s.y) << 32) | (uint64_t(s.mo) << 24) | (uint64_t(s.d) << 16) |
                        uint64_t(s.h));
     key = Mix(key, (uint64_t(s.birth_m) << 24) | (uint64_t(s.birth_d) << 16) | s.fruit);
+    for (const auto& c : s.caught) // month card: uncaught critters first
+        key = MixBytes(key, c.data(), c.size() * sizeof(c[0]));
+    key = MixBytes(key, s.player_name.data(), s.player_name.size() * sizeof(char16_t));
     key = Mix(key, (uint64_t(s.reg_y) << 16) | (uint64_t(s.reg_m) << 8) | s.reg_d);
     for (const auto& r : s.residents)
         key = Mix(key, (uint64_t(r.present) << 24) | (uint64_t(r.species) << 8) | r.variant);
@@ -163,7 +166,7 @@ void Publisher::BuildToday(const live::LiveSnapshot& s) {
             vmax = std::max(vmax, 1.1 * s.kabu[i + 2]);
     if (vmax <= 0)
         vmax = 1;
-    constexpr double Chh = 142; // chart height (gen_manifest page_today: kh - 170)
+    constexpr double Chh = 100; // chart height (manifest bars: 100 tall at y 762, baseline 861)
     o_today.I("kabu.vmax", std::lround(vmax));
     o_today.I("kabu.line.bh", std::lround(s.kabu_sun / vmax * Chh));
     for (int i = 0; i < 12; ++i) {
@@ -184,17 +187,67 @@ void Publisher::BuildToday(const live::LiveSnapshot& s) {
         if (v && v->birth_month == s.mo)
             bd.emplace_back(v->birth_day, label);
     }
+    // the player's own birthday joins the residents' (today.month, owner 2026-11-26); "" marks it
+    const bool own_bd = s.birth_m == s.mo && s.birth_d >= 1;
+    if (own_bd)
+        bd.emplace_back(s.birth_d, "");
     std::sort(bd.begin(), bd.end());
     if (bd.size() > 3)
         bd.resize(3);
+    // critters arriving this month (not in last month) and leaving after it (not in next month),
+    // island hemisphere; uncaught first, at most 5 each: mon.{in,out}.n / .{j}.icon / .{j}.got
+    int crit_in = 0, crit_out = 0;
+    if (s.clock_ok && s.hemi >= 0 && s.mo >= 1 && s.mo <= 12) {
+        const int prev = s.mo == 1 ? 12 : s.mo - 1, next = s.mo == 12 ? 1 : s.mo + 1;
+        struct Hit {
+            bool got;
+            int kind;
+            uint16_t uid;
+        };
+        std::vector<Hit> in, out;
+        for (int k = 0; k < 3; ++k) {
+            const auto& got = s.caught[k];
+            for (const auto& c : cat->Critters(k)) {
+                if (!CritterHours(*cat, k, c.item, s.mo, s.hemi))
+                    continue;
+                const bool g = std::find(got.begin(), got.end(), c.item) != got.end();
+                if (!CritterHours(*cat, k, c.item, prev, s.hemi))
+                    in.push_back({g, k, c.uid});
+                if (!CritterHours(*cat, k, c.item, next, s.hemi))
+                    out.push_back({g, k, c.uid});
+            }
+        }
+        const auto emit = [&](std::vector<Hit>& v, const char* tag) {
+            std::stable_sort(v.begin(), v.end(),
+                             [](const Hit& a, const Hit& b) { return !a.got && b.got; });
+            const size_t n = std::min<size_t>(v.size(), 5);
+            for (size_t j = 0; j < n; ++j) {
+                const std::string p = std::string{"mon."} + tag + "." + std::to_string(j) + ".";
+                o_today.T(p + "icon", std::string{Key} + "icon/crit/" + std::to_string(v[j].kind) +
+                                          "/" + std::to_string(v[j].uid) + "?s=64");
+                o_today.I(p + "got", v[j].got);
+            }
+            o_today.I(std::string{"mon."} + tag + ".n", static_cast<int64_t>(n));
+            return static_cast<int>(n);
+        };
+        crit_in = emit(in, "in");
+        crit_out = emit(out, "out");
+    }
+    o_today.I("mon.empty", bd.empty() && crit_in == 0 && crit_out == 0);
     o_today.I("bday.n", static_cast<int64_t>(bd.size()));
     if (s.clock_ok)
         o_today.T("bday.icon", std::string{Key} + "ui/today/sign?m=" + std::to_string(s.mo) +
                                    "&d=" + std::to_string(s.d) + "&s=34&c=c54a23");
     for (size_t j = 0; j < bd.size(); ++j) {
         const std::string p = "bday." + std::to_string(j) + ".";
-        o_today.T(p + "icon", std::string{Key} + "icon/npc/" + bd[j].second + "?s=84");
-        o_today.T(p + "name", cat->VillagerName(l, bd[j].second));
+        if (bd[j].second.empty()) { // the player: their birthday sign and island name
+            o_today.T(p + "icon", std::string{Key} + "ui/today/sign?m=" + std::to_string(s.mo) +
+                                      "&d=" + std::to_string(bd[j].first) + "&s=84");
+            o_today.T(p + "name", Utf16ToUtf8(s.player_name));
+        } else {
+            o_today.T(p + "icon", std::string{Key} + "icon/npc/" + bd[j].second + "?s=84");
+            o_today.T(p + "name", cat->VillagerName(l, bd[j].second));
+        }
         std::snprintf(lab, sizeof lab, "%04d", 200 + s.mo);
         o_today.T(p + "date",
                   Msg("LayoutMsg/MenuBookDetail", lab, std::string{MonthShort[s.mo - 1]} + ".") +
@@ -228,7 +281,10 @@ void Publisher::BuildToday(const live::LiveSnapshot& s) {
     for (size_t j = 0; j < 4; ++j) {
         const std::string p = "visitor." + std::to_string(j) + ".";
         const std::string lab = j < vis.size() ? vis[j] : "";
-        o_today.T(p + "name", lab.empty() ? "" : Msg("String/Npc/STR_SNpcName", lab, lab));
+        const std::string nm = lab.empty() ? "" : Msg("String/Npc/STR_SNpcName", lab, lab);
+        o_today.T(p + "name", nm);
+        // width at text_scale 10: the corner card centres icon + name as one group (x_bind)
+        o_today.I(p + "name.w", nm.empty() ? 0 : widths.Measure(nm));
         o_today.T(p + "icon", lab.empty() ? "" : std::string{Key} + "icon/npc/" + lab + "?s=72");
     }
     o_today.T("visitor.note", "");

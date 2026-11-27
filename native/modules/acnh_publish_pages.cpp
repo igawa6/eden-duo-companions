@@ -186,6 +186,10 @@ uint32_t ActiveHours(Catalog& cat, int kind, uint16_t item, int mo, int hemi) {
 
 } // namespace
 
+uint32_t CritterHours(Catalog& cat, int kind, uint16_t item, int mo, int hemi) {
+    return ActiveHours(cat, kind, item, mo, hemi);
+}
+
 // ---- bag page --------------------------------------------------------------------------------
 void Publisher::BuildBag(const live::LiveSnapshot& s) {
     Catalog* cat = services.catalog;
@@ -436,6 +440,19 @@ void Publisher::BuildCritters(const live::LiveSnapshot& s) {
         for (int h = 0; h < 24; ++h)
             o_crit.I("crit.sel.hr." + std::to_string(h), (hours >> h) & 1);
         o_crit.I("crit.now.h", s.clock_ok ? s.h : -1);
+        // T2 (Critterpedia a1): the selected entry's months (any slot in that month, island
+        // hemisphere) under the game's own short month names (MenuBookDetail 0201..0212)
+        static const char* const MoEn[] = {"Jan.", "Feb.", "Mar.", "Apr.", "May", "June",
+                                           "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."};
+        char mlab[8];
+        for (int mo = 1; mo <= 12; ++mo) {
+            const bool on = crit_sel >= 0 && s.hemi >= 0 &&
+                            ActiveHours(*cat, k, all[crit_rows[crit_sel]].item, mo, s.hemi) != 0;
+            o_crit.I("crit.sel.mo." + std::to_string(mo), on ? 1 : 0);
+            std::snprintf(mlab, sizeof mlab, "%04d", 200 + mo);
+            o_crit.T("txt.crit.mo." + std::to_string(mo),
+                     Msg("LayoutMsg/MenuBookDetail", mlab, MoEn[mo - 1]));
+        }
     }
     if (crit_sel < 0) {
         o_crit.T("crit.sel.name", "");
@@ -639,7 +656,7 @@ void Publisher::BuildDiy(const live::LiveSnapshot& s) {
     o_diy.I("diy.sel", diy_sel);
     for (size_t j = 0; j < diy_rows.size(); ++j) {
         const auto& r = recipes[diy_rows[j]];
-        std::string card = std::string{Key} + "ui/diy/card/" + std::to_string(r.uid) + "?w=114";
+        std::string card = std::string{Key} + "ui/diy/card/" + std::to_string(r.uid) + "?w=144";
         if (bit(s.recipe_fav, r.uid))
             card += "&fav=1";
         if (bit(s.recipe_made, r.uid))
@@ -714,7 +731,7 @@ void Publisher::BuildDiy(const live::LiveSnapshot& s) {
         for (int j = 0; j < n && j < 6; ++j) {
             const auto [m, need] = r.materials[j];
             const std::string p = "diy.sel.m" + std::to_string(j) + ".";
-            o_diy.T(p + "icon", std::string{Key} + "icon/item/" + std::to_string(m) + "?s=56");
+            o_diy.T(p + "icon", std::string{Key} + "icon/item/" + std::to_string(m) + "?s=46");
             o_diy.T(p + "name", GameCase(s, "LayoutMsg/MenuRecipe", "1201", cat->ItemName(l, m)));
             o_diy.I(p + "have", have_p.contains(m) ? have_p[m] : 0);
             o_diy.I(p + "need", need);

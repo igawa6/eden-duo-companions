@@ -29,6 +29,10 @@
 
 namespace acnh {
 
+/// Clock hours (bit h) critter `item` of `kind` (0 insect, 1 fish, 2 sea) appears in month `mo`
+/// (1-12), hemisphere `hemi`: 0 = not this month (acnh_publish_pages.cpp ActiveHours)
+uint32_t CritterHours(Catalog& cat, int kind, uint16_t item, int mo, int hemi);
+
 /// Width the runtime measures for `text` at text_scale 10 with the package font ("ui:40":
 /// Seurat-B + ParkExt from the player's romfs), i.e. Canvas::MeasureText(text, 10).
 class TextWidth {
@@ -143,6 +147,13 @@ private:
     static constexpr uint64_t PrewarmMinMs = 800, PrewarmIdleMs = 400, PrewarmMaxMs = 6000;
     bool prewarm_done = false;
     uint64_t prewarm_start_ms = 0;
+    // acnh.ready hold (door flashing, 2026-11-26): the raw signal drops for a few samples at a
+    // door (player actor gone, cWaitAfterWarp, a torn read) and each edge was a 160 ms page fade
+    // to and from "waiting". The published value changes only once the raw one has held the new
+    // state for ReadyDownMs (to not-ready) or ReadyUpMs (back to ready).
+    static constexpr uint64_t ReadyDownMs = 400, ReadyUpMs = 150;
+    bool ready_shown = false;
+    uint64_t ready_edge_ms = 0;
     bool Prewarming() const {
         return services.image_activity_ms && !prewarm_done;
     }
@@ -150,7 +161,7 @@ private:
     int diy_cat = 0, diy_filter = 0, diy_sel = 0;
     int app_sel = -1;
     bool phone_available = false;
-    // NookPhone pager (round 7): the page shown (0 = apps 1-9, 1 = apps 10-18) and when it last
+    // NookPhone pager (round 7): the page shown (0 = companion apps, 1 = apps 1-12, 2 = 13-24) and when it last
     // changed. The page's slide is a 250 ms anim group, and runtime 15 hit-tests the incoming
     // page at its final rects from the first frame (no "group moving" value, anim groups do not
     // hold input like page transitions do), so the module times the slide: ui.phone.pg drives the
