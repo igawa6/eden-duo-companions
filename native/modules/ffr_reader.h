@@ -175,6 +175,18 @@ struct BattleUnit {
     bool boss = false;   // UNIT_PARAMETER.IsBoss
 };
 
+// The battle's results while the game shows them (CPP_VM_BattleResult.BtlResultData, BTL_RESULT_DATA)
+struct BattleResult {
+    bool showing = false;  // the results layout is up (CPP_WBP_Btl_ResultLayout, an activatable widget: bIsActive)
+    int exp = 0, bonus_exp = 0, gil = 0, bonus_gil = 0, gil_before = 0, ap = 0, bonus_ap = 0;
+    struct Unit { int id = 0, exp_before = 0, exp_after = 0, level_before = 0, level_after = 0, ap = 0; bool dead = false; };
+    struct Vision { int id = 0, unit = 0, ap = 0, rank_before = 0, rank_after = 0; };
+    struct Item { int id = 0, num = 0; };
+    std::vector<Unit> units;
+    std::vector<Vision> visions;
+    std::vector<Item> items;
+};
+
 // The battle's turn order as the game's timeline shows it (CPP_VM_BtlTimeLine.TurnVMMap: CPP_VM_BtlTurn.EntryDataList)
 struct TurnEntry {
     int uid = 0;    // BtlTimelineEntryData.UnitUniqueId (-1 for the finish phase: the visions' resonance, not one unit)
@@ -216,6 +228,7 @@ struct GameState {
     BattleMenu menu;
     std::vector<TurnEntry> turns;  // the timeline: who is still to act this turn (in order), then the next turn's order
     bool turns_valid = false;
+    BattleResult result;
     int acting = -1;               // the unit acting now (index in battle): the game's list drops a unit when its turn begins
     int acting_phase = 0;          // its entry's phase (1 an extra action); 2 with acting -1: the resonance finish (the visions)
     // A conversation (filled by the module from TalkState: its own log of this conversation, oldest first)
@@ -296,10 +309,13 @@ private:
     std::unordered_map<uint64_t, bool> list_class_;
     std::unordered_map<uint64_t, uint64_t> unit_vms_;  // CPP_BtlUnitParameter -> its CPP_VM_BtlUnitParam
     std::unordered_map<uint64_t, bool> unit_vm_class_, timeline_class_;
+    uint64_t last_result_find_ms_ = 0;
     uint64_t last_vm_find_ms_ = 0;
     void FindUnitVms(const GameState& s);
     Obj timeline_vm_;  // CPP_VM_BtlTimeLine (made with the battle's UI)
     void ReadTimeline(GameState& s);
+    void PhaseActor(GameState& s);  // the command's unit in an extra action or the finish (from the last timeline read)
+    void ReadResult(GameState& s);  // the results, while the game shows them
     // the last read's lists (unique id, phase): who left this turn's list is the one acting
     std::vector<std::pair<int, int>> turn_now_, turn_next_;
     std::pair<int, int> acting_{-1, -1};
@@ -375,6 +391,7 @@ private:
     bool IsA(uint64_t cls, const char* base);  // the class or one of its ancestors is named base
     std::map<std::pair<uint64_t, std::string>, bool> isa_;
     std::unordered_map<uint64_t, bool> mode_classes_;
+    Obj result_layout_, result_vm_;
     Obj save_mgr_, quest_sub_, minimap_, battle_, controller_, assets_, game_mode_, cmd_vm_, cmd_mgr_;
     std::vector<Obj> unit_params_, map_tables_, cmd_lists_;
     std::unordered_map<int, std::string> map_names_;

@@ -91,6 +91,10 @@ uint64_t GameState::Hash() const {
     }
     mix(&turns_valid, 1), mix(&acting, 4), mix(&acting_phase, 4);
     for (auto& t : turns) mix(&t, sizeof t);
+    mix(&result.showing, 1), mix(&result.exp, 4), mix(&result.gil, 4), mix(&result.ap, 4);
+    for (auto& u : result.units) mix(&u.id, sizeof(int) * 6), mix(&u.dead, 1);  // (field by field: the struct has padding)
+    for (auto& w : result.visions) mix(&w, sizeof w);
+    for (auto& i : result.items) mix(&i, sizeof i);
     mix(&in_dialog, 1);
     for (auto& d : dialog) mix(d.speaker.data(), d.speaker.size()), mix(d.text.data(), d.text.size()), mix(d.portrait.data(), d.portrait.size());
     return h;
@@ -197,7 +201,7 @@ void Reader::Scan() {
     const uint64_t objs = g_.Get<uint64_t>(objarr_);
     const int32_t num = g_.Get<int32_t>(objarr_ + 20), nchunks = g_.Get<int32_t>(objarr_ + 28);
     if (!objs || num <= 0 || nchunks <= 0 || nchunks > 64) return;
-    Obj save, quest, mini, btl, pc, am, mode, vm, mgr, wsub, wvm, wlist, dlg, mmvm, gwm, wpar, sact, stgt, backlog;
+    Obj save, quest, mini, btl, pc, am, mode, vm, mgr, wsub, wvm, wlist, dlg, mmvm, gwm, wpar, sact, stgt, backlog, rvm, rlay;
     std::vector<Obj> ups, maps, lists;
     std::unordered_map<std::string, Obj> tables;
     std::vector<uint8_t> items;
@@ -261,6 +265,10 @@ void Reader::Scan() {
                 continue;
             }
             if (cn == "StringTable") { tables[Name(h.name)] = {a, h.cls, uint32_t(h.index)}; continue; }
+            if (cn == "CPP_VM_BattleResult" || cn == "WBP_Btl_ResultLayout_C") {  // the battle results: their data, their layout
+                if (Name(h.name).rfind("Default__", 0) != 0) (cn == "CPP_VM_BattleResult" ? rvm : rlay) = {a, h.cls, uint32_t(h.index)};
+                continue;
+            }
             if (cn == "CPP_BacklogSubsystem") {
                 if (Name(h.name).rfind("Default__", 0) != 0) backlog = {a, h.cls, uint32_t(h.index)};
                 continue;
@@ -276,6 +284,8 @@ void Reader::Scan() {
     }
     save_mgr_ = save;
     backlog_ = backlog;
+    result_vm_ = rvm;
+    result_layout_ = rlay;
     quest_sub_ = quest;
     string_tables_ = std::move(tables);
     minimap_ = mini;
@@ -1161,14 +1171,78 @@ void Reader::ReadTimeline(GameState& s) {
     std::vector<std::pair<int, int>> now_ids, next_ids;
     for (auto& t : s.turns) (t.line == 0 ? now_ids : next_ids).push_back({t.uid, t.phase});
     if (s.turns_valid && now_ids != turn_now_) {
-        const auto& expect = turn_now_.empty() ? turn_next_ : turn_now_;
+        // (a new turn: the last list held no normal entries, only the extra actions and the finish that close a turn)
+        auto normal = [](const std::vector<std::pair<int, int>>& v) {
+            return std::any_of(v.begin(), v.end(), [](const std::pair<int, int>& e) { return e.second == 0; });
+        };
+        const bool new_turn = turn_now_.empty() || (!normal(turn_now_) && normal(now_ids));
+        const auto& expect = new_turn ? turn_next_ : turn_now_;
         for (auto& e : expect)
             if (std::find(now_ids.begin(), now_ids.end(), e) == now_ids.end()) { acting_ = e; break; }
     }
     if (s.turns_valid) turn_now_ = now_ids, turn_next_ = next_ids;
+    // An extra action (the bonus phase, after a stagger) works the other way: its entry stays at the head of this turn's list
+    // while its unit acts, and leaves only as the next one starts. The command manager says so (CPP_UI_BtlCmdManager.CmdType
+    // +0x30: 1, Additional), so the head entry is the one acting. The finish (CmdType 2, the visions' resonance) does the same:
+    // its entry heads the list until the new turn's comes.
+    const int cmd_type = Alive(cmd_mgr_) ? g_.Get<uint8_t>(cmd_mgr_.addr + 0x30) : 0;
+    if (s.turns_valid && (cmd_type == 1 || cmd_type == 2) && !now_ids.empty() && now_ids.front().second == cmd_type)
+        acting_ = now_ids.front();
+    PhaseActor(s);
     s.acting_phase = acting_.second;
     for (size_t u = 0; u < s.battle.size(); ++u)
         if (acting_.first >= 0 && s.battle[u].uid == acting_.first) s.acting = int(u);
+}
+
+// The results. CPP_WBP_Btl_ResultLayout (WBP_Btl_ResultLayout_C, kept for the session) is a CommonActivatableWidget: bIsActive
+// +0x3e0 while the results show (the battle is still on until they close). CPP_VM_BattleResult.BtlResultData +0x68
+// (BTL_RESULT_DATA, kept after): itemDataList +0 (BTL_RESULT_ITEM_DATA 0xc: ItemId, Num), unitDataList +0x10 (BTL_RESULT_UNIT_DATA
+// 0xd8: UnitId +0, beforeBattleExp +4, afterBattleExp +8, beforeBattleLevel +0xc, afterBattleLevel +0x10, ap +0x14, IsDead +0xce),
+// visionDataList +0x30 (BTL_RESULT_VISION_DATA 0x30: VisionId +0, beforeBattleMR +4, afterBattleMR +8, ap +0x14, UnitId +0x18),
+// baseExperience +0x40, bonusExperience +0x44, totalExperience +0x48, baseMoney +0x4c, beforeMoney +0x50, bonusMoney +0x54,
+// totalMoney +0x58, baseAp +0x5c, bonusAp +0x60, totalAp +0x64.
+void Reader::ReadResult(GameState& s) {
+    BattleResult& r = s.result;
+    if (!Alive(result_layout_) || !Alive(result_vm_)) {
+        const uint64_t now = NowMs();
+        if (now - last_result_find_ms_ > 3000) last_result_find_ms_ = now, Scan(), last_scan_ms_ = now;
+        if (!Alive(result_layout_) || !Alive(result_vm_)) return;
+    }
+    if (!(g_.Get<uint8_t>(result_layout_.addr + 0x3e0) & 1)) return;
+    uint8_t d[0x68];
+    if (!g_.Read(result_vm_.addr + 0x68, d, sizeof d)) return;
+    int v[10];
+    std::memcpy(v, d + 0x40, sizeof v);
+    r.exp = v[2], r.bonus_exp = v[1], r.gil_before = v[4], r.bonus_gil = v[5], r.gil = v[6], r.bonus_ap = v[8], r.ap = v[9];
+    auto list = [&](int o, size_t size, int max, auto&& each) {
+        TArr t;
+        std::memcpy(&t, d + o, sizeof t);
+        if (t.num <= 0 || t.num > max) return;
+        std::vector<uint8_t> b(size_t(t.num) * size);
+        if (!g_.Read(t.data, b.data(), b.size())) return;
+        for (int i = 0; i < t.num; ++i) each(&b[size_t(i) * size]);
+    };
+    list(0x00, 0xc, 64, [&](const uint8_t* e) {
+        BattleResult::Item it;
+        std::memcpy(&it.id, e, 4), std::memcpy(&it.num, e + 4, 4);
+        if (it.id > 0 && it.num > 0) r.items.push_back(it);
+    });
+    list(0x10, 0xd8, 8, [&](const uint8_t* e) {
+        BattleResult::Unit u;
+        int f[6];
+        std::memcpy(f, e, sizeof f);
+        u.id = f[0], u.exp_before = f[1], u.exp_after = f[2], u.level_before = f[3], u.level_after = f[4], u.ap = f[5];
+        u.dead = e[0xce] & 1;
+        if (u.id > 0) r.units.push_back(u);
+    });
+    list(0x30, 0x30, 8, [&](const uint8_t* e) {
+        BattleResult::Vision w;
+        int f[7];
+        std::memcpy(f, e, sizeof f);
+        w.id = f[0], w.rank_before = f[1], w.rank_after = f[2], w.ap = f[5], w.unit = f[6];
+        if (w.id > 0) r.visions.push_back(w);
+    });
+    r.showing = !r.units.empty();
 }
 
 // The resonance wheel (the game's Finish command). CPP_UI_BtlCmdManager.CmdType +0x30 (eBtlCmdType: Normal 0, Additional 1,
@@ -1327,7 +1401,20 @@ bool Reader::RefreshMenu(const EdenDsmodHostApi* host, GameState& s) {
     g_.Set(host);
     if (!s.menu.vm) return true;
     ReadMenu(s);
+    PhaseActor(s);
     return true;
+}
+
+// Whose command it is in an extra action or the finish. m_pCmdSelectUnit is not updated for them: it still names the last unit to
+// act (an enemy, or another ally). In an extra action (CmdType 1) it is the unit at the head of this turn's list, an extra entry;
+// in the finish (CmdType 2) it is the visions', no one unit's.
+void Reader::PhaseActor(GameState& s) {
+    const int cmd_type = Alive(cmd_mgr_) ? g_.Get<uint8_t>(cmd_mgr_.addr + 0x30) : 0;
+    if ((cmd_type != 1 && cmd_type != 2) || turn_now_.empty() || turn_now_.front().second != cmd_type) return;
+    s.menu.actor = 0;
+    if (cmd_type == 1)
+        for (auto& b : s.battle)
+            if (b.uid >= 0 && b.uid == turn_now_.front().first) s.menu.actor = b.id;
 }
 
 std::string Reader::Debug() {
@@ -1679,7 +1766,8 @@ void Reader::Update(const EdenDsmodHostApi* host, GameState& out) {
     if (minimap_.addr) ReadMap(out);
     if (battle_.addr) ReadBattle(out);
     if (out.in_battle) ReadMenu(out);
-    if (out.in_battle) ReadTimeline(out);
+    if (out.in_battle) ReadResult(out);
+    if (out.in_battle && !out.result.showing) ReadTimeline(out);  // (the results: the battle is won, its turns are over)
     else turn_now_.clear(), turn_next_.clear(), acting_ = {-1, -1};
     was_battle_ = out.in_battle;
 }

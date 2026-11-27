@@ -31,8 +31,10 @@ Requires runtime 25 (Eden Duo 1.4.0 or later). Tested on Peanuts Native on an AY
   party and any guest ally on the right, with HP and MP, a tag on staggered enemies, and each vision beside the character it is equipped to.
 - **Turn order.** A switch in the battle header (Commands, Turn Order) shows the game's timeline over a blurred copy of the
   battle: who acts now (the character you are choosing a command for, or the enemy attacking), then the rest of this turn and
-  the next turn, with the game's timeline faces and HP. The visions' resonance finish and extra actions are marked. The view you
-  pick is kept for the next battles and sessions.
+  the next turn, with the game's timeline faces and HP. Extra actions (the bonus phase after a stagger) and the visions' resonance
+  finish are followed as they happen and marked. The view you pick is kept for the next battles and sessions.
+- **Victory.** While the game shows a battle's results, the battle page shows what it brought: EXP, gil (and the new total) and
+  AP with any bonus, each member's EXP, AP and level (a level up is marked), each vision's AP and rank, and the items found.
 - **Battle commands by touch.** The command window is mirrored on the second screen: tap a command, a skill or an item, then
   tap a target. The game's target pointer is shown, and the resonance wheel's choices can be tapped too. Limit Bursts appear
   only when the game lists them.

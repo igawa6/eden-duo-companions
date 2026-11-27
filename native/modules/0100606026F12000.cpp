@@ -1037,7 +1037,7 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
     host->publish_i64(host->userdata, "ffr.map.world_reset", in->reset == 1);
     host->publish_i64(host->userdata, "ffr.drv.pending", in->press != kBtnNone || in->reset >= 0);
     in->reset = -1;
-    host->publish_i64(host->userdata, "ffr.battle_menu", in->view.tab == ffr::kTabBattle && in->state.in_battle && in->view.battle_view == 0);
+    host->publish_i64(host->userdata, "ffr.battle_menu", in->view.tab == ffr::kTabBattle && in->state.in_battle && !in->state.result.showing && in->view.battle_view == 0);
     // The live map: the frame's statics and the player, every tick (the host keeps nothing between samples)
     // In a town or dungeon the scope switch may show the world instead (its own frame, the player at the place they are in)
     const bool show_world = in->world_view && in->frame.mode == 1 && in->wframe.mode == 2;
@@ -1219,7 +1219,7 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
     host->publish_i64(host->userdata, "ffr.tabs", in->state.in_game && !in->state.in_battle && tab != ffr::kTabDialog);  // a battle or a conversation takes the whole screen
     host->publish_i64(host->userdata, "ffr.dialog", tab == ffr::kTabDialog);
     host->publish_i64(host->userdata, "ffr.dialog_back", tab == ffr::kTabDialog && in->view.dialog_scroll > 0);
-    host->publish_i64(host->userdata, "ffr.in_battle", in->state.in_battle);
+    host->publish_i64(host->userdata, "ffr.in_battle", in->state.in_battle && !in->state.result.showing);  // (the view switch: not over the results)
 }
 
 void Tick(void*, const EdenDsmodHostApi*) {}

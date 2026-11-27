@@ -294,6 +294,19 @@ name pool from startup: `Sound.UI.Cursor`, `Sound.UI.Cancel`, `Sound.UI.Error`, 
   resonance: UnitUniqueId -1)). Unique ids are `CPP_VM_BtlUnitParam.UniqueID` (+0x198), and 0 is a real one (the first party
   member). The Current list holds only those still to act: a unit leaves it as its turn begins, so the one acting is the first of
   the previous order that is gone. Visions have no timeline entries of their own (no unit view model either).
+- Extra actions and the finish break that rule. A stagger's bonus phase appends an Additional entry for the unit that staggered;
+  it stays at the head of the Current list while that unit acts and leaves only as the next one starts (the finish's entry, or
+  the new turn's list). The finish's entry does the same until the new turn's list replaces it. `CPP_UI_BtlCmdManager.CmdType`
+  (+0x30: 0 Normal, 1 Additional, 2 Finish) tells which phase is on, and `CPP_BtlUnitManager.m_pCmdSelectUnit` is not updated
+  for either: it still names the last unit to act, an enemy or another ally. Checked live over three battles.
+- The results: `CPP_VM_BattleResult` (in the MVVM collection, kept for the session) BtlResultData +0x68 (`BTL_RESULT_DATA` 0xc0:
+  itemDataList +0 (ItemId, Num, acquireLimitOverNum), unitDataList +0x10 (`BTL_RESULT_UNIT_DATA` 0xd8: UnitId, before/after EXP,
+  before/after level, ap +0x14, IsDead +0xce), enemyDataList +0x20, visionDataList +0x30 (`BTL_RESULT_VISION_DATA` 0x30: VisionId,
+  before/after MR, before/after AP, ap +0x14, UnitId +0x18), base/bonus/total EXP +0x40, base/before/bonus/total money +0x4c,
+  base/bonus/total AP +0x5c). It keeps the last battle's numbers after, so whether they show comes from the layout:
+  `WBP_Btl_ResultLayout_C` (`CPP_WBP_Btl_ResultLayout`, a CommonActivatableWidget under WBP_OverAllLayout) bIsActive +0x3e0 is set
+  while the results show and cleared when they close (IsFinishPage +0x5c8 is set just before). The battle manager's units are
+  still there until then, so the battle is still on.
 - Timeline faces: `UI/Textures/Icon/Unit_Face_Timeline/ICON_UnitFace_unit<id>` (party), `summon<vision id>`, `mons<%04d FaceIconId>`.
   FaceIconId is UNIT_PARAMETER +0x188, held by the live unit parameter at +0xc8 (+0x250); IsBoss +0x150 (+0x218).
 - The backdrop: texture readback (runtime 24) of the newest RGBA8 render target of the game's output size (the module tries

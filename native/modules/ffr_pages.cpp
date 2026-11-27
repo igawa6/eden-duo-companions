@@ -1380,12 +1380,13 @@ void TurnOrder(Canvas& c, const GameState& s, const Art& a) {
     // Now: the one whose command is being chosen, or the one acting (the game's list has already let it go)
     int now = s.acting;
     bool choosing = false;
-    // the resonance: the wheel is up (the player picks a vision), or the finish is under way
+    // the resonance: the wheel is up (the player picks a vision), or the finish is under way (unless a command is being chosen:
+    // the next turn has begun)
     const bool wheel = s.menu.valid && s.menu.state == 2;
-    const bool resonance = wheel || (now < 0 && s.acting_phase == 2);
     if (s.menu.open && s.menu.actor && !wheel)
         for (size_t i = 0; i < s.battle.size(); ++i)
             if (!s.battle[i].enemy && s.battle[i].id == s.menu.actor && !s.battle[i].owner) now = int(i), choosing = true;
+    const bool resonance = wheel || (!choosing && now < 0 && s.acting_phase == 2);
     const int top = kHeaderH + 22, ch = 190;
     if (resonance) {
         c.Fill(30, top, kW - 60, ch, C(0xE0302410));
@@ -1417,8 +1418,9 @@ void TurnOrder(Canvas& c, const GameState& s, const Art& a) {
         if (const Image* face = b ? TimelineFace(a, *b) : nullptr) c.BlitFit(*face, fx, fy, fd, fd);
         c.Frame(fx, fy, fd, fd, 3, kGold);
         const int nx = fx + fd + 30, nw = kW - 60 - nx;
-        const bool extra = s.acting_phase == 1 && !choosing;
-        const char* what = !b ? "Waiting for the next turn" : choosing ? "YOUR TURN  -  CHOOSE A COMMAND" : foe ? "ENEMY TURN" : extra ? "EXTRA ACTION" : "ALLY TURN";
+        const bool extra = s.acting_phase == 1 && s.acting == now;
+        const char* what = !b ? "Waiting for the next turn" : choosing ? (extra ? "EXTRA ACTION  -  CHOOSE A COMMAND" : "YOUR TURN  -  CHOOSE A COMMAND")
+                         : extra ? (foe ? "ENEMY EXTRA ACTION" : "EXTRA ACTION") : foe ? "ENEMY TURN" : "ALLY TURN";
         c.Text(*a.bold, what, nx, top + 52, 24, !b ? kInkDim : choosing ? kGold : side);
         if (b) {
             c.Text(*a.title, BattleName(s, a, now), nx, top + 112, 56, kInk, Align::Left, float(nw), kShadow);
@@ -1433,7 +1435,9 @@ void TurnOrder(Canvas& c, const GameState& s, const Art& a) {
     bool skipped = false;  // (the one acting now, if the game still lists it: shown above, once)
     for (auto& t : s.turns) {
         if (t.line != 0) continue;
-        if (!skipped && now >= 0 && t.unit == now && !resonance) { skipped = true; continue; }
+        // (only the entry for this action: a unit acting now may also hold an extra action later in the turn)
+        const int now_phase = s.acting == now ? s.acting_phase : 0;
+        if (!skipped && now >= 0 && t.unit == now && t.phase == now_phase && !resonance) { skipped = true; continue; }
         if (resonance && t.phase == 2 && t.unit < 0) continue;
         items.push_back({t.unit, t.phase, false, false});
     }
@@ -1466,6 +1470,107 @@ void TurnOrder(Canvas& c, const GameState& s, const Art& a) {
         if (items[i].unit == -2) continue;  // a gap
         if (items[i].phase == 2 && items[i].unit < 0) ResonanceRow(c, s, a, x, y, colw, rh - 8, ++number, items[i].next);
         else TurnRow(c, s, a, x, y, colw, rh - 8, items[i].unit, ++number, items[i].next, items[i].phase == 1);
+    }
+}
+
+// The battle's results while the game shows them: what the party gained (EXP, gil, AP), each member's EXP and level, the visions'
+// AP and rank, the items found
+void Results(Canvas& c, const GameState& s, const Art& a) {
+    const BattleResult& r = s.result;
+    // the totals: three tiles
+    const int ty = kHeaderH + 20, th = 132, tw = (kW - 60 - 2 * 16) / 3;
+    struct Tile { const char* label; int value, bonus; std::string sub; };
+    const Tile tiles[3] = {{"EXP", r.exp, r.bonus_exp, ""},
+                           {"GIL", r.gil, r.bonus_gil, "Now " + Num(r.gil_before + r.gil)},
+                           {"AP", r.ap, r.bonus_ap, ""}};
+    for (int i = 0; i < 3; ++i) {
+        const int x = 30 + i * (tw + 16);
+        c.Fill(x, ty, tw, th, C(0xE0142632));
+        c.GradientV(x, ty, tw, th, C(0x50E6C36B), C(0x00E6C36B));
+        c.Frame(x, ty, tw, th, 2, kGold);
+        c.Text(*a.bold, tiles[i].label, x + 20, ty + 36, 24, kGold);
+        if (tiles[i].bonus > 0) c.Text(*a.bold, "+" + Num(tiles[i].bonus) + " BONUS", x + tw - 16, ty + 36, 18, kGold, Align::Right);
+        c.Text(*a.title, "+" + Num(tiles[i].value), x + tw / 2, ty + 92, 52, kInk, Align::Center, float(tw - 20), kShadow);
+        if (!tiles[i].sub.empty()) c.Text(*a.regular, tiles[i].sub, x + tw / 2, ty + 122, 20, kInkDim, Align::Center);
+    }
+    // the party: a card each
+    int y = ty + th + 22;
+    c.Text(*a.title, "Party", 34, y + 30, 34, kInk, Align::Left, 0, kShadow);
+    GlowLine(c, 30, y + 44, kW - 60, kLine);
+    y += 60;
+    const int n = int(r.units.size()), ch = n > 3 ? 88 : 104;
+    for (const auto& u : r.units) {
+        const bool up = u.level_after > u.level_before;
+        Panel(c, a, 30, y, kW - 60, ch, up);
+        if (const Image* art = a.image(Ui("Picture/Char/T_Chara_Button_" + std::to_string(u.id)))) {
+            c.SetFadeH(250, 480);
+            c.BlitFit(*art, 32, y + 2, 480, ch - 4, u.dead ? 0.45f : 1.f, true);
+            c.SetFadeH(0, 0);
+        }
+        const int nx = 400;
+        c.Text(*a.bold, UnitName(a, u.id), nx, y + ch / 2 - 4, 38, u.dead ? kInkDim : kInk, Align::Left, 330, kShadow);
+        std::string lv = "Lv " + std::to_string(u.level_after);
+        if (up) lv = "Lv " + std::to_string(u.level_before) + "  >  " + std::to_string(u.level_after);
+        c.Text(*a.regular, lv, nx, y + ch / 2 + 34, 26, up ? kGold : kInkDim);
+        if (up) {
+            const float lw = a.regular->Measure(lv, 26);
+            const int bx = nx + int(lw) + 18, bw = int(a.bold->Measure("LEVEL UP", 18)) + 20;
+            c.Fill(bx, y + ch / 2 + 12, bw, 28, C(0xFFE6C36B));
+            c.Text(*a.bold, "LEVEL UP", bx + bw / 2, y + ch / 2 + 33, 18, C(0xFF14202A), Align::Center);
+        }
+        if (u.dead) c.Text(*a.bold, "KO", nx + std::min(330.f, a.bold->Measure(UnitName(a, u.id), 38)) + 16, y + ch / 2 - 6, 22, kFoe);
+        const int rx = kW - 60;
+        c.Text(*a.title, "+" + Num(u.exp_after - u.exp_before) + " EXP", rx, y + ch / 2 - 4, 40, kInk, Align::Right, 0, kShadow);
+        c.Text(*a.bold, "+" + Num(u.ap) + " AP", rx, y + ch / 2 + 34, 24, kInkDim, Align::Right);
+        y += ch + 10;
+    }
+    // the visions: a row of three
+    if (!r.visions.empty()) {
+        y += 8;
+        c.Text(*a.title, "Visions", 34, y + 30, 34, kInk, Align::Left, 0, kShadow);
+        GlowLine(c, 30, y + 44, kW - 60, kGold);
+        y += 60;
+        const int cols = std::min<int>(3, int(r.visions.size())), vw = (kW - 60 - (cols - 1) * 16) / std::max(1, cols), vh = 84;
+        for (size_t i = 0; i < r.visions.size() && i < 6; ++i) {
+            const auto& w = r.visions[i];
+            const int x = 30 + int(i % 3) * (vw + 16), vy = y + int(i / 3) * (vh + 10);
+            const bool rank_up = w.rank_after > w.rank_before;
+            c.Fill(x, vy, vw, vh, C(0xD0182430));
+            c.Frame(x, vy, vw, vh, rank_up ? 2 : 1, rank_up ? kGold : C(0x80E6C36B));
+            VisionBadge(c, a, w.id, x + 12, vy + 13, vh - 26);
+            const int tx = x + vh + 4, tw2 = x + vw - 14 - tx;
+            c.Text(*a.bold, ItemName(a, w.id), tx, vy + 36, 24, kGold, Align::Left, float(tw2 - 90));
+            c.Text(*a.bold, "+" + Num(w.ap) + " AP", x + vw - 14, vy + 36, 22, kInk, Align::Right);
+            const std::string sub = rank_up ? "Rank " + std::to_string(w.rank_before) + "  >  " + std::to_string(w.rank_after) + "  -  RANK UP"
+                                            : UnitName(a, w.unit);
+            c.Text(*a.regular, sub, tx, vy + 70, 20, rank_up ? kGold : kInkDim, Align::Left, float(tw2));
+        }
+        y += ((int(std::min<size_t>(r.visions.size(), 6)) + 2) / 3) * (vh + 10);
+    }
+    // the items found: icon, name and count, flowing in rows
+    y += 8;
+    if (y + 100 > kH) return;
+    c.Text(*a.title, "Items", 34, y + 30, 34, kInk, Align::Left, 0, kShadow);
+    GlowLine(c, 30, y + 44, kW - 60, kLine);
+    y += 58;
+    if (r.items.empty()) {
+        c.Text(*a.regular, "Nothing found this time", 34, y + 30, 24, kInkFaint);
+        return;
+    }
+    int x = 30;
+    for (size_t i = 0; i < r.items.size(); ++i) {
+        const std::string name = ItemName(a, r.items[i].id), count = "x" + std::to_string(r.items[i].num);
+        const int w = 52 + int(a.regular->Measure(name, 24)) + 12 + int(a.bold->Measure(count, 22)) + 18;
+        if (x + w > kW - 30 && x > 30) x = 30, y += 50;
+        if (y + 46 > kH - 6) {
+            c.Text(*a.regular, "+" + std::to_string(r.items.size() - i) + " more", kW - 34, y - 50 + 32, 22, kInkDim, Align::Right);
+            break;
+        }
+        c.Fill(x, y, w, 44, C(0xC0182430));
+        if (const Image* ic = a.image(ItemIcon(r.items[i].id))) c.Blit(*ic, x + 6, y + 4, 36, 36);
+        c.Text(*a.regular, name, x + 52, y + 31, 24, kInk);
+        c.Text(*a.bold, count, x + w - 12, y + 31, 22, kGold, Align::Right);
+        x += w + 10;
     }
 }
 
@@ -1668,6 +1773,12 @@ void ComposePage(Canvas& c, const GameState& s, const View& v, const Art& a) {
         return;
     }
     if (v.tab == kTabDialog) { Dialog(c, s, v, a); return; }  // a conversation has the whole screen
+    if (v.tab == kTabBattle && s.in_battle && s.result.showing) {  // the battle is won: what it brought
+        SceneBackdrop(c, a, 0.40f);
+        Header(c, s, a, "Victory", false);
+        Results(c, s, a);
+        return;
+    }
     if (v.tab == kTabBattle && s.in_battle && v.battle_view == 1) {
         SceneBackdrop(c, a, 0.30f);
         Header(c, s, a, "Battle", false);
