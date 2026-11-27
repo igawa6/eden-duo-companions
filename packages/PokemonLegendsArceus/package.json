@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "type": "dual-screen-mod",
+  "title_id": "01001F5010DFA000",
+  "name": "Pokemon Legends Arceus companion",
+  "version": "1.0.0",
+  "requires_module": true,
+  "min_runtime": 25,
+  "module": {
+    "abi": 1,
+    "build_ids": [
+      "AEE8F150DDA1B5A8"
+    ],
+    "libraries": {}
+  }
+}

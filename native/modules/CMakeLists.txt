@@ -1649,3 +1649,57 @@ dsmod_add_module(dsmod-dsts EXCLUDE_FROM_ALL
 if(BUILD_TESTING AND NOT ANDROID)
     dsmod_add_test(dsmod-dsts KEEP_ASSERTS SOURCES 010062E01FE0C000_test.cpp 010062E01FE0C000.cpp)
 endif()
+
+# Pokemon Legends: Arceus 1.1.1: map and guarded native throw selector; reuse the companion BNTX decoder.
+set(PLA_SOURCES 01001F5010DFA000.cpp pla_font.cpp pla_packed_ui.cpp ${DQ3_OOZ_SOURCES} acnh_tex.cpp
+    "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp")
+dsmod_add_module(dsmod-pokemon-legends-arceus EXCLUDE_FROM_ALL TITLE 01001F5010DFA000
+    SOURCES ${PLA_SOURCES}
+    INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder"
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_font_extensions)
+if(BUILD_TESTING AND NOT ANDROID)
+    dsmod_add_test(dsmod-pokemon-legends-arceus-helper KEEP_ASSERTS SOURCES pla_select_test.cpp)
+    dsmod_add_test(dsmod-pokemon-legends-arceus-battle KEEP_ASSERTS SOURCES pla_battle_page_test.cpp)
+    dsmod_add_test(dsmod-pokemon-legends-arceus KEEP_ASSERTS
+        SOURCES pla_test.cpp ${PLA_SOURCES}
+        INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
+    add_test(NAME dsmod-pokemon-legends-arceus-romfs COMMAND dsmod-pokemon-legends-arceus-test --romfs)
+    set_tests_properties(dsmod-pokemon-legends-arceus-romfs PROPERTIES SKIP_RETURN_CODE 77)
+    find_package(Python3 COMPONENTS Interpreter REQUIRED)
+    add_test(NAME dsmod-pokemon-legends-arceus-party-private
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-legends-arceus/private_party_test.py" $<TARGET_FILE:dsmod-pokemon-legends-arceus-test>)
+    set_tests_properties(dsmod-pokemon-legends-arceus-party-private PROPERTIES SKIP_RETURN_CODE 77)
+    add_test(NAME dsmod-pokemon-legends-arceus-metadata-private
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-legends-arceus/private_pokemon_metadata_test.py")
+    set_tests_properties(dsmod-pokemon-legends-arceus-metadata-private PROPERTIES SKIP_RETURN_CODE 77)
+    add_test(NAME dsmod-pokemon-legends-arceus-pokedex-private
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-legends-arceus/private_pokedex_test.py")
+    set_tests_properties(dsmod-pokemon-legends-arceus-pokedex-private PROPERTIES SKIP_RETURN_CODE 77)
+    add_test(NAME dsmod-pokemon-legends-arceus-pokedex-text-private
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-legends-arceus/private_pokedex_text_test.py")
+    set_tests_properties(dsmod-pokemon-legends-arceus-pokedex-text-private PROPERTIES SKIP_RETURN_CODE 77)
+    add_test(NAME dsmod-pokemon-legends-arceus-asset-cache
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-legends-arceus/private_asset_cache_test.py")
+    add_test(NAME dsmod-pokemon-legends-arceus-missions-private
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-legends-arceus/private_missions_test.py" $<TARGET_FILE:dsmod-pokemon-legends-arceus-test>)
+    set_tests_properties(dsmod-pokemon-legends-arceus-missions-private PROPERTIES SKIP_RETURN_CODE 77)
+    add_test(NAME dsmod-pokemon-legends-arceus-mission-page-private
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-legends-arceus/private_mission_page_test.py")
+    set_tests_properties(dsmod-pokemon-legends-arceus-mission-page-private PROPERTIES SKIP_RETURN_CODE 77)
+    add_test(NAME dsmod-pokemon-legends-arceus-recipes-private
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-legends-arceus/private_recipes_test.py")
+    set_tests_properties(dsmod-pokemon-legends-arceus-recipes-private PROPERTIES SKIP_RETURN_CODE 77)
+    add_test(NAME dsmod-pokemon-legends-arceus-blocks-private
+        COMMAND dsmod-pokemon-legends-arceus-test --live-blocks)
+    set_tests_properties(dsmod-pokemon-legends-arceus-blocks-private PROPERTIES SKIP_RETURN_CODE 77)
+    add_test(NAME dsmod-pokemon-legends-arceus-package
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-legends-arceus/package_test.py")
+endif()
+
+if(BUILD_TESTING AND NOT ANDROID)
+    add_test(NAME dsmod-pokemon-legends-arceus-helper-plan
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-legends-arceus/helper_plan_test.py")
+    add_test(NAME dsmod-pokemon-legends-arceus-plan-private
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../tools/pokemon-legends-arceus/helper_plan_test.py" --nso)
+    set_tests_properties(dsmod-pokemon-legends-arceus-plan-private PROPERTIES SKIP_RETURN_CODE 77)
+endif()
