@@ -56,6 +56,8 @@ This repository holds the companion source code, packages, documentation and scr
 | 36 | [FINAL FANTASY RESONANCE](#final-fantasy-resonance) | `0100606026F12000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/final-fantasy-resonance-1.0.1) | ⭐<br><a href="https://github.com/danielcamilo1"><img src="https://img.shields.io/badge/danielcamilo1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="danielcamilo1"></a> |
 | 37 | [The Legend of Zelda: Tears of the Kingdom](#the-legend-of-zelda-tears-of-the-kingdom) | `0100F2C0115B6000` | 1.4.3 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/tears-of-the-kingdom-1.0.0) | ⭐<br><a href="https://github.com/aldotms89"><img src="https://img.shields.io/badge/aldotms89-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="aldotms89"></a> |
 | 38 | [Digimon Story Time Stranger](#digimon-story-time-stranger) | `010062E01FE0C000` | 1.2.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/digimon-story-time-stranger-1.0.0) | ⭐<br><a href="https://github.com/TorchicIsla"><img src="https://img.shields.io/badge/TorchicIsla-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="TorchicIsla"></a> |
+| 39 | [Pokémon Legends: Arceus](#pokemon-legends-arceus) | `01001F5010DFA000` | 1.1.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-legends-arceus-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/5th-Poll-Next-Switch-Game-on-Eden-Duo-Y2S729BJ48"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
+| 40 | [Xenoblade Chronicles X: Definitive Edition](#xenoblade-chronicles-x-definitive-edition) | `0100453019AA8000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/xenoblade-chronicles-x-definitive-edition-1.0.0) | 🥇<br><a href="https://ko-fi.com/Q5X32A9KIV"><img src="https://img.shields.io/badge/Pokemonlover-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Pokemonlover"></a> |
 
 ⭐ Companion contributor. Big thanks for your mods creation!
 
@@ -1240,6 +1242,77 @@ A field guide on the second screen. It reads the running game and never changes 
 Requires Eden Duo 1.2.0 or newer.
 
 Contributed by [TorchicIsla](https://github.com/TorchicIsla). Code: GPL-3.0-or-later. [Build and test](tools/digimon-time-stranger/README.md)
+
+</details>
+
+---
+
+<a id="pokemon-legends-arceus"></a>
+
+## Pokémon Legends: Arceus
+
+🗳️ <a href="https://ko-fi.com/polls/5th-Poll-Next-Switch-Game-on-Eden-Duo-Y2S729BJ48"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> Poll winner. Thanks to everyone who voted!
+
+<details>
+<summary>Screenshots and details</summary>
+
+`01001F5010DFA000` · game version 1.1.1 (build `AEE8F150DDA1B5A8`) · companion 1.0.0
+
+| Map | Pokémon | Pokédex |
+|:---:|:---:|:---:|
+| <img src="screenshots/pokemon-legends-arceus/map.png" width="300" alt="Pokémon Legends: Arceus: Map"> | <img src="screenshots/pokemon-legends-arceus/pokemon.png" width="300" alt="Pokémon Legends: Arceus: Pokémon"> | <img src="screenshots/pokemon-legends-arceus/pokedex.png" width="300" alt="Pokémon Legends: Arceus: Pokédex"> |
+
+The area map, your party, the Pokédex, the Satchel and your missions on the second screen, so the top screen stays on Hisui. Requires Eden Duo 1.4.0 or newer (runtime 25).
+
+- **Map.** The game's own area map with your marker, turning the way you travel. It follows you; pinch to zoom, drag to look around, and one button glides back to you. With a game menu open it shows the whole area.
+- **Throw dock.** Below the map, the Poké Balls and items of the game's throw selector and your six party Pokémon. Tap one to select it in the game.
+- **Pokémon.** The party with HP and level, and a card with Stats (effort levels), Moves (power, accuracy, PP, style effects) and Weak (type matchups).
+- **Pokédex.** Seen and Caught counts per area, the list with research levels, and Entry, Research tasks and Weak for each species. Order by number or research level, or show only species with unreported research.
+- **Satchel.** Everyday Items, Key Items and Recipes, with how many of each recipe you can craft from what the Satchel holds.
+- **Missions.** Missions and Requests with the tracked one first, and an Active only filter.
+- **Battle.** Replaces the Map during a turn battle: your Pokémon and the opponent, HP, status, moves with PP and effectiveness, the action order and the party. The Map returns when the battle ends.
+- **Settings.** Follow player, Reduced motion, Haptics, and Show throw selector on top.
+- **Limits.** Companion text is English whatever language the game uses. Game version 1.1.1 only; on other builds the companion shows a notice and reads nothing. Tested on desktop Eden Duo.
+
+**This companion changes your game.** Tapping the throw dock makes the game select that ball, item or Pokémon, through a small hook in the game's code that runs the game's own selector code. The hook stays installed until the game closes and acts only after a tap. While the Map tab is shown, the companion also hides the game's throw selector on the top screen by clearing one visibility flag; it puts it back on every other tab and when the companion closes, and the setting Show throw selector on top keeps it visible. Your save file is not changed.
+
+The companion ships no game art: map art, portraits, icons, fonts and text are read from your own game files.
+Code: GPL-3.0-or-later.
+
+</details>
+
+---
+
+<a id="xenoblade-chronicles-x-definitive-edition"></a>
+
+## Xenoblade Chronicles X: Definitive Edition
+
+🥇 <a href="https://ko-fi.com/Q5X32A9KIV"><img src="https://img.shields.io/badge/Pokemonlover-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Pokemonlover"></a>
+
+<details>
+<summary>Screenshots and details</summary>
+
+`0100453019AA8000` · game version 1.0.2 (update v131072) · companion 1.0.0
+
+| Map | Battle | Skell |
+|:---:|:---:|:---:|
+| <img src="screenshots/xenoblade-chronicles-x-definitive-edition/map.png" width="300" alt="Xenoblade Chronicles X: Definitive Edition: Map"> | <img src="screenshots/xenoblade-chronicles-x-definitive-edition/battle.png" width="300" alt="Xenoblade Chronicles X: Definitive Edition: Battle"> | <img src="screenshots/xenoblade-chronicles-x-definitive-edition/skell.png" width="300" alt="Xenoblade Chronicles X: Definitive Edition: Skell"> |
+
+The FrontierNav map, your party and your Skell on the second screen, so the top screen stays on Mira. Requires Eden Duo 1.4.0 or newer (runtime 25).
+
+- **Map.** The FrontierNav map of Mira with its hex grid, NLA and the BLADE Barracks. Overworld shows the whole planet, Area the district around you. The game's own arrow follows you and turns with you, and a parked Skell has its own icon. Drag to pan, pinch to zoom, Find Self to come back. The right pane lists your party with HP and your Skell's fuel and HP. Tap a member to take control of them.
+- **Party.** Your four members with HP and TP. Pick one for their profile: class, level, rank, the full stats table with all six resistances, and their ground gear with levels and Additional Effects.
+- **Skell.** Your Skell in its own paint with its weapons, with fuel, HP, GP and Skell Insurance.
+- **Battle.** Opens by itself when a fight starts and closes after it ends. HP, TP and GP for the whole party, who is down, your Skell, and a Battle Commands button that opens the game's battle menu.
+- **Skell button.** Board or Exit when your Skell is close, hold Return to Skell when it is far away, from any page.
+- **Top screen.** The minimap and the Skell fuel gauge are hidden on the top screen while the companion runs. Your saved Display Settings are never changed, and both can be shown again in Settings.
+- **Title and loading.** The game's logo on the title screen, and a loading plate while the game loads. Pages dim while a game menu is open.
+- **Limits.** Game version 1.0.2 only; on other builds the companion shows a notice and reads nothing. Tested on desktop Eden Duo.
+
+**This companion changes your game.** Hiding the minimap and the Skell fuel gauge writes to the running game, and Board, Exit, Return to Skell and switching the controlled character run the game's own functions through a small in-game helper, as if you had done them yourself. Battle Commands presses + for you. They run only when the game would allow them; otherwise the companion says Not available now. Your saved settings are not changed. The helper's hook stays installed until the game closes.
+
+The companion ships no game art: the map, UI frames, icons, fonts, portraits, names and the Skell model are read from your own game files.
+Code: GPL-3.0-or-later.
 
 </details>
 
