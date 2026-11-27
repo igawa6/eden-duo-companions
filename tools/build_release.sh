@@ -168,7 +168,7 @@ if want wonder; then
 fi
 if want acnh; then
   # shellcheck disable=SC2046
-  pkg AnimalCrossingNH AnimalCrossingNH "${ACNH_VERSION:-1.0.0}" \
+  pkg AnimalCrossingNH AnimalCrossingNH "${ACNH_VERSION:-1.0.1}" \
     --module "android-arm64-v8a=$ACNH_ANDROID_SO" --module "linux-x86_64=$ACNH_LINUX_SO" \
     $(build_ids AnimalCrossingNH)
 fi
