@@ -1,7 +1,7 @@
 # Xenoblade Chronicles X: Definitive Edition companion
 
 Title `0100453019AA8000`, game version 1.0.2 (update v131072, main build
-`2A720C7CE5C84905C1C6847211F670FBB31842B6`). Requires Eden Duo 1.4.1 or newer (runtime 25). The
+`2A720C7CE5C84905C1C6847211F670FBB31842B6`). Requires Eden Duo 1.4.0 or newer (runtime 25). The
 module refuses other builds; the companion then shows a "Companion not available" notice and reads
 nothing. Current package: `1.0.0`.
 

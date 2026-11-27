@@ -2,7 +2,7 @@
 
 Title `01001F5010DFA000`, game update 1.1.1
 (build `AEE8F150DDA1B5A838806E1A5EA6827AD9F3C51E`).
-Companion 1.0.0 for Eden Duo 1.4.1 (runtime 25) or newer; any other build shows a notice and
+Companion 1.0.0 for Eden Duo 1.4.0 (runtime 25) or newer; any other build shows a notice and
 reads nothing. Companion text is shown in English, whatever language the game uses.
 
 The bottom screen shows a live area map with the throw dock, the party, the Pokédex, the
