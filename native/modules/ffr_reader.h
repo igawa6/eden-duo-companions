@@ -169,6 +169,36 @@ struct BattleUnit {
     int bp = -1, max_bp = -1;  // the break gauge; an enemy whose gauge is empty is staggered
     bool staggered = false;
     uint64_t owner = 0;  // a vision: the CPP_BtlUnit it is equipped to (it fights beside that character)
+    int uid = -1;        // the battle's unique id for it (CPP_VM_BtlUnitParam.UniqueID: the timeline names units by it; 0 is a
+                         // real id), -1 unknown
+    int face = 0;        // UNIT_PARAMETER.FaceIconId: its timeline face (Icon/Unit_Face_Timeline), 0 none
+    bool boss = false;   // UNIT_PARAMETER.IsBoss
+};
+
+// The battle's turn order as the game's timeline shows it (CPP_VM_BtlTimeLine.TurnVMMap: CPP_VM_BtlTurn.EntryDataList)
+struct TurnEntry {
+    int uid = 0;    // BtlTimelineEntryData.UnitUniqueId (-1 for the finish phase: the visions' resonance, not one unit)
+    int unit = -1;  // index in GameState::battle, -1 not found
+    int line = 0;   // EUIBtlTurnTimeLine: 0 this turn, 1 the next, 2 an additional turn
+    int phase = 0;  // eBtlPhaseType: 0 normal, 1 additional, 2 finish
+};
+
+// A conversation or story scene (the Event layer's talk layout and the game's backlog, CPP_BacklogSubsystem)
+struct TalkLine {
+    std::string speaker, text;
+    bool operator==(const TalkLine& o) const { return speaker == o.speaker && text == o.text; }
+};
+struct TalkState {
+    bool valid = false;          // the backlog was read
+    bool active = false;         // a talk window is up on the Event layer
+    std::vector<TalkLine> backlog;  // the game's backlog (its newest lines, oldest first; the newest is the one on screen)
+    std::string text;            // the line in the talk window now
+    std::string portrait;        // its speaker's bust (container path, FFRS/Content/Chara/Face/<id>_<emotion>_BU.uasset), "" none
+};
+
+// A line of the companion's own log of the conversation (it keeps more than the game's backlog)
+struct DialogLine {
+    std::string speaker, text, portrait;
 };
 
 struct GameState {
@@ -184,6 +214,13 @@ struct GameState {
     bool in_battle = false;
     std::vector<BattleUnit> battle;
     BattleMenu menu;
+    std::vector<TurnEntry> turns;  // the timeline: who is still to act this turn (in order), then the next turn's order
+    bool turns_valid = false;
+    int acting = -1;               // the unit acting now (index in battle): the game's list drops a unit when its turn begins
+    int acting_phase = 0;          // its entry's phase (1 an extra action); 2 with acting -1: the resonance finish (the visions)
+    // A conversation (filled by the module from TalkState: its own log of this conversation, oldest first)
+    bool in_dialog = false;
+    std::vector<DialogLine> dialog;
     std::string status;  // diagnostic
     std::unordered_map<int, EquipInfo> equipment;  // from the game's equipment table (static)
     std::unordered_map<int, ConsumableInfo> consumables;  // from the game's consumables and skill tables (static)
@@ -232,6 +269,8 @@ public:
     // CPP_QuestSubsystem and its class, for the guest helper's quest tracking
     bool QuestSystem(const EdenDsmodHostApi* host, uint64_t& sub, uint64_t& cls);
     bool ReadUi(const EdenDsmodHostApi* host, UiState& u);  // a dozen reads; false when the layout is not found
+    // The conversation: the backlog and the talk window (calls ReadUi). False when the backlog is not found.
+    bool ReadTalk(const EdenDsmodHostApi* host, TalkState& t);
     std::string Name(uint32_t id);
     // The FNames of these strings (0: not in the pool), looked up a block of the name pool per call (128 KiB); true when done
     // (all found, or the pool searched). want must stay the same between calls.
@@ -256,9 +295,16 @@ private:
     uint64_t last_find_ms_ = 0, menu_list_ = 0;
     std::unordered_map<uint64_t, bool> list_class_;
     std::unordered_map<uint64_t, uint64_t> unit_vms_;  // CPP_BtlUnitParameter -> its CPP_VM_BtlUnitParam
-    std::unordered_map<uint64_t, bool> unit_vm_class_;
+    std::unordered_map<uint64_t, bool> unit_vm_class_, timeline_class_;
     uint64_t last_vm_find_ms_ = 0;
     void FindUnitVms(const GameState& s);
+    Obj timeline_vm_;  // CPP_VM_BtlTimeLine (made with the battle's UI)
+    void ReadTimeline(GameState& s);
+    // the last read's lists (unique id, phase): who left this turn's list is the one acting
+    std::vector<std::pair<int, int>> turn_now_, turn_next_;
+    std::pair<int, int> acting_{-1, -1};
+    Obj backlog_;      // CPP_BacklogSubsystem
+    std::string ObjectPackage(uint64_t obj);  // the package path of an object (its outermost outer's name): /Game/Chara/Face/0010_00_BU
     Obj finish_vm_;  // CPP_VM_FinishCmd (made when the resonance wheel first opens)
     std::unordered_map<uint64_t, bool> finish_class_;
     uint64_t last_finish_find_ms_ = 0;

@@ -321,6 +321,29 @@ struct Instance {
     uint64_t serial = 0, last_key = 0, map_serial = 0;
     uint32_t ticks = 0;
     std::string page_key;
+    // The conversation log: the game's backlog merged into a log of the whole conversation (the backlog keeps only its newest
+    // lines), each line with the bust its speaker showed while it was on screen
+    struct Talk {
+        bool on = false;                // a conversation is shown (the Dialog page has the screen)
+        uint64_t off_ms = 0;            // when the game's talk window went away (the page stays a moment: windows close between shots)
+        std::vector<ffr::TalkLine> seen;  // every backlog line seen (the log's lines are those from `from` on)
+        std::vector<std::string> portraits;
+        size_t from = 0;
+        std::map<std::string, std::string> faces;  // speaker -> the last bust seen for them
+        int before_tab = ffr::kTabMap, before_member = -1;
+    } talk;
+    // The game's frame behind the Dialog and Turn Order pages (texture readback): the size that answers, the request in flight,
+    // and the last frame made into a backdrop (scaled, blurred and toned)
+    struct Backdrop {
+        bool configured = false, gave_up = false;
+        EdenDsmodHostTextureApi api{};
+        int size = 0;                   // index in kFrameSizes being tried (or found)
+        bool found = false;
+        uint64_t ticket = 0, asked_ms = 0, done_ms = 0, generation = 0;
+        int misses = 0;
+        std::vector<uint8_t> raw;
+        std::shared_ptr<ffr::Image> image;  // the backdrop, nullptr none yet
+    } bd;
 };
 
 void Log(const EdenDsmodHostApi* h, uint32_t lvl, const std::string& s) {
@@ -755,10 +778,175 @@ uint64_t ViewKey(const ffr::View& v) {
     uint64_t k = uint64_t(v.map_ok) << 60 | uint64_t(v.tab) | uint64_t(v.member + 1) << 4 | uint64_t(v.item_cat) << 12 | uint64_t(v.item_scroll) << 16 | uint64_t(v.item_sel + 1) << 32;
     auto mix = [&](uint64_t x) { k = (k ^ x) * 1099511628211ull; };
     mix(uint64_t(v.eq_member)), mix(uint64_t(v.eq_slot)), mix(uint64_t(v.eq_scroll)), mix(uint64_t(v.act)), mix(uint64_t(v.quest_act)), mix(uint64_t(v.wearable_known));
-    mix(uint64_t(v.busy_unit + 1)), mix(uint64_t(v.busy_slot + 1)), mix(uint64_t(v.quest_cat)), mix(uint64_t(v.quest_scroll)), mix(uint64_t(v.quest_sel + 1));
+    mix(uint64_t(v.busy_unit + 1)), mix(uint64_t(v.busy_slot + 1)), mix(uint64_t(v.quest_cat)), mix(uint64_t(v.quest_scroll)), mix(uint64_t(v.quest_sel + 1)), mix(uint64_t(v.quest_text));
+    mix(uint64_t(v.battle_view)), mix(uint64_t(v.dialog_scroll));
     for (int id : v.wearable) mix(uint64_t(id));
     for (auto& f : v.fx) { mix(uint64_t(f.unit)), mix(uint64_t(f.slot + 1)); for (char ch : f.text) mix(uint64_t(uint8_t(ch))); }
     return k;
+}
+
+// ---- The conversation log ----
+// The game's backlog holds the newest lines (30); the log keeps them all. A read's backlog continues the log where its first lines
+// are the log's last ones (the longest such overlap), and its lines after that are new. Lines seen before a conversation starts
+// are not shown (the backlog may still hold the previous conversation).
+size_t TalkOverlap(const std::vector<ffr::TalkLine>& seen, const std::vector<ffr::TalkLine>& bl) {
+    for (size_t k = std::min(seen.size(), bl.size()); k > 0; --k) {
+        bool same = true;
+        for (size_t i = 0; i < k && same; ++i) same = seen[seen.size() - k + i] == bl[i];
+        if (same) return k;
+    }
+    return 0;
+}
+
+// state_mu held. t: this read's conversation; s: the state being made (its dialog and in_dialog are filled here)
+void StepTalk(Instance* in, const ffr::TalkState& t, ffr::GameState& s) {
+    Instance::Talk& k = in->talk;
+    ffr::View& v = in->view;
+    const uint64_t now = NowMs();
+    bool ok = t.valid;
+    for (auto& l : t.backlog) ok = ok && !l.text.empty();  // (a text not read this time: wait for the next read)
+    if (ok) {
+        const size_t keep = TalkOverlap(k.seen, t.backlog), before = k.seen.size();
+        for (size_t i = keep; i < t.backlog.size(); ++i) k.seen.push_back(t.backlog[i]), k.portraits.emplace_back();
+        if (k.on && v.dialog_scroll > 0) v.dialog_scroll += int(k.seen.size() - before);  // scrolled back: the view stays put
+        if (k.seen.size() > 600) {  // a very long scene: the oldest go
+            const size_t drop = k.seen.size() - 500;
+            k.seen.erase(k.seen.begin(), k.seen.begin() + long(drop));
+            k.portraits.erase(k.portraits.begin(), k.portraits.begin() + long(drop));
+            k.from = k.from > drop ? k.from - drop : 0;
+        }
+        // the line on screen is the newest: its speaker's bust as the game shows it now
+        if (t.active && !k.seen.empty() && !t.portrait.empty() && k.seen.back().text == t.text) {
+            k.portraits.back() = t.portrait;
+            if (!k.seen.back().speaker.empty()) k.faces[k.seen.back().speaker] = t.portrait;
+        }
+    }
+    const bool talking = t.active && !s.in_battle && s.in_game && s.save_ok;
+    if (talking) k.off_ms = 0;
+    if (talking && !k.on) {  // a conversation starts: the Dialog page takes the screen
+        k.on = true;
+        k.before_tab = v.tab == ffr::kTabDialog ? ffr::kTabMap : v.tab, k.before_member = v.member;
+        v.tab = ffr::kTabDialog, v.member = -1, v.dialog_scroll = 0;
+        in->bd.image.reset(), ++in->map_serial;  // (the last scene's picture is not this one)
+    }
+    if (k.on && !talking) {
+        if (!k.off_ms) k.off_ms = now;
+        if (s.in_battle || now - k.off_ms > 900) {  // over (the window also closes for a moment between shots)
+            k.on = false;
+            if (v.tab == ffr::kTabDialog) v.tab = k.before_tab, v.member = k.before_member;
+            k.from = k.seen.size();
+        }
+    }
+    if (!k.on) k.from = k.seen.size();  // between conversations everything read is the past
+    s.in_dialog = k.on;
+    s.dialog.clear();
+    if (k.on)
+        for (size_t i = k.from; i < k.seen.size(); ++i) {
+            std::string face = k.portraits[i];
+            if (face.empty() && !k.seen[i].speaker.empty()) {
+                auto f = k.faces.find(k.seen[i].speaker);
+                if (f != k.faces.end()) face = f->second;
+            }
+            s.dialog.push_back({k.seen[i].speaker, k.seen[i].text, face});
+        }
+}
+
+// ---- The backdrop: the game's own frame ----
+// The frame is the newest render target of the game's output size; which size that is depends on the host and the game's mode, so
+// the sizes are tried in turn until one answers. A frame is cropped to the page's shape (the upper part: the talk window and the
+// battle's command bar are at the foot), scaled down, blurred and toned, then drawn behind the page.
+constexpr int kFrameSizes[][2] = {{1920, 1080}, {1280, 720}, {1600, 900}, {1440, 810}, {1366, 768}, {1152, 648}, {960, 540}};
+constexpr int kFrameSizeCount = int(sizeof kFrameSizes / sizeof kFrameSizes[0]);
+
+std::shared_ptr<ffr::Image> MakeBackdrop(const std::vector<uint8_t>& px, int w, int h) {
+    constexpr int ow = 310, oh = 270;  // a quarter of the page: the blur hides the rest
+    const double ch = h * 0.80, cw = std::min(double(w), ch * ffr::kW / ffr::kH), cx = (w - cw) / 2, cy = h * 0.03;
+    auto im = std::make_shared<ffr::Image>();
+    im->w = ow, im->h = oh;
+    im->rgba.assign(size_t(ow) * oh * 4, 255);
+    std::vector<float> acc(size_t(ow) * oh * 3);
+    for (int y = 0; y < oh; ++y)
+        for (int x = 0; x < ow; ++x) {
+            float r = 0, g = 0, b = 0;
+            for (int sy = 0; sy < 3; ++sy)
+                for (int sx = 0; sx < 3; ++sx) {
+                    const int px_x = std::min(w - 1, int(cx + (x + (sx + 0.5) / 3) * cw / ow));
+                    const int px_y = std::min(h - 1, int(cy + (y + (sy + 0.5) / 3) * ch / oh));
+                    const uint8_t* p = &px[(size_t(px_y) * w + px_x) * 4];
+                    r += p[0], g += p[1], b += p[2];
+                }
+            float* a = &acc[(size_t(y) * ow + x) * 3];
+            a[0] = r / 9, a[1] = g / 9, a[2] = b / 9;
+        }
+    std::vector<float> tmp(acc.size());
+    for (int pass = 0; pass < 3; ++pass) {  // box blur, horizontal then vertical (three passes: close to a gaussian)
+        constexpr int r = 3;
+        for (int y = 0; y < oh; ++y)
+            for (int x = 0; x < ow; ++x)
+                for (int c = 0; c < 3; ++c) {
+                    float sum = 0;
+                    for (int d = -r; d <= r; ++d) sum += acc[(size_t(y) * ow + std::clamp(x + d, 0, ow - 1)) * 3 + c];
+                    tmp[(size_t(y) * ow + x) * 3 + c] = sum / (2 * r + 1);
+                }
+        for (int y = 0; y < oh; ++y)
+            for (int x = 0; x < ow; ++x)
+                for (int c = 0; c < 3; ++c) {
+                    float sum = 0;
+                    for (int d = -r; d <= r; ++d) sum += tmp[(size_t(std::clamp(y + d, 0, oh - 1)) * ow + x) * 3 + c];
+                    acc[(size_t(y) * ow + x) * 3 + c] = sum / (2 * r + 1);
+                }
+    }
+    const float navy[3] = {10, 19, 27};
+    for (size_t i = 0; i < size_t(ow) * oh; ++i)
+        for (int c = 0; c < 3; ++c) im->rgba[i * 4 + size_t(c)] = uint8_t(std::clamp(acc[i * 3 + size_t(c)] * 0.78f + navy[c] * 0.22f, 0.f, 255.f));
+    return im;
+}
+
+// state_mu held, every sample
+void StepBackdrop(Instance* in, const EdenDsmodHostApi* host) {
+    Instance::Backdrop& b = in->bd;
+    if (!b.configured || b.gave_up) return;
+    const bool want = (in->view.tab == ffr::kTabDialog && in->talk.on) || (in->view.tab == ffr::kTabBattle && in->state.in_battle);
+    const uint64_t now = NowMs();
+    if (b.ticket) {
+        const int w = kFrameSizes[b.size][0], h = kFrameSizes[b.size][1];
+        b.raw.resize(size_t(w) * h * 4);
+        EdenDsmodTextureInfo info{};
+        info.struct_size = sizeof info;
+        const int32_t st = b.api.poll(b.api.userdata, b.ticket, b.raw.data(), b.raw.size(), &info);
+        if (st == EDEN_DSMOD_TEXTURE_PENDING) return;
+        b.ticket = 0, b.done_ms = now;
+        if (st == EDEN_DSMOD_TEXTURE_READY) {
+            if (!b.found) Log(host, EDEN_DSMOD_LOG_INFO, "backdrop: the game's frame is " + std::to_string(w) + "x" + std::to_string(h) + " (" + std::to_string(info.candidates) + " candidates)");
+            b.found = true, b.misses = 0;
+            if (info.generation != b.generation || !b.image) {
+                b.generation = info.generation;
+                b.image = MakeBackdrop(b.raw, w, h);
+                ++in->map_serial;
+            }
+        } else if (st == EDEN_DSMOD_TEXTURE_UNSUPPORTED) {
+            Log(host, EDEN_DSMOD_LOG_INFO, "backdrop: this host cannot copy the game's frame (the pages use their own art)");
+            b.gave_up = true;
+        } else if (!b.found || ++b.misses > 6) {  // not this size: the next one
+            b.found = false, b.misses = 0;
+            b.size = (b.size + 1) % kFrameSizeCount;
+        }
+        return;
+    }
+    if (!want || now - b.done_ms < (b.found ? 1500u : 700u)) return;
+    EdenDsmodTextureRequest rq{};
+    rq.struct_size = sizeof rq;
+    rq.format = EDEN_DSMOD_TEXTURE_RGBA8;
+    rq.width = uint32_t(kFrameSizes[b.size][0]), rq.height = uint32_t(kFrameSizes[b.size][1]);
+    rq.flags = EDEN_DSMOD_TEXTURE_REQUIRE_RENDER_TARGET;
+    int32_t st = 0;
+    b.ticket = b.api.request(b.api.userdata, &rq, &st);
+    b.asked_ms = now;
+    if (!b.ticket) {
+        b.done_ms = now;
+        if (st == EDEN_DSMOD_TEXTURE_UNSUPPORTED) { Log(host, EDEN_DSMOD_LOG_INFO, "backdrop: this host cannot copy the game's frame"); b.gave_up = true; }
+        else if (st != EDEN_DSMOD_TEXTURE_RATE_LIMITED && st != EDEN_DSMOD_TEXTURE_BUSY) b.size = (b.size + 1) % kFrameSizeCount, b.found = false;
+    }
 }
 
 void NewPageIfChanged(Instance* in) {  // state_mu held
@@ -777,11 +965,14 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
         ffr::GameState s;
         if (in->reader_ok) in->reader.Update(host, s);
         else s.status = "Unsupported game version";
+        ffr::TalkState talk;
+        if (in->reader_ok && s.in_game && !s.in_battle) in->reader.ReadTalk(host, talk);
         std::lock_guard<std::mutex> lk(in->state_mu);
         ffr::View& v = in->view;
         if (s.in_game && s.save_ok && !(in->state.in_game && in->state.save_ok)) v = ffr::View{};  // a game was loaded: start on Party
         if (s.in_battle && !in->state.in_battle) {  // battle starts: follow it, and remember what was open
             in->before_tab = v.tab, in->before_member = v.member;
+            if (v.tab == ffr::kTabDialog) in->before_tab = in->talk.before_tab, in->before_member = in->talk.before_member;
             v.tab = ffr::kTabBattle;
             v.member = -1;
         }
@@ -803,6 +994,7 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
         in->wframe = WorldFrame(s.map);
         if (s.map.map_id != in->state.map.map_id) in->world_view = false, in->card = -1;  // a new place: its own map first
         if (in->wframe.mode != 2 || in->frame.mode == 2) in->world_view = false;
+        StepTalk(in, talk, s);
         in->state = std::move(s);
         NewPageIfChanged(in);
     } else if (in->ticks % 2 == 1 && in->reader_ok) {  // in a battle, HP, MP and the command cursor in between: ~30 times a second
@@ -810,7 +1002,15 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
         if (in->state.in_battle && in->reader.RefreshBattle(host, in->state) && in->reader.RefreshMenu(host, in->state)) NewPageIfChanged(in);
     }
     std::lock_guard<std::mutex> lk(in->state_mu);
+    {  // the battle view the player chose (a persisted flag the header's switch sets): kept for every battle and session
+        const int tv = host->get_i64 && host->get_i64(host->userdata, "@flag:ffr.turn_view", 0) == 1 ? 1 : 0;
+        if (tv != in->view.battle_view) {
+            if (in->state.in_battle) Play(in, kSndCursor);
+            in->view.battle_view = tv;
+        }
+    }
     StepDrive(in);
+    StepBackdrop(in, host);
     if (in->helper.Bound()) {  // the guest helper ticks with the game: its heartbeat says it runs
         const uint64_t now = NowMs();
         const uint32_t beat = in->helper.Heartbeat();
@@ -837,7 +1037,7 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
     host->publish_i64(host->userdata, "ffr.map.world_reset", in->reset == 1);
     host->publish_i64(host->userdata, "ffr.drv.pending", in->press != kBtnNone || in->reset >= 0);
     in->reset = -1;
-    host->publish_i64(host->userdata, "ffr.battle_menu", in->view.tab == ffr::kTabBattle && in->state.in_battle);
+    host->publish_i64(host->userdata, "ffr.battle_menu", in->view.tab == ffr::kTabBattle && in->state.in_battle && in->view.battle_view == 0);
     // The live map: the frame's statics and the player, every tick (the host keeps nothing between samples)
     // In a town or dungeon the scope switch may show the world instead (its own frame, the player at the place they are in)
     const bool show_world = in->world_view && in->frame.mode == 1 && in->wframe.mode == 2;
@@ -1016,7 +1216,9 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
     host->publish_i64(host->userdata, "ffr.party_detail", tab == ffr::kTabParty && in->view.member >= 0);
     host->publish_i64(host->userdata, "ffr.items", tab == ffr::kTabItems && in->state.save_ok);
     host->publish_i64(host->userdata, "ffr.quests", tab == ffr::kTabQuests && in->state.save_ok);
-    host->publish_i64(host->userdata, "ffr.tabs", in->state.in_game && !in->state.in_battle);  // a battle takes the whole screen
+    host->publish_i64(host->userdata, "ffr.tabs", in->state.in_game && !in->state.in_battle && tab != ffr::kTabDialog);  // a battle or a conversation takes the whole screen
+    host->publish_i64(host->userdata, "ffr.dialog", tab == ffr::kTabDialog);
+    host->publish_i64(host->userdata, "ffr.dialog_back", tab == ffr::kTabDialog && in->view.dialog_scroll > 0);
     host->publish_i64(host->userdata, "ffr.in_battle", in->state.in_battle);
 }
 
@@ -1174,18 +1376,19 @@ EdenDsmodBool OnAction(void* p, const char* action, int64_t arg) {
             return EDEN_DSMOD_FALSE;
         }
         ++in->map_serial;
-    } else if (a == "qtap") {  // the Quests tab: the tap point packed as x << 32 | y, relative to the area below the header
-        const int x = int(int32_t(uint64_t(arg) >> 32)), y = int(int32_t(uint64_t(arg) & 0xffffffffu)) + ffr::kQuestCatY;
+    } else if (a == "qtap" || a == "qtapd") {  // the Quests tab: the tap point packed as x << 32 | y, relative to its area
+        const int x = int(int32_t(uint64_t(arg) >> 32)) + (a == "qtapd" ? ffr::kQuestTextX : 0), y = int(int32_t(uint64_t(arg) & 0xffffffffu)) + ffr::kQuestCatY;
         const ffr::QuestsTap t = ffr::QuestsHit(in->state, v, x, y);
         const auto quests = ffr::QuestsOf(in->state, v.quest_cat);
         switch (t.kind) {
         case ffr::QuestsTap::kCat:
             if (t.index == v.quest_cat) return EDEN_DSMOD_FALSE;
-            v.quest_cat = t.index, v.quest_scroll = 0, v.quest_sel = -1, in->quest_shown = -1;
+            v.quest_cat = t.index, v.quest_scroll = 0, v.quest_sel = -1, v.quest_text = 0, in->quest_shown = -1;
             Play(in, kSndCursor);
             break;
         case ffr::QuestsTap::kRow:
             v.quest_sel = v.quest_sel == t.index ? -1 : t.index;
+            v.quest_text = 0;
             Play(in, v.quest_sel < 0 ? kSndCancel : kSndCursor);
             in->quest_shown = v.quest_sel >= 0 ? quests[size_t(v.quest_sel)]->id : -1;
             break;
@@ -1200,6 +1403,20 @@ EdenDsmodBool OnAction(void* p, const char* action, int64_t arg) {
             return EDEN_DSMOD_FALSE;
         }
         ++in->map_serial;
+    } else if (a == "dscroll") {  // a swipe on the conversation log: earlier lines (up) or later ones
+        if (v.tab != ffr::kTabDialog) return EDEN_DSMOD_FALSE;
+        const int n = int(in->state.dialog.size());
+        const int s2 = std::max(0, std::min(v.dialog_scroll + int(arg) * 2, std::max(0, n - 1)));
+        if (s2 == v.dialog_scroll) return EDEN_DSMOD_FALSE;
+        v.dialog_scroll = s2;
+    } else if (a == "dlatest") {
+        if (v.tab != ffr::kTabDialog || v.dialog_scroll == 0) return EDEN_DSMOD_FALSE;
+        v.dialog_scroll = 0;
+        Play(in, kSndCursor);
+    } else if (a == "qscroll") {  // a swipe on the chosen quest's text: a few lines at a time
+        const int t = std::max(0, std::min(v.quest_text + int(arg) * 6, v.quest_text_max));
+        if (t == v.quest_text) return EDEN_DSMOD_FALSE;
+        v.quest_text = t;
     } else if (a == "scroll") {
         const int n = ffr::ListCount(in->state, v), rows = ffr::ListRows(v);
         int& first = v.tab == ffr::kTabQuests ? v.quest_scroll : v.item_cat == 1 ? v.eq_scroll : v.item_scroll;
@@ -1463,10 +1680,12 @@ EdenDsmodBool LoadImage(void* p, const EdenDsmodHostApi* host, const char* key, 
         const bool art = in->assets.Ensure(host);
         ffr::GameState s;
         ffr::View v;
+        std::shared_ptr<ffr::Image> backdrop;
         {
             std::lock_guard<std::mutex> lk(in->state_mu);
             s = in->state;
             v = in->view;
+            backdrop = in->bd.image;
         }
         for (auto& q : s.quests)  // names the game has not looked up yet: through its own localization files
             if (q.name.empty() && !q.name_src.empty()) {
@@ -1489,7 +1708,12 @@ EdenDsmodBool LoadImage(void* p, const EdenDsmodHostApi* host, const char* key, 
         a.regular = &in->assets.regular;
         a.bold = &in->assets.bold;
         a.title = &in->assets.title;
+        a.backdrop = backdrop.get();
         ffr::ComposePage(c, s, v, a);
+        {  // what the page found while laying out (how far the quest text scrolls)
+            std::lock_guard<std::mutex> lk(in->state_mu);
+            in->view.quest_text_max = v.quest_text_max;
+        }
         sink(receiver, uint32_t(c.w()), uint32_t(c.h()), c.pixels().data(), c.pixels().size());
         return EDEN_DSMOD_TRUE;
     } catch (...) {
@@ -1505,12 +1729,24 @@ void Configure(void* p, const EdenDsmodHostExtensions* ext) {
     Log(&in->host, EDEN_DSMOD_LOG_INFO, bound ? "helper: mailbox bound" : "helper: no mailbox (fast travel through the game's map)");
 }
 
+void ConfigureTexture(void* p, const EdenDsmodHostTextureApi* api) {
+    auto* in = static_cast<Instance*>(p);
+    if (!in || !api) return;
+    std::lock_guard<std::mutex> lk(in->state_mu);
+    in->bd.api = *api;
+    in->bd.configured = api->request && api->poll;
+    Log(&in->host, EDEN_DSMOD_LOG_INFO, in->bd.configured ? "backdrop: texture readback available" : "backdrop: texture readback incomplete");
+}
+
 const EdenDsmodModuleApi kApi = {
     EDEN_DSMOD_MODULE_ABI_VERSION, sizeof(EdenDsmodModuleApi), 0, EDEN_DSMOD_MODULE_ABI_HASH, kTitle,
     "FINAL FANTASY RESONANCE dual screen", EDEN_DSMOD_CAP_EXTENSIONS, SupportsBuild, Create, Destroy, Sample, Tick,
 };
 const EdenDsmodModuleExtensions kExt = {
     EDEN_DSMOD_EXT_VERSION, sizeof(EdenDsmodModuleExtensions), EDEN_DSMOD_EXT_HASH, Configure, OnAction, LoadImage,
+};
+const EdenDsmodModuleTextureExtensions kTexExt = {
+    EDEN_DSMOD_TEXTURE_EXT_VERSION, sizeof(EdenDsmodModuleTextureExtensions), EDEN_DSMOD_TEXTURE_EXT_HASH, ConfigureTexture,
 };
 
 } // namespace
@@ -1520,4 +1756,7 @@ extern "C" __attribute__((visibility("default"))) const EdenDsmodModuleApi* eden
 }
 extern "C" __attribute__((visibility("default"))) const EdenDsmodModuleExtensions* eden_dsmod_get_extensions(uint32_t v, uint64_t h) {
     return v == EDEN_DSMOD_EXT_VERSION && h == EDEN_DSMOD_EXT_HASH ? &kExt : nullptr;
+}
+extern "C" __attribute__((visibility("default"))) const EdenDsmodModuleTextureExtensions* eden_dsmod_get_texture_extensions(uint32_t v, uint64_t h) {
+    return v == EDEN_DSMOD_TEXTURE_EXT_VERSION && h == EDEN_DSMOD_TEXTURE_EXT_HASH ? &kTexExt : nullptr;
 }

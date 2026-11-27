@@ -13,7 +13,8 @@
 namespace ffr {
 
 // The tab bar's tabs, and the battle page: it takes the whole screen while a battle runs (no tab bar)
-enum Tab { kTabMap = 0, kTabParty = 1, kTabItems = 2, kTabQuests = 3, kTabCount = 4, kTabBattle = 4 };
+// The Dialog page is the same for a conversation or a story scene: it takes the screen while one runs (no tab bar)
+enum Tab { kTabMap = 0, kTabParty = 1, kTabItems = 2, kTabQuests = 3, kTabCount = 4, kTabBattle = 4, kTabDialog = 5 };
 
 struct View {
     int tab = kTabMap;
@@ -26,6 +27,10 @@ struct View {
     int eq_member = 0, eq_slot = 0, eq_scroll = 0;
     // Quests: 0 main story, 1 side quests; the list's scroll and the quest shown (index in the list, -1 none)
     int quest_cat = 0, quest_scroll = 0, quest_sel = -1;
+    int battle_view = 0;             // the battle page: 0 the commands, 1 the turn order
+    int dialog_scroll = 0;           // the Dialog page: lines hidden below the view (0 follows the newest)
+    int quest_text = 0;              // the chosen quest's text: the first line shown (a swipe on it scrolls it)
+    mutable int quest_text_max = 0;  // set by the page as it draws: the last first line that still fills the panel
     // Set by the module from the game, not chosen by the player:
     enum Act { kActNow = 0, kActBattle, kActBusy, kActNoHelper };
     int act = kActNoHelper;        // whether the game takes an item or an equipment change now, and why not (open menus allowed)
@@ -47,6 +52,7 @@ struct Art {
     const Font* regular = nullptr;
     const Font* bold = nullptr;
     const Font* title = nullptr;
+    const Image* backdrop = nullptr;  // the game's own frame, scaled, blurred and toned (behind the Dialog and Turn Order pages)
 };
 
 // Layout shared with the manifest's tap areas (tools/ffr/gen_manifest.py).
@@ -56,6 +62,10 @@ constexpr int kPartyCardY = 132, kPartyCardH = 200, kPartyCardGap = 14;
 constexpr int kMapX = 30, kMapY = kHeaderH + 16, kMapW = kW - 60, kMapH = kTabBarY - kMapY - 16;
 // The battle page's content, down to the foot of the screen (one tap area, the module hit-tests the tap point: BattleHit)
 constexpr int kBattleY = kHeaderH, kBattleH = kH - kHeaderH;
+// The battle header's switch between the commands and the turn order (two taps in the manifest)
+constexpr int kViewSwitchX = 640, kViewSwitchY = 20, kViewSwitchW = 286, kViewSwitchH = 72;
+// The Dialog page's log (a swipe scrolls it; Latest jumps back to the newest line)
+constexpr int kDialogLogX = 440, kDialogLatestY = 980, kDialogLatestH = 76;
 
 // What a tap on the battle page landed on, from the same layout the page draws
 struct BattleTap {
@@ -79,6 +89,7 @@ ItemsTap ItemsHit(const GameState& s, const View& v, int x, int y);
 // The Quests tab: the game's journal (Main, Side), the list on the left, the chosen quest on the right with Track
 constexpr int kQuestCatY = 128, kQuestListY = 222, kQuestRowH = 88, kQuestRows = 8, kQuestListW = 540;
 constexpr int kQuestTrackY = 866, kQuestTrackH = 76;
+constexpr int kQuestTextX = 30 + kQuestListW + 20;  // the chosen quest's panel (its own swipe area)
 struct QuestsTap {
     enum Kind { kNone, kCat, kRow, kTrack } kind = kNone;
     int index = -1;  // kCat: 0 main, 1 side; kRow: index in the list

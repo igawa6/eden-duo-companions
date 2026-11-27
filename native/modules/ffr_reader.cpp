@@ -87,8 +87,12 @@ uint64_t GameState::Hash() const {
     for (auto& g : map.goals) mix(&g.main, 1), mix(&g.side, 1);  // (how many and which kind; their positions go out every tick)
     for (auto& b : battle) {
         const int v[5] = {b.id, b.hp, b.max_hp, b.mp, b.max_mp};
-        mix(v, sizeof v), mix(&b.enemy, 1), mix(&b.staggered, 1), mix(&b.owner, 8);
+        mix(v, sizeof v), mix(&b.enemy, 1), mix(&b.staggered, 1), mix(&b.owner, 8), mix(&b.uid, 4), mix(&b.face, 4);
     }
+    mix(&turns_valid, 1), mix(&acting, 4), mix(&acting_phase, 4);
+    for (auto& t : turns) mix(&t, sizeof t);
+    mix(&in_dialog, 1);
+    for (auto& d : dialog) mix(d.speaker.data(), d.speaker.size()), mix(d.text.data(), d.text.size()), mix(d.portrait.data(), d.portrait.size());
     return h;
 }
 
@@ -193,7 +197,7 @@ void Reader::Scan() {
     const uint64_t objs = g_.Get<uint64_t>(objarr_);
     const int32_t num = g_.Get<int32_t>(objarr_ + 20), nchunks = g_.Get<int32_t>(objarr_ + 28);
     if (!objs || num <= 0 || nchunks <= 0 || nchunks > 64) return;
-    Obj save, quest, mini, btl, pc, am, mode, vm, mgr, wsub, wvm, wlist, dlg, mmvm, gwm, wpar, sact, stgt;
+    Obj save, quest, mini, btl, pc, am, mode, vm, mgr, wsub, wvm, wlist, dlg, mmvm, gwm, wpar, sact, stgt, backlog;
     std::vector<Obj> ups, maps, lists;
     std::unordered_map<std::string, Obj> tables;
     std::vector<uint8_t> items;
@@ -257,6 +261,10 @@ void Reader::Scan() {
                 continue;
             }
             if (cn == "StringTable") { tables[Name(h.name)] = {a, h.cls, uint32_t(h.index)}; continue; }
+            if (cn == "CPP_BacklogSubsystem") {
+                if (Name(h.name).rfind("Default__", 0) != 0) backlog = {a, h.cls, uint32_t(h.index)};
+                continue;
+            }
             const bool up = cn == "CPP_UnitParameter" || cn == "CPP_BtlUnitParameter";
             Obj* slot = cn == "CPP_MuchaSaveDataManager" ? &save : cn == "CPP_QuestSubsystem" ? &quest : cn == "CPP_MiniMapSubsystem" ? &mini : cn == "CPP_BtlManager" ? &btl
                       : cn == "CPP_MuchaPlayerController" ? &pc : cn == "CPP_AppAssetManager" ? &am : nullptr;
@@ -267,6 +275,7 @@ void Reader::Scan() {
         }
     }
     save_mgr_ = save;
+    backlog_ = backlog;
     quest_sub_ = quest;
     string_tables_ = std::move(tables);
     minimap_ = mini;
@@ -638,6 +647,61 @@ bool Reader::ReadUi(const EdenDsmodHostApi* host, UiState& u) {
     return true;
 }
 
+std::string Reader::ObjectPackage(uint64_t obj) {
+    uint64_t o = obj;
+    for (int i = 0; i < 8 && o; ++i) {
+        const uint64_t outer = g_.Get<uint64_t>(o + 0x20);
+        if (!outer) return Name(g_.Get<uint32_t>(o + 0x18));
+        o = outer;
+    }
+    return "";
+}
+
+// The conversation. The game's backlog (CPP_BacklogSubsystem +0x30: TArray<BacklogData 0x48>, SpeakerName FText +0, Text FText +0x10)
+// keeps the newest 30 lines; the line in the talk window is its newest. The talk window: the Event layer's talk layout
+// (a CPP_WBP_Talk: WindowManager +0x598) -> m_pWindow (+0x190, a CPP_WBP_TalkWindow) -> m_pTextBlock (+0x558, text FText +0x188) and
+// m_pSpeaker (+0x5a0, a CPP_WBP_TalkSpeaker) -> m_pTexture (+0x348): the speaker's bust, /Game/Chara/Face/<id>_<emotion>_BU.
+constexpr uint64_t kBacklogList = 0x30, kBacklogStride = 0x48, kTalkWm = 0x598, kWmWindow = 0x190, kWinText = 0x558, kWinSpeaker = 0x5a0,
+                   kSpeakerTex = 0x348, kTextBlockText = 0x188;
+bool Reader::ReadTalk(const EdenDsmodHostApi* host, TalkState& t) {
+    g_.Set(host);
+    t = TalkState{};
+    UiState u;
+    if (ReadUi(host, u) && u.event)
+        for (auto& [tag, stack] : layers_) {
+            if (tag != "UI.Layer.Event") continue;
+            const TArr wl = g_.Get<TArr>(stack + 0x190);
+            for (int i = 0; i < std::min(wl.num, 8); ++i) {
+                const uint64_t w = g_.Get<uint64_t>(wl.data + 8ull * size_t(i));
+                const uint64_t cls = w ? g_.Get<uint64_t>(w + 0x10) : 0;
+                if (!cls || !IsA(cls, "CPP_WBP_Talk")) continue;
+                const uint64_t wm = g_.Get<uint64_t>(w + kTalkWm);
+                const uint64_t win = wm ? g_.Get<uint64_t>(wm + kWmWindow) : 0;
+                if (!win) continue;
+                t.active = true;
+                const uint64_t tb = g_.Get<uint64_t>(win + kWinText);
+                if (tb) t.text = FTextString(tb + kTextBlockText, 1024);
+                const uint64_t sp = g_.Get<uint64_t>(win + kWinSpeaker);
+                const uint64_t tex = sp ? g_.Get<uint64_t>(sp + kSpeakerTex) : 0;
+                const std::string pkg = tex ? ObjectPackage(tex) : "";
+                if (pkg.rfind("/Game/Chara/Face/", 0) == 0) t.portrait = "FFRS/Content" + pkg.substr(5) + ".uasset";
+            }
+        }
+    if (!Alive(backlog_)) {
+        const uint64_t now = NowMs();
+        if (now - last_wm_scan_ms_ > 1500) { last_wm_scan_ms_ = now; Scan(); last_scan_ms_ = now; }
+        if (!Alive(backlog_)) return false;
+    }
+    const TArr bl = g_.Get<TArr>(backlog_.addr + kBacklogList);
+    if (bl.num < 0 || bl.num > 256) return false;
+    for (int i = 0; i < bl.num; ++i) {
+        const uint64_t e = bl.data + kBacklogStride * uint64_t(i);
+        t.backlog.push_back({FTextString(e, 128), FTextString(e + 0x10, 1024)});
+    }
+    t.valid = true;
+    return true;
+}
+
 bool Reader::TravelAsset(const EdenDsmodHostApi* host, uint64_t& da, uint64_t& cls) {
     g_.Set(host);
     if (!Alive(wld_param_)) {
@@ -857,6 +921,8 @@ struct UpHead {
 };
 static_assert(sizeof(UpHead) == 0x20 && offsetof(UpHead, hp) == kUpHp - kUpId && offsetof(UpHead, level) == kUpLevel - kUpId);
 constexpr uint64_t kUpMaxBp = 0x128;
+// The unit's table row (UNIT_PARAMETER) is held at +0xc8: its FaceIconId (+0x188) and IsBoss (+0x150)
+constexpr uint64_t kUpRow = 0xc8, kUpFaceIcon = kUpRow + 0x188, kUpIsBoss = kUpRow + 0x150;
 void SetBreak(BattleUnit& b, int bp, int max_bp) {
     b.bp = bp, b.max_bp = max_bp;
     b.staggered = b.enemy && b.hp > 0 && max_bp > 0 && max_bp < 1000000 && bp <= 0;
@@ -893,6 +959,9 @@ void Reader::ReadBattle(GameState& s) {
         b.max_bp = g_.Get<int32_t>(param + kUpMaxBp);
         b.bp = hd.bp;
         if (b.id <= 0 || b.hp < 0 || b.hp > 10000000) continue;
+        b.face = g_.Get<int32_t>(param + kUpFaceIcon);
+        if (b.face < 0 || b.face > 99999) b.face = 0;
+        b.boss = g_.Get<uint8_t>(param + kUpIsBoss) & 1;
         b.enemy = !(s.guest && b.id == s.guest);  // a guest (a temporary ally) is not in the save's unit list
         for (auto& x : s.units)
             if (x.id == b.id) {
@@ -1028,12 +1097,78 @@ void Reader::FindUnitVms(const GameState& s) {
             struct { uint64_t vt; int32_t flags, index; uint64_t cls; } h{};
             if (!g_.Read(a, &h, sizeof h) || !h.cls) continue;
             auto it = unit_vm_class_.find(h.cls);
-            if (it == unit_vm_class_.end()) it = unit_vm_class_.emplace(h.cls, IsA(h.cls, "CPP_VM_BtlUnitParam")).first;
+            if (it == unit_vm_class_.end()) {
+                const int kind = IsA(h.cls, "CPP_VM_BtlUnitParam") ? 1 : IsA(h.cls, "CPP_VM_BtlTimeLine") ? 2 : 0;
+                it = unit_vm_class_.emplace(h.cls, kind == 1).first;
+                if (kind == 2) timeline_class_[h.cls] = true;
+            }
+            if (timeline_class_.count(h.cls)) {
+                if (Name(g_.Get<uint32_t>(a + 0x18)).rfind("Default__", 0) != 0) timeline_vm_ = {a, h.cls, uint32_t(h.index)};
+                continue;
+            }
             if (!it->second) continue;
             const uint64_t p = g_.Get<uint64_t>(a + kUnitVmParam);
             if (want.count(p)) unit_vms_[p] = a;
         }
     }
+}
+
+// The turn order: CPP_VM_BtlTimeLine.TurnVMMap (+0xd8, Map<EUIBtlTurnTimeLine, CPP_VM_BtlTurn*>, element 0x18) holds a view model per
+// line (0 this turn, 1 the next, 2 an additional one), each with its EntryDataList (+0xa8, BtlTimelineEntryData 0x14: UnitUniqueId +0,
+// DuplicateCount +4, BelongTimeline +8, BelongPhaseType +9) and bDisplay (+0xc9). The units' unique ids come from their view models
+// (CPP_VM_BtlUnitParam.UniqueID +0x198).
+constexpr uint64_t kTlTurnMap = 0xd8, kTurnEntries = 0xa8;
+void Reader::ReadTimeline(GameState& s) {
+    bool missing = false;
+    for (auto& b : s.battle) {
+        auto it = unit_vms_.find(b.param);
+        if (it == unit_vms_.end() || g_.Get<uint64_t>(it->second + kUnitVmParam) != b.param) { missing = true; continue; }
+        b.uid = g_.Get<int32_t>(it->second + 0x198);  // UniqueID
+    }
+    const uint64_t now = NowMs();
+    if ((missing || !Alive(timeline_vm_)) && now - last_vm_find_ms_ > 1000) last_vm_find_ms_ = now, FindUnitVms(s);
+    if (!Alive(timeline_vm_)) return;
+    struct Line { int line; uint64_t vm; };
+    std::vector<Line> lines;
+    ForEachMap(g_, timeline_vm_.addr + kTlTurnMap, 0x18, [&](uint64_t e) {
+        const int k = g_.Get<uint8_t>(e);
+        const uint64_t vm = g_.Get<uint64_t>(e + 8);
+        if (vm && k <= 2) lines.push_back({k, vm});
+        return lines.size() < 4;
+    });
+    std::sort(lines.begin(), lines.end(), [](const Line& a, const Line& b) { return a.line < b.line; });
+    for (auto& l : lines) {
+        const TArr arr = g_.Get<TArr>(l.vm + kTurnEntries);
+        if (arr.num <= 0 || arr.num > 64) continue;
+        std::vector<uint8_t> b(size_t(arr.num) * 0x14);
+        if (!g_.Read(arr.data, b.data(), b.size())) continue;
+        for (int i = 0; i < arr.num; ++i) {
+            TurnEntry t;
+            std::memcpy(&t.uid, &b[size_t(i) * 0x14], 4);
+            t.line = l.line;
+            t.phase = b[size_t(i) * 0x14 + 9];
+            for (size_t u = 0; u < s.battle.size(); ++u)
+                if (s.battle[u].uid >= 0 && s.battle[u].uid == t.uid) t.unit = int(u);
+            s.turns.push_back(t);
+        }
+    }
+    s.turns_valid = !lines.empty();
+    // Who acts now. This turn's list (line 0) holds those still to act: a unit leaves it as its turn begins. So the one acting is
+    // the first of the order last seen that is no longer listed: the previous read's list, or, as a new turn's list appears, the
+    // previous read's next-turn list (it becomes this turn's).
+    // An entry is its unit and its phase: a unit may act again in the extra phase (1), and the finish phase (2) is the
+    // visions' resonance, with no unit (-1).
+    std::vector<std::pair<int, int>> now_ids, next_ids;
+    for (auto& t : s.turns) (t.line == 0 ? now_ids : next_ids).push_back({t.uid, t.phase});
+    if (s.turns_valid && now_ids != turn_now_) {
+        const auto& expect = turn_now_.empty() ? turn_next_ : turn_now_;
+        for (auto& e : expect)
+            if (std::find(now_ids.begin(), now_ids.end(), e) == now_ids.end()) { acting_ = e; break; }
+    }
+    if (s.turns_valid) turn_now_ = now_ids, turn_next_ = next_ids;
+    s.acting_phase = acting_.second;
+    for (size_t u = 0; u < s.battle.size(); ++u)
+        if (acting_.first >= 0 && s.battle[u].uid == acting_.first) s.acting = int(u);
 }
 
 // The resonance wheel (the game's Finish command). CPP_UI_BtlCmdManager.CmdType +0x30 (eBtlCmdType: Normal 0, Additional 1,
@@ -1544,6 +1679,8 @@ void Reader::Update(const EdenDsmodHostApi* host, GameState& out) {
     if (minimap_.addr) ReadMap(out);
     if (battle_.addr) ReadBattle(out);
     if (out.in_battle) ReadMenu(out);
+    if (out.in_battle) ReadTimeline(out);
+    else turn_now_.clear(), turn_next_.clear(), acting_ = {-1, -1};
     was_battle_ = out.in_battle;
 }
 
