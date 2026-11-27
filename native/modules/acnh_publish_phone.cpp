@@ -106,7 +106,7 @@ void Publisher::BuildPhone(const live::LiveSnapshot& s) {
         // dropped it as unread although both pages bind it: no icons, so no visible tap targets
         // on the NookPhone page (owner, Thor rc9 2026-10-03; Linux the same)
         const std::string p = "app." + std::to_string(i) + ".";
-        o_phone.T(p + "icon", std::string{Key} + "icon/app/" + std::to_string(d->frame) + "?s=132");
+        o_phone.T(p + "icon", std::string{Key} + "icon/app/" + std::to_string(d->frame) + "?s=176");
         o_phone.T(p + "name", Msg("LayoutMsg/MenuDevice", d->label));
     }
     app_sel = sel >= 0 && sel < static_cast<int>(apps.size()) ? sel : -1;

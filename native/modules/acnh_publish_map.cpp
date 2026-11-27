@@ -351,7 +351,10 @@ void Publisher::BuildMap(const live::LiveSnapshot& s) {
                             : en.fac_head + "&w=" + std::to_string(std::lround(en.fw * f)) +
                                   "&h=" + std::to_string(std::lround(en.fh * f)) + "&part=1");
             }
-            o_map.T(q + "pk", en.selkey + "&part=2&cap=0");
+            // T2 (map a1): residents are named in the face column, so a selected house carries no
+            // name balloon on the map (it covered row B and the next pin); facilities keep theirs
+            o_map.T(q + "pk", en.fac_head.empty() ? std::string{Key} + "map/none"
+                                                  : en.selkey + "&part=2&cap=0");
             const double half = en.fac_head.empty() ? 36 * kZoomPpu / 0.8 * 1.3 / 2 : en.fh / 2;
             o_map.I(q + "py", std::lround((en.wz - half / kZoomPpu) * 10));
             o_map.I("map.hit." + std::to_string(e) + ".x", std::lround(en.wx * 10));

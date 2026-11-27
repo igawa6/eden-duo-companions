@@ -619,6 +619,19 @@ bool PhoneFrame(Art& art, const ArtKey& key, Image& out) {
     Image clip{900, 880};
     draw::Composite(clip, Card(art, 870, 840, C("ffffff"), 120), 15, 20);
     phone = draw::Masked(phone, clip);
+    {
+        // T3 home d1 / phone-apps d3 (owner 2026-11-27): the waves and pin status glyphs sit low
+        // enough to crowd the first icon row. Lift them into the top of the body, waves at 80%,
+        // pin at 31 px, so both clear the icon tops; the old spots are refilled with the body.
+        const uint8_t* b = phone.At(300, 88);
+        const Rgba body{b[0], b[1], b[2], 255};
+        const Image waves = draw::Crop(phone, 258, 105, 346, 135);
+        const Image pin = draw::Crop(phone, 580, 100, 620, 138);
+        draw::FillRect(phone, 256, 100, 348, 140, body);
+        draw::FillRect(phone, 576, 96, 622, 140, body);
+        draw::Composite(phone, draw::Resize(waves, 70, 24), 267, 82);
+        draw::Composite(phone, draw::Resize(pin, 32, 31), 585, 82);
+    }
     const int w = key.Int("w", 900), h = key.Int("h", 880);
     if (w == 900 && h == 880) {
         out = phone;
@@ -1197,11 +1210,11 @@ bool Recipe(Art& art, const ArtKey& key, Image& out) {
     }
     // ---------------- MAP chrome (page_map; the island itself is module:acnh/map/...)
     if (g == "mapui") {
-        if (n == "panel") { // residents panel: MapBtnBase^s (top half, mirrored) #1e857740 x
-                            // MapBasePattern^r
+        if (n == "panel") { // residents panel: real-size rounded rect #1e857740 x
+                            // MapBasePattern^r (stretching MapBtnBase^s squashed its corners)
             const double w = key.Num("w", 318), h = key.Num("h", 912);
-            const Image shape =
-                draw::Resize(draw::MirrorV(art.Tex("MenuMapFull", "MapBtnBase^s")), R(w), R(h));
+            Image shape{std::max(1, R(w)), std::max(1, R(h))};
+            draw::FillRoundRect(shape, 0, 0, R(w), R(h), 40, C("ffffff"));
             out = draw::MaskTint(shape, C("1e857740"));
             const Image pat = draw::Tint(
                 draw::Tile(R(w), R(h),

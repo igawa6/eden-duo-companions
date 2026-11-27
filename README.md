@@ -238,7 +238,7 @@ The companion ships no game art: pictures, icons, the font and course names are 
 <details>
 <summary>Screenshots and details</summary>
 
-`01006F8002326000` · game version 3.0.3 · companion 1.0.0
+`01006F8002326000` · game version 3.0.3 · companion 1.0.1
 
 | Island map | Pockets | Critterpedia |
 |:---:|:---:|:---:|
@@ -252,7 +252,7 @@ Your island information and NookPhone pages, always within reach on the second s
 - **Pockets.** Browse what you are carrying, with item names and quantities. Touch controls let you select items and equip tools.
 - **Critterpedia.** Browse fish, bugs and sea creatures, with collection details and filters.
 - **DIY.** Browse recipes by category, see their materials and mark favourites.
-- **Today.** A separate page for the day's island information.
+- **Today.** A separate page for the day's island information, with this month's birthdays (yours too) and the critters arriving or leaving.
 - **NookPhone.** Browse the phone's apps and open supported apps through the game's own controls.
 
 The companion ships no game art: maps, item pictures, icons, fonts and text are read from your own game files.

@@ -277,7 +277,8 @@ std::vector<std::string> Art::Keys() {
                                   "icon/app/3?s=132",
                                   "num/outline/33?h=25&w=71",
                                   "ui/today/photoframe?d=166&c=2e2b1c40",
-                                  "ui/gear?d=96&sc=74614450"};
+                                  "ui/gear?d=96&sc=74614450",
+                                  "ui/tex/CmnDialog/CmnDialogWinBase^s?m=h&w=400&h=200"};
     for (int k = 0; k < 6; ++k)
         keys.push_back("ui/tabicon/" + std::to_string(k) + "?s=58");
     for (int k = 0; k < 3; ++k) {
@@ -483,6 +484,36 @@ bool Art::Build(const ArtKey& key, Image& out) {
     }
     if (family == "bg")
         return BuildBackground(*this, key, out);
+    if (family == "ui" && p.size() == 4 && p[1] == "tex") {
+        // ui/tex/<Layout>/<Tex>?w&h&m=h|v|4&c=&k=&fill=stretch|fit|tile|pill|nine&b=&r=: any
+        // layout texture. m mirrors first (texture = left half / top half / top-left quarter);
+        // c alone = MaskTint (^s masks), c + k = Tint(black k, white c); then the fill at w x h.
+        Image t = Tex(p[2], p[3]);
+        if (t.Empty())
+            return false;
+        const std::string m = key.Str("m");
+        t = m == "h" ? draw::MirrorH(t) : m == "v" ? draw::MirrorV(t) : m == "4" ? draw::Mirror4(t) : t;
+        if (key.params.contains("c"))
+            t = key.params.contains("k")
+                    ? draw::Tint(t, key.Col("k", {}), key.Col("c", {}))
+                    : draw::MaskTint(t, key.Col("c", {}));
+        const int w = key.Int("w", 0) > 0 ? key.Int("w", 0) : t.w;
+        const int h = key.Int("h", 0) > 0 ? key.Int("h", 0) : t.h;
+        const std::string fill = key.Str("fill", "stretch");
+        if (fill == "tile")
+            out = draw::Tile(w, h, t, key.Int("ox", 0), key.Int("oy", 0));
+        else if (fill == "pill")
+            out = draw::Pill(t, w, h);
+        else if (fill == "nine")
+            out = draw::Nine(t, std::clamp(key.Int("b", std::min(t.w, t.h) / 3), 1, std::min(t.w, t.h) / 2),
+                             w, h, key.Num("r", key.Int("b", std::min(t.w, t.h) / 3)));
+        else if (fill == "fit") {
+            out = Image{w, h};
+            draw::PasteC(out, draw::Fit(t, w, h), w / 2.0, h / 2.0);
+        } else
+            out = (w == t.w && h == t.h) ? t : draw::Resize(t, w, h);
+        return !out.Empty();
+    }
     if (family == "ui")
         return BuildUi(*this, key, out);
     return false;
