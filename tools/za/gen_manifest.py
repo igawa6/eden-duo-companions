@@ -5,7 +5,7 @@
 
 Eight tabs on a 1240x1080 logical canvas. Values come from the player's
 live game state or save via the native module; names, icons and the map come from their romfs.
-Only the redistributable Noto Sans CJK font atlas/metrics ship with the package.
+The UI font is decoded at runtime from the player's romfs via za_font.cpp (font/za_font.txt is a non-empty placeholder).
 
   header   0..108
   content  120..950
@@ -23,6 +23,7 @@ import hashlib
 import sys
 from localize_manifest import localize
 from pathlib import Path
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "packages/PokemonLegendsZA/dualscreen/manifest.json"
@@ -34,19 +35,26 @@ MAP_MAX_ZOOM = 12  # Match kMapMaxZoom in the native module.
 RUNTIME_25 = "--runtime25" in sys.argv
 LEGACY_NAV = RUNTIME_25 or "--legacy-nav" in sys.argv
 
-# palette (AARRGGBB)
-BG = "#FF142A3C"
-HEADER = "#FFEDF5F2"
-LINE = "#FF527087"
-PANEL = "#FF213B50"
-PANEL_HI = "#FF2D4B62"
-WELL = "#FF0B111C"
-RED = "#FF55C6BE"
-GOLD = "#FFF2C33D"
-TEXT = "#FFE8EEF7"
-DIM = "#FFBBCBDC"
-GREEN = "#FF3FD07A"
-BLUE = "#FF57A9F5"
+# Native Z-A .bflyt palette (AARRGGBB)
+BG = "#FF101422"
+HEADER = "#FF1E2740"
+LINE = "#FF384466"
+LINE_HI = "#FF566A98"
+PANEL = "#FF191F32"
+PANEL_HI = "#FF212941"
+WELL = "#FF0C101C"
+RED = "#FF2FB3EB"
+CYAN_LIGHT = "#FFABE4FF"
+LIME = "#FFB5D64D"
+GOLD = "#FFF4C94E"
+MAGENTA = "#FFF20D77"
+PINK_GLOW = "#FFFF4A95"
+TEAL_MINT = "#FF25C5C2"
+TEXT = "#FFF8F9FC"
+DIM = "#FF95A4C4"
+GREEN = "#FF45D986"
+BLUE = "#FF2FB3EB"
+INK_DARK = "#FF161B2E"
 CLEAR = "#00000000"
 
 # the game's box and party geometry (za_save.h)
@@ -150,21 +158,27 @@ def nav_order(*extra):
 
 # ---- EQUIPE ---------------------------------------------------------------------------------
 
-TYPE_COLORS = ["#FF9099A0", "#FFC34E48", "#FF92A9DE", "#FFAA65B7", "#FFC5A971", "#FFB9A65C",
-               "#FF93AE3D", "#FF6C71B6", "#FF83A2B4", "#FFE58A41", "#FF4C98DB", "#FF65B55A",
-               "#FFE4C547", "#FFDC75A3", "#FF75C9CF", "#FF697FC7", "#FF80727A", "#FFDA91C6"]
-TYPE_TEXT = ["#FF080D16" if i not in (1,7,16) else "#FFFFFFFF" for i in range(len(TYPE_COLORS))]
+# Official Pokémon Legends: Z-A vibrant type palette with crisp white text (dark only on bright Electric)
+TYPE_COLORS = ["#FF868E98", "#FFD24236", "#FF6898E6", "#FF984AC0", "#FFBF8638", "#FFA69244",
+               "#FF82A622", "#FF6854A8", "#FF6090A8", "#FFE66224", "#FF2B8AE8", "#FF3AA64A",
+               "#FFF0C628", "#FFE4528A", "#FF3CB2CC", "#FF5266D4", "#FF5A5064", "#FFE06EB8"]
+TYPE_TEXT = ["#FF121826" if i == 12 else "#FFFFFFFF" for i in range(len(TYPE_COLORS))]
 
 
-def type_badge(x, y, w, bind, scale=3, **gate):
+def type_badge(x, y, w, bind, scale=5, **gate):
     """Unknown types are -1. A single-type Pokémon has type2=-1, so no false Normal badge."""
     out=[]
+    h = 42
     for i, color in enumerate(TYPE_COLORS):
-        out += [rect(x,y,w,40,bg=color,frame=0,hide_bind=bind,keep_min=i,keep_max=i,**gate),
-                image(x+5,y+5,30,30,src=f"module:type/{i}",hide_bind=bind,keep_min=i,keep_max=i,**gate),
-                bound_text(x+42+(w-42)//2,y+10,f"za.type{i}.name",scale,TYPE_TEXT[i],align="center",
-                      wrap_width=w-52,max_lines=1,fit_text=True,
-                      hide_bind=bind,keep_min=i,keep_max=i,**gate)]
+        out += [rect(x, y, w, h, bg=color, color="#40FFFFFF", frame=1, pill=True,
+                     hide_bind=bind, keep_min=i, keep_max=i, **gate),
+                rect(x+6, y+6, 30, 30, bg="#38080D1A", frame=0, pill=True,
+                     hide_bind=bind, keep_min=i, keep_max=i, **gate),
+                image(x+10, y+10, 22, 22, src=f"module:type/{i}",
+                      hide_bind=bind, keep_min=i, keep_max=i, **gate),
+                bound_text(x+42+(w-48)//2, y, f"za.type{i}.name", scale, TYPE_TEXT[i], align="center",
+                      wrap_width=w-54, max_lines=1, fit_text=True, text_center_h=h,
+                      hide_bind=bind, keep_min=i, keep_max=i, **gate)]
     return out
 
 
@@ -333,14 +347,14 @@ def box_page():
             "repeat_dx": CELL_DX, "repeat_row_dy": CELL_DY}
     present = {"need_bind": "za.b{i}.v"}
     w += [rect(GRID_X,GRID_Y,CELL_W,CELL_H,bg=PANEL,color=LINE,frame=2,**grid),
+          image(GRID_X+68,GRID_Y+48,54,54,src="module:empty-ball",**grid,hide_bind="za.b{i}.v",hide_eq=1),
           image(GRID_X+38,GRID_Y+2,114,114,src_format="module:icon/%d",bind="za.b{i}.icon",**grid,**present),
           bound_text(GRID_X+10,GRID_Y+124,"za.b{i}.name",5,TEXT,wrap_width=170,max_lines=1,fit_text=True,**grid,**present),
           rect(GRID_X+6,GRID_Y+6,86,34,bg="#EC102536",frame=0,**grid,**present),
           value(GRID_X+49,GRID_Y+10,"za.b{i}.lvl",5,TEXT,text="N.",align="center",
                 wrap_width=78,max_lines=1,fit_text=True,**grid,**present),
           rect(GRID_X+164,GRID_Y+10,12,12,bg=GOLD,frame=0,need_bind="za.b{i}.shiny",**grid),
-          label(GRID_X+CELL_W//2,GRID_Y+60,"VIDE",3,DIM,align="center",wrap_width=CELL_W-12,
-                max_lines=1,fit_text=True,hide_bind="za.b{i}.v",hide_eq=1,**grid)]
+]
     w += [
         value(24, 908, "za.box.used", 4, DIM, text="TOTAL "),
         value(300, 908, "za.box.count", 4, DIM, text="BOÎTES "),
@@ -411,86 +425,123 @@ def scroll_region(name,rect,count,row_h,reset=None):
 
 def dex_page():
     w=header("dex")
+    # Header title + count badge cleanly in top-left (NO MORE bottom-bar clipping!)
+    w += [label(24,30,"POKÉDEX",7,TEXT),
+          rect(204,24,154,46,bg="#FF1A2A42",color=RED,frame=1),
+          value(281,34,"za.dex.rows",5,CYAN_LIGHT,align="center")]
+    # Segmented catalog switcher right-aligned on top row (y=22..76)
     for i,name in enumerate(["ILLUMIS","MÉGA-DIMENSION","MÉGA-ÉVOLUTIONS"]):
-        x=24+i*400
-        w += [button(x,126,388,58,name,f"dex_gen_{i+1}",scale=5),
-              rect(x,126,388,58,color=GOLD,frame=3,hide_bind="za.dex.gen",keep_min=i+1,keep_max=i+1)]
+        x=376+i*284
+        w += [button(x,22,276,54,name,f"dex_gen_{i+1}",scale=5,bg=PANEL,color=DIM,border_color=LINE),
+              rect(x,22,276,54,bg=RED,color=CYAN_LIGHT,frame=2,hide_bind="za.dex.gen",keep_min=i+1,keep_max=i+1),
+              label(x+138,36,name,5,INK_DARK,align="center",wrap_width=256,max_lines=1,fit_text=True,
+                    hide_bind="za.dex.gen",keep_min=i+1,keep_max=i+1)]
+    # Sleek borderless Lumiose filter strip (y=94..144)
+    w.append(rect(24,94,966,50,bg="#FF121828",color="#FF24304E",frame=1))
     for i,name in enumerate(["TOUS","CAPTURÉS","MANQUANTS","VUS","EN STOCK"]):
-        x=24+i*198
-        w += [button(x,204,186,50,name,f"dex_filter_{i}",scale=5),
-              rect(x,204,186,50,color=GOLD,frame=3,hide_bind="za.dex.filter",keep_min=i,keep_max=i)]
-    w += [button(1014,204,198,50,"Rechercher","search_from_dex",scale=5)]
+        x=30+i*191
+        w += [button(x,98,185,42,name,f"dex_filter_{i}",scale=5,bg=CLEAR,color=DIM,border=0),
+              rect(x,98,185,42,bg="#FF1F3854",color=CLEAR,frame=0,pill=True,hide_bind="za.dex.filter",keep_min=i,keep_max=i),
+              rect(x+44,137,97,3,bg=CYAN_LIGHT,frame=0,hide_bind="za.dex.filter",keep_min=i,keep_max=i),
+              label(x+92,98,name,5,CYAN_LIGHT,align="center",wrap_width=172,max_lines=1,fit_text=True,
+                    text_center_h=42,hide_bind="za.dex.filter",keep_min=i,keep_max=i)]
+    w += [button(1006,94,210,50,"Rechercher","search_from_dex",scale=5,bg="#FF1E2A44",color=CYAN_LIGHT,border_color="#FF345078")]
     grid=dict(repeat=512,repeat_bind="za.dex.rows",repeat_dy=110,scroll="za_dex")
     gate=dict(need_bind="za.d{i}.v")
-    w += [rect(24,276,516,102,bg=PANEL,color=LINE,**grid,**gate),
-          image(28,279,96,96,src_format="module:icon/%d",bind="za.d{i}.icon",**grid,**gate),
-          bound_text(132,286,"za.d{i}.name",6,TEXT,wrap_width=390,max_lines=1,fit_text=True,**grid,**gate),
-          value(132,328,"za.d{i}.number",4,GOLD,text="No. ",pad=3,**grid,**gate),
-          value(274,328,"za.d{i}.state",4,DIM,names=DEX_STATES,**grid,**gate),
-          rect(24,276,516,102,color=GOLD,frame=3,need_bind="za.d{i}.selected",**grid),
-          button(24,276,516,102,"","dex_pick",bg=CLEAR,color=CLEAR,border=0,payload="{i}",**grid,**gate),
-          panel(560,276,652,780),rect(560,276,652,104,bg=HEADER,frame=0),
-          bound_text(580,292,"za.detail.name",8,"#FF24364B",wrap_width=612,max_lines=1,fit_text=True),
-          value(580,344,"za.detail.number",5,"#FF426C80",text="No. ",pad=3),
-          label(766,344,"MÉGA : statuts de l'espèce de base",5,"#FF426C80",
-                wrap_width=420,max_lines=1,fit_text=True,hide_bind="za.dex.gen",keep_min=3,keep_max=3),
-          image(724,384,316,316,src_format="module:icon/%d",bind="za.detail.icon"),
-          value(580,662,"za.detail.state",5,GREEN,names=DEX_STATES),
-          value(1186,662,"za.detail.owned",5,DIM,text="EN STOCK ",align="right",need_bind="za.detail.owned"),
-          bound_text(580,762,"za.detail.description",5,TEXT,wrap_width=600,max_lines=128,line_gap=9,scroll="za_dex_text"),
-          value(24,938,"za.dex.rows",3,DIM,text="POKÉMON ")]
-    w += type_badge(580,706,290,"za.detail.type1",4)+type_badge(890,706,290,"za.detail.type2",4)
+    w += [rect(24,164,496,100,bg=PANEL,color=LINE,frame=1,**grid,**gate),
+          rect(36,172,84,84,bg=WELL,color="#FF2C3858",frame=1,**grid,**gate),
+          image(40,176,76,76,src_format="module:icon/%d",bind="za.d{i}.icon",**grid,**gate),
+          bound_text(136,176,"za.d{i}.name",6,TEXT,wrap_width=366,max_lines=1,fit_text=True,**grid,**gate),
+          value(136,220,"za.d{i}.number",5,GOLD,text="No. ",pad=3,**grid,**gate),
+          value(470,220,"za.d{i}.state",5,CYAN_LIGHT,names=DEX_STATES,align="right",**grid,**gate),
+          image(478,218,28,28,src="module:dex-get",hide_bind="za.d{i}.state",keep_min=2,keep_max=3,**grid,**gate),
+          image(478,218,28,28,src="module:dex-find",hide_bind="za.d{i}.state",keep_min=1,keep_max=1,**grid,**gate),
+          rect(24,164,496,100,color=RED,frame=3,need_bind="za.d{i}.selected",**grid),
+          button(24,164,496,100,"","dex_pick",bg=CLEAR,color=CLEAR,border=0,payload="{i}",**grid,**gate),
+          # Right Detail Showcase Card (y=164..952, NO white slab!)
+          panel(564,164,652,788,bg="#FF161C2E",edge="#FF485C88"),
+          rect(580,180,620,90,bg=HEADER,color="#FF485E8E",frame=1),
+          rect(582,192,6,66,bg=RED,frame=0),
+          bound_text(604,192,"za.detail.name",7,TEXT,wrap_width=400,max_lines=1,fit_text=True),
+          value(604,238,"za.detail.number",5,CYAN_LIGHT,text="No. ",pad=3),
+          label(776,238,"MÉGA : statuts de l'espèce de base",5,DIM,
+                wrap_width=410,max_lines=1,fit_text=True,hide_bind="za.dex.gen",keep_min=3,keep_max=3),
+          rect(1032,202,152,44,bg="#FF222B44",color=LINE_HI,frame=1,pill=True,hide_bind="za.detail.state",keep_min=0,keep_max=1),
+          value(1108,202,"za.detail.state",5,DIM,names=DEX_STATES,align="center",text_center_h=44,hide_bind="za.detail.state",keep_min=0,keep_max=1),
+          rect(1032,202,152,44,bg="#FF1E7E58",color="#FF70EEAC",frame=1,pill=True,hide_bind="za.detail.state",keep_min=2,keep_max=3),
+          value(1108,202,"za.detail.state",5,TEXT,names=DEX_STATES,align="center",text_center_h=44,hide_bind="za.detail.state",keep_min=2,keep_max=3),
+          # Lumiose Holographic Radial Showcase Stage behind 3D portrait!
+          image(580,284,620,320,src="file:shapes/dex-stage.png"),
+          image(742,296,296,296,src_format="module:icon/%d",bind="za.detail.icon"),
+          value(1182,566,"za.detail.owned",5,DIM,text="EN STOCK ",align="right",need_bind="za.detail.owned"),
+          rect(580,682,620,174,bg="#FF1C2338",color=LINE,frame=1),
+          bound_text(602,698,"za.detail.description",5,"#FFFAF8E9",wrap_width=572,max_lines=128,line_gap=9,scroll="za_dex_text")]
+    w += type_badge(580,622,224,"za.detail.type1",5)+type_badge(818,622,224,"za.detail.type2",5)
+    w += [button(580,872,144,62,"Habitats","guide_locations",scale=5,bg=PANEL_HI,color=TEXT,border_color=LINE_HI,need_bind="za.guide.dex_ready"),
+          button(738,872,144,62,"Combat","guide_combat",scale=5,bg=PANEL_HI,color=TEXT,border_color=LINE_HI,need_bind="za.guide.dex_ready"),
+          button(896,872,144,62,"Évolutions","guide_evolutions",scale=5,bg=PANEL_HI,color=TEXT,border_color=LINE_HI,need_bind="za.guide.dex_ready"),
+          button(1054,872,146,62,"Épingler","guide_dex_pin",scale=5,bg="#FF263856",color=CYAN_LIGHT,border_color=RED,need_bind="za.guide.dex_ready",hide_bind="za.guide.dex_pin",hide_eq=1),
+          button(1054,872,146,62,"Épinglé","guide_dex_pin",scale=5,bg=RED,color=INK_DARK,border_color=CYAN_LIGHT,need_bind="za.guide.dex_pin")]
     w += not_ready()
     return dict(id="dex",title="Pokédex",nav_order=nav_order(),widgets=w,scrolls=[
-        dict(scroll_region("za_dex",[24,276,516,650],"za.dex.rows",110,"za.dex.reset"),
+        dict(scroll_region("za_dex",[24,164,514,782],"za.dex.rows",110,"za.dex.reset"),
              follow_bind="za.dex.follow",follow_open=True),
-        scroll_region("za_dex_text",[580,762,612,112],"za.detail.lines",34,"za.detail.sp")])
+        scroll_region("za_dex_text",[602,698,582,144],"za.detail.lines",34,"za.detail.sp")])
 
 def bag_page():
     w=header("bag")
     captions=["TOUT","SOINS","BALLS","OBJETS","TRÉSORS","CLÉS","BAIES","CT","MÉGA","AUTRES"]
+    w.append(rect(24,18,1192,72,bg="#FF121828",color="#FF283658",frame=1))
     for i,name in enumerate(captions):
-        x=24+i%5*240;y=22+i//5*64
-        w += [button(x,y,228,54,name,f"bag_category_{i}",scale=5),
-              rect(x,y,228,54,color=GOLD,frame=3,hide_bind="za.bag.category",keep_min=i,keep_max=i)]
-    w += [label(24,153,"Favoris",5,GOLD)]
+        x=32+i*118
+        w += [button(x,24,112,60,"",f"bag_category_{i}",bg=CLEAR,color=CLEAR,border=0),
+              rect(x,24,112,60,bg="#FF243452",color=GOLD,frame=2,pill=True,hide_bind="za.bag.category",keep_min=i,keep_max=i)]
+        if i == 0:
+            w.append(label(x+56,24,"TOUT",5,TEXT,align="center",text_center_h=60))
+        elif i == 9:
+            w.append(label(x+56,24,"AUTRES",5,TEXT,align="center",wrap_width=102,max_lines=1,fit_text=True,text_center_h=60))
+        else:
+            w.append(image(x+36,34,40,40,src=f"module:bag-tab/{i}"))
+    for i,name in enumerate(captions):
+        w.append(label(28,104,name,6,GOLD,hide_bind="za.bag.category",keep_min=i,keep_max=i))
+    w += [label(290,108,"Favoris",5,DIM)]
     for i in range(4):
         x=24+i*300
         key=f"za.bf{i}."
         has=dict(need_bind=key+"id")
-        w += [rect(x,186,288,86,bg=PANEL,color=LINE),
-              image(x+8,197,64,64,src_format="module:item/%d",bind=key+"id",**has),
-              bound_text(x+79,199,key+"name",5,TEXT,wrap_width=197,max_lines=1,fit_text=True,**has),
-              value(x+79,235,key+"count",5,GOLD,text="x",**has),
-              label(x+144,216,"Vide",5,DIM,align="center",need_bind="!"+key+"id"),
-              button(x,186,288,86,"","bag_favorite_pick",payload=i,bg=CLEAR,color=CLEAR,border=0,**has)]
+        w += [rect(x,144,288,82,bg="#FF161D30",color="#FF2B3858",frame=1),
+              image(x+10,153,64,64,src_format="module:item/%d",bind=key+"id",**has),
+              bound_text(x+80,156,key+"name",5,TEXT,wrap_width=196,max_lines=1,fit_text=True,**has),
+              value(x+80,192,key+"count",5,GOLD,text="x",**has),
+              label(x+144,144,"Vide",5,"#FF5C6C8E",align="center",text_center_h=82,need_bind="!"+key+"id"),
+              button(x,144,288,82,"","bag_favorite_pick",payload=i,bg=CLEAR,color=CLEAR,border=0,**has)]
     grid=dict(repeat=1024,repeat_bind="za.bag.rows",repeat_dy=124,scroll="za_bag")
     gate=dict(need_bind="za.i{i}.v")
-    w += [rect(24,294,598,116,bg=PANEL,color=LINE,**grid,**gate),
-          image(32,304,96,96,src_format="module:item/%d",bind="za.i{i}.id",**grid,**gate),
-          bound_text(144,306,"za.i{i}.name",6,TEXT,wrap_width=360,max_lines=2,fit_text=True,**grid,**gate),
-          value(602,372,"za.i{i}.count",5,GOLD,text="x",align="right",**grid,**gate),
-          rect(24,294,598,116,color=GOLD,frame=3,need_bind="za.i{i}.selected",**grid),
-          button(24,294,598,116,"","bag_pick",payload="{i}",bg=CLEAR,color=CLEAR,border=0,**grid,**gate),
-          panel(642,294,570,650),
-          image(850,349,150,150,src_format="module:item/%d",bind="za.item.id"),
-          bound_text(666,515,"za.item.name",7,TEXT,wrap_width=520,max_lines=2,line_gap=6,fit_text=True),
-          value(1188,318,"za.item.count",6,GOLD,text="x",align="right"),
-          button(664,306,345,46,"Ajouter aux favoris","bag_favor",scale=5,need_bind="za.bag.fav_add"),
-          button(664,306,345,46,"Retirer des favoris","bag_favor",scale=5,need_bind="za.bag.fav_remove"),
-          label(666,320,"Favoris pleins",5,DIM,need_bind="za.bag.fav_full"),
-          bound_text(666,658,"za.item.description",5,TEXT,wrap_width=516,max_lines=128,line_gap=7,scroll="za_bag_text"),
-          button(930,806,252,58,"Objet tenu","bag_tool_hold",scale=5,need_bind="za.item.hold"),
-          button(666,876,516,56,"Retour aux évolutions","guide_item_back",scale=5,need_bind="za.bag.guide"),
-          button(666,876,516,56,"Quitter le choix d’objet","bag_hold_end",scale=5,need_bind="za.bag.held_context")]
+    w += [rect(24,244,598,116,bg=PANEL,color=LINE,**grid,**gate),
+          image(32,254,96,96,src_format="module:item/%d",bind="za.i{i}.id",**grid,**gate),
+          bound_text(144,256,"za.i{i}.name",6,TEXT,wrap_width=360,max_lines=2,fit_text=True,**grid,**gate),
+          value(602,322,"za.i{i}.count",5,GOLD,text="x",align="right",**grid,**gate),
+          rect(24,244,598,116,color=GOLD,frame=3,need_bind="za.i{i}.selected",**grid),
+          button(24,244,598,116,"","bag_pick",payload="{i}",bg=CLEAR,color=CLEAR,border=0,**grid,**gate),
+          panel(642,244,570,700),
+          button(666,266,344,48,"Ajouter aux favoris","bag_favor",scale=5,need_bind="za.bag.fav_add"),
+          button(666,266,344,48,"Retirer des favoris","bag_favor",scale=5,need_bind="za.bag.fav_remove"),
+          label(666,266,"Favoris pleins",5,DIM,text_center_h=48,need_bind="za.bag.fav_full"),
+          value(1188,266,"za.item.count",6,GOLD,text="x",align="right",text_center_h=48),
+          image(852,348,150,150,src_format="module:item/%d",bind="za.item.id"),
+          bound_text(666,520,"za.item.name",7,TEXT,wrap_width=520,max_lines=2,line_gap=6,fit_text=True),
+          bound_text(666,644,"za.item.description",5,TEXT,wrap_width=516,max_lines=128,line_gap=7,scroll="za_bag_text"),
+          button(930,814,252,56,"Objet tenu","bag_tool_hold",scale=5,need_bind="za.item.hold"),
+          button(666,878,516,52,"Retour aux évolutions","guide_item_back",scale=5,need_bind="za.bag.guide"),
+          button(666,878,516,52,"Quitter le choix d’objet","bag_hold_end",scale=5,need_bind="za.bag.held_context")]
     for mode,caption,action in [(1,"Soins rapides","bag_tool_heal"),(3,"Compatibilité CT","bag_tool_tm"),
                                 (4,"Évolutions","bag_tool_evolve")]:
-        w.append(button(666,806,252,58,caption,action,scale=5,
+        w.append(button(666,814,252,56,caption,action,scale=5,
                         hide_bind="za.item.primary_tool",keep_min=mode,keep_max=mode))
-    w+=type_badge(666,601,516,"za.item.type",5)+not_ready()
+    w+=type_badge(666,592,516,"za.item.type",5)+not_ready()
     return dict(id="bag",title="Sac",nav_order=nav_order(),widgets=w,scrolls=[
-        scroll_region("za_bag",[24,294,598,642],"za.bag.rows",124,"za.bag.reset"),
-        scroll_region("za_bag_text",[666,658,520,132],"za.item.lines",32,"za.item.id")])
+        scroll_region("za_bag",[24,244,598,692],"za.bag.rows",124,"za.bag.reset"),
+        scroll_region("za_bag_text",[666,644,520,154],"za.item.lines",32,"za.item.id")])
 
 
 def bag_tools_page():
@@ -595,12 +646,13 @@ def missions_page():
     w += [image(24,20,52,52,src="module:menu/4"),
           label(96,28,"MISSIONS",8,TEXT),
           value(1210,44,"za.quest.rows",5,DIM,align="right")]
+    w.append(rect(24,92,1192,62,bg="#FF121828",color="#FF24304E",frame=1))
     for i, caption in enumerate(QUEST_CATEGORIES):
-        x = 24 + i * 301
-        w += [button(x,92,289,68,caption,f"quest_category_{i}",wid=f"quest_category_{i}",scale=5),
-              rect(x,92,289,68,bg=RED,hide_bind="za.quest.category",keep_min=i,keep_max=i),
-              label(x+144,113,caption,5,"#FF173F49",align="center",wrap_width=276,max_lines=1,fit_text=True,
-                    hide_bind="za.quest.category",keep_min=i,keep_max=i)]
+        x = 30 + i * 296
+        w += [button(x,98,290,50,caption,f"quest_category_{i}",wid=f"quest_category_{i}",scale=5,bg=CLEAR,color=DIM,border=0),
+              rect(x,98,290,50,bg=RED,color=CYAN_LIGHT,frame=1,pill=True,hide_bind="za.quest.category",keep_min=i,keep_max=i),
+              label(x+145,98,caption,5,INK_DARK,align="center",wrap_width=270,max_lines=1,fit_text=True,
+                    text_center_h=50,hide_bind="za.quest.category",keep_min=i,keep_max=i)]
 
     grid = dict(repeat=1024, repeat_bind="za.quest.rows", repeat_dy=122, scroll="za_quests",
                 need_bind="za.q{i}.v")
@@ -660,6 +712,7 @@ def map_page():
                need_bind="za.map.quest_load"),
         button(536, 20, 204, 64, "FILTRES", "map_control_9", scale=5),
         image(20,112,720,720,id="lumiose",**map_image,**compact),
+        image(176,70,888,888,src="file:shapes/map-ring.png",**wide),
         image(200,94,840,840,id="lumiose_large",**map_image,**wide),
         button(1012,20,204,64,"Détails","map_panel",scale=5,**wide),
         button(536,906,204,44,"Agrandir","map_panel",scale=5,**compact),
@@ -679,8 +732,10 @@ def map_page():
                    hide_bind="za.map.mark.notice",hide_eq=0,**wide),
         label(20,924,"COMBATS NOCTURNES",5,DIM,need_bind="!za.map.mark.notice",**compact),
         value(497,924,"za.map.active_battles",5,RED,align="right",need_bind="!za.map.mark.notice",**compact),
-        label(24,800,"COMBATS NOCTURNES",5,DIM,wrap_width=156,max_lines=3,line_gap=6,**wide),
-        value(24,898,"za.map.active_battles",6,RED,**wide),
+        rect(18,834,206,108,bg="#FF181028",color=MAGENTA,frame=2,**wide),
+        rect(20,848,6,80,bg=MAGENTA,frame=0,**wide),
+        label(38,850,"COMBATS NOCTURNES",5,PINK_GLOW,wrap_width=174,max_lines=2,line_gap=3,fit_text=True,**wide),
+        value(38,900,"za.map.active_battles",6,TEXT,**wide),
     ]
     for i in range(20):
         prefix = f"za.zone{i}"
@@ -955,7 +1010,7 @@ def refusal_overlay():
     not running, so nothing bound to it can draw. `module_error_message` is the host's own reason."""
     gate={"need_bind":"module_error","_static":True}
     return [
-        rect(0,0,W,H,bg="#FF142A3C",frame=0,input_block=True,**gate),
+        rect(0,0,W,H,bg=BG,frame=0,input_block=True,**gate),
         rect(40,300,1160,420,bg=PANEL,color=LINE,frame=2,**gate),
         label(70,336,"POKEMON LEGENDS Z-A COMPANION",6,GOLD,**gate),
         label(70,408,"The companion module did not start.",6,TEXT,**gate),
@@ -970,55 +1025,60 @@ def tabbar():
            "module:item/4","module:menu/4","module:menu/3","module:map-pin")
     menu=dict(need_bind="za.nav.menu")
     edit=dict(need_bind="za.nav.editing")
-    ink="#FF123241"
     out=[
-        rect(0,0,W,958,bg="#B0081825",frame=0,input_block=True,**menu),
-        rect(24,162,1192,778,bg=PANEL,color=LINE,**menu),
-        label(56,208,"Onglets",8,TEXT,**menu),
-        button(708,184,234,72,"","nav_edit",wid="nav_edit",**menu),
-        label(825,208,"Modifier",5,TEXT,align="center",hide_bind="za.nav.editing",hide_eq=1,**menu),
-        label(825,208,"Terminé",5,TEXT,align="center",**edit),
-        button(958,184,226,72,"Fermer","nav_more",scale=5,**menu),
-        label(56,276,"Choisis une place, puis un onglet.",5,DIM,**edit),
+        rect(0,0,W,966,bg="#C8080B14",frame=0,input_block=True,**menu),
+        rect(24,154,1192,790,bg="#FF141A2C",color=LINE_HI,frame=2,**menu),
+        label(56,196,"Onglets",8,TEXT,**menu),
+        button(708,176,234,68,"","nav_edit",wid="nav_edit",bg=PANEL_HI,color=TEXT,border_color=LINE_HI,**menu),
+        label(825,198,"Modifier",5,TEXT,align="center",hide_bind="za.nav.editing",hide_eq=1,**menu),
+        label(825,198,"Terminé",5,CYAN_LIGHT,align="center",**edit),
+        button(958,176,226,68,"Fermer","nav_more",scale=5,bg=PANEL_HI,color=TEXT,border_color=LINE_HI,**menu),
+        label(56,266,"Choisis une place, puis un onglet.",5,DIM,**edit),
     ]
     for i in range(3):
         x=56+i*380
         out += [
-            button(x,314,368,70,"",f"nav_slot_{i}",wid=f"nav_slot_{i}",**edit),
-            rect(x,314,368,70,color=RED,frame=3,hide_bind="za.nav.edit_slot",
+            button(x,306,368,68,"",f"nav_slot_{i}",wid=f"nav_slot_{i}",bg=PANEL_HI,color=TEXT,border_color=LINE,**edit),
+            rect(x,306,368,68,color=RED,frame=3,hide_bind="za.nav.edit_slot",
                  keep_min=i+1,keep_max=i+1,**edit),
-            bound_text(x+184,336,f"za.nav.slot{i}.name",6,TEXT,align="center",
+            bound_text(x+184,328,f"za.nav.slot{i}.name",6,TEXT,align="center",
                        wrap_width=344,max_lines=1,fit_text=True,**edit),
         ]
     for i,((_,name),icon) in enumerate(zip(TABS,icons),1):
         x=56+((i-1)%2)*574
-        y=416+((i-1)//2)*120
+        y=406+((i-1)//2)*122
         action=f"nav_pick_{i}"
         out += [
-            button(x,y,554,100,"",action,wid=action,**menu),
-            rect(x,y,554,100,color=RED,frame=3,hide_bind="za.nav.active",keep_min=i,keep_max=i,**menu),
-            image(x+20,y+24,52,52,src=icon,**menu),
-            label(x+90,y+35,name.title(),6,TEXT,wrap_width=430,max_lines=1,fit_text=True,**menu),
+            button(x,y,554,102,"",action,wid=action,bg=PANEL_HI,color=TEXT,border_color=LINE,**menu),
+            rect(x,y,554,102,color=RED,frame=3,hide_bind="za.nav.active",keep_min=i,keep_max=i,**menu),
+            image(x+22,y+25,52,52,src=icon,**menu),
+            label(x+92,y+36,name.title(),6,TEXT,wrap_width=430,max_lines=1,fit_text=True,**menu),
         ]
-    out.append(rect(0,958,W,122,bg=HEADER))
+    # Sleek borderless Lumiose glass bottom dock (no double-bordered boxes!)
+    out += [
+        rect(0, 968, W, 112, bg="#FF0D1220", frame=0),
+        rect(0, 968, W, 2, bg="#FF283A60", frame=0),
+    ]
     for i,bind in enumerate(("za.nav.slot0","za.nav.slot1","za.nav.slot2","za.nav.more")):
-        x=16+i*306
+        x=24+i*302
         action=f"nav_shortcut_{i}" if i<3 else "nav_more"
         active=bind+".active"
         out += [
-            button(x,972,290,92,"",action,wid=action),
-            rect(x,972,290,92,bg=RED,frame=0,need_bind=active),
-            bound_text(x+163,1004,bind+".name",5,TEXT,align="center",wrap_width=226,
-                       max_lines=1,fit_text=True,hide_bind=active,hide_eq=1),
-            bound_text(x+163,1004,bind+".name",5,ink,align="center",wrap_width=226,
-                       max_lines=1,fit_text=True,need_bind=active),
+            button(x,982,286,74,"",action,wid=action,bg=CLEAR,color=TEXT,border=0),
+            *( [rect(x-8, 996, 2, 46, bg="#FF1E2942", frame=0)] if i > 0 else [] ),
+            rect(x,982,286,74,bg=RED,color=CYAN_LIGHT,frame=1,pill=True,need_bind=active),
+            rect(x+86,968,114,4,bg=CYAN_LIGHT,frame=0,need_bind=active),
+            bound_text(x+166,982,bind+".name",5,DIM,align="center",wrap_width=192,
+                       max_lines=1,fit_text=True,text_center_h=74,hide_bind=active,hide_eq=1),
+            bound_text(x+166,982,bind+".name",5,INK_DARK,align="center",wrap_width=192,
+                       max_lines=1,fit_text=True,text_center_h=74,need_bind=active),
         ]
         for tab,icon in enumerate(icons,1):
-            out.append(image(x+12,999,38,38,src=icon,hide_bind=bind+".id",keep_min=tab,keep_max=tab))
+            out.append(image(x+32,1000,38,38,src=icon,hide_bind=bind+".id",keep_min=tab,keep_max=tab))
         if i==3:
-            out += [label(x+31,1001,"+",7,TEXT,align="center",hide_bind=bind+".id",hide_eq=-1,
-                          keep_min=0,keep_max=0),
-                    label(x+264,1000,"…",6,ink,align="center",need_bind=active)]
+            out += [image(x+32,1000,38,38,src="file:shapes/more-icon.png",
+                          hide_bind=bind+".id",hide_eq=-1,keep_min=0,keep_max=0),
+                    label(x+258,982,"…",6,INK_DARK,align="center",text_center_h=74,need_bind=active)]
     return out
 
 for name in ("nav_more","nav_edit"):
@@ -1032,99 +1092,169 @@ actions["box_details"]=dict(kind="module",action="box_details",argument="$payloa
 actions["go_progress"]=dict(kind="page",page="progress")
 
 def _attack_fill(color: str) -> str:
-    base = bytes.fromhex(PANEL_HI[3:])
+    base = bytes.fromhex(PANEL[3:])
     accent = bytes.fromhex(color[3:])
-    rgb = bytes(round(background * 0.74 + foreground * 0.26)
+    rgb = bytes(round(background * 0.84 + foreground * 0.16)
                 for background, foreground in zip(base, accent))
     return "#FF" + rgb.hex().upper()
 
 
 ATTACK_FILLS = [_attack_fill(color) for color in TYPE_COLORS]
 ATTACK_LABELS = [
-    "#FF" + bytes(round(component * 0.32 + 255 * 0.68)
+    "#FF" + bytes(round(component * 0.45 + 255 * 0.55)
                   for component in bytes.fromhex(color[3:])).hex().upper()
     for color in TYPE_COLORS
 ]
 
 
-def attacks(prefix,positions,width=556,interactive=False):
+def attacks(prefix,positions,width=478,interactive=False,compact=False,gate_suffix=".id"):
     out=[]
     for i,(x,y) in enumerate(positions):
         p=f"{prefix}.m{i}"
-        height=116 if interactive else 80
+        height=(104 if compact else 150) if interactive else 80
+        gate=dict(need_bind=p+gate_suffix)
         if interactive:
             out += [
-                rect(x, y, width, height, bg="#FFFFFFFF", frame=0,
+                rect(x, y, width, height, bg="#FFFFFFFF", color=LINE_HI, frame=2,
                      tint_bind=p+".type", tint_colors=ATTACK_FILLS,
-                     need_bind=p+".id", hide_bind=p+".type", keep_min=0, keep_max=17),
-                button(x, y, width, height, "", f"attack_{i}", wid=f"attack_{i}",
-                       bg=CLEAR, need_bind=p+".id"),
+                     hide_bind=p+".type", keep_min=0, keep_max=17, **gate),
+                button(x, y, width, height, "", f"attack_{i}", wid=f"attack_{i}" + ("_d" if compact else ""),
+                       bg=CLEAR, color=CLEAR, border=0, **gate),
             ]
-        else:
-            out.append(rect(x,y,width,height,bg=PANEL_HI,color=LINE))
-        out += [
-                image(x+12,y+14,48,48,src_format="module:type/%d",bind=p+".type"),
-                bound_text(x+72,y+8,p+".name",7,TEXT,wrap_width=width-(282 if interactive else 92),
-                           max_lines=1,fit_text=True),
+            for t, color in enumerate(TYPE_COLORS):
+                out.append(rect(x+2, y+12, 7, height-24, bg=color, frame=0,
+                                hide_bind=p+".type", keep_min=t, keep_max=t, **gate))
+            if compact:
+                # Sleek ABXY Diamond card (width=556, height=104) with colored Type Mini-Pill + Z-A Category Icon!
+                out += [
+                    image(x+18, y+11, 36, 36, src_format="module:type/%d", bind=p+".type", **gate),
+                    bound_text(x+62, y+11, p+".name", 6, TEXT, wrap_width=width-238, max_lines=1,
+                               fit_text=True, text_center_h=36, **gate),
+                    image(x+184, y+46, 26, 22, src_format="module:cat/%d", bind=p+".cat_id", **gate),
+                    bound_text(x+216, y+44, p+".category", 4, DIM, wrap_width=126, max_lines=1,
+                               fit_text=True, text_center_h=24, **gate),
+                    bar(x+18, y+78, width-142, 12, p+".recharge", "#FF38E0BA", maxv=1000, **gate),
+                    rect(x+width-116, y+66, 104, 30, bg="#FF1A5248", color="#FF38E0BA", frame=1, pill=True, **gate),
+                    bound_text(x+width-64, y+66, p+".recharge_text", 4, TEXT, align="center",
+                               wrap_width=92, max_lines=1, fit_text=True, text_center_h=30, **gate),
                 ]
-        if not interactive:
-            out.append(value(x+width-18,y+50,p+".pp",4,DIM,text="PP ",align="right"))
-        if interactive:
-            gate=dict(need_bind=p+".id")
-            out += [bound_text(x+223,y+49,p+".category",4,DIM,wrap_width=120,max_lines=1,fit_text=True,**gate),
-                    bar(x+14,y+92,width-158,15,p+".recharge",RED,maxv=1000,**gate),
-                    bound_text(x+width-18,y+88,p+".recharge_text",4,TEXT,align="right",
-                               wrap_width=120,max_lines=1,fit_text=True,**gate)]
-            for offset,caption,key in ((172,"Pui.","power"),(66,"Préc.","accuracy")):
-                pos=x+width-offset
-                out += [label(pos,y+16,caption,4,DIM,align="center",wrap_width=100,max_lines=1,fit_text=True,**gate),
-                        bound_text(pos,y+44,p+"."+key,5,TEXT,align="center",**gate)]
-        for t,color in enumerate(ATTACK_LABELS if interactive else TYPE_COLORS):
-            out.append(bound_text(x+72,y+49,f"za.type{t}.name",5,color,
-                                  wrap_width=144 if interactive else width-172,max_lines=1,fit_text=True,
-                                  hide_bind=p+".type",keep_min=t,keep_max=t))
+                for offset,caption,key in ((124,"Pui.","power"),(48,"Préc.","accuracy")):
+                    pos=x+width-offset
+                    out += [label(pos,y+10,caption,4,DIM,align="center",wrap_width=74,max_lines=1,fit_text=True,**gate),
+                            bound_text(pos,y+34,p+"."+key,5,TEXT,align="center",**gate)]
+                for t,color in enumerate(TYPE_COLORS):
+                    tgate = dict(hide_bind=p+".type", keep_min=t, keep_max=t, **gate)
+                    out += [
+                        rect(x+62, y+44, 114, 24, bg=color, color="#30FFFFFF", frame=1, pill=True, **tgate),
+                        bound_text(x+119, y+44, f"za.type{t}.name", 4, TYPE_TEXT[t], align="center",
+                                   wrap_width=102, max_lines=1, fit_text=True, text_center_h=24, **tgate),
+                    ]
+            else:
+                # Clean 2x2 Tactile Move Card with REAL Z-A Category Icon (module:cat/%d) + Type Mini-Pill!
+                out += [
+                    image(x+20, y+16, 42, 42, src_format="module:type/%d", bind=p+".type", **gate),
+                    bound_text(x+72, y+16, p+".name", 6, TEXT, wrap_width=width-236, max_lines=1,
+                               fit_text=True, text_center_h=42, **gate),
+                    image(x+204, y+66, 32, 26, src_format="module:cat/%d", bind=p+".cat_id", **gate),
+                    bound_text(x+242, y+64, p+".category", 4, DIM, wrap_width=102, max_lines=1,
+                               fit_text=True, text_center_h=30, **gate),
+                    bar(x+20, y+110, width-152, 16, p+".recharge", "#FF38E0BA", maxv=1000, **gate),
+                    rect(x+width-120, y+100, 106, 36, bg="#FF1A5248", color="#FF38E0BA", frame=1, pill=True, **gate),
+                    bound_text(x+width-67, y+100, p+".recharge_text", 5, TEXT, align="center",
+                               wrap_width=94, max_lines=1, fit_text=True, text_center_h=36, **gate),
+                ]
+                for offset,caption,key in ((128,"Pui.","power"),(52,"Préc.","accuracy")):
+                    pos=x+width-offset
+                    out += [label(pos,y+16,caption,5,DIM,align="center",wrap_width=80,max_lines=1,fit_text=True,**gate),
+                            bound_text(pos,y+46,p+"."+key,5,TEXT,align="center",**gate)]
+                for t,color in enumerate(TYPE_COLORS):
+                    tgate = dict(hide_bind=p+".type", keep_min=t, keep_max=t, **gate)
+                    out += [
+                        rect(x+72, y+64, 122, 30, bg=color, color="#30FFFFFF", frame=1, pill=True, **tgate),
+                        bound_text(x+133, y+64, f"za.type{t}.name", 4, TYPE_TEXT[t], align="center",
+                                   wrap_width=108, max_lines=1, fit_text=True, text_center_h=30, **tgate),
+                    ]
+        else:
+            out += [
+                rect(x,y,width,height,bg=PANEL_HI,color=LINE),
+                image(x+12,y+14,48,48,src_format="module:type/%d",bind=p+".type"),
+                bound_text(x+72,y+8,p+".name",7,TEXT,wrap_width=width-92,max_lines=1,fit_text=True),
+                value(x+width-18,y+50,p+".pp",4,DIM,text="PP ",align="right"),
+            ]
+            for t,color in enumerate(TYPE_COLORS):
+                out.append(bound_text(x+72,y+49,f"za.type{t}.name",5,color,
+                                      hide_bind=p+".type",keep_min=t,keep_max=t))
     return out
 
 def team_page():
     w=header("team")
+    # 6 Sleek Party Cards (y=20..294) with portrait wells, fixed Lv., and ACTIVE badge clear of head!
     for i in range(6):
-        x=24+i*200;p=f"za.p{i}";gate=dict(need_bind=p+".v")
-        w += [rect(x,24,188,294,bg=PANEL_HI,color=LINE),
-              image(x+4,30,170,170,src_format="module:icon/%d",bind=p+".icon",**gate),
-              bound_text(x+12,204,p+".name",5,TEXT,wrap_width=164,max_lines=1,fit_text=True,**gate),
-              bar(x+14,234,160,14,p+".hp",GREEN,max_bind=p+".hpmax",**gate),
-              bar(x+14,255,160,8,p+".xp",BLUE,max_bind=p+".xpmax",**gate),
-              value(x+14,273,p+".lvl",5,text="N. ",**gate),
-              value(x+172,273,p+".g",4,DIM,names=GENDERS,align="right",**gate),
-              rect(x+8,36,172,33,bg="#FF123F42",need_bind=p+".deployed"),
-              label(x+94,41,"Sur le terrain",5,"#FFC6FFF0",align="center",
-                    wrap_width=160,max_lines=1,fit_text=True,need_bind=p+".deployed"),
-              rect(x,24,188,294,color=GOLD,frame=4,need_bind=p+".selected"),
-              button(x,24,188,294,"","team_select",wid=f"party_{i}",payload=i,bg=CLEAR,color=CLEAR,border=0,**gate)]
+        x=22+i*202;p=f"za.p{i}";gate=dict(need_bind=p+".v")
+        w += [rect(x,20,186,274,bg=PANEL,color=LINE,frame=2),
+              rect(x+12,32,162,146,bg=WELL,color="#FF2C3858",frame=1,**gate),
+              image(x+20,34,146,142,src_format="module:icon/%d",bind=p+".icon",**gate),
+              bound_text(x+14,186,p+".name",5,TEXT,wrap_width=158,max_lines=1,fit_text=True,**gate),
+              bar(x+14,216,158,12,p+".hp",GREEN,max_bind=p+".hpmax",**gate),
+              bar(x+14,234,158,7,p+".xp",BLUE,max_bind=p+".xpmax",**gate),
+              value(x+14,252,p+".lvl",5,DIM,text="N. ",**gate),
+              image(x+148,250,24,24,src_format="module:gender/%d",bind=p+".g",**gate),
+              image(x+61,116,64,64,src="module:empty-ball",hide_bind=p+".v",hide_eq=1),
+              # Sleek Z-A Lime ACTIVE badge cleanly tucked at top-left, never covering the Pokemon's face
+              rect(x+14,34,92,26,bg=LIME,frame=0,need_bind=p+".deployed"),
+              label(x+60,36,"ACTIF",5,INK_DARK,align="center",
+                    wrap_width=86,max_lines=1,fit_text=True,need_bind=p+".deployed"),
+              rect(x,20,186,274,color=LIME,frame=3,need_bind=p+".selected"),
+              button(x,20,186,274,"","team_select",wid=f"party_{i}",payload=i,bg=CLEAR,color=CLEAR,border=0,**gate)]
         for move in range(4):
-            w.append(bar(x+14+move*41,266,37,6,f"{p}.r{move}",RED,maxv=1000,
+            w.append(bar(x+14+move*40,244,36,5,f"{p}.r{move}",RED,maxv=1000,
                          need_bind=f"{p}.c{move}"))
-    w += [panel(24,338,1188,606),rect(24,338,1188,76,bg=HEADER,frame=0),
-          bound_text(48,358,"za.sel.name",7,"#FF24364B",wrap_width=372,max_lines=1,fit_text=True),
-          image(440,348,56,56,src_format="module:item/%d",bind="za.sel.item",need_bind="za.sel.item"),
-          bound_text(506,354,"za.sel.item_name",5,"#FF42596A",wrap_width=168,max_lines=2,line_gap=4,fit_text=True)]
-    w += type_badge(694,356,236,"za.sel.type1",4)+type_badge(948,356,236,"za.sel.type2",4)
-    w += [label(48,438,"PV",4,GREEN),bar(112,438,470,20,"za.sel.hp",GREEN,max_bind="za.sel.hpmax"),
-          value(582,473,"za.sel.hp",5,TEXT,max_bind="za.sel.hpmax",max_sep=" / ",align="right"),
-          label(660,438,"EXP",4,BLUE),bar(746,438,438,20,"za.sel.xp",BLUE,max_bind="za.sel.xpmax"),
-          value(1184,473,"za.sel.xp",5,TEXT,max_bind="za.sel.xpmax",max_sep=" / ",align="right")]
-    w += attacks("za.sel",[(336,510),(636,634),(36,634),(336,758)],width=568,interactive=True)
-    w += [button(1084,832,104,104,"","send_out",wid="send_out",bg=RED),
-          image(1104,852,64,64,src="file:shapes/send-arrow.png"),
-          bound_text(760,885,"za.send.status",4,DIM,wrap_width=306,max_lines=2,line_gap=3,fit_text=True)]
-    w += [button(48,884,264,52,"CAPACITÉS","moves_team",scale=5),
-          button(328,884,244,52,"Objet tenu","bag_hold_team",scale=5,need_bind="za.sel.v"),
-          button(582,884,164,52,"Soins","team_heal_open",scale=5,need_bind="za.sel.v")]
-    # The module is running but cannot read the game (za.live.problem): say why, in the module's text.
+
+    # Main Battle Command Deck (y=310..954)
+    w += [panel(22,310,1196,644,bg="#FF151B2C",edge="#FF42547C"),
+          # Dark architectural hero strip (NO glaring white block!)
+          rect(38,326,1164,88,bg=HEADER,color="#FF485E8E",frame=1),
+          rect(38,340,7,60,bg=LIME,frame=0),
+          bound_text(62,352,"za.sel.name",7,TEXT,wrap_width=230,max_lines=1,fit_text=True),
+          value(298,357,"za.sel.lvl",5,LIME,text="N. ",need_bind="za.sel.v"),
+          image(366,356,28,28,src_format="module:gender/%d",bind="za.sel.g",need_bind="za.sel.v"),
+          # Transparent Held Item inside sleek dark pill (zero white square behind Mega Stones!)
+          rect(400,342,324,56,bg="#FF141A2C",color="#FF405076",frame=1,need_bind="za.sel.item"),
+          image(412,348,44,44,src_format="module:item/%d",bind="za.sel.item",need_bind="za.sel.item"),
+          bound_text(466,357,"za.sel.item_name",5,"#FFFAF8E9",wrap_width=248,max_lines=1,fit_text=True,need_bind="za.sel.item")]
+    w += type_badge(756,349,208,"za.sel.type1",5)+type_badge(978,349,208,"za.sel.type2",5)
+
+    # Balanced Dual HP & EXP Gauges (y=430..494)
+    w += [label(44,432,"PV",5,GREEN),
+          value(598,432,"za.sel.hp",5,TEXT,max_bind="za.sel.hpmax",max_sep=" / ",align="right"),
+          bar(44,464,554,18,"za.sel.hp",GREEN,max_bind="za.sel.hpmax"),
+          label(642,432,"EXP",5,BLUE),
+          value(1196,432,"za.sel.xp",5,DIM,max_bind="za.sel.xpmax",max_sep=" / ",align="right"),
+          bar(642,464,554,18,"za.sel.xp",BLUE,max_bind="za.sel.xpmax")]
+
+    # Mode 0 (default): Clean 2x2 Tactile Move Grid + Tall Send Out Pillar
+    grid_m = dict(need_bind="za.team.grid_mode")
+    diam_m = dict(need_bind="za.team.diam_mode")
+    w += attacks("za.sel",[(44,506),(540,506),(44,672),(540,672)],width=478,interactive=True,compact=False,gate_suffix=".grid_on")
+    w += [button(1038,506,158,316,"","send_out",wid="send_out",bg="#FF18749E",color=TEXT,border_color=CYAN_LIGHT,**grid_m),
+          image(1069,580,96,96,src="file:shapes/send-arrow.png",**grid_m),
+          label(1117,694,"ENVOYER",5,TEXT,align="center",wrap_width=144,max_lines=1,fit_text=True,**grid_m),
+          bound_text(1117,746,"za.send.status",5,CYAN_LIGHT,align="center",wrap_width=144,max_lines=2,line_gap=4,fit_text=True,**grid_m)]
+    # Default (ABXY Diamond): Switch X/Y/A/B diamond moves + Corner Send Out button
+    w += attacks("za.sel",[(342,502),(44,614),(640,614),(342,726)],width=556,interactive=True,compact=True,gate_suffix=".diam_on")
+    w += [button(1052,726,144,104,"","send_out",wid="send_out_d",bg="#FF18749E",color=TEXT,border_color=CYAN_LIGHT,**diam_m),
+          image(1095,735,58,58,src="file:shapes/send-arrow.png",**diam_m),
+          label(1124,797,"ENVOYER",4,TEXT,align="center",wrap_width=132,max_lines=1,fit_text=True,**diam_m)]
+
+    # Sleek subtle action strip (y=854..924)
+    w += [button(44,854,368,70,"CAPACITÉS","moves_team",scale=5,bg="#FF1E2942",color=TEXT,border_color="#FF2D3E64"),
+          button(432,854,368,70,"Objet tenu","bag_hold_team",scale=5,bg="#FF1E2942",color=TEXT,border_color="#FF2D3E64",need_bind="za.sel.v"),
+          button(820,854,376,70,"Soins","team_heal_open",scale=5,bg="#FF1E2942",color=TEXT,border_color="#FF2D3E64",need_bind="za.sel.v")]
+
     problem={"need_bind":"za.live.problem"}
-    w += [rect(40,618,1160,210,bg=PANEL_HI,color=LINE,frame=2,input_block=True,**problem),
-          label(64,640,"DONNÉES EN DIRECT INDISPONIBLES",6,GOLD,**problem),
-          bound_text(64,692,"za.live.status",5,TEXT,wrap_width=1100,max_lines=4,line_gap=8,**problem)]
+    w += [rect(40,600,1160,220,bg=PANEL_HI,color=LINE_HI,frame=2,input_block=True,**problem),
+          label(64,624,"DONNÉES EN DIRECT INDISPONIBLES",6,GOLD,**problem),
+          bound_text(64,676,"za.live.status",5,TEXT,wrap_width=1100,max_lines=4,line_gap=8,**problem)]
     w += not_ready()
     return dict(id="team",title="Équipe",nav_order=nav_order(*[f"party_{i}" for i in range(6)],"send_out"),widgets=w)
 
@@ -1155,9 +1285,9 @@ def team_heal_page():
 
 def box_detail_page():
     w=header("box")+[panel(24,24,1188,920),rect(24,24,1188,76,bg=HEADER,frame=0),
-       bound_text(48,45,"za.boxdetail.name",7,"#FF24364B",wrap_width=820,max_lines=1,fit_text=True),
-       value(1100,47,"za.boxdetail.lvl",6,"#FF24364B",text="N. ",align="right"),
-       value(1176,50,"za.boxdetail.g",5,"#FF24364B",names=GENDERS,align="right"),
+       bound_text(48,45,"za.boxdetail.name",7,TEXT,wrap_width=820,max_lines=1,fit_text=True),
+       value(1100,47,"za.boxdetail.lvl",6,LIME,text="N. ",align="right"),
+       image(1150,46,28,28,src_format="module:gender/%d",bind="za.boxdetail.g"),
        image(40,112,220,220,src_format="module:icon/%d",bind="za.boxdetail.icon"),
        value(286,138,"za.boxdetail.sp",5,text="N° ",pad=3),
        bound_text(286,174,"za.boxdetail.position",5,DIM,wrap_width=428,max_lines=1,fit_text=True)]
@@ -1171,78 +1301,92 @@ def box_detail_page():
     for title,key,x,y in [("PV","hpmax",846,144),("ATTAQUE","atk",1090,254),("DÉFENSE","def",1090,420),
                           ("VITESSE","spe",846,496),("DÉF. SPÉ.","spd",598,420),("ATQ. SPÉ.","spa",598,254)]:
         w += [label(x,y,title,4,DIM,align="center"),value(x,y+38,"za.boxdetail."+key,6,TEXT,align="center")]
-    w += attacks("za.boxdetail",[(342,604),(48,692),(644,692),(342,780)])
-    w += [button(48,876,238,64,"RETOUR","go_box",scale=5),
-          button(310,876,340,64,"CAPACITÉS","moves_box",scale=5)]
+    w += attacks("za.boxdetail",[(342,598),(48,684),(644,684),(342,770)])
+    w += [button(48,860,238,62,"RETOUR","go_box",scale=5),
+          button(310,860,340,62,"CAPACITÉS","moves_box",scale=5)]
     return dict(id="box_detail",title="Fiche Pokémon",nav_order=nav_order(),widgets=w)
 
 def progress_page():
-    ink="#FF163E3C"
-    w=header("progress")+[label(32,24,"MON PARCOURS À ILLUMIS",8),
-        label(34,78,"Recherche · aventures · Royale Z-A",5,DIM),
-        rect(24,126,1192,218,bg="#FFDBE9E3",frame=0),
-        image(888,126,308,218,src="module:progress/3"),
-        image(42,146,180,180,src="file:shapes/research-medallion.png"),
-        label(132,180,"NIVEAU",5,ink,align="center"),
-        value(132,222,"za.progress.mable_level",13,ink,align="center"),
-        label(250,150,"RECHERCHES DE MYOSOTIS",6,ink,wrap_width=610,max_lines=1,fit_text=True),
-        bound_text(250,202,"za.progress.research_fraction",9,ink),
-        bar(250,264,610,20,"za.progress.research_xp",color="#FF2A7567",max_bind="za.progress.research_xpmax",bg="#FFB0D0C3"),
-        label(250,302,"POINTS MANQUANTS",5,ink,need_bind="!za.progress.research_max"),
-        value(850,298,"za.progress.research_missing",6,ink,align="right",need_bind="!za.progress.research_max"),
-        label(250,298,"NIVEAU MAXIMUM",6,ink,need_bind="za.progress.research_max"),
-        button(888,278,308,54,"TOUS LES NIVEAUX","research_open_1",scale=5)]
+    w=header("progress")+[
+        label(28,22,"MON PARCOURS À ILLUMIS",7,TEXT),
+        label(28,70,"Recherche · aventures · Royale Z-A",5,DIM),
+        label(1212,32,"Données en direct",5,GREEN,align="right",need_bind="za.progress.research_live"),
+        label(1212,32,"Données de votre dernière sauvegarde",5,DIM,align="right",need_bind="!za.progress.research_live"),
+        # Mable's Research Hero Banner (exact mresearch_top teal gradient + FULL unobstructed Mable torso!)
+        image(24,108,1192,236,src="file:shapes/research-banner.png"),
+        image(872,110,330,232,src="module:progress/3"),
+        image(46,136,180,180,src="file:shapes/research-medallion.png"),
+        label(136,174,"NIVEAU",5,"#FF9EEEE4",align="center"),
+        value(136,214,"za.progress.mable_level",12,TEXT,align="center"),
+        label(254,132,"RECHERCHES DE MYOSOTIS",5,"#FFA6F5EC",wrap_width=590,max_lines=1,fit_text=True),
+        bound_text(254,174,"za.progress.research_fraction",9,TEXT),
+        bar(254,234,586,20,"za.progress.research_xp",color=LIME,max_bind="za.progress.research_xpmax",bg="#FF0A2634"),
+        label(254,282,"POINTS MANQUANTS",5,"#FFD6F6F2",need_bind="!za.progress.research_max"),
+        value(616,278,"za.progress.research_missing",6,LIME,align="right",need_bind="!za.progress.research_max"),
+        label(254,280,"NIVEAU MAXIMUM",6,LIME,need_bind="za.progress.research_max"),
+        # All levels button tucked cleanly below the bar, NEVER covering Mable!
+        button(636,270,204,54,"TOUS LES NIVEAUX","research_open_1",scale=5,bg="#FF0E3042",color=TEXT,border_color="#FF8CF4EA"),
+    ]
+    # 3 Research Level Cards with BOTH 1 x TM038 AND the localized TM move name right underneath!
     for i,title in enumerate(["NIVEAU PRÉCÉDENT","NIVEAU ACTUEL","NIVEAU SUIVANT"]):
         x=24+i*404;key=f"za.progress.r{i}.";gate=dict(need_bind=key+"valid")
-        w += [panel(x,364,384,224,bg=PANEL_HI if i==1 else PANEL,edge=RED if i==1 else LINE),
-              label(x+20,384,title,5,RED if i==1 else DIM,wrap_width=344,max_lines=1,fit_text=True),
-              value(x+20,428,key+"level",9,TEXT,**gate),
-              value(x+360,442,key+"points",5,GOLD,align="right",**gate),
-              image(x+16,494,82,82,src_format="module:item/%d",bind=key+"icon",**gate),
-              bound_text(x+110,500,key+"reward",5,TEXT,wrap_width=254,max_lines=2,fit_text=True,line_gap=5,**gate),
-              label(x+20,450,"—",9,DIM,need_bind="!"+key+"valid"),
-              button(x,364,384,224,"",f"research_open_{i}",bg=CLEAR,color=CLEAR,border=0,need_bind="!za.research.open")]
-    w += [panel(24,610,1192,192),label(48,630,"ROYALE Z-A INFINI",7,GOLD,need_bind="za.progress.is_infinite"),
-          label(48,630,"ROYALE Z-A",7,GOLD,need_bind="!za.progress.is_infinite"),
-          label(1040,636,"RANG",5,DIM,align="right"),bound_text(1188,630,"za.progress.rank",9,GOLD,align="right"),
-          bound_text(48,678,"za.progress.rank_fraction",9,TEXT),
-          bar(48,746,730,18,"za.progress.rank_points",color=GOLD,max_bind="za.progress.rank_target"),
-          label(810,678,"PROCHAIN TICKET",5,DIM,wrap_width=360,max_lines=1,fit_text=True),
-          value(810,722,"za.progress.rank_missing",9,GOLD,need_bind="za.progress.rank_known"),
-          label(48,772,"POINTS TICKET",5,DIM),
-          label(1206,82,"Données en direct",5,RED,align="right",need_bind="za.progress.research_live"),
-          label(1206,82,"Données de votre dernière sauvegarde",5,DIM,align="right",need_bind="!za.progress.research_live")]
-    for i,(title,key,color) in enumerate([("ARGENT DISPONIBLE","money",GOLD),("RECHERCHE INTERDIMENSIONNELLE","hyperspace",BLUE)]):
-        x=24+i*606;bind="za.progress."+key
-        w += [panel(x,822,586,106),label(x+22,836,title,5,DIM,wrap_width=542,max_lines=1,fit_text=True),
-              value(x+22,872,bind,9,color)]
+        w += [panel(x,362,384,214,bg="#FF1C2E42" if i==1 else PANEL,edge=TEAL_MINT if i==1 else LINE),
+              label(x+20,380,title,5,TEAL_MINT if i==1 else DIM,wrap_width=214,max_lines=1,fit_text=True),
+              value(x+364,380,key+"points",5,GOLD,align="right",**gate),
+              value(x+20,420,key+"level",8,TEXT,text="N. ",**gate),
+              image(x+20,484,72,72,src_format="module:item/%d",bind=key+"icon",**gate),
+              bound_text(x+106,488,key+"reward",5,"#FFFAF8E9",wrap_width=258,max_lines=1,fit_text=True,**gate),
+              bound_text(x+106,524,key+"move",5,CYAN_LIGHT,wrap_width=258,max_lines=1,fit_text=True,**gate),
+              label(x+20,436,"—",8,DIM,need_bind="!"+key+"valid"),
+              button(x,362,384,214,"",f"research_open_{i}",bg=CLEAR,color=CLEAR,border=0,need_bind="!za.research.open")]
+    # Z-A Royale Neon Magenta Hero Card (exact ryl_top_00.bflyt colors!)
+    w += [image(24,594,1192,212,src="file:shapes/royale-card.png"),
+          label(54,616,"ROYALE Z-A INFINI",6,PINK_GLOW,need_bind="za.progress.is_infinite"),
+          label(54,616,"ROYALE Z-A",6,PINK_GLOW,need_bind="!za.progress.is_infinite"),
+          bound_text(54,660,"za.progress.rank_fraction",9,TEXT),
+          bar(54,724,820,20,"za.progress.rank_points",color=PINK_GLOW,max_bind="za.progress.rank_target",bg="#FF1C1636"),
+          label(54,760,"POINTS TICKET",5,DIM),
+          label(590,760,"PROCHAIN TICKET",5,DIM,align="right",wrap_width=230,max_lines=1,fit_text=True),
+          value(874,756,"za.progress.rank_missing",6,GOLD,align="right",need_bind="za.progress.rank_known"),
+          rect(948,616,236,166,bg="#FF1A0F2E",color=GOLD,frame=2),
+          label(1066,626,"RANG",4,GOLD,align="center"),
+          image(1010,656,112,112,src_format="module:royale-rank/%d",bind="za.progress.rank_id",need_bind="za.progress.rank_id"),
+          bound_text(1066,684,"za.progress.rank",12,TEXT,align="center",need_bind="!za.progress.rank_id")]
+    # Bottom Money (with native Pokedollar icon!) & Hyperspace Survey Points
+    w += [panel(24,824,586,126,bg=PANEL,edge=LINE),
+          rect(26,838,7,98,bg=GOLD,frame=0),
+          label(52,842,"ARGENT DISPONIBLE",5,DIM,wrap_width=530,max_lines=1,fit_text=True),
+          image(52,882,48,48,src="module:reward-money"),
+          value(112,884,"za.progress.money",8,GOLD),
+          panel(630,824,586,126,bg=PANEL,edge=LINE),
+          rect(632,838,7,98,bg=RED,frame=0),
+          label(658,842,"RECHERCHE INTERDIMENSIONNELLE",5,DIM,wrap_width=530,max_lines=1,fit_text=True),
+          value(658,884,"za.progress.hyperspace",8,CYAN_LIGHT)]
+    # Research levels drawer overlay
     gate=dict(need_bind="za.research.open")
-    w += [rect(24,364,1192,564,bg=PANEL,frame=2,**gate),
-          label(48,384,"NIVEAUX DE RECHERCHE",6,GOLD,**gate),
-          button(1014,378,178,58,"FERMER","research_close",scale=5,**gate),
-          panel(430,450,762,456,bg=PANEL_HI)]
+    w += [rect(24,362,1192,588,bg="#FF141A2C",color=LINE_HI,frame=2,input_block=True,**gate),
+          label(48,382,"NIVEAUX DE RECHERCHE",6,GOLD,**gate),
+          button(1014,376,178,56,"FERMER","research_close",scale=5,bg=PANEL_HI,color=TEXT,border_color=LINE_HI,**gate),
+          panel(430,448,762,478,bg=PANEL_HI)]
     w[-1].update(gate)
     rows=dict(repeat=50,repeat_bind="za.research.rows",repeat_dy=120,scroll="za_research",**gate)
-    w += [rect(48,450,356,112,bg=PANEL_HI,**rows),
-          rect(48,450,356,112,color=GOLD,frame=3,hide_bind="za.rl{i}.selected",keep_min=1,keep_max=1,**rows),
-          bound_text(64,462,"za.rl{i}.label",6,TEXT,wrap_width=322,max_lines=1,fit_text=True,**rows),
-          image(64,500,52,52,src_format="module:item/%d",bind="za.rl{i}.icon",**rows),
-          bound_text(130,500,"za.rl{i}.reward",5,DIM,wrap_width=258,max_lines=2,line_gap=4,fit_text=True,**rows),
-          button(48,450,356,112,"","research_pick",payload="{i}",bg=CLEAR,color=CLEAR,border=0,**rows),
-          value(448,466,"za.research.selected",6,GOLD,text="NIVEAU ",**gate),
-          image(448,506,96,96,src_format="module:item/%d",bind="za.research.icon",**gate),
-          bound_text(560,516,"za.research.reward",6,TEXT,wrap_width=604,max_lines=2,fit_text=True,line_gap=5,**gate),
-          label(448,620,"POINTS CUMULÉS",5,DIM,**gate),
-          value(1168,616,"za.research.points",7,GOLD,align="right",**gate),
-          bound_text(448,680,"za.research.description",5,TEXT,wrap_width=720,max_lines=20,line_gap=8,scroll="za_reward_text",**gate)]
-    badge=type_badge(936,464,232,"za.research.type",5)
-    for item in badge:item.update(gate)
-    w+=badge
+    w += [rect(48,448,356,112,bg=PANEL,color=LINE,**rows),
+          rect(48,448,356,112,color=RED,frame=3,hide_bind="za.rl{i}.selected",keep_min=1,keep_max=1,**rows),
+          bound_text(64,460,"za.rl{i}.label",6,TEXT,wrap_width=322,max_lines=1,fit_text=True,**rows),
+          image(64,498,52,52,src_format="module:item/%d",bind="za.rl{i}.icon",**rows),
+          bound_text(130,498,"za.rl{i}.reward",5,DIM,wrap_width=258,max_lines=2,line_gap=4,fit_text=True,**rows),
+          button(48,448,356,112,"","research_pick",payload="{i}",bg=CLEAR,color=CLEAR,border=0,**rows),
+          image(458,472,88,88,src_format="module:item/%d",bind="za.research.icon",**gate),
+          bound_text(566,476,"za.research.reward",6,TEXT,wrap_width=596,max_lines=2,line_gap=5,fit_text=True,**gate),
+          label(566,554,"POINTS CUMULÉS",5,DIM,**gate), value(1168,554,"za.research.points",5,GOLD,align="right",**gate)]
+    w += type_badge(566,596,240,"za.research.type",4,**gate)
+    w += [bound_text(458,656,"za.research.description",5,TEXT,wrap_width=704,max_lines=32,line_gap=8,scroll="za_research_text",**gate)]
     w += not_ready()
-    return dict(id="progress",title="Progression",nav_order=nav_order(),widgets=w,
-        scrolls=[dict(scroll_region("za_research",[48,450,356,456],"za.research.rows",120,"za.research.open"),
-                      show_bind="za.research.open",follow_bind="za.research.follow",follow_open=True),
-                 dict(scroll_region("za_reward_text",[448,680,720,210],"za.research.lines",38,"za.research.selected"),show_bind="za.research.open")])
+    return dict(id="progress",title="Progression",nav_order=nav_order(),widgets=w,scrolls=[
+        dict(scroll_region("za_research",[48,448,368,478],"za.research.rows",120),
+             show_bind="za.research.open",follow_bind="za.research.follow",follow_open=True),
+        dict(scroll_region("za_research_text",[458,656,718,244],"za.research.lines",34),
+             show_bind="za.research.open")])
 
 def notebook_page():
     rows = dict(repeat=64, repeat_bind="za.guide.objective_rows", repeat_dy=108, scroll="za_objectives")
@@ -1426,10 +1570,11 @@ manifest = {
     "name": "Pokemon Legends Z-A dual screen",
     "_about": "Seven tabs read from the player's active state and save by the native module. "
               "Art, names and UI translations are decoded from the player's romfs in the save language. "
-              "Only a redistributable font is included.",
+              "The UI font is decoded at runtime from the player's romfs.",
     "min_runtime": 25 if RUNTIME_25 else (19 if LEGACY_NAV else 22),
-    "font": "file:font/za.mfnt",
-    "font_atlas": "file:font/za.png",
+    "font": "file:font/za_font.txt",
+    "font_atlas": "module:font/{p}",
+    "font_page_h": 1024,
     "requires_module": True,
     "canvas_w": W,
     "canvas_h": H,
@@ -1444,6 +1589,16 @@ manifest = {
     "enforce":[{"action":f"input_{command}","every_ms":1} for command in ["left","right","send","aim","attack_0","attack_1","attack_2","attack_3"]],
     "pages": [team_page(), dex_page(), box_page(), box_detail_page(), map_page(), bag_page(), missions_page(),
               progress_page(),notebook_page(),locations_page(),combat_page(),evolutions_page(),capture_page(),search_page(),bag_tools_page(),team_heal_page()],
+    "flags": {"za_move_grid": 0},
+    "settings": [
+        {
+            "flag": "za_move_grid",
+            "label": "Move layout",
+            "type": "toggle",
+            "default": 0,
+            "choices": ["ABXY Diamond", "2x2 Grid"],
+        }
+    ],
     "persist_flags": [f"za_notebook_{slot}" for slot in range(64)],
 }
 
@@ -1457,7 +1612,7 @@ for slot, flag in enumerate(manifest["persist_flags"]):
     actions[action] = dict(kind="flag",flag=flag,value=f"$za.note.value{slot}",
                            enabled_bind=f"za.note.pending{slot}")
     manifest["enforce"].append(dict(action=action,every_ms=1))
-manifest["persist_flags"].append("za_nav_shortcuts")
+manifest["persist_flags"].extend(["za_nav_shortcuts", "za_move_grid"])
 actions["store_nav_shortcuts"]=dict(kind="flag",flag="za_nav_shortcuts",value="$za.nav.encoded",
                                    enabled_bind="za.nav.pending")
 manifest["enforce"].append(dict(action="store_nav_shortcuts",every_ms=100))
@@ -1482,7 +1637,7 @@ manifest["page_binds"].append(dict(point="za.boxdetail.toggle",equals=0,ready_bi
     when_not_equal=dict(page="box_detail",transition="fade",duration_ms=120)))
 # Recover the old header space on existing pages without changing footer or bound map markers.
 for page in manifest["pages"]:
-    if page["id"] in {"team","box_detail","progress","map","missions","notebook","locations","combat","evolutions","capture","search","bag","bag_tools","team_heal"}:continue
+    if page["id"] in {"team","dex","box_detail","progress","map","missions","notebook","locations","combat","evolutions","capture","search","bag","bag_tools","team_heal"}:continue
     for w in page["widgets"]:
         if "y_bind" not in w and 108<=w["rect"][1]<932:
             w["rect"][1]-=104
@@ -1542,7 +1697,7 @@ manifest["sequences"]={"za_box_exchange":dict(steps=[dict(fn="za_box_exchange",
     args=["0","$za.nativebox.box","$za.nativebox.slot","$za.nativebox.party"],out="za.nativebox.result")])}
 for page in manifest["pages"]:
     if page["id"]=="box_detail":
-        page["widgets"].append(button(674,876,514,64,"ÉCHANGER AVEC L'ÉQUIPE","native_box_prepare",scale=5,need_bind="za.nativebox.available"))
+        page["widgets"].append(button(674,860,514,62,"ÉCHANGER AVEC L'ÉQUIPE","native_box_prepare",scale=5,need_bind="za.nativebox.available"))
 w=[label(48,32,"ÉCHANGER AVEC L'ÉQUIPE",8),
    image(48,104,160,160,src_format="module:icon/%d",bind="za.nativebox.icon"),
    bound_text(250,154,"za.nativebox.name",8,TEXT,wrap_width=930,max_lines=1,fit_text=True),
@@ -1614,8 +1769,8 @@ def move_menu_page():
               button(x,150,288,132,"","moves_slot",payload=i,bg=CLEAR,color=CLEAR,border=0)]
     w += [label(32,292,"Choisissez une capacité à remplacer, puis une capacité disponible.",4,DIM,wrap_width=1176,max_lines=1,fit_text=True),
           panel(24,332,548,612),panel(592,332,620,612),
-          label(40,342,"CAPACITÉS DISPONIBLES",5,GOLD),
-          bound_text(616,342,"za.moves.name",8,TEXT,wrap_width=568,max_lines=2,fit_text=True,**detail)]
+          label(40,350,"CAPACITÉS DISPONIBLES",5,GOLD),
+          bound_text(616,350,"za.moves.name",8,TEXT,wrap_width=568,max_lines=2,fit_text=True,**detail)]
     grid=dict(repeat=192,repeat_bind="za.moves.rows",repeat_dy=126,scroll="za_moves")
     gate=dict(need_bind="za.lm{i}.v")
     w += [rect(40,398,516,116,bg=PANEL,color=LINE,frame=2,**grid,**gate),
@@ -1632,9 +1787,9 @@ def move_menu_page():
                      auto_w=True,repeat=1,**detail),
           bound_text(616,608,"za.moves.compare",5,DIM,wrap_width=568,max_lines=1,fit_text=True,need_bind="za.moves.frombag",**detail),
           bound_text(616,788,"za.moves.status",4,GOLD,wrap_width=568,max_lines=2,line_gap=5)]
-    w += [button(616,856,568,76,"REMPLACER LA CAPACITÉ","moves_apply",scale=5,need_bind="za.moves.can_apply")]
+    w += [button(616,854,568,68,"REMPLACER LA CAPACITÉ","moves_apply",scale=5,need_bind="za.moves.can_apply")]
     scrolls=[scroll_region("za_moves",[40,398,516,526],"za.moves.rows",126,"za.moves.reset"),
-             dict(id="za_move_text",rect=[602,342,598,432],reset_bind="za.moves.detail_reset",
+             dict(id="za_move_text",rect=[602,350,598,424],reset_bind="za.moves.detail_reset",
                   fling=True,pad=10,bar=GOLD,bar_track=LINE,bar_w=7)]
     return dict(id="moves",title="Capacités",widgets=w,scrolls=scrolls)
 
@@ -1644,45 +1799,82 @@ manifest["page_binds"].append(dict(point="za.moves.toggle",equals=0,ready_bind="
     when_not_equal=dict(page="moves",transition="fade",duration_ms=120)))
 
 
-def round_texture(bg, edge, border, radius=12):
-    name=hashlib.sha256(f"{bg}/{edge}/{border}/{radius}".encode()).hexdigest()[:16]+".png"
+def round_texture(bg, edge, border, radius=14):
+    size=max(48, radius*2+16)
+    name=hashlib.sha256(f"v3/{bg}/{edge}/{border}/{radius}/{size}".encode()).hexdigest()[:16]+".png"
     directory=OUT.parent/"shapes";directory.mkdir(parents=True,exist_ok=True)
     target=directory/name
     def rgba(color):
         n=int(color.lstrip("#"),16);return [(n>>16)&255,(n>>8)&255,n&255,(n>>24)&255]
-    fill,frame=rgba(bg),rgba(edge);raw=bytearray()
-    for y in range(48):
-        raw.append(0)
-        for x in range(48):
-            qx=max(radius-(x+.5),0,(x+.5)-(48-radius));qy=max(radius-(y+.5),0,(y+.5)-(48-radius))
-            distance=math.hypot(qx,qy)-radius
-            coverage=min(1,max(0,.5-distance))
-            color=frame if border and distance>-border else fill
-            raw.extend(color[:3]+[round(color[3]*coverage)])
-    def chunk(kind,data):return struct.pack('>I',len(data))+kind+data+struct.pack('>I',zlib.crc32(kind+data))
-    target.write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>2I5B',48,48,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(bytes(raw),9))+chunk(b'IEND',b''))
+    fill,frame=rgba(bg),rgba(edge)
+    img=Image.new("RGBA",(size,size),(0,0,0,0))
+    px=img.load()
+    for y in range(size):
+        for x in range(size):
+            qx=max(radius-(x+.5),0,(x+.5)-(size-radius))
+            qy=max(radius-(y+.5),0,(y+.5)-(size-radius))
+            dist=math.hypot(qx,qy)-radius
+            cov=min(1.0,max(0.0,0.5-dist))
+            if cov<=0: continue
+            if border and dist>-border:
+                c=frame
+            else:
+                c=fill
+                # Subtle architectural top inner highlight on filled cards
+                if c[3]>180 and y==int(border)+1 and radius<x<size-radius:
+                    c=[min(255,c[0]+22),min(255,c[1]+26),min(255,c[2]+34),c[3]]
+            px[x,y]=(c[0],c[1],c[2],round(c[3]*cov))
+    img.save(target,optimize=True)
     return "file:shapes/"+name
 
 
+def enforce_scroll_gutters(pages, min_gap=11):
+    """Ensure NO list row card or button ever overlaps or crowds a scroll_region's vertical bar."""
+    for page in pages:
+        scrolls = {sc["id"]: sc for sc in page.get("scrolls", [])}
+        if not scrolls:
+            continue
+        for w in page["widgets"]:
+            sid = w.get("scroll")
+            if sid not in scrolls:
+                continue
+            sc = scrolls[sid]
+            sx, sy, sw, sh = sc["rect"]
+            bar_x0 = sx + sw - sc.get("bar_w", 7)
+            max_right = bar_x0 - min_gap
+            r = w["rect"]
+            if r[2] > 0 and r[0] + r[2] > max_right:
+                shrink = (r[0] + r[2]) - max_right
+                r[2] = max(24, r[2] - shrink)
+            elif r[2] == 0 and w.get("align") == "right" and r[0] > max_right - 14:
+                r[0] = max_right - 14
+            if w.get("wrap_width") and r[0] + w["wrap_width"] > max_right - 12:
+                w["wrap_width"] = max(60, (max_right - 12) - r[0])
+
+
 def round_pages(pages):
+    enforce_scroll_gutters(pages, min_gap=11)
     for page in pages:
         out=[]
         for w in page["widgets"]:
             kind=w.get("type");width,height=w["rect"][2:]
-            # Keep small accents and the player marker sharp; round the surfaces around them.
-            if kind in ("rect","button") and width>=48 and height>=24:
-                bg=w.get("bg",CLEAR);edge=w.get("color",CLEAR);border=w.get("border",2) if kind=="button" else w.get("frame",2)
+            is_pill=bool(w.pop("pill", False))
+            if kind in ("rect","button") and ((is_pill and width>=24 and height>=24) or (width>=48 and height>=24)):
+                bg=w.get("bg",CLEAR)
+                edge=w.pop("border_color", LINE_HI if kind=="button" else w.get("color",CLEAR))
+                border=w.get("border",2) if kind=="button" else w.get("frame",2)
                 if bg!=CLEAR or (edge!=CLEAR and border):
-                    surface={k:v for k,v in w.items() if k not in {"type","id","text","text_scale","align","on_tap","on_hold","nav","border","color","bg","frame","bind_text","table","max_lines","wrap_width","fit_text","input_block"}}
-                    surface.update(type="image",src=round_texture(bg,edge,border),fill="slice",slice=[12,12,12,12],color="#FFFFFFFF")
+                    surface={k:v for k,v in w.items() if k not in {"type","id","text","text_scale","align","on_tap","on_hold","nav","border","color","bg","frame","bind_text","table","max_lines","wrap_width","fit_text","input_block","border_color","pill"}}
+                    rad=(min(width,height)//2) if is_pill else (14 if height>=44 else max(6,height//3))
+                    surface.update(type="image",src=round_texture(bg,edge,border,rad),fill="slice",slice=[rad,rad,rad,rad],color="#FFFFFFFF")
                     if kind=="rect":
                         if w.get("input_block"):surface["input_block"]=True
                         out.append(surface);continue
                     out.append(surface);w=dict(w,bg=CLEAR,border=0)
             elif kind=="bar":
-                radius=max(1,min(6,height//2));bg=w.get("bg",WELL)
+                radius=max(1,min(8,height//2));bg=w.get("bg",WELL)
                 background={k:v for k,v in w.items() if k in {"rect","repeat","repeat_cols","repeat_dx","repeat_dy","repeat_row_dy","need_bind","hide_bind","keep_min","keep_max","hide_eq"}}
-                background.update(type="image",src=round_texture(bg,CLEAR,0,radius),fill="slice",slice=[radius]*4,color="#FFFFFFFF")
+                background.update(type="image",src=round_texture(bg,"#FF344060",1,radius),fill="slice",slice=[radius]*4,color="#FFFFFFFF")
                 out.append(background)
                 w=dict(w,bg=CLEAR,image=round_texture(w["color"],CLEAR,0,radius),fill="slice",slice=[radius]*4,frame=0)
             out.append(w)
@@ -1690,27 +1882,34 @@ def round_pages(pages):
 
 
 def write_send_arrow():
-    raw=bytearray()
-    for y in range(64):
-        raw.append(0)
-        for x in range(64):
-            on=(12<=y<=34 and abs(x-31.5)<=y-11) or (27<=x<=36 and 30<=y<=54)
-            raw.extend([18,50,65,255 if on else 0])
+    d=OUT.parent/"shapes";d.mkdir(parents=True,exist_ok=True)
+    # 4x supersampled anti-aliased Lumiose up-arrow for dedicated Send Out pillar
+    sa4=Image.new("RGBA",(384,384),(0,0,0,0))
+    dr=ImageDraw.Draw(sa4)
+    dr.ellipse([32,32,352,352],fill=(255,255,255,44),outline=(171,228,255,235),width=12)
+    dr.polygon([(192,96),(280,200),(228,200),(228,288),(156,288),(156,200),(104,200)],fill=(255,255,255,255))
+    sa4.resize((96,96),Image.Resampling.LANCZOS).save(d/"send-arrow.png",optimize=True)
+    # 4x supersampled anti-aliased centered More (+) icon for bottom nav dock
+    mi4=Image.new("RGBA",(152,152),(0,0,0,0))
+    md=ImageDraw.Draw(mi4)
+    md.ellipse([10,10,142,142],fill=(47,179,235,34),outline=(132,216,255,230),width=10)
+    md.rounded_rectangle([67,38,85,114],radius=7,fill=(171,228,255,255))
+    md.rounded_rectangle([38,67,114,85],radius=7,fill=(171,228,255,255))
+    mi4.resize((38,38),Image.Resampling.LANCZOS).save(d/"more-icon.png",optimize=True)
+
+    # Dimension portals & map arrow
     def chunk(kind,data):return struct.pack('>I',len(data))+kind+data+struct.pack('>I',zlib.crc32(kind+data))
-    # Small companion-only portal glyphs; all actual game artwork is still
-    # decoded from the player's romfs. Distinct silhouettes remain readable zoomed out.
     for kind,color in enumerate(((175,128,255),(255,150,78))):
         portal=bytearray()
         for y in range(64):
             portal.append(0)
             for x in range(64):
-                dx,dy=x-31.5,y-31.5;d=math.hypot(dx,dy)
-                ring=22<d<28;inner=abs(dx)/15+abs(dy)/21<1
-                glyph=(abs(dx)<2 or abs(dy)<2) and d<9 if kind==0 else (abs(dx-dy)<3 or abs(dx+dy)<3) and d<11
+                dx,dy=x-31.5,y-31.5;dist=math.hypot(dx,dy)
+                ring=22<dist<28;inner=abs(dx)/15+abs(dy)/21<1
+                glyph=(abs(dx)<2 or abs(dy)<2) and dist<9 if kind==0 else (abs(dx-dy)<3 or abs(dx+dy)<3) and dist<11
                 pixel=(249,250,255,255) if glyph else (*color,255) if ring else (31,29,63,245) if inner else (0,0,0,0)
                 portal.extend(pixel)
-        directory=OUT.parent/"shapes";directory.mkdir(parents=True,exist_ok=True)
-        (directory/f"dimension-{kind}.png").write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>2I5B',64,64,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(bytes(portal),9))+chunk(b'IEND',b''))
+        (d/f"dimension-{kind}.png").write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>2I5B',64,64,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(bytes(portal),9))+chunk(b'IEND',b''))
     arrow=bytearray()
     for y in range(64):
         arrow.append(0)
@@ -1718,41 +1917,112 @@ def write_send_arrow():
             width=0 if y<5 or y>=57 else min(23,(y-5)*.52)
             inside=width>0 and abs(x-31.5)<width and y<57-abs(x-31.5)*.50
             outline=width>0 and (width-abs(x-31.5)<3 or y>52-abs(x-31.5)*.50)
-            arrow.extend((18,36,58,255) if inside and outline else (87,222,254,255) if inside else (0,0,0,0))
-    (OUT.parent/"shapes/map-arrow.png").write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>2I5B',64,64,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(bytes(arrow),9))+chunk(b'IEND',b''))
-    target=OUT.parent/"shapes/send-arrow.png";target.parent.mkdir(parents=True,exist_ok=True)
-    target.write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>2I5B',64,64,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(bytes(raw),9))+chunk(b'IEND',b''))
+            arrow.extend((18,36,58,255) if inside and outline else (47,179,235,255) if inside else (0,0,0,0))
+    (d/"map-arrow.png").write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>2I5B',64,64,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(bytes(arrow),9))+chunk(b'IEND',b''))
+
 
 def write_backdrop():
-    raw=bytearray()
-    for y in range(192):
-        raw.append(0)
-        for x in range(192):
-            glow=math.exp(-(((x-65)/115)**2+((y-140)/95)**2))*18
-            raw.extend([int(20+glow),int(38+glow),int(54+glow),255])
-    def chunk(kind,data):return struct.pack('>I',len(data))+kind+data+struct.pack('>I',zlib.crc32(kind+data))
-    target=OUT.parent/"shapes/menu-background.png";target.parent.mkdir(parents=True,exist_ok=True)
-    target.write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>2I5B',192,192,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(bytes(raw),9))+chunk(b'IEND',b''))
+    d=OUT.parent/"shapes";d.mkdir(parents=True,exist_ok=True)
+    # Full 1:1 native 1240x1080 Parisian night indigo + crisp Lumiose dot matrix + cyan/lime top razor
+    bw,bh=W,H
+    img=Image.new("RGBA",(bw,bh),(16,20,34,255))
+    dr=ImageDraw.Draw(img)
+    for y in range(bh):
+        t=y/bh
+        dr.line([(0,y),(bw,y)],fill=(int(16*(1-t)+11*t),int(20*(1-t)+14*t),int(34*(1-t)+24*t),255))
+    glow=Image.new("RGBA",(bw,bh),(0,0,0,0))
+    gdr=ImageDraw.Draw(glow)
+    gdr.ellipse([bw//2-520,-260,bw//2+520,420],fill=(47,179,235,24))
+    gdr.ellipse([bw-420,bh-360,bw+240,bh+180],fill=(181,214,77,14))
+    glow=glow.filter(ImageFilter.GaussianBlur(85))
+    img=Image.alpha_composite(img,glow)
+    dots=Image.new("RGBA",(bw,bh),(0,0,0,0))
+    ddr=ImageDraw.Draw(dots)
+    for y in range(20,bh,32):
+        for x in range(20,bw,32):
+            ddr.rectangle([x,y,x+1,y+1],fill=(47,179,235,24))
+    img=Image.alpha_composite(img,dots)
+    dr=ImageDraw.Draw(img)
+    for x in range(bw):
+        t=x/bw
+        dr.line([(x,0),(x,3)],fill=(int(47*(1-t)+181*t),int(179*(1-t)+214*t),int(235*(1-t)+77*t),225))
+    img.save(d/"menu-background.png",optimize=True)
     for page in manifest["pages"]:page["widgets"].insert(0,image(0,0,W,H,src="file:shapes/menu-background.png"))
+
+    # Full 1:1 native 1192x236 Mable's Research teal gradient banner
+    rw,rh=1192,236
+    rb=Image.new("RGBA",(rw,rh),(0,0,0,0))
+    rb_fill=Image.new("RGBA",(rw,rh),(0,0,0,0))
+    rdr=ImageDraw.Draw(rb_fill)
+    for x in range(rw):
+        t=x/rw
+        rdr.line([(x,0),(x,rh)],fill=(int(12*(1-t)+26*t),int(74*(1-t)+126*t),int(104*(1-t)+134*t),255))
+    rmask=Image.new("L",(rw,rh),0)
+    ImageDraw.Draw(rmask).rounded_rectangle([0,0,rw-1,rh-1],radius=20,fill=255)
+    rb.paste(rb_fill,(0,0),rmask)
+    ImageDraw.Draw(rb).rounded_rectangle([1,1,rw-2,rh-2],radius=20,outline=(88,224,214,225),width=2)
+    rb.save(d/"research-banner.png",optimize=True)
+
+    # Full 1:1 native 1192x212 Z-A Royale neon magenta card
+    yw,yh=1192,212
+    rc=Image.new("RGBA",(yw,yh),(0,0,0,0))
+    rc_fill=Image.new("RGBA",(yw,yh),(14,16,40,252))
+    rgl=Image.new("RGBA",(yw,yh),(0,0,0,0))
+    ImageDraw.Draw(rgl).ellipse([yw-340,-30,yw+40,yh+40],fill=(242,13,119,58))
+    rgl=rgl.filter(ImageFilter.GaussianBlur(36))
+    rc_fill=Image.alpha_composite(rc_fill,rgl)
+    ImageDraw.Draw(rc_fill).rounded_rectangle([3,14,11,yh-14],radius=4,fill=(242,13,119,255))
+    ymask=Image.new("L",(yw,yh),0)
+    ImageDraw.Draw(ymask).rounded_rectangle([0,0,yw-1,yh-1],radius=20,fill=255)
+    rc.paste(rc_fill,(0,0),ymask)
+    ImageDraw.Draw(rc).rounded_rectangle([1,1,yw-2,yh-2],radius=20,outline=(242,13,119,235),width=2)
+    rc.save(d/"royale-card.png",optimize=True)
+
+    # Full 1:1 native 888x888 Lumiose Map cyan blueprint rings
+    mr=Image.new("RGBA",(888,888),(0,0,0,0))
+    mdr=ImageDraw.Draw(mr)
+    mdr.ellipse([8,8,879,879],outline=(47,179,235,44),width=1)
+    mdr.ellipse([22,22,865,865],outline=(47,179,235,115),width=2)
+    mr.save(d/"map-ring.png",optimize=True)
 
 write_backdrop()
 
+
 def write_research_medallion():
-    raw=bytearray()
-    for y in range(264):
-        raw.append(0)
-        for x in range(264):
-            r=math.hypot(x-131.5,y-131.5)
-            if r<114:color=[245,252,247,255]
-            elif r<120:color=[42,117,103,255]
-            elif r<126:color=[176,208,195,255]
-            else:color=[0,0,0,0]
-            raw.extend(color)
-    def chunk(kind,data):return struct.pack('>I',len(data))+kind+data+struct.pack('>I',zlib.crc32(kind+data))
-    (OUT.parent/"shapes/research-medallion.png").write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>2I5B',264,264,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(bytes(raw),9))+chunk(b'IEND',b''))
+    d=OUT.parent/"shapes";d.mkdir(parents=True,exist_ok=True)
+    med4=Image.new("RGBA",(1056,1056),(0,0,0,0))
+    dr=ImageDraw.Draw(med4)
+    dr.ellipse([32,32,1024,1024],fill=(14,42,58,244),outline=(88,224,214,255),width=32)
+    dr.ellipse([88,88,968,968],outline=(181,214,77,235),width=20)
+    med4.resize((264,264),Image.Resampling.LANCZOS).save(d/"research-medallion.png",optimize=True)
+
+def write_dex_stage():
+    d=OUT.parent/"shapes";d.mkdir(parents=True,exist_ok=True)
+    sw,sh=1240,640
+    st=Image.new("RGBA",(sw,sh),(11,16,30,255))
+    dr=ImageDraw.Draw(st)
+    cx,cy=sw//2,sh//2+16
+    for r in range(520,0,-8):
+        t=1.0-(r/520.0)
+        a=int(52*(t**1.8))
+        dr.ellipse([cx-r,cy-int(r*0.72),cx+r,cy+int(r*0.72)],fill=(47,179,235,a))
+    for rad,col,w0 in [(260,(47,179,235,80),3),(190,(181,214,77,52),2),(360,(72,110,168,45),2)]:
+        dr.ellipse([cx-rad,cy-int(rad*0.72),cx+rad,cy+int(rad*0.72)],outline=col,width=w0)
+    dr.line([(48,cy),(sw-48,cy)],fill=(47,179,235,34),width=2)
+    dr.line([(cx,36),(cx,sh-36)],fill=(47,179,235,28),width=2)
+    ret=(47,179,235,175)
+    for rx,ry,dx,dy in [(24,24,36,36),(sw-24,24,-36,36),(24,sh-24,36,-36),(sw-24,sh-24,-36,-36)]:
+        dr.line([(rx,ry),(rx+dx,ry)],fill=ret,width=4)
+        dr.line([(rx,ry),(rx,ry+dy)],fill=ret,width=4)
+    mask=Image.new("L",(sw,sh),0)
+    ImageDraw.Draw(mask).rounded_rectangle([0,0,sw-1,sh-1],radius=28,fill=255)
+    out_im=Image.new("RGBA",(sw,sh),(0,0,0,0))
+    out_im.paste(st,(0,0),mask)
+    ImageDraw.Draw(out_im).rounded_rectangle([1,1,sw-2,sh-2],radius=28,outline=(52,74,116,220),width=2)
+    out_im.resize((620,320),Image.Resampling.LANCZOS).save(d/"dex-stage.png",optimize=True)
 
 write_research_medallion()
-
+write_dex_stage()
 write_send_arrow()
 def configure_runtime25() -> None:
     extra_height = 160

@@ -25,7 +25,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Build the Pokémon Legends: Z-A Android companion.")
     parser.add_argument("--eden", type=Path, required=True, help="Eden Duo checkout with its CPM cache")
     parser.add_argument("--ndk", type=Path, required=True)
-    parser.add_argument("--version", default="1.0.0")
+    parser.add_argument("--version", default="1.1.0")
     parser.add_argument("--build", type=Path, default=ROOT / "build-za-android")
     parser.add_argument("--output", type=Path, default=ROOT / "dist")
     args = parser.parse_args()
