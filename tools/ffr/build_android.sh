@@ -4,7 +4,7 @@
 # Builds the FINAL FANTASY RESONANCE module for Android arm64 and its .dsmod.zip.
 # usage: build_android.sh <eden-duo checkout> <out dir> [version]
 set -euo pipefail
-sdk="${1:?eden-duo checkout}"; out="${2:?out dir}"; version="${3:-1.0.1}"
+sdk="${1:?eden-duo checkout}"; out="${2:?out dir}"; version="${3:-1.0.2}"
 here="$(cd -- "$(dirname -- "$0")" && pwd)"; repo="$(cd "$here/../.." && pwd)"; mods="$repo/native/modules"
 ndk="${ANDROID_NDK:-$(ls -d "$HOME"/Library/Android/sdk/ndk/* 2>/dev/null | sort -V | tail -1)}"
 host_tag=$(ls "$ndk/toolchains/llvm/prebuilt" | head -1)

@@ -277,3 +277,38 @@ name pool from startup: `Sound.UI.Cursor`, `Sound.UI.Cancel`, `Sound.UI.Error`, 
 `Sound.UI.` (a live dump of the pool, 2026-11-24). Their indices depend on the session, so the module looks them up by name
 (`Reader::FindNames`, one 128 KiB pool block per tick). The helper plays them on a channel of their own in the mailbox
 (sound_seq 0x078, sound_ack 0x07C, tag 0x080) at the start of each tick, so a sound never waits on a request.
+
+### Dialog log, turn order, scene backdrop (2026-11-26, checked live)
+
+- The backlog: `CPP_BacklogSubsystem` (a GameInstanceSubsystem, no reflected fields) +0x30 `TArray<BacklogData>` (0x48 each:
+  SpeakerName FText +0, Text FText +0x10, VoiceCueSheetName +0x30, VoiceCueIndex +0x40). It keeps the newest 30 lines (a window that
+  slides) and still holds the last conversation's lines afterwards. The newest is the line in the talk window.
+- The talk window: the `UI.Layer.Event` stack's widget that IsA `CPP_WBP_Talk` (WBP_TalkEventLayout_C) -> WindowManager +0x598
+  -> m_pWindow +0x190 (`CPP_WBP_TalkWindow`, one per window type) -> m_pTextBlock +0x558 (text FText +0x188, the generated string)
+  and m_pSpeaker +0x5a0 (`CPP_WBP_TalkSpeaker`) -> m_pTexture +0x348: the speaker's bust, `/Game/Chara/Face/<chara>_<emotion>_BU`
+  (1024 square, the figure standing on the foot; e.g. 0010 Rain, 0020 Lasswell, 0030 Fina, 0220 Emma). The backlog has no
+  portrait, so the module keeps the bust it saw for each line and speaker. WBP_TalkWindow_C's Text_Name (+0x688) holds the name.
+- The timeline: `CPP_VM_BtlTimeLine` (BtlTimeLineDA +0x68, TimelineUnified +0x70, TurnVMMap +0xd8 Map<EUIBtlTurnTimeLine 0 Current /
+  1 Next / 2 Additional, CPP_VM_BtlTurn*>). `CPP_VM_BtlTurn.EntryDataList` +0xa8 (BtlTimelineEntryData 0x14: UnitUniqueId +0,
+  DuplicateCount +4, BelongTimeline +8, BelongPhaseType +9: 0 Normal, 1 Additional (an extra action), 2 Finish (the visions'
+  resonance: UnitUniqueId -1)). Unique ids are `CPP_VM_BtlUnitParam.UniqueID` (+0x198), and 0 is a real one (the first party
+  member). The Current list holds only those still to act: a unit leaves it as its turn begins, so the one acting is the first of
+  the previous order that is gone. Visions have no timeline entries of their own (no unit view model either).
+- Extra actions and the finish break that rule. A stagger's bonus phase appends an Additional entry for the unit that staggered;
+  it stays at the head of the Current list while that unit acts and leaves only as the next one starts (the finish's entry, or
+  the new turn's list). The finish's entry does the same until the new turn's list replaces it. `CPP_UI_BtlCmdManager.CmdType`
+  (+0x30: 0 Normal, 1 Additional, 2 Finish) tells which phase is on, and `CPP_BtlUnitManager.m_pCmdSelectUnit` is not updated
+  for either: it still names the last unit to act, an enemy or another ally. Checked live over three battles.
+- The results: `CPP_VM_BattleResult` (in the MVVM collection, kept for the session) BtlResultData +0x68 (`BTL_RESULT_DATA` 0xc0:
+  itemDataList +0 (ItemId, Num, acquireLimitOverNum), unitDataList +0x10 (`BTL_RESULT_UNIT_DATA` 0xd8: UnitId, before/after EXP,
+  before/after level, ap +0x14, IsDead +0xce), enemyDataList +0x20, visionDataList +0x30 (`BTL_RESULT_VISION_DATA` 0x30: VisionId,
+  before/after MR, before/after AP, ap +0x14, UnitId +0x18), base/bonus/total EXP +0x40, base/before/bonus/total money +0x4c,
+  base/bonus/total AP +0x5c). It keeps the last battle's numbers after, so whether they show comes from the layout:
+  `WBP_Btl_ResultLayout_C` (`CPP_WBP_Btl_ResultLayout`, a CommonActivatableWidget under WBP_OverAllLayout) bIsActive +0x3e0 is set
+  while the results show and cleared when they close (IsFinishPage +0x5c8 is set just before). The battle manager's units are
+  still there until then, so the battle is still on.
+- Timeline faces: `UI/Textures/Icon/Unit_Face_Timeline/ICON_UnitFace_unit<id>` (party), `summon<vision id>`, `mons<%04d FaceIconId>`.
+  FaceIconId is UNIT_PARAMETER +0x188, held by the live unit parameter at +0xc8 (+0x250); IsBoss +0x150 (+0x218).
+- The backdrop: texture readback (runtime 24) of the newest RGBA8 render target of the game's output size (the module tries
+  1920x1080, 1280x720 and other sizes until one answers), at most every 1.5 s while the dialog or battle page shows; cropped to
+  the upper 80 %, scaled to 310x270, box-blurred and toned.

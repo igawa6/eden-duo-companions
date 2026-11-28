@@ -139,12 +139,12 @@ void Panel(Canvas& c, const Art& a, int x, int y, int w, int h, bool lit = false
     (void)a;
 }
 
-void Header(Canvas& c, const GameState& s, const Art& a, const std::string& title) {
+void Header(Canvas& c, const GameState& s, const Art& a, const std::string& title, bool stats = true) {
     c.GradientV(0, 0, kW, kHeaderH, C(0xF0101E28), C(0xA0101E28));
     if (const Image* star = a.image(Ui("Menu/T_HeaderStarIcon"))) c.Blit(*star, 34, 34, 44, 44);
-    c.Text(*a.title, title, 92, 74, 54, kInk, Align::Left, 640, kShadow);
+    c.Text(*a.title, title, 92, 74, 54, kInk, Align::Left, stats ? 640 : 520, kShadow);
     GlowLine(c, 0, kHeaderH - 2, kW, kLine);
-    if (s.save_ok) {
+    if (s.save_ok && stats) {
         const std::string gil = Num(s.money);
         const float gw = a.bold->Measure(gil, 38);
         if (const Image* gi = a.image(Ui("Icon/Menu/ICON_Menu_GILL"))) c.Blit(*gi, int(950 - gw - 54), 34, 44, 44);
@@ -726,21 +726,36 @@ void Quests(Canvas& c, const GameState& s, const View& v, const Art& a) {
     y += 16;
     const bool track_row = q.prog != 3;
     const int text_bottom = track_row ? kQuestTrackY - 12 : dy + dh - 16;
-    c.SetClip(dx, y, dw, text_bottom - y);
+    // The story so far, newest first: every line laid out, then the window the scroll shows (a swipe on the panel moves it)
     std::vector<std::string> paras(q.log.rbegin(), q.log.rend());
     if (paras.empty() && !q.desc.empty()) paras.push_back(q.desc);
-    bool first = true;
-    for (const auto& para : paras) {
-        for (const auto& line : Wrap(*a.regular, para, 25, float(dw - 48))) {
-            if (y + 34 > text_bottom) break;
-            y += 32;
-            c.Text(*a.regular, line, float(dx + 24), float(y), 25, first ? kInk : kInkDim, Align::Left, float(dw - 48));
-        }
-        y += 14;
-        first = false;
+    struct Line { std::string text; bool first; int gap; };
+    std::vector<Line> lines;
+    for (size_t i = 0; i < paras.size(); ++i) {
+        bool head = true;
+        for (auto& l : Wrap(*a.regular, paras[i], 25, float(dw - 64))) lines.push_back({l, i == 0, head && i > 0 ? 14 : 0}), head = false;
+    }
+    const int top = y, area = text_bottom - top;
+    auto height = [&](size_t from) { int hgt = 0; for (size_t i = from; i < lines.size(); ++i) hgt += 32 + (i > from ? lines[i].gap : 0); return hgt; };
+    int last = 0;  // the first line from which the rest still fills the panel
+    while (last < int(lines.size()) && height(size_t(last)) > area - 8) ++last;
+    v.quest_text_max = last;
+    const int first_line = std::max(0, std::min(v.quest_text, last));
+    c.SetClip(dx, top, dw, area);
+    for (size_t i = size_t(first_line); i < lines.size(); ++i) {
+        if (i > size_t(first_line)) y += lines[i].gap;
         if (y + 34 > text_bottom) break;
+        y += 32;
+        c.Text(*a.regular, lines[i].text, float(dx + 24), float(y), 25, lines[i].first ? kInk : kInkDim, Align::Left, float(dw - 64));
     }
     c.ResetClip();
+    if (last > 0) {  // more than fits: a thin bar on the panel's right edge, and a fade where the text goes on
+        const int bx = dx + dw - 16, bh = area - 8, n = int(lines.size()), shown = std::max(1, n - last);
+        c.Fill(bx, top + 4, 4, bh, C(0x40FFFFFF));
+        const int th = std::max(40, bh * shown / n), ty = top + 4 + (bh - th) * first_line / std::max(1, last);
+        c.Fill(bx - 1, ty, 6, th, kGold);
+        if (first_line < last) c.GradientV(dx + 8, text_bottom - 30, dw - 30, 30, C(0x00213E4F), C(0xF0213E4F));
+    }
     if (!track_row) return;
     // Track, as the journal's own action: the game's rule says whether this quest can be tracked
     const int bx = dx + 20, bw = dw - 40, by = kQuestTrackY;
@@ -1121,6 +1136,444 @@ void Battle(Canvas& c, const GameState& s, const Art& a) {
     CommandWindow(c, s, a, g);
 }
 
+// ---- The game's own frame behind a page ----
+// The backdrop (Art::backdrop) over the whole page, toned so text stays legible; without one, the menu art the page already has
+void SceneBackdrop(Canvas& c, const Art& a, float dim) {
+    if (!a.backdrop) return;
+    c.BlitFit(*a.backdrop, 0, 0, kW, kH, 1.f, true);
+    c.Fill(0, 0, kW, kH, Rgba{10, 19, 27, uint8_t(255 * dim)});
+    c.GradientV(0, 0, kW, 260, C(0xA00A131B), C(0x000A131B));
+    c.GradientV(0, kH - 300, kW, 300, C(0x000A131B), C(0xC00A131B));
+}
+
+// ---- The conversation ----
+// A bust (Chara/Face/<id>_<emotion>_BU, 1024 square, the figure standing on the foot): where the figure is, and where its face is
+// (from the top of the figure: the head's middle, a square of about a third of the figure's height), worked out once per picture
+struct BustBox { int x0 = 0, y0 = 0, x1 = 0, y1 = 0, fx = 0, fy = 0, fs = 0; bool ok = false; };
+BustBox BustOf(const Image& im) {
+    static std::unordered_map<const Image*, BustBox> cache;
+    auto it = cache.find(&im);
+    if (it != cache.end()) return it->second;
+    if (cache.size() > 64) cache.clear();
+    BustBox b;
+    auto alpha = [&](int x, int y) { return im.rgba[(size_t(y) * im.w + x) * 4 + 3]; };
+    int top = -1, bot = -1, left = im.w, right = -1;
+    for (int y = 0; y < im.h; y += 2)
+        for (int x = 0; x < im.w; x += 4)
+            if (alpha(x, y) > 40) {
+                if (top < 0) top = y;
+                bot = y, left = std::min(left, x), right = std::max(right, x);
+            }
+    if (top >= 0) {
+        const int bh = std::max(1, bot - top), band = top + bh * 12 / 100;
+        long sum = 0, n = 0;
+        for (int y = top; y < band; y += 2)
+            for (int x = 0; x < im.w; x += 2)
+                if (alpha(x, y) > 40) sum += x, ++n;
+        b = {left, top, right + 4, std::min(im.h, bot + 2), n ? int(sum / n) : (left + right) / 2, top + bh * 4 / 100, bh * 36 / 100, true};
+    }
+    return cache[&im] = b;
+}
+// The face of a bust in a square (dx, dy, d), framed in col
+void BustFace(Canvas& c, const Image& im, int dx, int dy, int d, Rgba col, float alpha = 1.f) {
+    const BustBox b = BustOf(im);
+    c.Fill(dx, dy, d, d, C(0xFF101C26));
+    if (b.ok) {
+        int sx = b.fx - b.fs / 2, sy = b.fy, ss = b.fs;
+        sx = std::clamp(sx, 0, im.w - ss), sy = std::clamp(sy, 0, im.h - ss);
+        c.GradientV(dx, dy, d, d, C(0xFF2A4656), C(0xFF101C26));
+        c.Blit(im, dx, dy, d, d, alpha, {255, 255, 255, 255}, sx, sy, ss, ss);
+    }
+    c.Frame(dx, dy, d, d, 2, col);
+}
+// A speaker's colour in the log: the same for a name every time
+Rgba SpeakerColor(const std::string& name) {
+    static const Rgba kHues[] = {C(0xFF7FD3F0), C(0xFFF2A9C4), C(0xFFA8E07A), C(0xFFF5BE73), C(0xFFB9A6F7), C(0xFF7ED9C8), C(0xFFF09A86)};
+    uint32_t h = 2166136261u;
+    for (char ch : name) h = (h ^ uint8_t(ch)) * 16777619u;
+    return kHues[h % (sizeof kHues / sizeof kHues[0])];
+}
+
+void Dialog(Canvas& c, const GameState& s, const View& v, const Art& a) {
+    SceneBackdrop(c, a, 0.42f);
+    // The header: where it happens
+    c.GradientV(0, 0, kW, kHeaderH, C(0xE0101E28), C(0x80101E28));
+    if (const Image* star = a.image(Ui("Menu/T_HeaderStarIcon"))) c.Blit(*star, 34, 34, 44, 44);
+    c.Text(*a.bold, "CONVERSATION", 94, 44, 20, kGold);
+    c.Text(*a.title, s.map.name.empty() ? std::string("Dialog Log") : s.map.name, 92, 92, 46, kInk, Align::Left, 760, kShadow);
+    GlowLine(c, 0, kHeaderH - 2, kW, kLine);
+    const int n = int(s.dialog.size());
+    if (n) c.Text(*a.regular, std::to_string(n) + (n == 1 ? " line" : " lines"), kW - 34, 72, 26, kInkDim, Align::Right, 0, kShadow);
+    // The one speaking (the newest line shown), standing on the left as in the game's own talk scenes
+    const int newest = n - 1 - std::min(v.dialog_scroll, std::max(0, n - 1));
+    const DialogLine* cur = n ? &s.dialog[size_t(newest)] : nullptr;
+    const Image* bust = cur && !cur->portrait.empty() ? a.image(cur->portrait) : nullptr;
+    if (bust) {
+        const BustBox b = BustOf(*bust);
+        if (b.ok) {
+            const int top = kHeaderH + 30, h = kH - top;
+            const int sh = b.y1 - b.y0, sw = std::min(bust->w - b.x0, b.x1 - b.x0);
+            const int dw = sw * h / std::max(1, sh), cx = 230;
+            c.SetClip(0, kHeaderH, kDialogLogX + 60, kH - kHeaderH);
+            c.Blit(*bust, cx - (b.fx - b.x0) * h / std::max(1, sh), top, dw, h, 1.f, {255, 255, 255, 255}, b.x0, b.y0, sw, sh);
+            c.ResetClip();
+        }
+        c.GradientV(0, kH - 260, kDialogLogX + 60, 260, C(0x000A131B), C(0xE80A131B));
+    }
+    if (cur && !cur->speaker.empty()) {  // the name plate, at the bust's feet
+        const Rgba col = SpeakerColor(cur->speaker);
+        c.GradientH(0, kH - 132, kDialogLogX + 20, 72, C(0xD0101E28), C(0x00101E28));
+        c.Text(*a.title, cur->speaker, 40, kH - 80, 48, kInk, Align::Left, float(kDialogLogX - 40), kShadow);
+        c.GradientH(40, kH - 62, 300, 3, col, Rgba{col.r, col.g, col.b, 0});
+    }
+    // The log: the newest line at the foot, earlier ones above it; a swipe goes back through them
+    const int lx = kDialogLogX, lw = kW - 24 - lx;
+    c.GradientH(lx - 80, kHeaderH, 80, kH - kHeaderH, C(0x000A131B), C(0x900A131B));
+    c.Fill(lx, kHeaderH, kW - lx, kH - kHeaderH, C(0x900A131B));
+    if (!n) {
+        c.Text(*a.regular, "The conversation will appear here as it is spoken.", lx + lw / 2, 560, 28, kInkDim, Align::Center, float(lw - 40), kShadow);
+        return;
+    }
+    const bool back = v.dialog_scroll > 0;
+    const int bottom = back ? kDialogLatestY - 16 : kH - 28;
+    constexpr int kFace = 76, kTextPx = 29, kLineH = 38;
+    const int tx = lx + 18 + kFace + 18, tw = kW - 40 - tx;
+    c.SetClip(lx, kHeaderH + 6, kW - lx, bottom - kHeaderH - 6);
+    int y = bottom;
+    for (int i = newest; i >= 0 && y > kHeaderH; --i) {
+        const DialogLine& d = s.dialog[size_t(i)];
+        const bool latest = i == newest;
+        const bool narration = d.speaker.empty();
+        const auto lines = Wrap(*a.regular, d.text, kTextPx, float(narration ? lw - 60 : tw));
+        const int h = 20 + (narration ? 0 : 36) + int(lines.size()) * kLineH + 16;
+        y -= h;
+        const float age = std::min(1.f, float(newest - i) / 7.f);  // the older, the fainter
+        const Rgba ink = latest ? kInk : Rgba{uint8_t(kInkDim.r - age * 50), uint8_t(kInkDim.g - age * 50), uint8_t(kInkDim.b - age * 50), 255};
+        if (latest) {
+            c.Fill(lx + 8, y + 4, lw - 8, h - 8, C(0xD0182C3A));
+            c.GradientV(lx + 8, y + 4, lw - 8, (h - 8) / 2, C(0x22FFFFFF), C(0x00FFFFFF));
+            c.Frame(lx + 8, y + 4, lw - 8, h - 8, 2, kGold);
+            c.Fill(lx + 8, y + 4, 5, h - 8, kGold);
+        } else {
+            c.GradientH(lx + 20, y + h - 2, lw - 40, 1, C(0x605EC4E6), C(0x005EC4E6));
+        }
+        if (narration) {
+            int ly = y + 20;
+            for (auto& l : lines) c.Text(*a.regular, l, lx + lw / 2 + 4, float(ly += kLineH) - 8, kTextPx, latest ? kGold : Rgba{230, 205, 140, uint8_t(255 - age * 120)}, Align::Center, 0, kShadow);
+            continue;
+        }
+        const Rgba col = SpeakerColor(d.speaker);
+        const Image* face = d.portrait.empty() ? nullptr : a.image(d.portrait);
+        if (face) BustFace(c, *face, lx + 22, y + 18, kFace, latest ? kGold : col, latest ? 1.f : 1.f - age * 0.4f);
+        else {
+            c.Fill(lx + 22, y + 18, kFace, kFace, C(0xFF182C3A));
+            c.Frame(lx + 22, y + 18, kFace, kFace, 2, col);
+            c.Text(*a.title, d.speaker.substr(0, 1), lx + 22 + kFace / 2, y + 18 + kFace / 2 + 16, 44, col, Align::Center);
+        }
+        c.Text(*a.bold, d.speaker, tx, y + 48, 27, latest ? col : Rgba{col.r, col.g, col.b, uint8_t(255 - age * 90)}, Align::Left, float(tw), kShadow);
+        int ly = y + 56;
+        for (auto& l : lines) c.Text(*a.regular, l, tx, float(ly += kLineH) - 6, kTextPx, ink, Align::Left, 0, kShadow);
+    }
+    c.ResetClip();
+    if (y > kHeaderH + 40) {}  // (fewer lines than the page holds: they sit at the foot, the newest last)
+    else c.GradientV(lx, kHeaderH, kW - lx, 70, C(0xE00A131B), C(0x000A131B));
+    if (back) {  // scrolled back: the way to the newest line
+        const int bw = 360, bx = lx + (kW - lx - bw) / 2;
+        c.Fill(bx, kDialogLatestY, bw, kDialogLatestH - 12, C(0xF0182C3A));
+        c.Frame(bx, kDialogLatestY, bw, kDialogLatestH - 12, 2, kGold);
+        c.Triangle(float(bx + 40), float(kDialogLatestY + 22), float(bx + 64), float(kDialogLatestY + 22), float(bx + 52), float(kDialogLatestY + 40), kGold);
+        c.Text(*a.bold, "Latest  (" + std::to_string(v.dialog_scroll) + " newer)", bx + bw / 2 + 16, kDialogLatestY + 42, 26, kInk, Align::Center);
+    }
+}
+
+// ---- The turn order ----
+// A unit's face as the game's own timeline shows it (Icon/Unit_Face_Timeline): the party's by unit id, a vision's by its id, an
+// enemy's by its table's FaceIconId
+const Image* TimelineFace(const Art& a, const BattleUnit& b) {
+    const std::string dir = "Icon/Unit_Face_Timeline/ICON_UnitFace_";
+    if (!b.enemy && b.id >= 1000 && b.id < 2000) return a.image(Ui(dir + "unit" + std::to_string(b.id)));
+    if (b.id >= 10000 && b.id < 14000) return a.image(Ui(dir + "summon" + std::to_string(b.id)));
+    if (b.face > 0) {
+        char buf[16];
+        std::snprintf(buf, sizeof buf, "mons%04d", b.face);
+        if (const Image* f = a.image(Ui(dir + buf))) return f;
+    }
+    return nullptr;
+}
+
+void ViewSwitch(Canvas& c, const Art& a, int view) {
+    const char* names[2] = {"Commands", "Turn Order"};
+    for (int i = 0; i < 2; ++i) {
+        const int x = kViewSwitchX + i * (kViewSwitchW + 8), y = kViewSwitchY;
+        const bool on = i == view;
+        c.Fill(x, y, kViewSwitchW, kViewSwitchH, on ? C(0xE02A5568) : C(0xA0101C26));
+        if (on) c.GradientV(x, y, kViewSwitchW, kViewSwitchH / 2, C(0x30FFFFFF), C(0x00FFFFFF));
+        c.Frame(x, y, kViewSwitchW, kViewSwitchH, 2, on ? kGold : kLineDim);
+        if (on) c.Fill(x + 16, y + kViewSwitchH - 6, kViewSwitchW - 32, 3, kGold);
+        const std::string icon = i == 0 ? Ui("Icon/Menu/ICON_Battle_Fight") : Ui("Menu/T_Btl_TimelineMoreIcon");
+        int tx = x + kViewSwitchW / 2;
+        if (const Image* ic = a.image(icon)) { c.BlitFit(*ic, x + 16, y + 14, 44, 44, on ? 1.f : 0.5f); tx += 22; }
+        c.Text(*a.bold, names[i], tx, y + 47, 28, on ? kInk : kInkDim, Align::Center, float(kViewSwitchW - 70), kShadow);
+    }
+}
+
+// The party's visions (their timeline faces): the resonance finish is theirs
+std::vector<const Image*> VisionFaces(const GameState& s, const Art& a) {
+    std::vector<const Image*> out;
+    for (auto& b : s.battle)
+        if (IsVision(s, b))
+            if (const Image* f = TimelineFace(a, b)) out.push_back(f);
+    return out;
+}
+
+// The resonance finish in the turn order: the visions' faces side by side (d each, overlapping), then its name
+void ResonanceRow(Canvas& c, const GameState& s, const Art& a, int x, int y, int w, int h, int number, bool next_turn) {
+    c.Fill(x, y, w, h, next_turn ? C(0x900F1A22) : C(0xC0302410));
+    c.GradientH(x, y, w, h, C(0x50E6C36B), C(0x00E6C36B));
+    c.Fill(x, y, 4, h, kGold);
+    c.Text(*a.bold, std::to_string(number), x + 30, y + h / 2 + 10, 28, next_turn ? kInkFaint : kGold, Align::Center);
+    const auto faces = VisionFaces(s, a);
+    const int fd = h - 14;
+    int fx = x + 56;
+    for (const Image* f : faces) {
+        c.Fill(fx, y + 7, fd, fd, C(0xFF2A2210));
+        c.BlitFit(*f, fx, y + 7, fd, fd, next_turn ? 0.5f : 1.f);
+        c.Frame(fx, y + 7, fd, fd, 2, kGold);
+        fx += fd * 2 / 3;
+    }
+    if (faces.empty()) fx += fd;
+    else fx += fd / 3;
+    c.Text(*a.bold, "Resonance", fx + 14, y + h / 2 - 2, 27, next_turn ? kInkDim : kGold, Align::Left, float(x + w - fx - 30), kShadow);
+    c.Text(*a.regular, "Vision finish", fx + 14, y + h / 2 + 24, 20, kInkDim, Align::Left, float(x + w - fx - 30));
+}
+
+// One unit in the turn order: its face, name and HP in a row (h tall)
+void TurnRow(Canvas& c, const GameState& s, const Art& a, int x, int y, int w, int h, int unit, int number, bool next_turn, bool extra) {
+    const BattleUnit* b = unit >= 0 && unit < int(s.battle.size()) ? &s.battle[size_t(unit)] : nullptr;
+    const bool foe = b ? b->enemy : true, down = b && b->hp == 0;
+    const Rgba side = foe ? kFoe : kLine;
+    c.Fill(x, y, w, h, next_turn ? C(0x900F1A22) : foe ? C(0xC02A1A1C) : C(0xC0182C3A));
+    c.Fill(x, y, 4, h, down ? kInkFaint : side);
+    c.Text(*a.bold, std::to_string(number), x + 30, y + h / 2 + 10, 28, next_turn ? kInkFaint : kInkDim, Align::Center);
+    const int fd = h - 14, fx = x + 56, fy = y + 7;
+    c.Fill(fx, fy, fd, fd, foe ? kFoeBack : C(0xFF1C2D3C));
+    if (const Image* face = b ? TimelineFace(a, *b) : nullptr) c.BlitFit(*face, fx, fy, fd, fd, down || next_turn ? 0.5f : 1.f);
+    c.Frame(fx, fy, fd, fd, 2, b && b->boss ? kGold : Rgba{side.r, side.g, side.b, uint8_t(next_turn ? 120 : 255)});
+    const int nx = fx + fd + 14, nw = x + w - 16 - nx;
+    const std::string name = b ? BattleName(s, a, unit) : "?";
+    c.Text(*a.bold, name, nx, y + h / 2 + (b ? 0 : 10), 27, down ? kInkFaint : next_turn ? kInkDim : kInk, Align::Left, float(nw - 50), kShadow);
+    if (b) {
+        Bar(c, nx, y + h / 2 + 10, nw, 6, b->hp, b->max_hp > 0 ? b->max_hp : b->hp, foe ? kFoe : kHp, foe ? kFoeBack : kHpBack);
+        if (down) c.Text(*a.bold, "KO", nx + nw, y + h / 2, 20, kInkFaint, Align::Right);
+        else if (b->staggered) c.Text(*a.bold, "BREAK", nx + nw, y + h / 2, 18, kGold, Align::Right);
+        else if (extra) c.Text(*a.bold, "EXTRA", nx + nw, y + h / 2, 18, kGold, Align::Right);
+    }
+}
+
+void TurnOrder(Canvas& c, const GameState& s, const Art& a) {
+    if (!s.turns_valid || s.turns.empty()) {
+        Panel(c, a, 200, 420, kW - 400, 160);
+        c.Text(*a.title, "Reading the turn order...", kW / 2, 494, 40, kInk, Align::Center, 0, kShadow);
+        c.Text(*a.regular, "It shows once the game's timeline is up.", kW / 2, 544, 26, kInkDim, Align::Center);
+        return;
+    }
+    // Now: the one whose command is being chosen, or the one acting (the game's list has already let it go)
+    int now = s.acting;
+    bool choosing = false;
+    // the resonance: the wheel is up (the player picks a vision), or the finish is under way (unless a command is being chosen:
+    // the next turn has begun)
+    const bool wheel = s.menu.valid && s.menu.state == 2;
+    if (s.menu.open && s.menu.actor && !wheel)
+        for (size_t i = 0; i < s.battle.size(); ++i)
+            if (!s.battle[i].enemy && s.battle[i].id == s.menu.actor && !s.battle[i].owner) now = int(i), choosing = true;
+    const bool resonance = wheel || (!choosing && now < 0 && s.acting_phase == 2);
+    const int top = kHeaderH + 22, ch = 190;
+    if (resonance) {
+        c.Fill(30, top, kW - 60, ch, C(0xE0302410));
+        c.GradientH(30, top, kW - 60, ch, C(0x70E6C36B), C(0x00E6C36B));
+        c.Frame(30, top, kW - 60, ch, 3, kGold);
+        c.Fill(30, top, 8, ch, kGold);
+        const auto faces = VisionFaces(s, a);
+        const int fd = ch - 36;
+        int fx = 62;
+        for (const Image* f : faces) {
+            c.Fill(fx, top + 18, fd, fd, C(0xFF2A2210));
+            c.BlitFit(*f, fx, top + 18, fd, fd);
+            c.Frame(fx, top + 18, fd, fd, 3, kGold);
+            fx += fd * 3 / 5;
+        }
+        fx += faces.empty() ? 0 : fd * 2 / 5;
+        c.Text(*a.bold, wheel ? "YOUR TURN  -  CHOOSE A VISION" : "VISION FINISH", fx + 30, top + 52, 24, kGold);
+        c.Text(*a.title, "Resonance", fx + 30, top + 112, 56, kInk, Align::Left, float(kW - 60 - fx - 40), kShadow);
+    } else {
+        const BattleUnit* b = now >= 0 ? &s.battle[size_t(now)] : nullptr;
+        const bool foe = b && b->enemy;
+        const Rgba side = !b ? kInkFaint : foe ? kFoe : kLine;
+        c.Fill(30, top, kW - 60, ch, foe ? C(0xE0331E20) : C(0xE01A3442));
+        c.GradientH(30, top, kW - 60, ch, Rgba{side.r, side.g, side.b, 80}, Rgba{side.r, side.g, side.b, 0});
+        c.Frame(30, top, kW - 60, ch, 3, kGold);
+        c.Fill(30, top, 8, ch, kGold);
+        const int fd = ch - 36, fx = 62, fy = top + 18;
+        c.Fill(fx, fy, fd, fd, foe ? kFoeBack : C(0xFF1C2D3C));
+        if (const Image* face = b ? TimelineFace(a, *b) : nullptr) c.BlitFit(*face, fx, fy, fd, fd);
+        c.Frame(fx, fy, fd, fd, 3, kGold);
+        const int nx = fx + fd + 30, nw = kW - 60 - nx;
+        const bool extra = s.acting_phase == 1 && s.acting == now;
+        const char* what = !b ? "Waiting for the next turn" : choosing ? (extra ? "EXTRA ACTION  -  CHOOSE A COMMAND" : "YOUR TURN  -  CHOOSE A COMMAND")
+                         : extra ? (foe ? "ENEMY EXTRA ACTION" : "EXTRA ACTION") : foe ? "ENEMY TURN" : "ALLY TURN";
+        c.Text(*a.bold, what, nx, top + 52, 24, !b ? kInkDim : choosing ? kGold : side);
+        if (b) {
+            c.Text(*a.title, BattleName(s, a, now), nx, top + 112, 56, kInk, Align::Left, float(nw), kShadow);
+            Bar(c, nx, top + 136, std::min(nw, 520), 12, b->hp, b->max_hp > 0 ? b->max_hp : b->hp, foe ? kFoe : kHp, foe ? kFoeBack : kHpBack);
+            if (!foe || b->max_hp > 0) c.Text(*a.bold, Num(b->hp) + (b->max_hp > 0 ? " / " + Num(b->max_hp) : ""), nx + std::min(nw, 520) + 16, top + 150, 24, kInkDim);
+        }
+    }
+    // Up next: the rest of this turn in order, then the next turn's order after a divider; two columns, top to bottom
+    const int rows_per_col = std::max(1, (kH - 16 - (top + ch + 26 + 66)) / 80);
+    struct Item { int unit, phase; bool divider, next; };
+    std::vector<Item> items;
+    bool skipped = false;  // (the one acting now, if the game still lists it: shown above, once)
+    for (auto& t : s.turns) {
+        if (t.line != 0) continue;
+        // (only the entry for this action: a unit acting now may also hold an extra action later in the turn)
+        const int now_phase = s.acting == now ? s.acting_phase : 0;
+        if (!skipped && now >= 0 && t.unit == now && t.phase == now_phase && !resonance) { skipped = true; continue; }
+        if (resonance && t.phase == 2 && t.unit < 0) continue;
+        items.push_back({t.unit, t.phase, false, false});
+    }
+    bool divided = false;
+    for (auto& t : s.turns)
+        if (t.line != 0) {
+            if (!divided) {
+                if (int(items.size()) % rows_per_col == rows_per_col - 1) items.push_back({-2, 0, false, false});  // (not alone at a column's foot)
+                items.push_back({-1, 0, true, true}), divided = true;
+            }
+            items.push_back({t.unit, t.phase, false, t.line != 0});
+        }
+    const int ly = top + ch + 26;
+    c.Text(*a.title, "Up Next", 34, ly + 34, 36, kInk, Align::Left, 0, kShadow);
+    GlowLine(c, 30, ly + 50, kW - 60, kLine);
+    const int y0 = ly + 66, rh = 80, rows = std::max(1, (kH - 16 - y0) / rh), colw = (kW - 60 - 20) / 2;
+    int number = 0;
+    for (size_t i = 0; i < items.size() && int(i) < rows * 2; ++i) {
+        const int col = int(i) / rows, row = int(i) % rows;
+        const int x = 30 + col * (colw + 20), y = y0 + row * rh;
+        if (items[i].divider) {
+            c.GradientH(x, y + rh / 2, colw, 2, C(0xC0E6C36B), C(0x00E6C36B));
+            const float tw = a.bold->Measure("NEXT TURN", 20) + 24;
+            c.Fill(x, y + rh / 2 - 16, int(tw), 32, C(0xF0101C26));
+            c.Frame(x, y + rh / 2 - 16, int(tw), 32, 1, kGold);
+            c.Text(*a.bold, "NEXT TURN", x + tw / 2, y + rh / 2 + 7, 20, kGold, Align::Center);
+            number = 0;
+            continue;
+        }
+        if (items[i].unit == -2) continue;  // a gap
+        if (items[i].phase == 2 && items[i].unit < 0) ResonanceRow(c, s, a, x, y, colw, rh - 8, ++number, items[i].next);
+        else TurnRow(c, s, a, x, y, colw, rh - 8, items[i].unit, ++number, items[i].next, items[i].phase == 1);
+    }
+}
+
+// The battle's results while the game shows them: what the party gained (EXP, gil, AP), each member's EXP and level, the visions'
+// AP and rank, the items found
+void Results(Canvas& c, const GameState& s, const Art& a) {
+    const BattleResult& r = s.result;
+    // the totals: three tiles
+    const int ty = kHeaderH + 20, th = 132, tw = (kW - 60 - 2 * 16) / 3;
+    struct Tile { const char* label; int value, bonus; std::string sub; };
+    const Tile tiles[3] = {{"EXP", r.exp, r.bonus_exp, ""},
+                           {"GIL", r.gil, r.bonus_gil, "Now " + Num(r.gil_before + r.gil)},
+                           {"AP", r.ap, r.bonus_ap, ""}};
+    for (int i = 0; i < 3; ++i) {
+        const int x = 30 + i * (tw + 16);
+        c.Fill(x, ty, tw, th, C(0xE0142632));
+        c.GradientV(x, ty, tw, th, C(0x50E6C36B), C(0x00E6C36B));
+        c.Frame(x, ty, tw, th, 2, kGold);
+        c.Text(*a.bold, tiles[i].label, x + 20, ty + 36, 24, kGold);
+        if (tiles[i].bonus > 0) c.Text(*a.bold, "+" + Num(tiles[i].bonus) + " BONUS", x + tw - 16, ty + 36, 18, kGold, Align::Right);
+        c.Text(*a.title, "+" + Num(tiles[i].value), x + tw / 2, ty + 92, 52, kInk, Align::Center, float(tw - 20), kShadow);
+        if (!tiles[i].sub.empty()) c.Text(*a.regular, tiles[i].sub, x + tw / 2, ty + 122, 20, kInkDim, Align::Center);
+    }
+    // the party: a card each
+    int y = ty + th + 22;
+    c.Text(*a.title, "Party", 34, y + 30, 34, kInk, Align::Left, 0, kShadow);
+    GlowLine(c, 30, y + 44, kW - 60, kLine);
+    y += 60;
+    const int n = int(r.units.size()), ch = n > 3 ? 88 : 104;
+    for (const auto& u : r.units) {
+        const bool up = u.level_after > u.level_before;
+        Panel(c, a, 30, y, kW - 60, ch, up);
+        if (const Image* art = a.image(Ui("Picture/Char/T_Chara_Button_" + std::to_string(u.id)))) {
+            c.SetFadeH(250, 480);
+            c.BlitFit(*art, 32, y + 2, 480, ch - 4, u.dead ? 0.45f : 1.f, true);
+            c.SetFadeH(0, 0);
+        }
+        const int nx = 400;
+        c.Text(*a.bold, UnitName(a, u.id), nx, y + ch / 2 - 4, 38, u.dead ? kInkDim : kInk, Align::Left, 330, kShadow);
+        std::string lv = "Lv " + std::to_string(u.level_after);
+        if (up) lv = "Lv " + std::to_string(u.level_before) + "  >  " + std::to_string(u.level_after);
+        c.Text(*a.regular, lv, nx, y + ch / 2 + 34, 26, up ? kGold : kInkDim);
+        if (up) {
+            const float lw = a.regular->Measure(lv, 26);
+            const int bx = nx + int(lw) + 18, bw = int(a.bold->Measure("LEVEL UP", 18)) + 20;
+            c.Fill(bx, y + ch / 2 + 12, bw, 28, C(0xFFE6C36B));
+            c.Text(*a.bold, "LEVEL UP", bx + bw / 2, y + ch / 2 + 33, 18, C(0xFF14202A), Align::Center);
+        }
+        if (u.dead) c.Text(*a.bold, "KO", nx + std::min(330.f, a.bold->Measure(UnitName(a, u.id), 38)) + 16, y + ch / 2 - 6, 22, kFoe);
+        const int rx = kW - 60;
+        c.Text(*a.title, "+" + Num(u.exp_after - u.exp_before) + " EXP", rx, y + ch / 2 - 4, 40, kInk, Align::Right, 0, kShadow);
+        c.Text(*a.bold, "+" + Num(u.ap) + " AP", rx, y + ch / 2 + 34, 24, kInkDim, Align::Right);
+        y += ch + 10;
+    }
+    // the visions: a row of three
+    if (!r.visions.empty()) {
+        y += 8;
+        c.Text(*a.title, "Visions", 34, y + 30, 34, kInk, Align::Left, 0, kShadow);
+        GlowLine(c, 30, y + 44, kW - 60, kGold);
+        y += 60;
+        const int cols = std::min<int>(3, int(r.visions.size())), vw = (kW - 60 - (cols - 1) * 16) / std::max(1, cols), vh = 84;
+        for (size_t i = 0; i < r.visions.size() && i < 6; ++i) {
+            const auto& w = r.visions[i];
+            const int x = 30 + int(i % 3) * (vw + 16), vy = y + int(i / 3) * (vh + 10);
+            const bool rank_up = w.rank_after > w.rank_before;
+            c.Fill(x, vy, vw, vh, C(0xD0182430));
+            c.Frame(x, vy, vw, vh, rank_up ? 2 : 1, rank_up ? kGold : C(0x80E6C36B));
+            VisionBadge(c, a, w.id, x + 12, vy + 13, vh - 26);
+            const int tx = x + vh + 4, tw2 = x + vw - 14 - tx;
+            c.Text(*a.bold, ItemName(a, w.id), tx, vy + 36, 24, kGold, Align::Left, float(tw2 - 90));
+            c.Text(*a.bold, "+" + Num(w.ap) + " AP", x + vw - 14, vy + 36, 22, kInk, Align::Right);
+            const std::string sub = rank_up ? "Rank " + std::to_string(w.rank_before) + "  >  " + std::to_string(w.rank_after) + "  -  RANK UP"
+                                            : UnitName(a, w.unit);
+            c.Text(*a.regular, sub, tx, vy + 70, 20, rank_up ? kGold : kInkDim, Align::Left, float(tw2));
+        }
+        y += ((int(std::min<size_t>(r.visions.size(), 6)) + 2) / 3) * (vh + 10);
+    }
+    // the items found: icon, name and count, flowing in rows
+    y += 8;
+    if (y + 100 > kH) return;
+    c.Text(*a.title, "Items", 34, y + 30, 34, kInk, Align::Left, 0, kShadow);
+    GlowLine(c, 30, y + 44, kW - 60, kLine);
+    y += 58;
+    if (r.items.empty()) {
+        c.Text(*a.regular, "Nothing found this time", 34, y + 30, 24, kInkFaint);
+        return;
+    }
+    int x = 30;
+    for (size_t i = 0; i < r.items.size(); ++i) {
+        const std::string name = ItemName(a, r.items[i].id), count = "x" + std::to_string(r.items[i].num);
+        const int w = 52 + int(a.regular->Measure(name, 24)) + 12 + int(a.bold->Measure(count, 22)) + 18;
+        if (x + w > kW - 30 && x > 30) x = 30, y += 50;
+        if (y + 46 > kH - 6) {
+            c.Text(*a.regular, "+" + std::to_string(r.items.size() - i) + " more", kW - 34, y - 50 + 32, 22, kInkDim, Align::Right);
+            break;
+        }
+        c.Fill(x, y, w, 44, C(0xC0182430));
+        if (const Image* ic = a.image(ItemIcon(r.items[i].id))) c.Blit(*ic, x + 6, y + 4, 36, 36);
+        c.Text(*a.regular, name, x + 52, y + 31, 24, kInk);
+        c.Text(*a.bold, count, x + w - 12, y + 31, 22, kGold, Align::Right);
+        x += w + 10;
+    }
+}
+
 } // namespace
 
 std::vector<ItemStack> ItemsOf(const GameState& s, int cat) {
@@ -1319,7 +1772,22 @@ void ComposePage(Canvas& c, const GameState& s, const View& v, const Art& a) {
         c.Text(*a.regular, msg, kW / 2, 900, 30, kInkDim, Align::Center, 0, kShadow);
         return;
     }
-    Header(c, s, a, v.tab == kTabMap && !s.map.name.empty() ? s.map.name : kTitles[v.tab]);
+    if (v.tab == kTabDialog) { Dialog(c, s, v, a); return; }  // a conversation has the whole screen
+    if (v.tab == kTabBattle && s.in_battle && s.result.showing) {  // the battle is won: what it brought
+        SceneBackdrop(c, a, 0.40f);
+        Header(c, s, a, "Victory", false);
+        Results(c, s, a);
+        return;
+    }
+    if (v.tab == kTabBattle && s.in_battle && v.battle_view == 1) {
+        SceneBackdrop(c, a, 0.30f);
+        Header(c, s, a, "Battle", false);
+        ViewSwitch(c, a, 1);
+        TurnOrder(c, s, a);
+        return;
+    }
+    Header(c, s, a, v.tab == kTabMap && !s.map.name.empty() ? s.map.name : kTitles[v.tab], !(v.tab == kTabBattle && s.in_battle));
+    if (v.tab == kTabBattle && s.in_battle) ViewSwitch(c, a, 0);
     switch (v.tab) {
     case kTabMap: Map(c, s, a); break;
     case kTabParty: {

@@ -45,7 +45,7 @@
 # Versions default to each package's current release; override with P5R_VERSION, DREAD_VERSION,
 # LA_VERSION, MK8D_VERSION, WONDER_VERSION, LP_VERSION, LP_PEARL_VERSION, CTR_VERSION, DQ3_VERSION,
 # CE_VERSION, P3P_VERSION, ECHOES_VERSION; OT0_VERSION defaults to 1.0.0, COTL_VERSION to 1.1.0
-# FFR_VERSION to 1.0.1, TOTK_VERSION to 1.0.0 and DSTS_VERSION to 1.0.0.
+# FFR_VERSION to 1.0.2, TOTK_VERSION to 1.0.0 and DSTS_VERSION to 1.0.0.
 # GAMES selects which archives to build (default: "p5r dread la mk8d wonder acnh fe3h isaac
 # lp lp-pearl ctr dq3 ce p3p"); only the selected
 # games' modules are required.
@@ -242,7 +242,7 @@ if want echoes; then
 fi
 if want ffr; then
   # Update 1.0.1; other builds are refused.
-  pkg FinalFantasyResonance FinalFantasyResonance "${FFR_VERSION:-1.0.1}" --min-runtime 25 \
+  pkg FinalFantasyResonance FinalFantasyResonance "${FFR_VERSION:-1.0.2}" --min-runtime 25 \
     --module "linux-x86_64=$FFR_LINUX_SO" --module "android-arm64-v8a=$FFR_ANDROID_SO" \
     --build-id 84E182F72EE1DA4F477804BD05B54C1500000000000000000000000000000000
 fi

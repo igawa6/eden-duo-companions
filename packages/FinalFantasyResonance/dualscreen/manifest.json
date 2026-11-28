@@ -4,6 +4,9 @@
  "name": "FINAL FANTASY RESONANCE dual screen",
  "min_runtime": 25,
  "requires_module": true,
+ "module": {
+  "texture_readback": true
+ },
  "load_plan": "guest/<build>/load-plan.json",
  "canvas_w": 1240,
  "canvas_h": 1080,
@@ -151,6 +154,36 @@
    "action": "btap",
    "argument": "$payload"
   },
+  "bview0": {
+   "kind": "flag",
+   "flag": "ffr.turn_view",
+   "value": 0
+  },
+  "bview1": {
+   "kind": "flag",
+   "flag": "ffr.turn_view",
+   "value": 1
+  },
+  "dscroll_back": {
+   "kind": "module",
+   "action": "dscroll",
+   "argument": 1
+  },
+  "dscroll_fwd": {
+   "kind": "module",
+   "action": "dscroll",
+   "argument": -1
+  },
+  "dlatest": {
+   "kind": "module",
+   "action": "dlatest",
+   "argument": 0
+  },
+  "dnoop": {
+   "kind": "module",
+   "action": "dnoop",
+   "argument": 0
+  },
   "cat0": {
    "kind": "module",
    "action": "cat",
@@ -190,6 +223,21 @@
    "kind": "module",
    "action": "qtap",
    "argument": "$payload"
+  },
+  "qtapd": {
+   "kind": "module",
+   "action": "qtapd",
+   "argument": "$payload"
+  },
+  "qscroll_down": {
+   "kind": "module",
+   "action": "qscroll",
+   "argument": 1
+  },
+  "qscroll_up": {
+   "kind": "module",
+   "action": "qscroll",
+   "argument": -1
   },
   "ffr.press.a": {
    "kind": "button",
@@ -291,6 +339,12 @@
    "action": "ffr_world_map_home_reset",
    "every_ms": 1
   }
+ ],
+ "flags": {
+  "ffr.turn_view": 0
+ },
+ "persist_flags": [
+  "ffr.turn_view"
  ],
  "enforce_gate": {
   "point": "ffr.drv.pending",
@@ -396,6 +450,14 @@
       "y": "ffr.map.isl5_{i}.y",
       "icon_src_bind": "ffr.map.isl5_{i}.src",
       "size_world": 181
+     },
+     {
+      "group": "lmn",
+      "count": 64,
+      "x": "ffr.map.lmn{i}.x",
+      "y": "ffr.map.lmn{i}.y",
+      "icon_src_bind": "ffr.map.lmn{i}.src",
+      "size": 320
      },
      {
       "group": "lm",
@@ -958,6 +1020,60 @@
     {
      "type": "rect",
      "rect": [
+      640,
+      12,
+      286,
+      88
+     ],
+     "color": "#00000000",
+     "on_tap": "bview0",
+     "need_bind": "ffr.in_battle",
+     "haptic": "light"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      934,
+      12,
+      286,
+      88
+     ],
+     "color": "#00000000",
+     "on_tap": "bview1",
+     "need_bind": "ffr.in_battle",
+     "haptic": "light"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      440,
+      112,
+      800,
+      968
+     ],
+     "color": "#00000000",
+     "on_tap": "dlatest",
+     "need_bind": "ffr.dialog_back",
+     "on_swipe_down": "dscroll_back",
+     "on_swipe_up": "dscroll_fwd"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      440,
+      112,
+      800,
+      968
+     ],
+     "color": "#00000000",
+     "on_tap": "dnoop",
+     "need_bind": "ffr.dialog&!ffr.dialog_back",
+     "on_swipe_down": "dscroll_back",
+     "on_swipe_up": "dscroll_fwd"
+    },
+    {
+     "type": "rect",
+     "rect": [
       30,
       128,
       295,
@@ -1023,7 +1139,7 @@
      "rect": [
       0,
       128,
-      1240,
+      590,
       840
      ],
      "color": "#00000000",
@@ -1032,6 +1148,21 @@
      "payload": "$tap",
      "on_swipe_up": "scroll_down",
      "on_swipe_down": "scroll_up"
+    },
+    {
+     "type": "rect",
+     "rect": [
+      590,
+      128,
+      650,
+      840
+     ],
+     "color": "#00000000",
+     "on_tap": "qtapd",
+     "need_bind": "ffr.quests",
+     "payload": "$tap",
+     "on_swipe_up": "qscroll_down",
+     "on_swipe_down": "qscroll_up"
     },
     {
      "type": "rect",

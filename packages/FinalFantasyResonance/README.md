@@ -9,7 +9,7 @@ Requires runtime 25 (Eden Duo 1.4.0 or later). Tested on Peanuts Native on an AY
   Drag or pinch to look around; Home brings the map back to you at the zoom on screen and follows you again. Shops, the inn and save points
   are marked with the game's own icons. The story objective is marked in gold and side quests in progress in blue, and an arrow
   at the edge of the map points to each objective that is out of view.
-- **Fast travel.** On the world map, the places you know are marked; tap one for its card, then Fast Travel. The game's own
+- **Fast travel.** On the world map, the places you know are marked with their names; tap one for its card, then Fast Travel. The game's own
   travel runs, with its own rules: no travel out of a dungeon, during a story event or to a place you have not visited yet, and
   the card says why when the game refuses. In a town or dungeon, a World switch shows the world map, and Back returns to where you are.
 - **Party.** Your party and the members who have joined, with the game's character art, HP and MP, and the equipped weapon, armor
@@ -21,10 +21,20 @@ Requires runtime 25 (Eden Duo 1.4.0 or later). Tested on Peanuts Native on an AY
   stat changes in the game's stat icons, its description in the game's words (such as more EXP or gil), and the face of whoever
   wears it now. The piece in the chosen slot shows its description beside the slots. One tap equips; accessories can be removed.
   Items and equipment work with the game's menu open too (not during a scene or a save).
-- **Quests.** The journal's Main and Side tabs, each quest with its place and story so far. Track or stop tracking a quest, as
-  the journal's Track does; the story quest is always followed, as in the game.
+- **Quests.** The journal's Main and Side tabs, each quest with its place and story so far (a swipe scrolls a long one). Track or
+  stop tracking a quest, as the journal's Track does; the story quest is always followed, as in the game.
+- **Dialog log.** Opens by itself in a conversation or a story scene and takes the whole screen; the tabs come back when it ends.
+  Everything said so far, over a blurred copy of the scene: the one speaking stands on the left in the game's own portrait, each
+  line has the speaker's face and name, and the newest is framed in gold. Swipe to go back; Latest returns to the newest line.
+  The game keeps only its last 30 lines (its backlog); the companion keeps the whole conversation.
 - **Battle.** Opens by itself in a battle and takes the whole screen; the tabs come back when it ends. It shows enemies on the left and the
   party and any guest ally on the right, with HP and MP, a tag on staggered enemies, and each vision beside the character it is equipped to.
+- **Turn order.** A switch in the battle header (Commands, Turn Order) shows the game's timeline over a blurred copy of the
+  battle: who acts now (the character you are choosing a command for, or the enemy attacking), then the rest of this turn and
+  the next turn, with the game's timeline faces and HP. Extra actions (the bonus phase after a stagger) and the visions' resonance
+  finish are followed as they happen and marked. The view you pick is kept for the next battles and sessions.
+- **Victory.** While the game shows a battle's results, the battle page shows what it brought: EXP, gil (and the new total) and
+  AP with any bonus, each member's EXP, AP and level (a level up is marked), each vision's AP and rank, and the items found.
 - **Battle commands by touch.** The command window is mirrored on the second screen: tap a command, a skill or an item, then
   tap a target. The game's target pointer is shown, and the resonance wheel's choices can be tapped too. Limit Bursts appear
   only when the game lists them.
@@ -43,6 +53,9 @@ never writes the game's memory or saves itself; what the game's code changes, th
 On Peanuts Native, the helper is installed while the game starts, and frame generation keeps that from working: with frame
 generation on at launch, the helper is not installed. Start the game with frame generation off, and turn it on in the in-game
 panel once the game is running; the helper keeps working.
+
+The blurred scenes are a copy of the game's own frame (texture readback, runtime 24), made smaller and blurred on the device;
+nothing is saved or sent anywhere. A host without readback shows those pages over the menu art.
 
 Tested on Peanuts Native on an AYN Thor; not yet verified on Eden Duo. Reports from Eden Duo are welcome.
 

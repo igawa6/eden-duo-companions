@@ -74,6 +74,7 @@ struct Landmark {
     int type = -1;            // MAP_DATA.MapType (eMapType: 0 town, 1 dungeon, 2 field, 3 underworld, 4 shrine)
     int landing = -1;         // StaticFieldObjectData.LandingPointId (known once the world map's own table is filled)
     std::string name;
+    std::string name_ns, name_src;  // a name the game has not looked up yet: its string table and Japanese source text
     std::vector<int> ids;     // every map id that is this place (its landmark row's variants and their group): the game's list may
                               // name it by another (Kol's neighbour: 2010 here, 2011 in the list)
     // The game's own rules (DA_WldMapParameter): no fast travel to a place not yet visited. Its map-type rule is about where the
@@ -168,6 +169,48 @@ struct BattleUnit {
     int bp = -1, max_bp = -1;  // the break gauge; an enemy whose gauge is empty is staggered
     bool staggered = false;
     uint64_t owner = 0;  // a vision: the CPP_BtlUnit it is equipped to (it fights beside that character)
+    int uid = -1;        // the battle's unique id for it (CPP_VM_BtlUnitParam.UniqueID: the timeline names units by it; 0 is a
+                         // real id), -1 unknown
+    int face = 0;        // UNIT_PARAMETER.FaceIconId: its timeline face (Icon/Unit_Face_Timeline), 0 none
+    bool boss = false;   // UNIT_PARAMETER.IsBoss
+};
+
+// The battle's results while the game shows them (CPP_VM_BattleResult.BtlResultData, BTL_RESULT_DATA)
+struct BattleResult {
+    bool showing = false;  // the results layout is up (CPP_WBP_Btl_ResultLayout, an activatable widget: bIsActive)
+    int exp = 0, bonus_exp = 0, gil = 0, bonus_gil = 0, gil_before = 0, ap = 0, bonus_ap = 0;
+    struct Unit { int id = 0, exp_before = 0, exp_after = 0, level_before = 0, level_after = 0, ap = 0; bool dead = false; };
+    struct Vision { int id = 0, unit = 0, ap = 0, rank_before = 0, rank_after = 0; };
+    struct Item { int id = 0, num = 0; };
+    std::vector<Unit> units;
+    std::vector<Vision> visions;
+    std::vector<Item> items;
+};
+
+// The battle's turn order as the game's timeline shows it (CPP_VM_BtlTimeLine.TurnVMMap: CPP_VM_BtlTurn.EntryDataList)
+struct TurnEntry {
+    int uid = 0;    // BtlTimelineEntryData.UnitUniqueId (-1 for the finish phase: the visions' resonance, not one unit)
+    int unit = -1;  // index in GameState::battle, -1 not found
+    int line = 0;   // EUIBtlTurnTimeLine: 0 this turn, 1 the next, 2 an additional turn
+    int phase = 0;  // eBtlPhaseType: 0 normal, 1 additional, 2 finish
+};
+
+// A conversation or story scene (the Event layer's talk layout and the game's backlog, CPP_BacklogSubsystem)
+struct TalkLine {
+    std::string speaker, text;
+    bool operator==(const TalkLine& o) const { return speaker == o.speaker && text == o.text; }
+};
+struct TalkState {
+    bool valid = false;          // the backlog was read
+    bool active = false;         // a talk window is up on the Event layer
+    std::vector<TalkLine> backlog;  // the game's backlog (its newest lines, oldest first; the newest is the one on screen)
+    std::string text;            // the line in the talk window now
+    std::string portrait;        // its speaker's bust (container path, FFRS/Content/Chara/Face/<id>_<emotion>_BU.uasset), "" none
+};
+
+// A line of the companion's own log of the conversation (it keeps more than the game's backlog)
+struct DialogLine {
+    std::string speaker, text, portrait;
 };
 
 struct GameState {
@@ -183,6 +226,14 @@ struct GameState {
     bool in_battle = false;
     std::vector<BattleUnit> battle;
     BattleMenu menu;
+    std::vector<TurnEntry> turns;  // the timeline: who is still to act this turn (in order), then the next turn's order
+    bool turns_valid = false;
+    BattleResult result;
+    int acting = -1;               // the unit acting now (index in battle): the game's list drops a unit when its turn begins
+    int acting_phase = 0;          // its entry's phase (1 an extra action); 2 with acting -1: the resonance finish (the visions)
+    // A conversation (filled by the module from TalkState: its own log of this conversation, oldest first)
+    bool in_dialog = false;
+    std::vector<DialogLine> dialog;
     std::string status;  // diagnostic
     std::unordered_map<int, EquipInfo> equipment;  // from the game's equipment table (static)
     std::unordered_map<int, ConsumableInfo> consumables;  // from the game's consumables and skill tables (static)
@@ -231,6 +282,8 @@ public:
     // CPP_QuestSubsystem and its class, for the guest helper's quest tracking
     bool QuestSystem(const EdenDsmodHostApi* host, uint64_t& sub, uint64_t& cls);
     bool ReadUi(const EdenDsmodHostApi* host, UiState& u);  // a dozen reads; false when the layout is not found
+    // The conversation: the backlog and the talk window (calls ReadUi). False when the backlog is not found.
+    bool ReadTalk(const EdenDsmodHostApi* host, TalkState& t);
     std::string Name(uint32_t id);
     // The FNames of these strings (0: not in the pool), looked up a block of the name pool per call (128 KiB); true when done
     // (all found, or the pool searched). want must stay the same between calls.
@@ -255,9 +308,19 @@ private:
     uint64_t last_find_ms_ = 0, menu_list_ = 0;
     std::unordered_map<uint64_t, bool> list_class_;
     std::unordered_map<uint64_t, uint64_t> unit_vms_;  // CPP_BtlUnitParameter -> its CPP_VM_BtlUnitParam
-    std::unordered_map<uint64_t, bool> unit_vm_class_;
+    std::unordered_map<uint64_t, bool> unit_vm_class_, timeline_class_;
+    uint64_t last_result_find_ms_ = 0;
     uint64_t last_vm_find_ms_ = 0;
     void FindUnitVms(const GameState& s);
+    Obj timeline_vm_;  // CPP_VM_BtlTimeLine (made with the battle's UI)
+    void ReadTimeline(GameState& s);
+    void PhaseActor(GameState& s);  // the command's unit in an extra action or the finish (from the last timeline read)
+    void ReadResult(GameState& s);  // the results, while the game shows them
+    // the last read's lists (unique id, phase): who left this turn's list is the one acting
+    std::vector<std::pair<int, int>> turn_now_, turn_next_;
+    std::pair<int, int> acting_{-1, -1};
+    Obj backlog_;      // CPP_BacklogSubsystem
+    std::string ObjectPackage(uint64_t obj);  // the package path of an object (its outermost outer's name): /Game/Chara/Face/0010_00_BU
     Obj finish_vm_;  // CPP_VM_FinishCmd (made when the resonance wheel first opens)
     std::unordered_map<uint64_t, bool> finish_class_;
     uint64_t last_finish_find_ms_ = 0;
@@ -266,6 +329,7 @@ private:
     void ReadLandmarks(MapState& m);
     struct MapRow {
         std::string name;
+        std::string name_ns, name_src;  // the name's string table and source text, while the game has not looked it up
         int type = -1, group = -1, same = -1;
         bool found = false;
         uint64_t name_ms = 0;  // when the name was last looked up (the game resolves some texts late)
@@ -327,6 +391,7 @@ private:
     bool IsA(uint64_t cls, const char* base);  // the class or one of its ancestors is named base
     std::map<std::pair<uint64_t, std::string>, bool> isa_;
     std::unordered_map<uint64_t, bool> mode_classes_;
+    Obj result_layout_, result_vm_;
     Obj save_mgr_, quest_sub_, minimap_, battle_, controller_, assets_, game_mode_, cmd_vm_, cmd_mgr_;
     std::vector<Obj> unit_params_, map_tables_, cmd_lists_;
     std::unordered_map<int, std::string> map_names_;

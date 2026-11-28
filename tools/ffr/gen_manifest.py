@@ -108,6 +108,21 @@ def main():
     # The battle page (the whole screen below the header): the module hit-tests the tap point against the layout it drew
     actions["btap"] = {"kind": "module", "action": "btap", "argument": "$payload"}
     widgets.append(tap([0, HEADER_H, W, H - HEADER_H], "btap", "ffr.battle_menu", payload="$tap"))
+    # The battle header's switch: the commands or the turn order (ffr_pages.h kViewSwitch*)
+    VSX, VSY, VSW, VSH = 640, 20, 286, 72
+    # The choice is a persisted flag (ffr.turn_view): the next battle, and the next session, open in the view last chosen
+    for i in range(2):
+        actions[f"bview{i}"] = {"kind": "flag", "flag": "ffr.turn_view", "value": i}
+        widgets.append(tap([VSX + i * (VSW + 8), VSY - 8, VSW, VSH + 16], f"bview{i}", "ffr.in_battle", haptic="light"))
+    # The conversation log: a swipe goes back through it (down: earlier lines), Latest jumps to the newest (kDialog*)
+    actions["dscroll_back"] = {"kind": "module", "action": "dscroll", "argument": 1}
+    actions["dscroll_fwd"] = {"kind": "module", "action": "dscroll", "argument": -1}
+    actions["dlatest"] = {"kind": "module", "action": "dlatest", "argument": 0}
+    widgets.append(tap([440, HEADER_H, W - 440, H - HEADER_H], "dlatest", "ffr.dialog_back",
+                       on_swipe_down="dscroll_back", on_swipe_up="dscroll_fwd"))
+    actions["dnoop"] = {"kind": "module", "action": "dnoop", "argument": 0}
+    widgets.append(tap([440, HEADER_H, W - 440, H - HEADER_H], "dnoop", "ffr.dialog&!ffr.dialog_back",
+                       on_swipe_down="dscroll_back", on_swipe_up="dscroll_fwd"))
     tw = (W - 60) // 4
     for i in range(4):
         actions[f"cat{i}"] = {"kind": "module", "action": "cat", "argument": i}
@@ -121,8 +136,15 @@ def main():
                        on_swipe_up="scroll_down", on_swipe_down="scroll_up"))
     # The quests: the journal's tabs, its list and the chosen quest's Track, hit-tested by the module
     actions["qtap"] = {"kind": "module", "action": "qtap", "argument": "$payload"}
-    widgets.append(tap([0, 128, W, TAB_Y - 128], "qtap", "ffr.quests", payload="$tap",
+    # (the list on the left scrolls with a swipe on it, the chosen quest's text with a swipe on its panel)
+    QX = 30 + 540 + 20
+    actions["qtapd"] = {"kind": "module", "action": "qtapd", "argument": "$payload"}
+    actions["qscroll_down"] = {"kind": "module", "action": "qscroll", "argument": 1}
+    actions["qscroll_up"] = {"kind": "module", "action": "qscroll", "argument": -1}
+    widgets.append(tap([0, 128, QX, TAB_Y - 128], "qtap", "ffr.quests", payload="$tap",
                        on_swipe_up="scroll_down", on_swipe_down="scroll_up"))
+    widgets.append(tap([QX, 128, W - QX, TAB_Y - 128], "qtapd", "ffr.quests", payload="$tap",
+                       on_swipe_up="qscroll_down", on_swipe_down="qscroll_up"))
     # The presses a battle tap becomes: the module raises one ffr.drv.<button> gate per sample (Drive in the module)
     enforce = []
     for key, button in BUTTONS.items():
@@ -139,13 +161,16 @@ def main():
             "icon_src_bind": "ffr.map.goal{i}.src", "size": 72}
     marks = {"group": "lm", "count": MAX_MARKS, "x": "ffr.map.lm{i}.x", "y": "ffr.map.lm{i}.y",
              "icon_src_bind": "ffr.map.lm{i}.src", "size": 60}
+    # each place's name, in a tag under its pin (a square picture centred on the pin; drawn before the pins, never tapped)
+    names = {"group": "lmn", "count": MAX_MARKS, "x": "ffr.map.lmn{i}.x", "y": "ffr.map.lmn{i}.y",
+             "icon_src_bind": "ffr.map.lmn{i}.src", "size": 320}
     arrow = {"group": "arrow", "count": MAX_GOALS, "x": "ffr.map.arrow{i}.x", "y": "ffr.map.arrow{i}.y",
              "icon_src_bind": "ffr.map.arrow{i}.src", "size": 76}
     map_cfg = {"style": {"background": "#FF0A131B"}, "areas": {
         "ffr_town": {"min": [-TOWN_PAD, 0], "max": [TOWN_N + TOWN_PAD, TOWN_N], "image": "module:ffr:blank",
                      "dynamic_markers": [icons, goal, arrow]},
         "ffr_world": {"min": [0, 0], "max": [WORLD_N, WORLD_N], "image": "module:ffr:blank",
-                      "dynamic_markers": islands + [marks, goal, arrow]},
+                      "dynamic_markers": islands + [names, marks, goal, arrow]},
     }}
     # No module instance (another game build, a missing or failed library): a notice over the whole page, since the host
     # publishes module_ready / module_error and the module's own picture never arrives
@@ -164,6 +189,8 @@ def main():
         "name": "FINAL FANTASY RESONANCE dual screen",
         "min_runtime": 25,
         "requires_module": True,
+        # The scene behind the conversation log and the turn order: a copy of the game's own frame (texture readback)
+        "module": {"texture_readback": True},
         # The guest helper (native/helper/ffr_guest_helper.S, tools/ffr/build_helper_plan.py): fast travel through the game's own code
         "load_plan": "guest/<build>/load-plan.json",
         "canvas_w": W,
@@ -173,6 +200,8 @@ def main():
         "_note": "Generated by tools/ffr/gen_manifest.py. Every picture is composed by the module from the player's own game files.",
         "actions": actions,
         "enforce": enforce,
+        "flags": {"ffr.turn_view": 0},
+        "persist_flags": ["ffr.turn_view"],
         "enforce_gate": {"point": "ffr.drv.pending", "max": 1},
         "map": map_cfg,
         "pages": [{"id": "main", "widgets": widgets}],

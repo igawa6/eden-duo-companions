@@ -1618,7 +1618,7 @@ set(FFR_CORE_SOURCES
 dsmod_add_module(dsmod-ffr EXCLUDE_FROM_ALL
     TITLE 0100606026F12000
     SOURCES 0100606026F12000.cpp ${FFR_CORE_SOURCES}
-    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_texture_extensions
     INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder")
 if(BUILD_TESTING AND NOT ANDROID)
     dsmod_add_test(dsmod-ffr KEEP_ASSERTS
