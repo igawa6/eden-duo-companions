@@ -52,7 +52,7 @@ This repository holds the companion source code, packages, documentation and scr
 | 32 | [Resident Evil 4](#resident-evil-4) | `010099A00BC1E000` | 1.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/resident-evil-4-1.0.0) | 🗳️<br><a href="https://ko-fi.com/polls/4rd-Poll-Next-Switch-Game-on-Eden-Duo-I7Z428XZNI"><img src="https://img.shields.io/badge/Poll_Winner-1ABC9C?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Poll Winner"></a> |
 | 33 | [The Legend of Zelda: Skyward Sword HD](#the-legend-of-zelda-skyward-sword-hd) | `01002DA013484000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/skyward-sword-hd-1.0.0) | 🥇<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/eminham-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="eminham"></a> |
 | 34 | [Star Ocean: The Second Story R](#star-ocean-the-second-story-r) | `010065301A2E0000` | 1.1.0 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/star-ocean-the-second-story-r-1.0.1) | ⭐<br><a href="https://discord.gg/r6vBWKAqCK"><img src="https://img.shields.io/badge/jadesigns.-5865F2?style=flat-square&logo=discord&logoColor=white" style="vertical-align: middle;" alt="jadesigns."></a> |
-| 35 | [Pokémon Legends: Z-A](#pokemon-legends-za) | `0100F43008C44000` | 2.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-legends-z-a-1.0.0) | ⭐<br><a href="https://ko-fi.com/sickops"><img src="https://img.shields.io/badge/Sickops-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Support Sickops on Ko-fi"></a> |
+| 35 | [Pokémon Legends: Z-A](#pokemon-legends-za) | `0100F43008C44000` | 2.0.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/pokemon-legends-z-a-1.1.0) | ⭐<br><a href="https://ko-fi.com/sickops"><img src="https://img.shields.io/badge/Sickops-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Support Sickops on Ko-fi"></a><br><a href="https://github.com/ddagent"><img src="https://img.shields.io/badge/ddagent-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="ddagent"></a> |
 | 36 | [FINAL FANTASY RESONANCE](#final-fantasy-resonance) | `0100606026F12000` | 1.0.1 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/final-fantasy-resonance-1.0.2) | ⭐<br><a href="https://github.com/danielcamilo1"><img src="https://img.shields.io/badge/danielcamilo1-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="danielcamilo1"></a> |
 | 37 | [The Legend of Zelda: Tears of the Kingdom](#the-legend-of-zelda-tears-of-the-kingdom) | `0100F2C0115B6000` | 1.4.3 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/tears-of-the-kingdom-1.0.0) | ⭐<br><a href="https://github.com/aldotms89"><img src="https://img.shields.io/badge/aldotms89-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="aldotms89"></a> |
 | 38 | [Digimon Story Time Stranger](#digimon-story-time-stranger) | `010062E01FE0C000` | 1.2.2 | [.dsmod.zip](https://github.com/igawa6/eden-duo-companions/releases/tag/digimon-story-time-stranger-1.0.0) | ⭐<br><a href="https://github.com/TorchicIsla"><img src="https://img.shields.io/badge/TorchicIsla-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="TorchicIsla"></a> |
@@ -1115,20 +1115,20 @@ Requires Eden Duo 1.3.2.2 or newer (runtime 22). Game version 1.1.0 only.
 
 ## Pokémon Legends: Z-A
 
-⭐ <a href="https://ko-fi.com/sickops"><img src="https://img.shields.io/badge/Sickops-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Support Sickops on Ko-fi"></a>
+⭐ <a href="https://ko-fi.com/sickops"><img src="https://img.shields.io/badge/Sickops-F16061?style=flat-square&logo=ko-fi&logoColor=white" style="vertical-align: middle;" alt="Support Sickops on Ko-fi"></a> <a href="https://github.com/ddagent"><img src="https://img.shields.io/badge/ddagent-181717?style=flat-square&logo=github&logoColor=white" style="vertical-align: middle;" alt="ddagent"></a>
 
-Community companion by [Sickops](https://github.com/Sickops).
+Community companion by [Sickops](https://github.com/Sickops) and [ddagent](https://github.com/ddagent).
 
 <details>
 <summary>Screenshots and details</summary>
 
-`0100F43008C44000` · game version 2.0.2 · companion 1.0.0 · needs Eden Duo 1.4.0 or later (runtime 25)
+`0100F43008C44000` · game version 2.0.2 · companion 1.1.0 · needs Eden Duo 1.4.0 or later (runtime 25)
 
 | Team | Map | Pokédex |
 |:---:|:---:|:---:|
 | <img src="screenshots/pokemon-legends-za/01-team.png" width="300" alt="Party and touch move buttons"> | <img src="screenshots/pokemon-legends-za/10-map.png" width="300" alt="Lumiose map with a highlighted mission"> | <img src="screenshots/pokemon-legends-za/05-pokedex.png" width="300" alt="Lumiose Pokédex with Chikorita selected"> |
 
-Keep the game on the main screen and use the touchscreen for the live party, Lumiose map, and reference screens. The contributor tested it on Pocket DS with Eden Duo 1.4.0 (runtime 25). The screenshots show example data for the live-only controls and map states.
+Keep the game on the main screen and use the touchscreen for the live party, Lumiose map, and reference screens. Tested on Pocket DS and AYN Thor with Eden Duo 1.4.0 (runtime 25). The screenshots are live captures from an AYN Thor.
 
 **This companion changes your game.** Replacing a move, swapping a boxed Pokémon with a party member, changing held items, using medicine, placing a waypoint, requesting fast travel, and the touch buttons that press game buttons all act on the running game. What they change is written to your save the next time the game saves. Use them at your own risk and keep a backup of your save. Only Pokémon Legends: Z-A 2.0.2 is supported; on any other version the companion shows a message and does nothing.
 
@@ -1137,7 +1137,7 @@ Keep the game on the main screen and use the touchscreen for the live party, Lum
 - **Pokédex and Boxes.** Search stored Pokémon and browse the Lumiose, Mega Dimension, and Mega Evolution catalogs. Inspect stats and moves, or swap a boxed Pokémon with a party member.
 - **Bag and planning.** Use supported medicine and held-item actions, follow Mable's research and Z-A Royale progress, and pin goals in the Notebook to build a capture plan.
 
-The companion reads Pokémon artwork, map art, and game text from the player's own game files.
+The companion reads Pokémon artwork, UI icons, map art, font, and game text from the player's own game files.
 
 [Full feature list and installation](packages/PokemonLegendsZA/README.md) · [Build the Android package](tools/za/README.md)
 

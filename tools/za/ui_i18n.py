@@ -7,6 +7,9 @@ LATAM uses its own game tables and these neutral Spanish companion phrases.
 """
 LANG_COLUMN={2:0,5:1,7:2,4:3,1:4,8:5,9:6,10:7,11:2}
 ROWS=r"""
+ENVOYER|SEND OUT|AUSSENDEN|ENVIAR|INVIA|くりだす|내보내기|派出|派出
+ACTIF|ACTIVE|AKTIV|ACTIVO|ATTIVO|出撃中|출격 중|出战中|出戰中
+N.|Lv.|Lv.|Nv.|L.|Lv.|Lv.|Lv.|Lv.
 VOYAGE RAPIDE|Fast travel|Schnellreise|Viaje rápido|Viaggio rapido|そらをとぶ|공중날기|飞翔|飛翔
 Confirmez dans le jeu.|Confirm in the game.|Im Spiel bestätigen.|Confirma en el juego.|Conferma nel gioco.|ゲーム内で確認してください。|게임에서 확인하세요.|请在游戏内确认。|請在遊戲內確認。
 Voyage indisponible pour le moment.|Fast travel is unavailable right now.|Schnellreise derzeit nicht verfügbar.|Viaje rápido no disponible ahora.|Viaggio rapido al momento non disponibile.|今はそらをとぶを使えません。|지금은 공중날기를 사용할 수 없습니다.|现在无法飞翔。|目前無法飛翔。
@@ -333,6 +336,6 @@ for line in ROWS.strip().splitlines():
     FALLBACKS[source]=dict(zip((2,5,7,4,1,8,9,10),parts[1:]))
     FALLBACKS[source][3]=source;FALLBACKS[source][11]=parts[3]
 
-for source in ('?','-','F','M','♂','♀','—','‹','›','+','…','∨','EXP','PP','NO.','No.','N°','N.','/ 30 PLACES','x',*'0123456789'):
+for source in ('?','-','F','M','♂','♀','—','‹','›','+','…','∨','EXP','PP','NO.','No.','N°','/ 30 PLACES','x',*'0123456789'):
     translated={'x':'×','/ 30 PLACES':'/ 30','N°':'No.','NO.':'No.'}.get(source,source)
     FALLBACKS[source]={lang:translated for lang in (1,2,3,4,5,7,8,9,10,11)}

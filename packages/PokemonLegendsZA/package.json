@@ -3,7 +3,7 @@
  "type": "dual-screen-mod",
  "title_id": "0100F43008C44000",
  "name": "Pokemon Legends Z-A dual screen",
- "version": "1.0.0",
+ "version": "1.1.0",
  "min_runtime": 25,
  "requires_module": true,
  "module": {

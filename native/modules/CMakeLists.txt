@@ -730,10 +730,10 @@ set(DQ3_OOZ_SOURCES
 
 dsmod_add_module(dsmod-za EXCLUDE_FROM_ALL
     TITLE 0100F43008C44000
-    SOURCES 0100F43008C44000.cpp za_live.cpp za_save.cpp za_assets.cpp
+    SOURCES 0100F43008C44000.cpp za_live.cpp za_save.cpp za_assets.cpp za_font.cpp
         ${DQ3_OOZ_SOURCES} "${EDEN_SOURCE_ROOT}/externals/bc_decoder/bc_decoder.cpp"
     INCLUDE_DIRECTORIES "${EDEN_SOURCE_ROOT}/externals/bc_decoder"
-    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_save_extensions)
+    EXPORTS eden_dsmod_get_module eden_dsmod_get_extensions eden_dsmod_get_save_extensions eden_dsmod_get_font_extensions)
 if(BUILD_TESTING AND NOT ANDROID)
     dsmod_add_test(dsmod-za-save KEEP_ASSERTS SOURCES 0100F43008C44000_test.cpp za_save.cpp)
     dsmod_add_test(dsmod-za-live KEEP_ASSERTS SOURCES za_live_test.cpp za_save.cpp)

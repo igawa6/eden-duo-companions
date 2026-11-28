@@ -31,6 +31,7 @@
 
 #include "za_save.h"
 #include "za_assets.h"
+#include "za_font.h"
 #include "za_build.h"
 #include "za_live.h"
 #include "za_travel.h"
@@ -97,6 +98,7 @@ struct Instance {
     EdenDsmodHostApi host{};
     EdenDsmodHostSaveApi save_api{};
     za::Assets assets;
+    za::FontCache font;
     za::LiveReader live_reader;
     za::LiveSnapshot live;
     std::unordered_map<std::uint64_t,za::Entity> confirmed_combat;
@@ -727,6 +729,7 @@ void PublishMoveStats(const EdenDsmodHostApi& host,za::Assets& assets,int langua
                       const std::string& prefix,int move) {
     const auto info=assets.MoveParameters(move);
     constexpr const char* categories[]={"Statut","Physique","Spéciale"};
+    PublishI64(host,(prefix+"cat_id").c_str(),info.category>=0&&info.category<3?info.category:-1);
     PublishText(host,(prefix+"category").c_str(),info.category>=0&&info.category<3
         ?UiText(assets,language,categories[info.category]):"—");
     PublishText(host,(prefix+"power").c_str(),info.power>1?std::to_string(info.power):"—");
@@ -1451,9 +1454,11 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
         const bool valid=found!=research.end();
         PublishI64(*host,(prefix+"valid").c_str(),valid);PublishI64(*host,(prefix+"level").c_str(),valid?found->level:0);
         PublishI64(*host,(prefix+"points").c_str(),valid?found->points:0);PublishI64(*host,(prefix+"item").c_str(),valid?found->item:0);
-        const bool machine=valid&&std::any_of(std::begin(za::kTMs),std::end(za::kTMs),[&](const auto& tm){return tm.item==found->item;});
-        PublishI64(*host,(prefix+"icon").c_str(),machine?328:valid?found->item:0);
+        const int tm_move=valid?TMMove(found->item):0;
+        PublishI64(*host,(prefix+"icon").c_str(),tm_move?328:valid?found->item:0);
         PublishText(*host,(prefix+"reward").c_str(),valid&&found->item?std::to_string(found->count)+" × "+inst.assets.ItemName(found->item):"—");
+        PublishText(*host,(prefix+"move").c_str(),tm_move?inst.assets.MoveName(tm_move):std::string{});
+        PublishI64(*host,(prefix+"move_type").c_str(),tm_move?inst.assets.MoveType(tm_move):-1);
     }
     const int infinite_points=live.infinite_points>=0?live.infinite_points:save.infinite_points;
     // The infinite league's ticket repeats every 50,000 points (verified in the game's UI).
@@ -1475,6 +1480,7 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
     const int points=infinite?infinite_points:live.ticket_points;
     if(infinite)target=infinite_target;
     PublishText(*host,"za.progress.rank",rank_row!=ranks.end()?rank_row->name:"—");
+    PublishI64(*host,"za.progress.rank_id",(rank>=1&&rank<=27)?rank:0);
     PublishI64(*host,"za.progress.rank_known",rank>=1);PublishI64(*host,"za.progress.is_infinite",infinite);
     PublishI64(*host,"za.progress.rank_points",std::max(0,points));PublishI64(*host,"za.progress.rank_target",std::max(1,target));
     PublishI64(*host,"za.progress.rank_missing",points>=0&&target>=0?std::max(0,target-points):0);
@@ -1621,9 +1627,15 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
     PublishText(*host,"za.sel.item_name",chosen.held_item?inst.assets.ItemName(chosen.held_item):UiText(inst.assets,save.trainer.language,"Aucun objet"));
     const auto selected_info=inst.assets.SpeciesInfo(chosen.internal_species,chosen.form);
     PublishI64(*host,"za.sel.type1",selected_info.type1);PublishI64(*host,"za.sel.type2",selected_info.type2==selected_info.type1?-1:selected_info.type2);
+    const bool move_grid = host->get_i64 && host->get_i64(host->userdata, "@flag:za_move_grid", 0) != 0;
+    const bool move_diamond = !move_grid;
+    PublishI64(*host,"za.team.grid_mode",move_grid?1:0);
+    PublishI64(*host,"za.team.diam_mode",move_diamond?1:0);
     PublishI64(*host,"za.sel.moves_ready",chosen.present);
     for(int i=0;i<4;++i){const auto prefix="za.sel.m"+std::to_string(i)+".";
         PublishI64(*host,(prefix+"id").c_str(),chosen.moves[i]);
+        PublishI64(*host,(prefix+"grid_on").c_str(),(chosen.moves[i]>0&&!move_diamond)?1:0);
+        PublishI64(*host,(prefix+"diam_on").c_str(),(chosen.moves[i]>0&&move_diamond)?1:0);
         PublishText(*host,(prefix+"name").c_str(),inst.assets.MoveName(chosen.moves[i]));
         PublishI64(*host,(prefix+"type").c_str(),inst.assets.MoveType(chosen.moves[i]));
         PublishI64(*host,(prefix+"pp").c_str(),chosen.move_pp[i]);
@@ -1715,6 +1727,7 @@ void Sample(void* p, const EdenDsmodHostApi* host) {
         std::ranges::find(objectives,Instance::Objective{0,0,selected_mission->category,selected_mission->id})!=objectives.end());
     PublishI64(*host, "za.assets", names ? 1 : 0);
     PublishI64(*host, "za.ready", save.valid ? 1 : 0);
+    if (save.valid) { PublishI64(*host, "__font_epoch", std::max(1, inst.assets.Language())); }
     PublishI64(*host, "za.hash", save.hash_ok ? 1 : 0);
     PublishText(*host, "za.status", UiText(inst.assets,save.trainer.language,status));
 
@@ -3316,7 +3329,39 @@ EdenDsmodBool LoadImage(void* p, const EdenDsmodHostApi* asset_host, const char*
             for(int ring=1;ring<=3;++ring)for(int i=0;i<6;++i){float a=-1.5707963f+i*1.04719755f,b=a+1.04719755f,t=110.f*ring/3;line(140+t*std::cos(a),140+t*std::sin(a),140+t*std::cos(b),140+t*std::sin(b),134,165,193,110);if(ring==3)line(140,140,140+t*std::cos(a),140+t*std::sin(a),134,165,193,110);}
             for(int i=0;i<6;++i)line(px[i],py[i],px[(i+1)%6],py[(i+1)%6],216,235,159,240);ok=true;
         } else
-        if (std::strcmp(key, "module:ready") == 0) {
+        if (std::strcmp(key, "module:font") == 0 || std::strncmp(key, "module:font/", 12) == 0) {
+            std::uint32_t page = 0;
+            if (key[11] == '/') {
+                int parsed_page = 0;
+                if (std::sscanf(key + 12, "%d", &parsed_page) != 1 || parsed_page < 0) {
+                    return EDEN_DSMOD_FALSE;
+                }
+                page = static_cast<std::uint32_t>(parsed_page);
+            }
+            za::Picture page_img;
+            if (inst.font.RenderPage(inst.assets, inst.assets.Language(), page, page_img) && page_img.Valid()) {
+                sink(receiver, page_img.width, page_img.height, page_img.rgba.data(), page_img.rgba.size());
+                return EDEN_DSMOD_TRUE;
+            }
+            return EDEN_DSMOD_FALSE;
+        } else if (std::strncmp(key, "module:gender/", 14) == 0) {
+            int g = 0;
+            if (std::sscanf(key + 14, "%d", &g) == 1) ok = inst.assets.GenderIcon(g, image);
+        } else if (std::strncmp(key, "module:royale-rank/", 19) == 0) {
+            int rk = 0;
+            if (std::sscanf(key + 19, "%d", &rk) == 1) ok = inst.assets.RoyaleRankIcon(rk, image);
+        } else if (std::strncmp(key, "module:bag-tab/", 15) == 0) {
+            int bt = 0;
+            if (std::sscanf(key + 15, "%d", &bt) == 1) ok = inst.assets.BagTabIcon(bt, image);
+        } else if (std::strcmp(key, "module:dex-get") == 0) {
+            ok = inst.assets.DexIcon(0, image);
+        } else if (std::strcmp(key, "module:dex-find") == 0) {
+            ok = inst.assets.DexIcon(1, image);
+        } else if (std::strcmp(key, "module:empty-ball") == 0) {
+            ok = inst.assets.DexIcon(2, image);
+        } else if (std::strncmp(key, "module:cat/", 11) == 0) {
+            ok = inst.assets.CategoryIcon(std::atoi(key + 11), image);
+        } else         if (std::strcmp(key, "module:ready") == 0) {
             ok = inst.assets.EnsureNames();
             image.width=1; image.height=1; image.rgba.assign(4,0);
         } else if(std::strncmp(key,"module:menu/",12)==0){
@@ -3423,10 +3468,33 @@ const EdenDsmodModuleSaveExtensions SaveExtensions{
     &ConfigureSave,
 };
 
+EdenDsmodBool DecodeFont(void* p, const std::uint8_t*, std::size_t,
+                         void* receiver, EdenDsmodFontSink sink) {
+    if (!p || !sink) return EDEN_DSMOD_FALSE;
+    auto& inst = *static_cast<Instance*>(p);
+    try {
+        auto f = inst.font.Ensure(inst.assets, inst.assets.Language());
+        if (!f || f->glyphs.empty()) return EDEN_DSMOD_FALSE;
+        sink(receiver, f->line_height, f->first_codepoint, f->glyphs.data(),
+             static_cast<std::uint32_t>(f->glyphs.size()));
+        return EDEN_DSMOD_TRUE;
+    } catch (...) {
+        return EDEN_DSMOD_FALSE;
+    }
+}
+
+const EdenDsmodFontExtensions FontExtensions{
+    EDEN_DSMOD_FONT_EXT_VERSION,
+    sizeof(EdenDsmodFontExtensions),
+    EDEN_DSMOD_FONT_EXT_HASH,
+    &DecodeFont,
+};
+
 } // namespace
 
 DSMOD_SDK_EXPORT_MODULE(ModuleApi)
 DSMOD_SDK_EXPORT_EXTENSIONS(Extensions)
+DSMOD_SDK_EXPORT_FONT_EXTENSIONS(FontExtensions)
 // No DSMOD_SDK_EXPORT_SAVE_EXTENSIONS macro exists; the generic getter is the same expansion.
 DSMOD_SDK_DEFINE_GETTER(eden_dsmod_get_save_extensions, EdenDsmodModuleSaveExtensions,
                         EDEN_DSMOD_SAVE_EXT_VERSION, EDEN_DSMOD_SAVE_EXT_HASH, SaveExtensions)

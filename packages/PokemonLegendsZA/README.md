@@ -1,11 +1,11 @@
-# Pokémon Legends: Z-A Companion 1.0.0
+# Pokémon Legends: Z-A Companion 1.1.0
 
 A touch companion for Eden Duo that puts the party, Lumiose map, Pokédex, and other reference screens on a second display. Send out a Pokémon, choose a move, check a mission reward, or look up an encounter while the game remains on the main screen.
 
 | Compatibility | Details |
 | --- | --- |
 | Game | Pokémon Legends: Z-A **2.0.2**, title ID `0100F43008C44000` |
-| Android | **Eden Duo 1.4.0 or later** (companion runtime **25**), arm64. The contributor tested it on **Pocket DS**; it has not been tested on other devices. |
+| Android | **Eden Duo 1.4.0 or later** (companion runtime **25**), arm64. Tested on **Pocket DS** and **AYN Thor**. |
 
 ## This companion changes your game
 
@@ -39,7 +39,7 @@ Use them at your own risk and keep a backup of your save. Only Pokémon Legends:
 
 ## Screenshots
 
-The gallery shows the 1.0.0 interface in English. The party, controls, and map states in these captures are example data that illustrates live-only features. They are not from a real save.
+The gallery shows the 1.1.0 interface in English, captured live on an AYN Thor.
 
 | Team and moves | Lumiose map |
 | --- | --- |
@@ -49,7 +49,7 @@ The gallery shows the 1.0.0 interface in English. The party, controls, and map s
 ## Install on Android
 
 1. Check that the **2.0.2 update** is active for Pokémon Legends: Z-A in Eden Duo.
-2. Use the Android archive `0100F43008C44000-PokemonLegendsZA-1.0.0.dsmod.zip`. Keep its filename.
+2. Use the Android archive `0100F43008C44000-PokemonLegendsZA-1.1.0.dsmod.zip`. Keep its filename.
 3. Long-press Pokémon Legends: Z-A in the library. Open **Add-ons → Install → Dual screen mods** and select the ZIP.
 4. Start the game and load your save. The companion appears on the second screen once gameplay starts.
 
@@ -65,7 +65,7 @@ Installation menu reference: [Eden Duo](https://github.com/igawa6/eden-duo#insta
 
 ## Credits and feedback
 
-Community companion by [Sickops](https://github.com/Sickops), built for igawa6’s Eden Duo. Pokémon artwork and game text are read at runtime from the player’s own game files. The package includes generated interface graphics and the Noto Sans CJK font under the SIL Open Font License. Source credits include PKHeX and SysBot.NET. The project is independent and uses GPL-3.0-or-later source. [Support Sickops on Ko-fi](https://ko-fi.com/sickops)
+Community companion by [Sickops](https://github.com/Sickops), with the 1.1.0 Lumiose UI redesign, runtime font, and RomFS icon integration by [ddagent](https://github.com/ddagent), built for igawa6’s Eden Duo. Pokémon artwork, UI icons, font, and game text are read at runtime from the player’s own game files. The package includes generated interface graphics. Source credits include PKHeX and SysBot.NET. The project is independent and uses GPL-3.0-or-later source. [Support Sickops on Ko-fi](https://ko-fi.com/sickops)
 
 For a bug report, include your device, Eden Duo version, game update, companion version, and the steps to reproduce it. Screenshots of both displays help.
 

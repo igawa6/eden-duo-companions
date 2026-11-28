@@ -44,8 +44,9 @@ def published_points() -> set[str]:
         else:points.add(key)
     # PublishEntity is called with "za.p" / "za.b" prefixes and builds "<prefix><n>.<field>".
     points.update(f"za.cmd.attack{i}" for i in range(4))
+    points.update(f"za.sel.m{i}.{f}" for i in range(4) for f in ("grid_on", "diam_on", "cat_id"))
     points.update({"za.quest.body.rows","za.map.body.rows"})
-    points.update(f"za.moves.{field}" for field in ("category","power","accuracy"))
+    points.update(f"za.moves.{field}" for field in ("category","power","accuracy","cat_id"))
     points.update(f"za.dimension.type{i}" for i in range(3))
     points.update(f"za.type{i}.name" for i in range(18))
     points.discard("za.p")
@@ -57,7 +58,7 @@ def published_points() -> set[str]:
     points.update(f"za.p{slot}.{key}{move}" for slot in range(6) for move in range(4) for key in "cr")
     points.update(f"za.p{slot}.deployed" for slot in range(6))
     for prefix, count, fields in [
-        ("za.progress.r",3,["valid","level","points","item","icon","reward"]),
+        ("za.progress.r",3,["valid","level","points","item","icon","reward","move","move_type"]),
         ("za.rl",50,["v","selected","label","points","icon","reward"]),
         ("za.dim",50,["v","shown","kind","selected","x","y"]),
         ("za.mq",128,["v","shown","side","x","y","selected"]),
@@ -136,17 +137,37 @@ def check(manifest=None):
     if manifest is None:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     points = published_points()
-    metrics_path = MANIFEST.parent / manifest['font'].removeprefix('file:')
-    metrics = metrics_path.read_bytes()
-    line_height = struct.unpack_from('<I', metrics, 0x1c)[0]
-    first = struct.unpack_from('<I', metrics, 0x28)[0]
-    glyph_count = struct.unpack_from('<I', metrics, 0x20)[0] - 1
-    if line_height <= 0 or first + (glyph_count+1)*14 > len(metrics):
-        return ["invalid MFNT metrics"]
-    font = {chr(c) for c in range(0x20,0x20+glyph_count)}
-    def text_width(text, scale):
-        return sum(struct.unpack_from('<H', metrics, first + (ord(c)-0x20+1)*14 + 12)[0]
-                   for c in text if c in font) * scale * 5 / line_height
+    font_ref = manifest['font'].removeprefix('file:')
+    font_path = MANIFEST.parent / font_ref
+    if not font_path.is_file() or font_path.stat().st_size == 0:
+        return [f"missing or empty font file: {font_ref}"]
+    if font_ref.endswith('za_font.txt'):
+        if '{p}' not in str(manifest.get('font_atlas', '')):
+            return ["runtime za_font.txt requires paged module:font/{p} font_atlas"]
+        # Matches CollectCodepoints() in native/modules/za_font.cpp (Latin + symbols).
+        font = (
+            {chr(c) for c in range(0x20, 0x7F)}
+            | {chr(c) for c in range(0xA0, 0x180)}
+            | {chr(c) for c in (
+                0x2013, 0x2014, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2026,
+                0x20AC, 0x2190, 0x2191, 0x2192, 0x2193, 0x2212, 0x221E, 0x2605,
+                0x2606, 0x2640, 0x2642, 0x3000, 0x30FC,
+            )}
+        )
+        def text_width(text, scale):
+            # Conservative proportional estimate for FOT-UDKakugoC80Pro-B at line_height=50.
+            return sum((0.35 if c in " iIl1.,:;!'|()[]" else 0.58) for c in text if c in font) * scale * 5
+    else:
+        metrics = font_path.read_bytes()
+        line_height = struct.unpack_from('<I', metrics, 0x1c)[0]
+        first = struct.unpack_from('<I', metrics, 0x28)[0]
+        glyph_count = struct.unpack_from('<I', metrics, 0x20)[0] - 1
+        if line_height <= 0 or first + (glyph_count+1)*14 > len(metrics):
+            return ["invalid MFNT metrics"]
+        font = {chr(c) for c in range(0x20,0x20+glyph_count)}
+        def text_width(text, scale):
+            return sum(struct.unpack_from('<H', metrics, first + (ord(c)-0x20+1)*14 + 12)[0]
+                       for c in text if c in font) * scale * 5 / line_height
     errors = []
 
     def is_runtime_point(name: str) -> bool:

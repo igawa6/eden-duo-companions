@@ -60,6 +60,7 @@ public:
     void SetReader(void* userdata, ReadFn read);
     /// Save language IDs (including LATAM=11). Changing language reloads text, never the save.
     bool SetLanguage(int language);
+    int Language() const { return language_; }
 
     /// 1-based species id -> French name, UTF-8 (gendered species read "NidoranF"/"NidoranM").
     /// Returns "" before Load() has succeeded and for ids outside the table.
@@ -161,6 +162,12 @@ public:
     bool MoneyIcon(Picture& out);
     bool ZoneIcon(int index,Picture& out);
     bool TypeIcon(int type,Picture& out);
+    bool CategoryIcon(int category, Picture& out);
+    bool GenderIcon(int gender, Picture& out);
+    bool RoyaleRankIcon(int rank, Picture& out);
+    bool DexIcon(int kind, Picture& out);
+    bool BagTabIcon(int tab, Picture& out);
+    bool ReadFontPack(const char* path, std::vector<std::uint8_t>& out);
     bool ProgressArt(int index,Picture& out);
     bool MenuIcon(int index,Picture& out);
     std::string MoveName(int move);
@@ -249,6 +256,9 @@ private:
     std::unordered_map<int,std::vector<DexEntry>> dimension_pokemon_;
     std::unordered_map<int,Picture> type_icons_;
     std::vector<std::uint8_t> type_bntx_;
+    std::vector<std::uint8_t> bag_bntx_;
+    std::vector<std::uint8_t> dex_bntx_;
+    std::vector<std::uint8_t> royale_bntx_;
     std::vector<std::uint8_t> progress_bntx_;
     std::unordered_map<int,Picture> progress_art_;
     int language_=3;

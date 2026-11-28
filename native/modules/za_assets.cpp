@@ -1547,6 +1547,40 @@ std::vector<Assets::Center> Assets::Landmarks(){std::scoped_lock lock{mutex_};re
 bool Assets::ZoneIcon(int index,Picture& out){
     std::scoped_lock lock{mutex_};char name[48];std::snprintf(name,sizeof(name),"map_zone_%02d^t",index);Buf b{map_ui_bntx_.data(),map_ui_bntx_.size()};Texture t;return index>=0&&index<32&&FindTexture(b,name,t)&&DecodeTexture(b,t,false,out);
 }
+
+static void CenterOpaquePixels(Picture& pic) {
+    if (!pic.Valid() || pic.width == 0 || pic.height == 0) return;
+    u32 x0 = pic.width, y0 = pic.height, x1 = 0, y1 = 0;
+    for (u32 y = 0; y < pic.height; ++y) {
+        for (u32 x = 0; x < pic.width; ++x) {
+            if (pic.rgba[(std::size_t(y) * pic.width + x) * 4 + 3] > 16) {
+                if (x < x0) x0 = x;
+                if (y < y0) y0 = y;
+                if (x > x1) x1 = x;
+                if (y > y1) y1 = y;
+            }
+        }
+    }
+    if (x0 > x1 || y0 > y1) return;
+    const u32 bw = x1 - x0 + 1;
+    const u32 bh = y1 - y0 + 1;
+    const u32 side = std::max(bw, bh);
+    // Add symmetric 8% margin so icons fill uniformly and center at exact (side/2, side/2).
+    const u32 pad = std::max<u32>(2u, side / 12u);
+    const u32 out_side = side + pad * 2u;
+    const u32 ox = (out_side - bw) / 2u;
+    const u32 oy = (out_side - bh) / 2u;
+    std::vector<u8> dst(std::size_t(out_side) * out_side * 4u, 0);
+    for (u32 y = 0; y < bh; ++y) {
+        const std::size_t src_row = (std::size_t(y0 + y) * pic.width + x0) * 4u;
+        const std::size_t dst_row = (std::size_t(oy + y) * out_side + ox) * 4u;
+        std::memcpy(dst.data() + dst_row, pic.rgba.data() + src_row, std::size_t(bw) * 4u);
+    }
+    pic.width = out_side;
+    pic.height = out_side;
+    pic.rgba = std::move(dst);
+}
+
 bool Assets::CenterIcon(Picture& out){
     std::scoped_lock lock{mutex_};Buf b{map_ui_bntx_.data(),map_ui_bntx_.size()};Texture t;
     if(!FindTexture(b,"map_icon_center_color_00",t)||!DecodeTexture(b,t,false,out))return false;
@@ -1554,7 +1588,9 @@ bool Assets::CenterIcon(Picture& out){
     for(std::size_t i=0;i<out.rgba.size();i+=4){
         const float fill=out.rgba[i]/255.0f;const auto alpha=out.rgba[i+1];
         out.rgba[i]=u8(255-20*fill);out.rgba[i+1]=u8(255-190*fill);out.rgba[i+2]=u8(255-185*fill);out.rgba[i+3]=alpha;
-    }return out.Valid();
+    }
+    CenterOpaquePixels(out);
+    return out.Valid();
 }
 bool Assets::CafeIcon(Picture& out){
     std::scoped_lock lock{mutex_};Buf b{map_ui_bntx_.data(),map_ui_bntx_.size()};Texture t;
@@ -1658,14 +1694,14 @@ bool Assets::ProgressArt(int index,Picture& out){
         for(std::size_t p=0;p<out.rgba.size();p+=4){const auto alpha=out.rgba[p+coverage];out.rgba[p]=colors[color][0];out.rgba[p+1]=colors[color][1];out.rgba[p+2]=colors[color][2];out.rgba[p+3]=alpha;}
     }else{
         // Keep Myosotis and her decoration in the right side of the research card.
-        constexpr unsigned x=900,y=0,w=1020,h=780;
-        if(out.width==1920&&out.height==1080){Picture crop;crop.width=w;crop.height=h;crop.rgba.resize(w*h*4);for(unsigned row=0;row<h;++row)std::memcpy(crop.rgba.data()+row*w*4,out.rgba.data()+((row+y)*out.width+x)*4,w*4);out=std::move(crop);}
+        constexpr unsigned x=940,y=0,w=980,h=635;
+        if(out.width==1920&&out.height==1080){Picture crop;crop.width=w;crop.height=h;crop.rgba.resize(w*h*4);for(unsigned row=0;row<h;++row){std::memcpy(crop.rgba.data()+row*w*4,out.rgba.data()+((row+y)*out.width+x)*4,w*4);if(row>=h-56){const unsigned fade=(h-1-row)*255u/56u;for(unsigned col=0;col<w;++col){auto& a=crop.rgba[(row*w+col)*4+3];a=static_cast<u8>((a*fade)/255u);}}}out=std::move(crop);}
     }
     progress_art_[index]=out;return true;
 }
 
 bool Assets::MenuIcon(int index,Picture& out){
-    if(index==3||index==4){if(!ProgressArt(index==3?2:4,out))return false;for(std::size_t p=0;p<out.rgba.size();p+=4)out.rgba[p]=out.rgba[p+1]=out.rgba[p+2]=255;return true;}
+    if(index==3||index==4){if(!ProgressArt(index==3?2:4,out))return false;for(std::size_t p=0;p<out.rgba.size();p+=4)out.rgba[p]=out.rgba[p+1]=out.rgba[p+2]=255;CenterOpaquePixels(out);return true;}
     std::scoped_lock lock{mutex_};out.Clear();
     const char* names[]={"status_tab_icon_00","icon_dex","icon_bspoke"};if(index<0||index>2)return false;
     if(auto found=type_icons_.find(index+100);found!=type_icons_.end()){out=found->second;return true;}
@@ -1675,7 +1711,7 @@ bool Assets::MenuIcon(int index,Picture& out){
     }
     Buf b{type_bntx_.data(),type_bntx_.size()};Texture texture;if(!FindTexture(b,names[index],texture)||!DecodeTexture(b,texture,false,out))return false;
     if((texture.format>>8)==0x1D)for(std::size_t p=0;p<out.rgba.size();p+=4){out.rgba[p+3]=out.rgba[p];out.rgba[p]=out.rgba[p+1]=out.rgba[p+2]=255;}
-    type_icons_[index+100]=out;return true;
+    CenterOpaquePixels(out);type_icons_[index+100]=out;return true;
 }
 
 bool Assets::TypeIcon(int type,Picture& out){
@@ -1692,8 +1728,294 @@ bool Assets::TypeIcon(int type,Picture& out){
     if(!FindTexture(b,name,texture)||!DecodeTexture(b,texture,false,out))return false;
     // The game's BC4 type texture stores the glyph coverage in its red channel.
     for(std::size_t p=0;p<out.rgba.size();p+=4){out.rgba[p+3]=out.rgba[p];out.rgba[p]=out.rgba[p+1]=out.rgba[p+2]=255;}
-    type_icons_[type]=out;return out.Valid();
+    CenterOpaquePixels(out);type_icons_[type]=out;return out.Valid();
 }
+bool Assets::CategoryIcon(int category, Picture& out) {
+    std::scoped_lock lock{mutex_};
+    out.Clear();
+    if (category < 0 || category > 2) return false;
+    if (auto found = type_icons_.find(category + 200); found != type_icons_.end()) {
+        out = found->second;
+        return true;
+    }
+    if (type_bntx_.empty()) {
+        std::vector<u8> bytes;
+        if (!FetchInner("arc/uidatastatusstatus_top_00_fre.arc.trpak", 0, bytes)) return false;
+        Buf sarc{bytes.data(), bytes.size()};
+        std::size_t offset = 0, length = 0;
+        if (!SarcMember(sarc, "timg/__Combined.bntx", offset, length)) return false;
+        type_bntx_.assign(bytes.begin() + offset, bytes.begin() + offset + length);
+    }
+    // Verified visually from Z-A BNTX: cmn_class_00=Physical (starburst), cmn_class_01=Special (rings), cmn_class_02=Status (yin-yang)
+    static constexpr const char* kNames[] = {"cmn_class_02^s", "cmn_class_00^s", "cmn_class_01^s"};
+    static constexpr u8 kRgb[3][3] = {
+        {178, 196, 224}, // 0 Status (crisp silver-blue)
+        {255, 114, 72},  // 1 Physical (vivid fiery orange-red)
+        {98,  196, 255}, // 2 Special (vivid Lumiose sky-cyan)
+    };
+    Buf b{type_bntx_.data(), type_bntx_.size()};
+    Texture texture;
+    if (!FindTexture(b, kNames[category], texture) || !DecodeTexture(b, texture, false, out)) return false;
+    for (std::size_t p = 0; p < out.rgba.size(); p += 4) {
+        out.rgba[p + 3] = out.rgba[p];
+        out.rgba[p]     = kRgb[category][0];
+        out.rgba[p + 1] = kRgb[category][1];
+        out.rgba[p + 2] = kRgb[category][2];
+    }
+    CenterOpaquePixels(out);
+    type_icons_[category + 200] = out;
+    return out.Valid();
+}
+
+bool Assets::GenderIcon(int gender, Picture& out) {
+    std::scoped_lock lock{mutex_};
+    out.Clear();
+    if (gender != 0 && gender != 1) return false;
+    const int cache_id = 210 + gender;
+    if (auto found = type_icons_.find(cache_id); found != type_icons_.end()) {
+        out = found->second;
+        return true;
+    }
+    if (type_bntx_.empty()) {
+        std::vector<u8> bytes;
+        if (!FetchInner("arc/uidatastatusstatus_top_00_fre.arc.trpak", 0, bytes)) return false;
+        Buf sarc{bytes.data(), bytes.size()};
+        std::size_t offset = 0, length = 0;
+        if (!SarcMember(sarc, "timg/__Combined.bntx", offset, length)) return false;
+        type_bntx_.assign(bytes.begin() + offset, bytes.begin() + offset + length);
+    }
+    const char* name = (gender == 0) ? "cmn_seibetsu_m_00^r" : "cmn_seibetsu_f_00^r";
+    Buf b{type_bntx_.data(), type_bntx_.size()};
+    Texture texture;
+    if (!FindTexture(b, name, texture) || !DecodeTexture(b, texture, false, out)) return false;
+    const u8 r = (gender == 0) ? 84 : 255;
+    const u8 g = (gender == 0) ? 188 : 112;
+    const u8 bl = (gender == 0) ? 255 : 168;
+    for (std::size_t p = 0; p < out.rgba.size(); p += 4) {
+        out.rgba[p + 3] = out.rgba[p];
+        out.rgba[p] = r; out.rgba[p + 1] = g; out.rgba[p + 2] = bl;
+    }
+    CenterOpaquePixels(out);
+    type_icons_[cache_id] = out;
+    return out.Valid();
+}
+
+bool Assets::RoyaleRankIcon(int rank, Picture& out) {
+    std::scoped_lock lock{mutex_};
+    out.Clear();
+    if (rank < 1 || rank > 27) return false;
+    const int cache_id = 300 + rank;
+    if (auto found = type_icons_.find(cache_id); found != type_icons_.end()) {
+        out = found->second;
+        return true;
+    }
+    if (royale_bntx_.empty()) {
+        std::vector<u8> bytes;
+        if (!FetchInner("arc/uidatarylview_ryl_top_00.truiv.trpak", 0, bytes) &&
+            !FetchInner("arc/uidatarylryl_top_00_eng.arc.trpak", 0, bytes)) return false;
+        Buf sarc{bytes.data(), bytes.size()};
+        std::size_t offset = 0, length = 0;
+        if (!SarcMember(sarc, "timg/__Combined.bntx", offset, length)) return false;
+        royale_bntx_.assign(bytes.begin() + offset, bytes.begin() + offset + length);
+    }
+    char name[64];
+    if (rank == 27) {
+        std::snprintf(name, sizeof(name), "grptext_ryl_rank_clear_00^q");
+    } else {
+        const char letter = static_cast<char>('z' - (rank - 1));
+        std::snprintf(name, sizeof(name), "grptext_ryl_rank_%c_00^s", letter);
+    }
+    Buf b{royale_bntx_.data(), royale_bntx_.size()};
+    Texture texture;
+    if (!FindTexture(b, name, texture) || !DecodeTexture(b, texture, false, out)) return false;
+    if ((texture.format >> 8) == 0x1D) {
+        // Stylized gold-to-ivory metallic sheen for Royale Rank emblem!
+        for (u32 y = 0; y < out.height; ++y) {
+            const float t = out.height > 1 ? float(y) / float(out.height - 1) : 0.0f;
+            const u8 cr = static_cast<u8>(255);
+            const u8 cg = static_cast<u8>(252 - t * 44.0f);
+            const u8 cb = static_cast<u8>(236 - t * 138.0f);
+            for (u32 x = 0; x < out.width; ++x) {
+                const std::size_t p = (std::size_t(y) * out.width + x) * 4u;
+                out.rgba[p + 3] = out.rgba[p];
+                out.rgba[p] = cr; out.rgba[p + 1] = cg; out.rgba[p + 2] = cb;
+            }
+        }
+    }
+    CenterOpaquePixels(out);
+    type_icons_[cache_id] = out;
+    return out.Valid();
+}
+
+bool Assets::DexIcon(int kind, Picture& out) {
+    std::scoped_lock lock{mutex_};
+    out.Clear();
+    const int cache_id = 230 + kind;
+    if (auto found = type_icons_.find(cache_id); found != type_icons_.end()) {
+        out = found->second;
+        return true;
+    }
+    if (kind == 2) {
+        // Subtle empty-party-slot Pokeball watermark from map_ui_bntx_ or dex_bntx_
+        if (!map_ui_bntx_.empty()) {
+            Buf b{map_ui_bntx_.data(), map_ui_bntx_.size()};
+            Texture t;
+            if (FindTexture(b, "icon_ball_00^t", t) && DecodeTexture(b, t, false, out)) {
+                for (std::size_t p = 0; p < out.rgba.size(); p += 4) {
+                    const u8 a = ((t.format >> 8) == 0x1E) ? out.rgba[p + 1] : out.rgba[p];
+                    out.rgba[p] = 116; out.rgba[p + 1] = 144; out.rgba[p + 2] = 194;
+                    out.rgba[p + 3] = static_cast<u8>(a / 4);
+                }
+                CenterOpaquePixels(out);
+                type_icons_[cache_id] = out;
+                return out.Valid();
+            }
+        }
+    }
+    if (dex_bntx_.empty()) {
+        std::vector<u8> bytes;
+        if (!FetchInner("arc/uidatapokedexpokedex_top.arc.trpak", 0, bytes)) return false;
+        Buf sarc{bytes.data(), bytes.size()};
+        std::size_t offset = 0, length = 0;
+        if (!SarcMember(sarc, "timg/__Combined.bntx", offset, length)) return false;
+        dex_bntx_.assign(bytes.begin() + offset, bytes.begin() + offset + length);
+    }
+    const char* name = (kind == 1) ? "pokedex_icon_find^s" : "pokedex_icon_get^t";
+    Buf b{dex_bntx_.data(), dex_bntx_.size()};
+    Texture t;
+    if (!FindTexture(b, name, t) || !DecodeTexture(b, t, false, out)) return false;
+    if (kind == 2) {
+        for (std::size_t p = 0; p < out.rgba.size(); p += 4) {
+            const u8 a = ((t.format >> 8) == 0x1E) ? out.rgba[p + 1] : out.rgba[p];
+            out.rgba[p] = 116; out.rgba[p + 1] = 144; out.rgba[p + 2] = 194;
+            out.rgba[p + 3] = static_cast<u8>(a / 4);
+        }
+    } else if ((t.format >> 8) == 0x1E) {
+        // Caught Pokeball (red fill channel + green coverage alpha!)
+        for (std::size_t p = 0; p < out.rgba.size(); p += 4) {
+            const float fill = out.rgba[p] / 255.0f;
+            const u8 a = out.rgba[p + 1];
+            out.rgba[p]     = static_cast<u8>(248 - 10 * fill);
+            out.rgba[p + 1] = static_cast<u8>(250 - 178 * fill);
+            out.rgba[p + 2] = static_cast<u8>(255 - 170 * fill);
+            out.rgba[p + 3] = a;
+        }
+    } else {
+        for (std::size_t p = 0; p < out.rgba.size(); p += 4) {
+            out.rgba[p + 3] = out.rgba[p];
+            out.rgba[p] = 135; out.rgba[p + 1] = 205; out.rgba[p + 2] = 248;
+        }
+    }
+    CenterOpaquePixels(out);
+    type_icons_[cache_id] = out;
+    return out.Valid();
+}
+
+bool Assets::BagTabIcon(int tab, Picture& out) {
+    std::scoped_lock lock{mutex_};
+    out.Clear();
+    if (tab < 0 || tab > 9) return false;
+    const int cache_id = 250 + tab;
+    if (auto found = type_icons_.find(cache_id); found != type_icons_.end()) {
+        out = found->second;
+        return true;
+    }
+    if (!tried_ || (!ready_ && std::chrono::steady_clock::now() >= retry_at_)) LoadLocked();
+    if (bag_bntx_.empty()) {
+        static constexpr const char* kCandidates[] = {
+            "arc/uidatashopview_shop_top_00.truiv.trpak",
+            "arc/uidatabagview_bag_top_00.truiv.trpak",
+            "arc/uidatabagbag_top_00_eng.arc.trpak",
+            "arc/uidatabagbag_top_00_fre.arc.trpak",
+            "arc/uidatabagview_bag_donut_top_00.truiv.trpak",
+            "arc/uidatabagbag_donut_top_00_eng.arc.trpak",
+            "arc/uidatabagbag_donut_top_00_fre.arc.trpak",
+        };
+        for (const char* path : kCandidates) {
+            std::vector<u8> bytes;
+            if (!FetchInner(path, 0, bytes)) continue;
+            Buf sarc{bytes.data(), bytes.size()};
+            std::size_t offset = 0, length = 0;
+            if (!SarcMember(sarc, "timg/__Combined.bntx", offset, length)) continue;
+            Buf cand{bytes.data() + offset, length};
+            Texture probe;
+            if (FindTexture(cand, "bag_tab_icon_00^s", probe)) {
+                bag_bntx_.assign(bytes.begin() + offset, bytes.begin() + offset + length);
+                break;
+            }
+        }
+    }
+    // Primary: Z-A's crisp monochrome bag pocket icons (if present in shop/bag BNTX)
+    static constexpr const char* kTabNames[10] = {
+        "bag_tab_icon_04^s", "bag_tab_icon_00^s", "bag_tab_icon_01^s", "bag_tab_icon_04^s",
+        "bag_tab_icon_08^s", "bag_tab_icon_09^s", "bag_tab_icon_03^s", "bag_tab_icon_05^s",
+        "bag_tab_icon_07^s", "bag_tab_icon_08^s",
+    };
+    if (!bag_bntx_.empty()) {
+        Buf b{bag_bntx_.data(), bag_bntx_.size()};
+        Texture t;
+        if (FindTexture(b, kTabNames[tab], t) && DecodeTexture(b, t, false, out)) {
+            for (std::size_t p = 0; p < out.rgba.size(); p += 4) {
+                out.rgba[p + 3] = out.rgba[p];
+                out.rgba[p] = 232; out.rgba[p + 1] = 239; out.rgba[p + 2] = 252;
+            }
+            CenterOpaquePixels(out);
+            type_icons_[cache_id] = out;
+            return out.Valid();
+        }
+    }
+    // Bulletproof fallback (update 2.0.2 removed view_bag_top_00 from data.trpfd):
+    // decode real, iconic in-game Z-A pocket items directly from item_pack_!
+    if (!IndexItemsLocked()) return false;
+    auto try_item = [&](int item_id) -> bool {
+        const auto entry = item_indices_.find(item_id);
+        if (entry == item_indices_.end()) return false;
+        std::vector<u8> bytes;
+        if (!UnpackPak(Buf{item_pack_.data(), item_pack_.size()}, entry->second, bytes)) return false;
+        const Buf bntx{bytes.data(), bytes.size()};
+        Texture texture;
+        if (!FindTexture(bntx, nullptr, texture) || !DecodeTexture(bntx, texture, false, out)) return false;
+        CenterOpaquePixels(out);
+        type_icons_[cache_id] = out;
+        return out.Valid();
+    };
+    // Representative native Z-A items per pocket:
+    // 1:Med(Potion=17), 2:Balls(Poke Ball=4), 3:Items(Rare Candy=50/Leftovers=234),
+    // 4:Treasures(Nugget=92/Big Pearl=89), 5:Key Items(Key Stone/Key),
+    // 6:Berries(Oran Berry=155/Sitrus=158), 7:TMs(TM001=328), 8:Mega Stones(Venusaurite=659/Charizardite=660)
+    static constexpr int kFallbackIds[10][5] = {
+        {17, 4, 0, 0, 0},
+        {17, 26, 25, 24, 0},
+        {4, 3, 2, 1, 0},
+        {50, 234, 217, 221, 0},
+        {92, 89, 88, 91, 0},
+        {2615, 2566, 775, 656, 442},
+        {155, 158, 149, 150, 0},
+        {328, 329, 330, 331, 0},
+        {659, 660, 661, 662, 663},
+        {91, 90, 50, 17, 0},
+    };
+    for (int id : kFallbackIds[tab]) {
+        if (id > 0 && try_item(id)) return true;
+    }
+    // Dynamic Key Item scan for tab 5 if none of the static Key IDs matched
+    if (tab == 5) {
+        for (std::size_t id = 1; id < item_names_.size(); ++id) {
+            const auto& n = item_names_[id];
+            if ((n.find("Key") != std::string::npos || n.find("Clé") != std::string::npos || n.find("Cle") != std::string::npos) &&
+                try_item(static_cast<int>(id))) return true;
+        }
+    }
+    return false;
+}
+
+bool Assets::ReadFontPack(const char* path, std::vector<std::uint8_t>& out) {
+    out.clear();
+    if (!EnsureNames()) return false;
+    std::scoped_lock lock{mutex_};
+    return FetchInner(path, 0, out);
+}
+
 std::string Assets::MoveName(int move) {
     std::scoped_lock lock{mutex_};
     return move >= 0 && static_cast<std::size_t>(move) < move_names_.size()
